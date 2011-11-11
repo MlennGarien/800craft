@@ -204,7 +204,7 @@ namespace fCraft.Utils
             }
             catch (Exception ex)
             {
-                Logger.Log( LogType.Error, "BroMode.RegisterPlayer: " + ex);
+                Logger.Log(LogType.Error, "BroMode.RegisterPlayer: " + ex);
             }
         }
 
@@ -212,20 +212,20 @@ namespace fCraft.Utils
         {
             try
             {
-                for (int i = 0; i < registeredBroNames.Count; i++)
+                for (int i = 0; i < broNames.Count; i++)
                 {
                     if (registeredBroNames.ContainsKey(i) && registeredBroNames[i].Name.Equals(p.Name))
                     {
                         Logger.Log(LogType.SystemActivity, "Unregistering bro name '" + broNames[i] + "' for player '" + p.Name + "'");
                         registeredBroNames.Remove(i);
                         namesRegistered--;
-                        p.Info.DisplayedName = "";
+                        p.Info.DisplayedName = null;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Log( LogType.Error, "BroMode.UnregisterPlayer: " + ex);
+                Logger.Log(LogType.Error, "BroMode.UnregisterPlayer: " + ex);
             }
         }
     }
