@@ -64,7 +64,7 @@ namespace fCraft {
             }
             else
             {
-                Server.Players.Message("{0}&S turned Bro Mode off.", player.ClassyName);
+                Server.Players.Message("{0}&S turned Bro Mode off.", player.Info.oldname);
 
                 foreach (Player p in Server.Players)
                 {
