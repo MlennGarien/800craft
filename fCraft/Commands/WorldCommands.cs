@@ -297,7 +297,7 @@ namespace fCraft
                         player.Message("Allows a player to build in your world. useage: /realm allow playername.");
                         return;
                     }
-                    Player target4 = Server.FindPlayerOrPrintMatches(player, user4, false, true);
+                    PlayerInfo target4 = PlayerDB.FindPlayerInfoOrPrintMatches(player, user4);
 
 
                     if (target4 == null)
@@ -332,7 +332,7 @@ namespace fCraft
                         player.Message("Stops a player from building in your world. useage: /realm unallow playername.");
                         return;
                     }
-                    Player target2 = Server.FindPlayerOrPrintMatches(player, user2, false, true);
+                    PlayerInfo target2 = PlayerDB.FindPlayerInfoOrPrintMatches(player, user2);
 
 
                     if (target2 == null)
@@ -405,7 +405,7 @@ namespace fCraft
                             player.Message("Unbans a player from your Realm. useage: /realm unban playername.");
                             return;
                         }
-                        Player target5 = Server.FindPlayerOrPrintMatches(player, user, false, true);
+                        PlayerInfo target5 = PlayerDB.FindPlayerInfoOrPrintMatches(player, user);
 
 
                         if (target5 == null)

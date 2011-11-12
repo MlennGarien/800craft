@@ -25,7 +25,7 @@ namespace fCraft {
         [NotNull]
         public string ID { get; private set; }
 
-        public bool IsHidden { get; set; }
+        public bool IsHidden;
 
         public bool IsVisible([NotNull] Player watcher)
         {
