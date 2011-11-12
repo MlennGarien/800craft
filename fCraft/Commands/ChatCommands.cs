@@ -186,8 +186,11 @@ namespace fCraft {
                              Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question);
                              Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
                              Server.VoteIsOn = true;
-                             Scheduler.NewTask(t => Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question)).RunOnce(TimeSpan.FromSeconds(60));
-                             Scheduler.NewTask(t => Server.Players.Message("&SResults are in! Yes: &A{0} &SNo: &C{1}", Server.VoteYes, Server.VoteNo)).RunOnce(TimeSpan.FromMilliseconds(60001));
+                             Scheduler.NewTask(t => Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName, 
+                                                question,Server.VoteYes, 
+                                                Server.VoteNo))
+                                                .RunOnce(TimeSpan.FromSeconds(60));
+                             
                              Scheduler.NewTask(t => Server.VoteIsOn = false).RunOnce(TimeSpan.FromSeconds(60));
                              Scheduler.NewTask(t => Server.VoteYes = 0).RunOnce(TimeSpan.FromSeconds(61));
                              Scheduler.NewTask(t => Server.VoteNo = 0).RunOnce(TimeSpan.FromSeconds(61));

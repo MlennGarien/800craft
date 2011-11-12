@@ -1372,13 +1372,13 @@ namespace fCraft {
 
             if (param == null)
             {
-                player.Message("&SCommands Available: ");
-                player.Message("&SFor &aBuilding &Scommands, type &a/Commands building");
-                player.Message("&SFor &fChat &Scommands, type &a/Commands chat");
-                player.Message("&SFor &fInfo &Scommands, type &a/Commands info");
-                player.Message("&SFor &3Moderation &scommands, type &a/Commands moderation");
-                player.Message("&SFor &9World &Scommands, type &a/Commands world");
-                player.Message("&SFor &bZone &Scommands, type &a/Commands zone");
+                player.Message("&SCommands Available:\n"+
+                "&SFor &aBuilding &Scommands, type &a/Commands building"+
+                "\n&SFor &fChat &Scommands, type &a/Commands chat"+
+                "\n&SFor &fInfo &Scommands, type &a/Commands info"+
+                "\n&SFor &3Moderation &scommands, type &a/Commands moderation"+
+                "\n&SFor &9World &Scommands, type &a/Commands world"+
+                "\n&SFor &bZone &Scommands, type &a/Commands zone");
             }
 
             else if (param.StartsWith("@"))
