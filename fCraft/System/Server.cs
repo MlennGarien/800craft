@@ -439,6 +439,7 @@ namespace fCraft {
             IsRunning = true;
 
             RaiseEvent( Started );
+            MineQuery.MineQuery.GetInstance().Start();
             return true;
         }
 

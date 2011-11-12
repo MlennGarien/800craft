@@ -59,10 +59,6 @@ namespace fCraft {
             }
         }
 
-        public void QueueUpdate2(BlockUpdate2 update)
-        {
-            updates2.Enqueue(update);
-        }
 
         /// <summary> Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
@@ -280,7 +276,6 @@ namespace fCraft {
 
         // Queue of block updates. Updates are applied by ProcessUpdates()
         readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
-        readonly ConcurrentQueue<BlockUpdate2> updates2 = new ConcurrentQueue<BlockUpdate2>();
 
 
         /// <summary> Number of blocks that are waiting to be processed. </summary>
