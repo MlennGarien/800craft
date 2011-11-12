@@ -196,7 +196,7 @@ namespace fCraft {
                  }
              }
 
-             if (option == "kick")
+             /*if (option == "kick")
              {
                  if (player.Can(Permission.ReadStaffChat))
                  {
@@ -230,7 +230,7 @@ namespace fCraft {
                          }
                      }
                  }
-             }
+             }*/
          }
          
 
@@ -421,12 +421,6 @@ namespace fCraft {
                         return;
                     }
 
-                    if (name == "rebelliousdude")
-                    {
-                        player.Message("Impersonating this name is forbidden");
-                        return;
-                    }
-
                     if (Player.IsInValidName(name))
                     {
                         player.Message("Player not found. Please specify valid name.");
@@ -478,12 +472,6 @@ namespace fCraft {
                     break;
             }
         }
-
-
-
-
-
-
 
         #endregion
 
