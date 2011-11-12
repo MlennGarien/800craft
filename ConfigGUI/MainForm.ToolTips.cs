@@ -515,6 +515,12 @@ Affected commands:
     /Info
     /BanInfo
     /BanIP, /BanAll, /UnbanIP, /UnbanAll";
+
+            vPermissions.Items[(int)Permission.BroMode].ToolTipText =
+@"Changes all player's names to random names containing the word 'bro'.
+This is mainly a command for fun.
+Affected commands:
+    /bromode";
         }
 
 
