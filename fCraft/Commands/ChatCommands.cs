@@ -34,7 +34,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdVote);
             CommandManager.RegisterCommand(CdBroMode);
             Chat.Sending += CapsLockCheck;
-            Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
+            Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
 
         static readonly CommandDescriptor CdBroMode = new CommandDescriptor
@@ -75,7 +75,7 @@ namespace fCraft {
             }
         }
 
-       public static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
+       public static void Player_IsBack(object sender, Events.PlayerMovedEventArgs e)
         {
             
                 if (e.Player.IsAway)
@@ -135,7 +135,8 @@ namespace fCraft {
                  }
              }
 
-             
+
+
 
              if (option == "no")
              {
@@ -181,7 +182,7 @@ namespace fCraft {
 
                          else
                          {
-                             
+
                              Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question);
                              Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
                              Server.VoteIsOn = true;
@@ -193,50 +194,12 @@ namespace fCraft {
 
                          }
                      }
+                     else
+                         player.Message("You do not have permissions to ask a question");
+                     return;
                  }
              }
-
-             /*if (option == "kick")
-             {
-                 if (player.Can(Permission.ReadStaffChat))
-                 {
-                     string name = cmd.Next();
-                     if (Server.VoteIsOn)
-                     {
-                         player.Message("A vote is already on");
-                         return;
-                     }
-                     if (!Server.VoteIsOn)
-                     {
-                         if (name == null)
-                         {
-                             player.Message("Invalid question");
-                             return;
-                         }
-
-                         else
-                         {
-                             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-                             Server.Players.Message("{0}&S started a votekick on player: {1}", player.ClassyName, target.ClassyName);
-                             Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
-                             Server.VoteIsOn = true;
-                             Scheduler.NewTask(t => Server.Players.Message("{0}&S Wanted to kick: {1}", player.ClassyName, target.ClassyName)).RunOnce(TimeSpan.FromSeconds(60));
-                             Scheduler.NewTask(t => Server.Players.Message("&SResults are in! Yes: &A{0} &SNo: &C{1}", Server.VoteYes, Server.VoteNo)).RunOnce(TimeSpan.FromMilliseconds(60001));
-                             target.Kick("You were voted to be kicked from the server", LeaveReason.Kick);
-                             Scheduler.NewTask(t => Server.VoteIsOn = false).RunOnce(TimeSpan.FromMinutes(1));
-                             Scheduler.NewTask(t => Server.VoteYes = 0).RunOnce(TimeSpan.FromSeconds(61));
-                             Scheduler.NewTask(t => Server.VoteNo = 0).RunOnce(TimeSpan.FromSeconds(61));
-
-                         }
-                     }
-                 }
-             }*/
          }
-         
-
-             
-
-            
         
         static readonly CommandDescriptor CdEngineerChat = new CommandDescriptor
         {
@@ -277,8 +240,6 @@ namespace fCraft {
         const int MaxCaps = 7;
         static void CapsLockCheck(object sender, Events.ChatSendingEventArgs e)
         {
-
-
             if (e.Player.Info.Rank.Name == "Guest" || e.Player.Info.Rank.Name == "Builder")
             {
                 int caps = 0;

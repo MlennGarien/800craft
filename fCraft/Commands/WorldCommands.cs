@@ -50,7 +50,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdWorldUnload);
 
             CommandManager.RegisterCommand(CdGenerate2);
-            CommandManager.RegisterCommand(CdWorldLoad2);
+            
             CommandManager.RegisterCommand(CdRealm);
             CommandManager.RegisterCommand(CdGuestwipe);
             CommandManager.RegisterCommand(CdRankHide);
@@ -213,13 +213,214 @@ namespace fCraft
 
                 case "activate":
                     {
-                        WorldLoadHandler2(player, new Command("/wload2 " + player.Name + ".fcm " + player.Name +" owner +" +player.Name));
-                        //Scheduler.NewTask(t => RealmHandler(player, new Command("/wrealm " + player.Name))).RunOnce(TimeSpan.FromSeconds(3));
-                        //Scheduler.NewTask(t => WorldBuild2(player, new Command("/wbuild2 " + player.Name + " owner" + " +" + player.Name))).RunOnce(TimeSpan.FromSeconds(4));
-                        Scheduler.NewTask(t => WorldHideHandler(player, new Command("/whide " + player.Name))).RunOnce(TimeSpan.FromSeconds(5));
+                        string fileName = player.Name;
+                        string worldName2 = player.Name;
+
+                        if (worldName2 == null && player.World == null)
+                        {
+                            player.Message("When using /WLoad from console, you must specify the world name.");
+                            return;
+                        }
+
+                        if (fileName == null)
+                        {
+                            // No params given at all
+                            CdWorldLoad.PrintUsage(player);
+                            return;
+                        }
+
+                        string fullFileName = WorldManager.FindMapFile(player, fileName);
+                        if (fullFileName == null) return;
+
+                        // Loading map into current world
+                        if (worldName2 == null)
+                        {
+                            if (!cmd.IsConfirmed)
+                            {
+                                player.Confirm(cmd, "About to replace THIS MAP with \"{0}\".", fileName);
+                                return;
+                            }
+                            Map map;
+                            try
+                            {
+                                map = MapUtility.Load(fullFileName);
+                            }
+                            catch (Exception ex)
+                            {
+                                player.MessageNow("Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message);
+                                return;
+                            }
+                            World world2 = player.World;
+
+                            // Loading to current world
+                            world2.MapChangedBy = player.Name;
+                            world2.ChangeMap(map);
+
+                            world2.Players.Message(player, "{0}&S loaded a new map for this world.",
+                                                          player.ClassyName);
+                            player.MessageNow("New map loaded for the world {0}", world2.ClassyName);
+
+                            Logger.Log(LogType.UserActivity,
+                                        "{0} loaded new map for world \"{1}\" from {2}",
+                                        player.Name, world2.Name, fileName);
+
+
+                        }
+                        else
+                        {
+                            // Loading to some other (or new) world
+                            if (!World.IsValidName(worldName2))
+                            {
+                                player.MessageInvalidWorldName(worldName2);
+                                return;
+                            }
+
+                            string buildRankName = cmd.Next();
+                            string accessRankName = cmd.Next();
+                            Rank buildRank = RankManager.DefaultBuildRank;
+                            Rank accessRank = null;
+                            if (buildRankName != null)
+                            {
+                                buildRank = RankManager.FindRank(buildRankName);
+                                if (buildRank == null)
+                                {
+                                    player.MessageNoRank(buildRankName);
+                                    return;
+                                }
+                                if (accessRankName != null)
+                                {
+                                    accessRank = RankManager.FindRank(accessRankName);
+                                    if (accessRank == null)
+                                    {
+                                        player.MessageNoRank(accessRankName);
+                                        return;
+                                    }
+                                }
+                            }
+
+                            player.LastUsedWorldName = worldName2;
+                            lock (WorldManager.SyncRoot)
+                            {
+                                World world2 = WorldManager.FindWorldExact(worldName2);
+                                if (world2 != null)
+                                {
+                                    // Replacing existing world's map
+                                    if (!cmd.IsConfirmed)
+                                    {
+                                        player.Confirm(cmd, "About to replace map for {0}&S with \"{1}\".",
+                                                                   world2.ClassyName, fileName);
+                                        return;
+                                    }
+
+                                    Map map;
+                                    try
+                                    {
+                                        map = MapUtility.Load(fullFileName);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        player.MessageNow("Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message);
+                                        return;
+                                    }
+
+                                    try
+                                    {
+                                        world2.MapChangedBy = player.Name;
+                                        world2.ChangeMap(map);
+                                    }
+                                    catch (WorldOpException ex)
+                                    {
+                                        Logger.Log(LogType.Error,
+                                                    "Could not complete WorldLoad operation: {0}", ex.Message);
+                                        player.Message("&WWLoad: {0}", ex.Message);
+                                        return;
+                                    }
+
+                                    world2.Players.Message(player, "{0}&S loaded a new map for the world {1}",
+                                                           player.ClassyName, world2.ClassyName);
+                                    player.MessageNow("New map for the world {0}&S has been loaded.", world2.ClassyName);
+                                    Logger.Log(LogType.UserActivity,
+                                                "{0} loaded new map for world \"{1}\" from {2}",
+                                                player.Name, world2.Name, fullFileName);
+
+                                }
+                                else
+                                {
+                                    // Adding a new world
+                                    string targetFullFileName = Path.Combine(Paths.MapPath, worldName2 + ".fcm");
+                                    if (!cmd.IsConfirmed &&
+                                        File.Exists(targetFullFileName) && // target file already exists
+                                        !Paths.Compare(targetFullFileName, fullFileName))
+                                    { // and is different from sourceFile
+                                        player.Confirm(cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
+                                                                   Path.GetFileName(targetFullFileName), Path.GetFileName(fullFileName));
+                                        return;
+                                    }
+
+                                    Map map;
+                                    try
+                                    {
+                                        map = MapUtility.Load(fullFileName);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        player.MessageNow("Could not load \"{0}\": {1}: {2}",
+                                                           fileName, ex.GetType().Name, ex.Message);
+                                        return;
+                                    }
+
+                                    World newWorld;
+                                    try
+                                    {
+                                        newWorld = WorldManager.AddWorld(player, worldName2, map, false);
+                                    }
+                                    catch (WorldOpException ex)
+                                    {
+                                        player.Message("WLoad: {0}", ex.Message);
+                                        return;
+                                    }
+
+                                    if (newWorld != null)
+                                    {
+                                        newWorld.BuildSecurity.MinRank = buildRank;
+                                        if (accessRank == null)
+                                        {
+                                            newWorld.AccessSecurity.ResetMinRank();
+                                        }
+                                        else
+                                        {
+                                            newWorld.AccessSecurity.MinRank = accessRank;
+                                        }
+                                        newWorld.BlockDB.AutoToggleIfNeeded();
+                                        if (BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled)
+                                        {
+                                            player.Message("BlockDB is now auto-enabled on world {0}", newWorld.ClassyName);
+                                        }
+                                        newWorld.LoadedBy = player.Name;
+                                        newWorld.LoadedOn = DateTime.UtcNow;
+                                        Server.Message("{0}&S created a new world named {1}",
+                                                          player.ClassyName, newWorld.ClassyName);
+                                        Logger.Log(LogType.UserActivity,
+                                                    "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
+                                                    player.Name, worldName2, fileName);
+                                        WorldManager.SaveWorldList();
+                                        player.MessageNow("Access permission is {0}+&S, and build permission is {1}+",
+                                                           newWorld.AccessSecurity.MinRank.ClassyName,
+                                                           newWorld.BuildSecurity.MinRank.ClassyName);
+                                    }
+                                    else
+                                    {
+                                        player.MessageNow("Failed to create a new world.");
+                                    }
+                                }
+                            }
+                        }
+
+                        Server.RequestGC();
+                        WorldAccess2(player, new Command("/waccess " +player.Name + " owner +" +player.Name));
+                        WorldHideHandler(player, new Command("/whide " + player.Name));
                         break;
                     }
-
                 case "spawn":
                     
                     if (player.World.Name == player.Name)
@@ -315,7 +516,7 @@ namespace fCraft
 
                     else
                     {
-                        WorldBuild2(player, new Command("/wbuild2 " + player.Name + " +" + target4.Name));
+                        WorldBuild2(player, new Command("/wbuild " + player.Name + " +" + target4.Name));
                         if (Player.IsInValidName(target4.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
@@ -350,7 +551,7 @@ namespace fCraft
 
                     else
                     {
-                        WorldBuild2(player, new Command("/wbuild2 " + player.Name + " -" + target2.Name));
+                        WorldBuild2(player, new Command("/wbuild " + player.Name + " -" + target2.Name));
                         if (Player.IsInValidName(target2.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
@@ -386,7 +587,7 @@ namespace fCraft
 
                         else
                         {
-                            WorldAccess2(player, new Command("/waccess2 " + player.Name + " -" + target3.Name));
+                            WorldAccess2(player, new Command("/waccess " + player.Name + " -" + target3.Name));
                             if (Player.IsInValidName(target3.Name))
                             {
                                 player.Message("Player not found. Please specify valid name.");
@@ -423,7 +624,7 @@ namespace fCraft
 
                         else
                         {
-                            WorldAccess2(player, new Command("/waccess2 " + player.Name + " +" + target5.Name));
+                            WorldAccess2(player, new Command("/waccess " + player.Name + " +" + target5.Name));
                             if (Player.IsInValidName(target5.Name))
                             {
                                 player.Message("Player not found. Please specify valid name.");
@@ -695,19 +896,7 @@ namespace fCraft
         #endregion
 
         #region wbuild2
-        static readonly CommandDescriptor CdWorldBuild2 = new CommandDescriptor
-        {
-            Name = "Wbuild2",
-            IsHidden = true,
-            Category = CommandCategory.World,
-            IsConsoleSafe = true,
-            Usage = "/wbuild [WorldName [RankName]]",
-            Help = "Shows build permissions for player's current world. " +
-                   "If optional WorldName parameter is given, shows build permission for another world. " +
-                   "If RankName parameter is also given, sets build permission for specified world.",
-            Handler = WorldBuild2
-        };
-
+        
         internal static void WorldBuild2(Player player, Command cmd)
         {
             string worldName = cmd.Next();
@@ -1195,19 +1384,7 @@ namespace fCraft
 
 
 
-        #region wload2
-        static readonly CommandDescriptor CdWorldLoad2 = new CommandDescriptor
-        {
-            Name = "Wload2",
-            Aliases = new[] { "wadd2" },
-            Category = CommandCategory.World,
-            IsConsoleSafe = true,
-            IsHidden = true,
-            Permissions = new[] { Permission.Realm },
-            Usage = "/wload FileName [WorldName]",
-            Help = "Using this command could get you banned",
-            Handler = WorldLoadHandler2
-        };
+        
 
 
 
@@ -3679,217 +3856,6 @@ namespace fCraft
 
             Server.RequestGC();
         }
-
-        static void WorldLoadHandler2(Player player, Command cmd)
-        {
-           
-            string fileName = cmd.Next();
-            string worldName = cmd.Next();
-
-            if (worldName == null && player.World == null)
-            {
-                player.Message("When using /WLoad from console, you must specify the world name.");
-                return;
-            }
-
-            if (fileName == null)
-            {
-                // No params given at all
-                CdWorldLoad.PrintUsage(player);
-                return;
-            }
-
-            string fullFileName = WorldManager.FindMapFile(player, fileName);
-            if (fullFileName == null) return;
-
-            // Loading map into current world
-            if (worldName == null)
-            {
-                if (!cmd.IsConfirmed)
-                {
-                    player.Confirm(cmd, "About to replace THIS MAP with \"{0}\".", fileName);
-                    return;
-                }
-                Map map;
-                try
-                {
-                    map = MapUtility.Load(fullFileName);
-                }
-                catch (Exception ex)
-                {
-                    player.MessageNow("Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message);
-                    return;
-                }
-                World world = player.World;
-
-                // Loading to current world
-                world.MapChangedBy = player.Name;
-                world.ChangeMap(map);
-
-                world.Players.Message(player, "{0}&S loaded a new map for this world.",
-                                              player.ClassyName);
-                player.MessageNow("New map loaded for the world {0}", world.ClassyName);
-
-                Logger.Log(LogType.UserActivity,
-                            "{0} loaded new map for world \"{1}\" from {2}",
-                            player.Name, world.Name, fileName);
-
-
-            }
-            else
-            {
-                // Loading to some other (or new) world
-                if (!World.IsValidName(worldName))
-                {
-                    player.MessageInvalidWorldName(worldName);
-                    return;
-                }
-
-                string buildRankName = cmd.Next();
-                string accessRankName = cmd.Next();
-                Rank buildRank = RankManager.DefaultBuildRank;
-                Rank accessRank = null;
-                if (buildRankName != null)
-                {
-                    buildRank = RankManager.FindRank(buildRankName);
-                    if (buildRank == null)
-                    {
-                        player.MessageNoRank(buildRankName);
-                        return;
-                    }
-                    if (accessRankName != null)
-                    {
-                        accessRank = RankManager.FindRank(accessRankName);
-                        if (accessRank == null)
-                        {
-                            player.MessageNoRank(accessRankName);
-                            return;
-                        }
-                    }
-                }
-
-                player.LastUsedWorldName = worldName;
-                lock (WorldManager.SyncRoot)
-                {
-                    World world = WorldManager.FindWorldExact(worldName);
-                    if (world != null)
-                    {
-                        // Replacing existing world's map
-                        if (!cmd.IsConfirmed)
-                        {
-                            player.Confirm(cmd, "About to replace map for {0}&S with \"{1}\".",
-                                                       world.ClassyName, fileName);
-                            return;
-                        }
-
-                        Map map;
-                        try
-                        {
-                            map = MapUtility.Load(fullFileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            player.MessageNow("Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message);
-                            return;
-                        }
-
-                        try
-                        {
-                            world.MapChangedBy = player.Name;
-                            world.ChangeMap(map);
-                        }
-                        catch (WorldOpException ex)
-                        {
-                            Logger.Log(LogType.Error,
-                                        "Could not complete WorldLoad operation: {0}", ex.Message);
-                            player.Message("&WWLoad: {0}", ex.Message);
-                            return;
-                        }
-
-                        world.Players.Message(player, "{0}&S loaded a new map for the world {1}",
-                                               player.ClassyName, world.ClassyName);
-                        player.MessageNow("New map for the world {0}&S has been loaded.", world.ClassyName);
-                        Logger.Log(LogType.UserActivity,
-                                    "{0} loaded new map for world \"{1}\" from {2}",
-                                    player.Name, world.Name, fullFileName);
-
-                    }
-                    else
-                    {
-                        // Adding a new world
-                        string targetFullFileName = Path.Combine(Paths.MapPath, worldName + ".fcm");
-                        if (!cmd.IsConfirmed &&
-                            File.Exists(targetFullFileName) && // target file already exists
-                            !Paths.Compare(targetFullFileName, fullFileName))
-                        { // and is different from sourceFile
-                            player.Confirm(cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                                       Path.GetFileName(targetFullFileName), Path.GetFileName(fullFileName));
-                            return;
-                        }
-
-                        Map map;
-                        try
-                        {
-                            map = MapUtility.Load(fullFileName);
-                        }
-                        catch (Exception ex)
-                        {
-                            player.MessageNow("Could not load \"{0}\": {1}: {2}",
-                                               fileName, ex.GetType().Name, ex.Message);
-                            return;
-                        }
-
-                        World newWorld;
-                        try
-                        {
-                            newWorld = WorldManager.AddWorld(player, worldName, map, false);
-                        }
-                        catch (WorldOpException ex)
-                        {
-                            player.Message("WLoad: {0}", ex.Message);
-                            return;
-                        }
-
-                        if (newWorld != null)
-                        {
-                            newWorld.BuildSecurity.MinRank = buildRank;
-                            if (accessRank == null)
-                            {
-                                newWorld.AccessSecurity.ResetMinRank();
-                            }
-                            else
-                            {
-                                newWorld.AccessSecurity.MinRank = accessRank;
-                            }
-                            newWorld.BlockDB.AutoToggleIfNeeded();
-                            if (BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled)
-                            {
-                                player.Message("BlockDB is now auto-enabled on world {0}", newWorld.ClassyName);
-                            }
-                            newWorld.LoadedBy = player.Name;
-                            newWorld.LoadedOn = DateTime.UtcNow;
-                            Server.Message("{0}&S created a new Realm named {1}",
-                                              player.ClassyName, newWorld.ClassyName);
-                            Logger.Log(LogType.UserActivity,
-                                        "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
-                                        player.Name, worldName, fileName);
-                            WorldManager.SaveWorldList();
-                            player.MessageNow("Access permission is {0}+&S, and build permission is {1}+",
-                                               newWorld.AccessSecurity.MinRank.ClassyName,
-                                               newWorld.BuildSecurity.MinRank.ClassyName);
-                        }
-                        else
-                        {
-                            player.MessageNow("Failed to create a new world.");
-                        }
-                    }
-                }
-            }
-
-            Server.RequestGC();
-        }
-        #endregion
-
 
         #region WorldMain
 
