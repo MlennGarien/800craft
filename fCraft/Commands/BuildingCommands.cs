@@ -90,40 +90,34 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
-            CommandManager.RegisterCommand(cdFly);
+            CommandManager.RegisterCommand(CdFly);
 
             //CommandManager.RegisterCommand( CdTree );
         }
 
-        static readonly CommandDescriptor cdFly = new CommandDescriptor
+        static readonly CommandDescriptor CdFly = new CommandDescriptor
         {
             Name = "Fly",
             Category = CommandCategory.Chat,
-            Help = "Allows a player to fly",
-            Permissions = new Permission[] { Permission.Chat },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/fly",
+            Help = "Allows a player to fly.",
+            UsableByFrozenPlayers = false,
             Handler = Fly
         };
 
-        private static void Fly(Player player, Command cmd)
+        static void Fly(Player player, Command cmd)
         {
-            try
+            if (player.IsFlying)
             {
-                if (player.IsFlying)
-                {
-                    player.IsFlying = false;
-                    player.Message("Flying has been disabled", new object[0]);
-                    FlyHandler.ClearCache(player, player.World);
-                }
-                else
-                {
-                    player.IsFlying = true;
-                    player.Message("Flying has been enabled", new object[0]);
-                }
+                fCraft.Utils.FlyHandler.GetInstance().StopFlying(player);
+                player.Message("You are no longer flying.");
             }
-            catch (Exception exception)
+            else
             {
-                player.Message("Unknown error occured: " + exception, new object[0]);
-                //Logger.Log(exception.ToString(), LogType.Error);
+                fCraft.Utils.FlyHandler.GetInstance().StartFlying(player);
+                player.Message("You are now flying, jump!");
             }
         }
 

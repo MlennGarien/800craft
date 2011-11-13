@@ -22,7 +22,7 @@ namespace fCraft {
             //CommandManager.RegisterCommand(cdDoor);
             //CommandManager.RegisterCommand(cdDoorRemove);
 
-           // Player.Clicked += PlayerClickedDoor;
+           //Player.Clicked += PlayerClickedDoor;
             Player.Clicked += PlayerClickedGuest;
             Player.Clicked += PlayerClickedBuilder;
             Player.Clicked += PlayerClickedAdvbuilder;
@@ -33,7 +33,7 @@ namespace fCraft {
         }
             
         
-        /*public static void PlayerClickedDoor(object sender, PlayerClickedEventArgs e)
+        public static void PlayerClickedDoor(object sender, PlayerClickedEventArgs e)
         {
 
             Zone[] allowed, denied;
@@ -80,8 +80,8 @@ namespace fCraft {
                         DL[3] += player.World.Map.GetBlock(i, j, k) + " "; //block
 
                         //clear the door
-                        player.World.Map.QueueUpdate2(
-                            new BlockUpdate2(null, i, j, k, Block.Air));
+                        player.World.Map.QueueUpdate(
+                            new BlockUpdate(null, (short)i, (short)j, (short)k, Block.Air));
 
                     }
                 }
@@ -166,12 +166,12 @@ namespace fCraft {
 
             foreach (string arg in xs)
             {
-                player.World.Map.QueueUpdate(new BlockUpdate(null, Int32.Parse(xs[i]), Int32.Parse(ys[i]), Int32.Parse(zs[i]), Byte.Parse(bs[i])));
+                player.World.Map.QueueUpdate(new BlockUpdate(null, (short)Int32.Parse(xs[i]), (short)Int32.Parse(ys[i]), (short)Int32.Parse(zs[i]), (Block)Byte.Parse(bs[i])));
                 i++;
             }
 
 
-        }*/
+        }
         public static void PlayerClickedGuest(object sender, PlayerClickedEventArgs e)
         {
             

@@ -441,9 +441,8 @@ namespace fCraft {
             IsRunning = true;
 
             RaiseEvent( Started );
-
             PortalHandler.GetInstance();
-
+            MineQuery.MineQuery.GetInstance().Start();
             return true;
         }
 

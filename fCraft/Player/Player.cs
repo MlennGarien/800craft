@@ -10,7 +10,7 @@ using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
 using System.Collections.Concurrent;
-//using fCraft.;
+
 
 
 namespace fCraft {
@@ -148,7 +148,10 @@ namespace fCraft {
         public ConcurrentDictionary<string, BlockUpdate> FlyCache;
 
         public bool IsAway;
-        public bool IsFlying;
+        public bool IsFlying = false;
+        public Vector3I[] OldFlyCache;
+        public Vector3I[] NewFlyCache;
+        public readonly object FlyLock = new object();
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.

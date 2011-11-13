@@ -34,7 +34,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdVote);
             CommandManager.RegisterCommand(CdBroMode);
             Chat.Sending += CapsLockCheck;
-            Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
+            Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
 
         static readonly CommandDescriptor CdBroMode = new CommandDescriptor
@@ -53,7 +53,7 @@ namespace fCraft {
         {
             if (!fCraft.Utils.BroMode.Active)
             {
-                Server.Players.Message("Bro mode has been turned on.");
+                Server.Players.Message("{0}&S turned Bro mode on.",player.ClassyName);
 
                 foreach (Player p in Server.Players)
                 {
@@ -64,7 +64,7 @@ namespace fCraft {
             }
             else
             {
-                Server.Players.Message("Bro mode has been turned off.");
+                Server.Players.Message("{0}&S turned Bro Mode off.", player.Info.oldname);
 
                 foreach (Player p in Server.Players)
                 {
@@ -75,7 +75,7 @@ namespace fCraft {
             }
         }
 
-       public static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
+       public static void Player_IsBack(object sender, Events.PlayerMovedEventArgs e)
         {
             
                 if (e.Player.IsAway)
@@ -135,7 +135,8 @@ namespace fCraft {
                  }
              }
 
-             
+
+
 
              if (option == "no")
              {
@@ -181,62 +182,27 @@ namespace fCraft {
 
                          else
                          {
-                             
+
                              Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question);
                              Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
                              Server.VoteIsOn = true;
-                             Scheduler.NewTask(t => Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question)).RunOnce(TimeSpan.FromSeconds(60));
-                             Scheduler.NewTask(t => Server.Players.Message("&SResults are in! Yes: &A{0} &SNo: &C{1}", Server.VoteYes, Server.VoteNo)).RunOnce(TimeSpan.FromMilliseconds(60001));
+                             Scheduler.NewTask(t => Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName, 
+                                                question,Server.VoteYes, 
+                                                Server.VoteNo))
+                                                .RunOnce(TimeSpan.FromSeconds(60));
+                             
                              Scheduler.NewTask(t => Server.VoteIsOn = false).RunOnce(TimeSpan.FromSeconds(60));
                              Scheduler.NewTask(t => Server.VoteYes = 0).RunOnce(TimeSpan.FromSeconds(61));
                              Scheduler.NewTask(t => Server.VoteNo = 0).RunOnce(TimeSpan.FromSeconds(61));
 
                          }
                      }
-                 }
-             }
-
-             if (option == "kick")
-             {
-                 if (player.Can(Permission.ReadStaffChat))
-                 {
-                     string name = cmd.Next();
-                     if (Server.VoteIsOn)
-                     {
-                         player.Message("A vote is already on");
-                         return;
-                     }
-                     if (!Server.VoteIsOn)
-                     {
-                         if (name == null)
-                         {
-                             player.Message("Invalid question");
-                             return;
-                         }
-
-                         else
-                         {
-                             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-                             Server.Players.Message("{0}&S started a votekick on player: {1}", player.ClassyName, target.ClassyName);
-                             Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
-                             Server.VoteIsOn = true;
-                             Scheduler.NewTask(t => Server.Players.Message("{0}&S Wanted to kick: {1}", player.ClassyName, target.ClassyName)).RunOnce(TimeSpan.FromSeconds(60));
-                             Scheduler.NewTask(t => Server.Players.Message("&SResults are in! Yes: &A{0} &SNo: &C{1}", Server.VoteYes, Server.VoteNo)).RunOnce(TimeSpan.FromMilliseconds(60001));
-                             target.Kick("You were voted to be kicked from the server", LeaveReason.Kick);
-                             Scheduler.NewTask(t => Server.VoteIsOn = false).RunOnce(TimeSpan.FromMinutes(1));
-                             Scheduler.NewTask(t => Server.VoteYes = 0).RunOnce(TimeSpan.FromSeconds(61));
-                             Scheduler.NewTask(t => Server.VoteNo = 0).RunOnce(TimeSpan.FromSeconds(61));
-
-                         }
-                     }
+                     else
+                         player.Message("You do not have permissions to ask a question");
+                     return;
                  }
              }
          }
-         
-
-             
-
-            
         
         static readonly CommandDescriptor CdEngineerChat = new CommandDescriptor
         {
@@ -277,8 +243,6 @@ namespace fCraft {
         const int MaxCaps = 7;
         static void CapsLockCheck(object sender, Events.ChatSendingEventArgs e)
         {
-
-
             if (e.Player.Info.Rank.Name == "Guest" || e.Player.Info.Rank.Name == "Builder")
             {
                 int caps = 0;
@@ -421,12 +385,6 @@ namespace fCraft {
                         return;
                     }
 
-                    if (name == "rebelliousdude")
-                    {
-                        player.Message("Impersonating this name is forbidden");
-                        return;
-                    }
-
                     if (Player.IsInValidName(name))
                     {
                         player.Message("Player not found. Please specify valid name.");
@@ -478,12 +436,6 @@ namespace fCraft {
                     break;
             }
         }
-
-
-
-
-
-
 
         #endregion
 

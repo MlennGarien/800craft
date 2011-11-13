@@ -35,7 +35,7 @@ namespace fCraft {
 
         /// <summary> Reason for leaving the server last time. </summary>
         public LeaveReason LeaveReason;
-
+        public string oldname;
 
         #region Rank
 

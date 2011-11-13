@@ -3,81 +3,132 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace fCraft
+namespace fCraft.Utils
 {
-    internal class FlyHandler
+    class FlyHandler
     {
-        // Methods
-        public static void ClearCache(Player player, World world)
+        private static FlyHandler instance;
+
+        private FlyHandler()
         {
-            try
-            {
-                if (player.FlyCache.Count > 0)
-                {
-                    foreach (BlockUpdate update in player.FlyCache.Values)
-                    {
-                        BlockUpdate update2;
-                        if (world.Map.GetBlock(update.X, update.Y, update.Z) == Block.Glass)
-                        {
-                            world.Map.QueueUpdate(new BlockUpdate(null, update.X, update.Y, update.Z, Block.Air));
-                        }
-                        player.FlyCache.TryRemove(string.Concat(new object[] { update.X, ":", update.Y, ":", update.Z }), out update2);
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                Logger.Log( LogType.Error, "Unable to clear fly-cache: " + exception);
-            }
+            // Empty, singleton
         }
 
-        public static void UpdateFly(Player player, Position oldPos, Position newPos)
+        public static FlyHandler GetInstance()
+        {
+            if (instance == null)
+            {
+                instance = new FlyHandler();
+                Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
+            }
+
+            return instance;
+        }
+
+        private static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
         {
             try
             {
-                if (player.IsFlying)
+                if (e.Player.IsFlying)
                 {
-                    short num = (short)(newPos.X / 0x20);
-                    short num2 = (short)(newPos.Y / 0x20);
-                    short num3 = (short)(newPos.Z / 0x20);
-                    short num4 = (short)(oldPos.X / 0x20);
-                    short num5 = (short)(oldPos.Y / 0x20);
-                    short num6 = (short)(oldPos.Z / 0x20);
-                    if (((num4 != num) || (num5 != num2)) || (num6 != num3))
+                    // We need to have block positions, so we divide by 32
+                    Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                    Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+
+                    // Check if the player actually moved and not just rotated
+                    if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
                     {
-                        for (int i = -1; i <= 1; i++)
+                        // Thread safety
+                        lock (e.Player.FlyLock)
                         {
-                            for (int j = -1; j <= 1; j++)
+                            int count = 0;
+
+                            // Create new blocks part
+                            for (int i = -2; i <= 2; i++)
                             {
-                                if (player.World.Map.GetBlock((short)num + i, (short)num2 + j, num3 - 2) == Block.Air)
+                                for (int j = -2; j <= 2; j++)
                                 {
-                                    //BlockUpdate update = new BlockUpdate(null, (short) num + i, (short) num2 + j, (short) num3 - 2, Block.Glass);
-                                    //player.World.Map.QueueUpdate(update);
-                                    if (!player.FlyCache.ContainsKey(string.Concat(new object[] { num + i, ":", num2 + j, ":", num3 - 2 })))
+                                    e.Player.NewFlyCache[count] = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - 2);
+
+                                    if (e.Player.World.Map.GetBlock(e.Player.NewFlyCache[count]) == Block.Air)
                                     {
-                                        //player.FlyCache.TryAdd(string.Concat(new object[] { num + i, ":", num2 + j, ":", num3 - 2 }), update);
+                                        BlockUpdate magicCarpetBlock = new BlockUpdate(null, (short)e.Player.NewFlyCache[count].X, (short)e.Player.NewFlyCache[count].Y, (short)e.Player.NewFlyCache[count].Z, Block.Glass);
+                                        e.Player.World.Map.QueueUpdate(magicCarpetBlock);
+                                    }
+
+                                    count++;
+                                }
+                            }
+
+                            // Remove old blocks
+                            if (e.Player.OldFlyCache.Length > 0)
+                            {
+                                foreach (Vector3I oldMagicCarpetBlock in e.Player.OldFlyCache)
+                                {
+                                    bool markedForDeletion = true;
+
+                                    foreach (Vector3I newMagicCarpetBlock in e.Player.NewFlyCache)
+                                    {
+                                        if (oldMagicCarpetBlock.X == newMagicCarpetBlock.X && oldMagicCarpetBlock.Y == newMagicCarpetBlock.Y && oldMagicCarpetBlock.Z == newMagicCarpetBlock.Z)
+                                        {
+                                            markedForDeletion = false;
+                                            // Break loop as we found our match
+                                            break;
+                                        }
+                                    }
+
+                                    if (markedForDeletion)
+                                    {
+                                        if (e.Player.World.Map.GetBlock(oldMagicCarpetBlock) == Block.Glass)
+                                        {
+                                            BlockUpdate oldMagicCarpetDeleteBlock = new BlockUpdate(null, (short)oldMagicCarpetBlock.X, (short)oldMagicCarpetBlock.Y, (short)oldMagicCarpetBlock.Z, Block.Air);
+                                            e.Player.World.Map.QueueUpdate(oldMagicCarpetDeleteBlock);
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (player.FlyCache.Count > 0)
-                        {
-                            foreach (BlockUpdate update2 in player.FlyCache.Values)
-                            {
-                                if (((((((update2.X != num) || (update2.Y != num2)) || (update2.Z != (num3 - 2))) && (((update2.X != (num - 1)) || (update2.Y != num2)) || (update2.Z != (num3 - 2)))) && ((((update2.X != (num - 1)) || (update2.Y != (num2 - 1))) || (update2.Z != (num3 - 2))) && (((update2.X != num) || (update2.Y != (num2 - 1))) || (update2.Z != (num3 - 2))))) && (((((update2.X != (num + 1)) || (update2.Y != num2)) || (update2.Z != (num3 - 2))) && (((update2.X != (num + 1)) || (update2.Y != (num2 + 1))) || (update2.Z != (num3 - 2)))) && ((((update2.X != num) || (update2.Y != (num2 + 1))) || (update2.Z != (num3 - 2))) && (((update2.X != (num - 1)) || (update2.Y != (num2 + 1))) || (update2.Z != (num3 - 2)))))) && (((update2.X != (num + 1)) || (update2.Y != (num2 - 1))) || (update2.Z != (num3 - 2))))
-                                {
-                                    BlockUpdate update3;
-                                    player.World.Map.QueueUpdate(new BlockUpdate(null, update2.X, update2.Y, update2.Z, Block.Air));
-                                    player.FlyCache.TryRemove(string.Concat(new object[] { update2.X, ":", update2.Y, ":", update2.Z }), out update3);
-                                }
-                            }
+
+                            // Flip caches
+                            e.Player.OldFlyCache = e.Player.NewFlyCache;
+                            e.Player.NewFlyCache = new Vector3I[25];
                         }
                     }
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Logger.Log( LogType.Error, "Unable to update fly position: " + exception);
+                Logger.Log( LogType.Error, "FlyHandler.Player_Moved: " + ex);
+            }
+        }
+
+        public void StartFlying(Player player)
+        {
+            player.IsFlying = true;
+            player.NewFlyCache = new Vector3I[25];
+            player.OldFlyCache = new Vector3I[25];
+        }
+
+        public void StopFlying(Player player)
+        {
+            try
+            {
+                player.IsFlying = false;
+                player.NewFlyCache = null;
+
+                foreach (Vector3I block in player.OldFlyCache)
+                {
+                    if (player.World.Map.GetBlock(block) == Block.Glass)
+                    {
+                        BlockUpdate removeBlock = new BlockUpdate(null, (short)block.X, (short)block.Y, (short)block.Z, Block.Air);
+                        player.World.Map.QueueUpdate(removeBlock);
+                    }
+                }
+
+                player.OldFlyCache = null;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log( LogType.Error, "FlyHandler.StopFlying: " + ex);
             }
         }
     }

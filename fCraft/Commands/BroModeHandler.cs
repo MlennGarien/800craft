@@ -163,7 +163,7 @@ namespace fCraft.Utils
                     int attempts = 0;
                     Player output = null;
                     bool found = false;
-
+                    player.Info.oldname = player.Info.ClassyName;
                     while (!found)
                     {
                         registeredBroNames.TryGetValue(index, out output);
@@ -219,7 +219,7 @@ namespace fCraft.Utils
                         Logger.Log(LogType.SystemActivity, "Unregistering bro name '" + broNames[i] + "' for player '" + p.Name + "'");
                         registeredBroNames.Remove(i);
                         namesRegistered--;
-                        p.Info.DisplayedName = null;
+                        p.Info.DisplayedName = p.Info.oldname;
                     }
                 }
             }
