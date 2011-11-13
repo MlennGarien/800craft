@@ -53,6 +53,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRealm);
             CommandManager.RegisterCommand(CdGuestwipe);
             CommandManager.RegisterCommand(CdRankHide);
+            CommandManager.RegisterCommand(CdPortal);
         }
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor
@@ -68,7 +69,30 @@ namespace fCraft
         {
             String option = command.Next();
 
-            
+            if (option == null)
+            {
+                CdPortal.PrintUsage(player);
+            }
+            else if (option.ToLower().Equals("create"))
+            {
+
+            }
+            else if (option.ToLower().Equals("remove"))
+            {
+
+            }
+            else if (option.ToLower().Equals("info"))
+            {
+
+            }
+            else if (option.ToLower().Equals("list"))
+            {
+
+            }
+            else
+            {
+                CdPortal.PrintUsage(player);
+            }
         }
 
         static readonly CommandDescriptor CdRankHide = new CommandDescriptor

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace fCraft.MineQuery
+namespace fCraft
 {
     class MineQueryResponse
     {
