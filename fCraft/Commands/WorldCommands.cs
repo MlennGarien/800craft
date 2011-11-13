@@ -56,6 +56,22 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
         }
 
+        static readonly CommandDescriptor CdPortal = new CommandDescriptor
+        {
+            Name = "portal",
+            Category = CommandCategory.World,
+            IsConsoleSafe = false,
+            Usage = "/portal [create|remove|info|list]",
+            Handler = Portal
+        };
+
+        private static void Portal(Player player, Command command)
+        {
+            String option = command.Next();
+
+            
+        }
+
         static readonly CommandDescriptor CdRankHide = new CommandDescriptor
         {
             Name = "Rankhide",

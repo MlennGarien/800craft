@@ -163,6 +163,14 @@ namespace fCraft {
 
         /// <summary> Ability to shut down or restart the server remotely.
         /// Useful for servers that run on dedicated machines. </summary>
-        ShutdownServer
+        ShutdownServer,
+
+        /// <summary> Ability to use a portal
+        /// </summary>
+        UsePortal,
+
+        /// <summary> Ability to create a portal
+        /// </summary>
+        CreatePortal
     }
 }

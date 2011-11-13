@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using fCraft.Portals;
+using System.Collections;
 
 namespace fCraft {
     public sealed class World : IClassy {
@@ -18,6 +20,8 @@ namespace fCraft {
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
         public bool IsHidden { get; set; }
+
+        public ArrayList Portals;
 
 
         /// <summary> Whether this world is currently pending unload 

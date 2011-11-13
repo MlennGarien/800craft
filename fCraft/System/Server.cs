@@ -18,6 +18,8 @@ using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
 using ThreadState = System.Threading.ThreadState;
+using fCraft.Commands;
+using fCraft.Portal;
 
 namespace fCraft {
     /// <summary> Core of an fCraft server. Manages startup/shutdown, players and sessions,
@@ -439,6 +441,9 @@ namespace fCraft {
             IsRunning = true;
 
             RaiseEvent( Started );
+
+            PortalHandler.GetInstance();
+
             return true;
         }
 
