@@ -22,29 +22,66 @@ namespace fCraft.Portals
             {
                 instance = new PortalHandler();
                 Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
+                Player.JoinedWorld += new EventHandler<Events.PlayerJoinedWorldEventArgs>(Player_JoinedWorld);
+                Player.PlacedBlock += new EventHandler<Events.PlayerPlacedBlockEventArgs>(Player_PlacedBlock);
                 PortalDB.StartSaveTask();
             }
 
             return instance;
         }
 
+        static void Player_PlacedBlock(object sender, Events.PlayerPlacedBlockEventArgs e)
+        {
+            if (e.Player.World.Portals != null && e.Player.World.Portals.Count > 0 && e.Context != BlockChangeContext.PortalBuild)
+            {
+                lock (e.Player.World.Portals.SyncRoot)
+                {
+                    foreach (Portal portal in e.Player.World.Portals)
+                    {
+                        if (portal.IsInRange(e.Coords))
+                        {
+                            BlockUpdate update = new BlockUpdate(null, e.Coords, e.OldBlock);
+                            e.Player.World.Map.QueueUpdate(update);
+                            e.Player.Message("You can not place a block inside portal: " + portal.Name);
+                        }
+                    }
+                }
+            }
+        }
+
+        static void Player_JoinedWorld(object sender, Events.PlayerJoinedWorldEventArgs e)
+        {
+            // Player can use portals again
+            e.Player.CanUsePortal = true;
+        }
+
         static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
         {
-            if ((e.OldPosition.X != e.NewPosition.X) || (e.OldPosition.Y != e.NewPosition.Y) || (e.OldPosition.Z != (e.NewPosition.Z)))
+            lock (e.Player.PortalLock)
             {
-                if (e.Player.Can(Permission.UsePortal))
+                if (e.Player.CanUsePortal)
                 {
-                    if (PortalHandler.GetInstance().GetPortal(e.Player) != null && !e.Player.StandingInPortal)
+                    if ((e.OldPosition.X != e.NewPosition.X) || (e.OldPosition.Y != e.NewPosition.Y) || (e.OldPosition.Z != (e.NewPosition.Z)))
                     {
-                        e.Player.StandingInPortal = true;
-                        Portal portal = PortalHandler.GetInstance().GetPortal(e.Player);
+                        if (e.Player.Can(Permission.UsePortal))
+                        {
+                            if (PortalHandler.GetInstance().GetPortal(e.Player) != null && !e.Player.StandingInPortal)
+                            {
+                                // Make sure this method isn't called twice
+                                e.Player.CanUsePortal = false;
 
-                        // Teleport player
-                        e.Player.JoinWorldNow(WorldManager.FindWorldExact(portal.World), true, WorldChangeReason.Portal);
-                    }
-                    else
-                    {
-                        e.Player.StandingInPortal = false;
+                                e.Player.StandingInPortal = true;
+                                Portal portal = PortalHandler.GetInstance().GetPortal(e.Player);
+
+                                // Teleport player
+                                e.Player.JoinWorldNow(WorldManager.FindWorldExact(portal.World), true, WorldChangeReason.Portal);
+                                e.Player.Message("You used portal: " + portal.Name);
+                            }
+                            else
+                            {
+                                e.Player.StandingInPortal = false;
+                            }
+                        }
                     }
                 }
             }
@@ -78,18 +115,18 @@ namespace fCraft.Portals
             return portal;
         }
 
-        public static void CreatePortal(Portal portal)
+        public static void CreatePortal(Portal portal, World source)
         {
             World world = WorldManager.FindWorldExact(portal.World);
 
-            if (world.Portals == null)
+            if (source.Portals == null)
             {
-                world.Portals = new ArrayList();
+                source.Portals = new ArrayList();
             }
 
-            lock (world.Portals.SyncRoot)
+            lock (source.Portals.SyncRoot)
             {
-                world.Portals.Add(portal);
+                source.Portals.Add(portal);
             }
 
             PortalDB.Save();
@@ -102,8 +139,6 @@ namespace fCraft.Portals
                 int Xdistance = (world.Map.Spawn.X / 32) - block.X;
                 int Ydistance = (world.Map.Spawn.Y / 32) - block.Y;
                 int Zdistance = (world.Map.Spawn.Z / 32) - block.Z;
-
-                Server.Message("{0},{1},{2}", Xdistance, Ydistance, Zdistance);
 
                 if (Xdistance <= 10 && Xdistance >= -10)
                 {

@@ -150,9 +150,12 @@ namespace fCraft {
         public Vector3I[] OldFlyCache;
         public Vector3I[] NewFlyCache;
         public bool StandingInPortal = false;
+        public bool CanUsePortal = true;
         public String PortalWorld;
         public String PortalName;
+        public bool BuildingPortal = true;
         public readonly object FlyLock = new object();
+        public readonly object PortalLock = new object();
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.

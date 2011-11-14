@@ -9,6 +9,7 @@ using fCraft.Drawing;
 using fCraft.Portals;
 using System.Collections;
 using System.Text;
+using System.Threading;
 
 namespace fCraft
 {
@@ -279,24 +280,48 @@ namespace fCraft
                         return;
                     }
 
-                    foreach (Vector3I block in marks)
-                    {
-                        if (PortalHandler.IsInRangeOfSpawnpoint(player.World, block))
-                        {
-                            player.Message("You can not build a portal near a spawnpoint.");
-                            return;
-                        }
-                    }
+                    int Xmin = Math.Min(marks[0].X, marks[1].X);
+                    int Xmax = Math.Max(marks[0].X, marks[1].X);
+                    int Ymin = Math.Min(marks[0].Y, marks[1].Y);
+                    int Ymax = Math.Max(marks[0].Y, marks[1].Y);
+                    int Zmin = Math.Min(marks[0].Z, marks[1].Z);
+                    int Zmax = Math.Max(marks[0].Z, marks[1].Z);
 
+                    /* BUGGED: Creates infinite loop :-(
+                     * for (int x = Xmin; Xmin <= Xmax; x++)
+                    {
+                        for (int y = Ymin; Ymin <= Ymax; y++)
+                        {
+                            for (int z = Zmin; Zmin <= Zmax; z++)
+                            {
+                                if (PortalHandler.IsInRangeOfSpawnpoint(player.World, new Vector3I(x, y, z)))
+                                {
+                                    player.Message("You can not build a portal near a spawnpoint.");
+                                    return;
+                                }
+                            }
+                        }
+                    }*/
                     
                     if (player.PortalName == null)
                     {
                         player.PortalName = Portal.GenerateName(player.World);
                     }
 
-                    PortalHandler.CreatePortal(new Portal(player.PortalWorld, marks, player.PortalName, player.Name));
+                    PortalHandler.CreatePortal(new Portal(player.PortalWorld, marks, player.PortalName, player.Name), player.World);
                     op.AnnounceCompletion = false;
+                    op.Context = BlockChangeContext.PortalBuild;
                     op.Begin();
+
+                    Thread checkPortalBuildDone = new Thread(new ThreadStart(delegate
+                    {
+                        while (!op.IsDone)
+                        {
+                            // Do nothing
+                        }
+
+
+                    }));
 
                     player.Message("Successfully created portal.");
                 }
