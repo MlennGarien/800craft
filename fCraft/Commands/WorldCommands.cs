@@ -59,6 +59,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdPortal);
         }
 
+
         static readonly CommandDescriptor CdPortal = new CommandDescriptor
         {
             Name = "portal",
@@ -299,7 +300,7 @@ namespace fCraft
              }
              if (option == "mario")
              {
-                 world.Terrain = "e92e04f6bc473cc3c47a7b3bfd28c974690abd0d";
+                 world.Terrain = "e98a37ddccbc6144306bd08f41248324965c4e5a";
                  player.Message("Terrain Changed! Rejoin world to see changes");
                  return;
              }
@@ -352,11 +353,9 @@ namespace fCraft
                         if (world == null) return;
 
                         Server.Players.Message("{0}&S likes realm {1}.",
-                                player.ClassyName,
-                            world.ClassyName);
+                                                player.ClassyName, world.ClassyName);
                         break;
                     
-
                 case "flush":
 
                     WorldFlushHandler(player, new Command("/wflush " + player.Name));

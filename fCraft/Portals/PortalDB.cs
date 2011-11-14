@@ -14,6 +14,9 @@ namespace fCraft.Portals
         private static TimeSpan SaveInterval = TimeSpan.FromSeconds(90);
         private static readonly object SaveLoadLock = new object();
 
+        public Portal[] Cache { get; private set; }
+
+
         public static void Save()
         {
             try
@@ -39,6 +42,7 @@ namespace fCraft.Portals
                                 foreach (Portal portal in portalsCopy)
                                 {
                                     portals++;
+                                    
                                     data.AppendLine(JsonSerializer.SerializeToString(portal));
                                 }
                             }

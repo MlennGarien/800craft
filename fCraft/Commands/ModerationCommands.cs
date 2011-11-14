@@ -68,43 +68,8 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(cdDisconnect);
             CommandManager.RegisterCommand(CdDummy);
-            //CommandManager.RegisterCommand(CdJail);
+            
         }
-
-        static readonly CommandDescriptor CdJail = new CommandDescriptor
-        {
-            Name = "Jail",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = false,
-            Permissions = new[] { Permission.OwnerStuff },
-            Help = "Sends a player to Jail.",
-            NotRepeatable = false,
-            Usage = "/Jail name",
-            Handler = JailHandler
-        };
-
-        public static void JailHandler(Player player, Command cmd)
-        {
-
-            string option = cmd.Next();
-            Map map = player.WorldMap;
-
-            if (option == null) return;
-                
-            if (option == "set")
-            {
-                map.Jail = player.Position;
-                player.Message("Jail Point Set");
-                return;
-            }
-            else
-            {
-                Player target = Server.FindPlayerOrPrintMatches(player, option, false, true);
-              
-                target.TeleportTo(map.Jail);
-            }
-        }
-        
 
         #region custom
 

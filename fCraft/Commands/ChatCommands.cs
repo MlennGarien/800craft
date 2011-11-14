@@ -552,8 +552,6 @@ namespace fCraft {
         };
 
 
-
-
         internal static void PokeHandler(Player player, Command cmd)
         {
             string targetName = cmd.Next();
