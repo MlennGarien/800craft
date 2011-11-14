@@ -22,7 +22,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdBlockInfo);
 
             CommandManager.RegisterCommand(CdEnv);
-
+            CommandManager.RegisterCommand(CdTerrain);
             CdGenerate.Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
                               "If no filename is given, loads generated world into current world.\n" +
                               "Available themes: Grass, " + Enum.GetNames(typeof(MapGenTheme)).JoinToString() + '\n' +
@@ -235,6 +235,87 @@ namespace fCraft
 
             }
         }
+
+         static readonly CommandDescriptor CdTerrain = new CommandDescriptor
+        {
+            Name = "Terrain",
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = false,
+            Permissions = new[] { Permission.ManageWorlds },
+            Usage = "/terrain Normal|blackwhite|tron|mario|highres|mono|simple|",
+            Handler = TerrainHandler
+        };
+
+         static void TerrainHandler(Player player, Command cmd)
+         {
+             if (!ConfigKey.WoMEnableEnvExtensions.Enabled())
+             {
+                 player.Message("Env command is disabled on this server.");
+                 return;
+             }
+
+             World world;
+             world = player.World;
+             
+             string option = cmd.Next();
+             if (option == null)
+                 player.Message("/terrain Normal|blackwhite|tron|mario|highres|mono|simple|");
+
+            
+
+             if (option == "normal")
+             {
+                 world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+
+             if (option == "simple")
+             {
+                 world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             
+             if (option == "highres")
+             {
+                 world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             if (option == "tron")
+             {
+                 world.Terrain = "62216d5a454cb9c9e8fdf493a04739a112266727";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+
+             
+             if (option == "mono")
+             {
+                 world.Terrain = "e893d18984f19aea8ef0c8398e3e298eacfe84d8";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             if (option == "mario")
+             {
+                 world.Terrain = "e92e04f6bc473cc3c47a7b3bfd28c974690abd0d";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             if (option == "blackwhite")
+             {
+                 world.Terrain = "153aa0f493f8cf37127353c9816ef45683105282";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             else
+                 player.Message("Error: you need to type a Terrain type");
+             
+             //put some if value==snowy, world.Terrain = stingHexThingyHere
+         }      
+                            
+
         static readonly CommandDescriptor CdRealm = new CommandDescriptor
         {
             Name = "Realm",
@@ -2363,6 +2444,7 @@ namespace fCraft
                 throw new FormatException();
             }
         }
+
 
         #endregion
 
