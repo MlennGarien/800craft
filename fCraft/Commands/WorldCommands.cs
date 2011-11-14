@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using fCraft.Drawing;
+using fCraft.Portals;
+using System.Collections;
 
 namespace fCraft
 {
@@ -60,12 +63,13 @@ namespace fCraft
         {
             Name = "portal",
             Category = CommandCategory.World,
+            Permissions = new Permission[] { Permission.UsePortal },
             IsConsoleSafe = false,
             Usage = "/portal [create|remove|info|list]",
-            Handler = Portal
+            Handler = PortalH
         };
 
-        private static void Portal(Player player, Command command)
+        private static void PortalH(Player player, Command command)
         {
             String option = command.Next();
 
@@ -75,23 +79,123 @@ namespace fCraft
             }
             else if (option.ToLower().Equals("create"))
             {
+                if (player.Can(Permission.ManagePortal))
+                {
+                    string world = command.Next();
 
+                    if (world != null && WorldManager.FindWorldExact(world) != null)
+                    {
+                        DrawOperation operation = new CuboidDrawOperation(player);
+                        NormalBrush brush = new NormalBrush(Block.Water, Block.Lava);
+
+                        string blockType = command.Next();
+
+                        if (blockType != null && blockType.ToLower().Equals("lava"))
+                        {
+                            brush = new NormalBrush(Block.Lava, Block.Water);
+                        }
+                        else if (blockType != null && !blockType.ToLower().Equals("water"))
+                        {
+                            player.Message("Invalid block type, choose between water or lava.");
+                            return;
+                        }
+
+                        operation.Brush = brush;
+                        player.PortalWord = world;
+                        player.SelectionStart(operation.ExpectedMarks, PortalCreateCallback, operation, Permission.Draw);
+                        player.Message("Click {0} blocks or use &Z/Mark&S to mark the area of the portal.", operation.ExpectedMarks);
+                    }
+                    else
+                    {
+                        if (world == null)
+                        {
+                            player.Message("No world specified.");
+                        }
+                        else
+                        {
+                            player.MessageInvalidWorldName(world);
+                        }
+                    }
+                }
+                else
+                {
+                    player.MessageNoAccess(Permission.ManagePortal);
+                }
             }
             else if (option.ToLower().Equals("remove"))
             {
+                if (player.Can(Permission.ManagePortal))
+                {
 
+                }
+                else
+                {
+                    player.MessageNoAccess(Permission.ManagePortal);
+                }
             }
             else if (option.ToLower().Equals("info"))
             {
-
+                player.Message("This command has not been implemented yet.");
             }
             else if (option.ToLower().Equals("list"))
             {
-
+                if (player.World.Portals == null)
+                {
+                    player.Message("There are no portals in &S{0}.", player.World.ClassyName);
+                }
+                else
+                {
+                    player.Message("There are {0} portals in &S{1}.", player.World.Portals.Count, player.World.ClassyName);
+                }
             }
             else
             {
                 CdPortal.PrintUsage(player);
+            }
+        }
+
+        static void PortalCreateCallback(Player player, Vector3I[] marks, object tag)
+        {
+            try
+            {
+                World world = WorldManager.FindWorldExact(player.PortalWord);
+
+                if (world != null)
+                {
+                    DrawOperation op = (DrawOperation)tag;
+                    if (!op.Prepare(marks)) return;
+                    if (!player.CanDraw(op.BlocksTotalEstimate))
+                    {
+                        player.MessageNow("You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                           player.Info.Rank.DrawLimit,
+                                           op.Bounds.Volume);
+                        op.Cancel();
+                        return;
+                    }
+
+                    foreach (Vector3I block in marks)
+                    {
+                        if (PortalHandler.IsInRangeOfSpawnpoint(player.World, block))
+                        {
+                            player.Message("You can not build a portal near a spawnpoint.");
+                            return;
+                        }
+                    }
+
+                    PortalHandler.CreatePortal(new Portal(player.World.Name, marks));
+                    op.Begin();
+
+                    player.Message("Successfully created portal.");
+                }
+                else
+                {
+                    player.MessageInvalidWorldName(player.PortalWord);
+                }
+            }
+            catch (Exception ex)
+            {
+                player.Message("Failed to create portal.");
+                Logger.Log(LogType.Error, "WorldCommands.PortalCreateCallback: " + ex);
             }
         }
 

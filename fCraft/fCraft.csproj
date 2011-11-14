@@ -115,6 +115,7 @@
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Portals\Portal.cs" />
+    <Compile Include="Portals\PortalDB.cs" />
     <Compile Include="Portals\PortalHandler.cs" />
     <Compile Include="Portals\PortalRange.cs" />
     <Compile Include="Utils\MineQuery.cs" />

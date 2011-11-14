@@ -521,6 +521,17 @@ Affected commands:
 This is mainly a command for fun.
 Affected commands:
     /bromode";
+
+            vPermissions.Items[(int)Permission.UsePortal].ToolTipText =
+@"Allows a player to use portals
+Affected commands:
+    /portal";
+
+            vPermissions.Items[(int)Permission.ManagePortal].ToolTipText =
+@"Allows a player to manage portals
+Affected commands:
+    /portal create
+    /portal remove";
         }
 
 

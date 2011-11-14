@@ -88,6 +88,8 @@ namespace fCraft {
 
         public const string PlayerDBFileName = "PlayerDB.txt";
 
+        public const string PortalDBFileName = "PortalDB.txt";
+
         public const string IPBanListFileName = "ipbans.txt";
 
         public const string GreetingFileName = "greeting.txt";

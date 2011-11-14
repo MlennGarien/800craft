@@ -169,8 +169,8 @@ namespace fCraft {
         /// </summary>
         UsePortal,
 
-        /// <summary> Ability to create a portal
+        /// <summary> Ability to create or delete a portal
         /// </summary>
-        CreatePortal
+        ManagePortal
     }
 }
