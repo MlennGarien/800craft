@@ -13,14 +13,24 @@ namespace fCraft.GUI {
 
         private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
             try {
-                Process.Start( "http://www.fcraft.net" );
+                Process.Start( "http://www.au70galaxy.com" );
             } catch { }
         }
 
         private void linkLabel2_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
             try {
-                Process.Start( "mailto:me@matvei.org" );
+                Process.Start( "mailto:jonty800@gmail.com" );
             } catch { }
+        }
+
+        private void lSubheader_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lHeader_Click(object sender, EventArgs e)
+        {
+
         }
 
     }

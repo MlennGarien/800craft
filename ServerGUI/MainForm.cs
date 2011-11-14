@@ -204,5 +204,10 @@ namespace fCraft.ServerGUI {
                 MessageBox.Show( "Could not open server URL. Please copy/paste it manually." );
             }
         }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
