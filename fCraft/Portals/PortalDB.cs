@@ -62,6 +62,57 @@ namespace fCraft.Portals
             }
         }
 
+        public static void Load()
+        {
+            try
+            {
+                lock (SaveLoadLock)
+                {
+                    using (StreamReader fs = new StreamReader(Paths.PortalDBFileName))
+                    {
+                        String line;
+                        int count = 0;
+
+                        while ((line = fs.ReadLine()) != null)
+                        {
+                            try
+                            {
+                                Portal portal = (Portal)JsonSerializer.DeserializeFromString(line, typeof(Portal));
+
+                                World world = WorldManager.FindWorldExact(portal.World);
+
+                                if (world.Portals == null)
+                                {
+                                    world.Portals = new ArrayList();
+                                }
+
+                                lock (world.Portals.SyncRoot)
+                                {
+                                    world.Portals.Add(portal);
+                                }
+
+                                count ++;
+                            }
+                            catch (Exception)
+                            {
+                                Logger.Log(LogType.Warning, "Unable to parse portal at line " + count);
+                            }
+                        }
+
+                        Logger.Log(LogType.SystemActivity, "PortalDB.Load: Loaded " + count + " portals");
+                    }
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Logger.Log(LogType.Warning, "PortalDB file does not exist.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "PortalDB.Load: " + ex);
+            }
+        }
+
         public static void StartSaveTask()
         {
             SchedulerTask saveTask = Scheduler.NewBackgroundTask(delegate { Save(); }).RunForever(SaveInterval, TimeSpan.FromSeconds(15));

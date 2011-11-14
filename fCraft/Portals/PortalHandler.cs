@@ -91,6 +91,8 @@ namespace fCraft.Portals
             {
                 world.Portals.Add(portal);
             }
+
+            PortalDB.Save();
         }
 
         public static bool IsInRangeOfSpawnpoint(World world, Vector3I block)
