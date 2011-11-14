@@ -494,7 +494,7 @@ namespace fCraft {
                 case ConfigKey.BlockDBAutoEnableRank:
                     RankManager.BlockDBAutoEnableRank = Rank.Parse( key.GetString() );
                     if( BlockDB.IsEnabledGlobally ) {
-                        World[] worldListCache = WorldManager.WorldList;
+                        World[] worldListCache = WorldManager.Worlds;
                         foreach( World world in worldListCache ) {
                             if( world.BlockDB.AutoToggleIfNeeded() ) {
                                 if( world.BlockDB.IsEnabled ) {

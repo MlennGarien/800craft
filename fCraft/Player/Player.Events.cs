@@ -139,17 +139,6 @@ namespace fCraft {
         }
 
 
-        static CanPlaceResult RaisePlayerPlacingBlockEvent( Player player, Map map, Vector3I coords,
-                                                            Block oldBlock, Block newBlock, BlockChangeContext context,
-                                                            CanPlaceResult result ) {
-            var handler = PlacingBlock;
-            if( handler == null ) return result;
-            var e = new PlayerPlacingBlockEventArgs( player, map, coords, oldBlock, newBlock, context, result );
-            handler( null, e );
-            return e.Result;
-        }
-
-
         internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, Vector3I coords,
                                                           Block oldBlock, Block newBlock, BlockChangeContext context ) {
             var handler = PlacedBlock;

@@ -45,7 +45,7 @@ namespace fCraft.ConfigGUI {
             comboBox.Items.Clear();
             comboBox.Items.Add( FirstItem );
             foreach( Rank rank in RankManager.Ranks ) {
-                comboBox.Items.Add( rank.ToComboBoxOption() );
+                comboBox.Items.Add( MainForm.ToComboBoxOption( rank ) );
             }
         }
 

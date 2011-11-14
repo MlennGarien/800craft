@@ -16,9 +16,9 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            800,
-            1213800,
-            new DateTime( 2011, 11, 3, 12, 10, 0, DateTimeKind.Utc ),
+            610,
+            1235,
+            new DateTime( 2011, 11, 11, 21, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev
 #if DEBUG
@@ -30,12 +30,12 @@ namespace fCraft {
             get { return "fCraft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.604_r1155";
+        public const string LatestStable = "0.610_r1235";
 
         public static string UpdateUrl { get; set; }
 
         static Updater() {
-            UpdateCheckTimeout = 3500;
+            UpdateCheckTimeout = 4000;
             UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 
@@ -289,11 +289,11 @@ namespace fCraft {
         /// <summary> Checks for updates and notifies of availability (in console/log). </summary>
         Notify,
 
-        /// <summary>
-        /// Checks for updates and prompts to install them.
-        /// Behavior is frontend-specific: in ServerGUI, downloads the update and promots to install. In ServerCLI, acts same as Notify.
-        /// Note: Requires user interaction (if you restart the server remotely while unattended, it may get stuck on this dialog).
-        /// </summary>
+        /// <summary> Checks for updates, downloads them if available, and prompts to install.
+        /// Behavior is frontend-specific: in ServerGUI, a dialog is shown with the list of changes and
+        /// options to update immediately or next time. In ServerCLI, asks to type in 'y' to confirm updating
+        /// or press any other key to skip. '''Note: Requires user interaction
+        /// (if you restart the server remotely while unattended, it may get stuck on this dialog).''' </summary>
         Prompt,
 
         /// <summary> Checks for updates, automatically downloads and installs the updates, and restarts the server. </summary>

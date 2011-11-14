@@ -100,8 +100,6 @@
             this.lFlatgrassX2 = new System.Windows.Forms.Label();
             this.nFlatgrassDimZ = new System.Windows.Forms.NumericUpDown();
             this.nFlatgrassDimY = new System.Windows.Forms.NumericUpDown();
-            this.tabHeightmap = new System.Windows.Forms.TabPage();
-            this.lHeightmapComingSoon = new System.Windows.Forms.Label();
             this.tabTerrain = new System.Windows.Forms.TabPage();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.gGenOptions = new System.Windows.Forms.GroupBox();
@@ -212,7 +210,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimZ)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).BeginInit();
-            this.tabHeightmap.SuspendLayout();
             this.tabTerrain.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.gGenOptions.SuspendLayout();
@@ -851,7 +848,6 @@
             this.tabs.Controls.Add( this.tabLoad );
             this.tabs.Controls.Add( this.tabCopy );
             this.tabs.Controls.Add( this.tabFlatgrass );
-            this.tabs.Controls.Add( this.tabHeightmap );
             this.tabs.Controls.Add( this.tabTerrain );
             this.tabs.Location = new System.Drawing.Point( 12, 110 );
             this.tabs.Name = "tabs";
@@ -1152,26 +1148,6 @@
             0,
             0,
             0} );
-            // 
-            // tabHeightmap
-            // 
-            this.tabHeightmap.Controls.Add( this.lHeightmapComingSoon );
-            this.tabHeightmap.Location = new System.Drawing.Point( 4, 22 );
-            this.tabHeightmap.Name = "tabHeightmap";
-            this.tabHeightmap.Padding = new System.Windows.Forms.Padding( 3 );
-            this.tabHeightmap.Size = new System.Drawing.Size( 391, 422 );
-            this.tabHeightmap.TabIndex = 4;
-            this.tabHeightmap.Text = "Heightmap";
-            this.tabHeightmap.UseVisualStyleBackColor = true;
-            // 
-            // lHeightmapComingSoon
-            // 
-            this.lHeightmapComingSoon.AutoSize = true;
-            this.lHeightmapComingSoon.Location = new System.Drawing.Point( 157, 14 );
-            this.lHeightmapComingSoon.Name = "lHeightmapComingSoon";
-            this.lHeightmapComingSoon.Size = new System.Drawing.Size( 68, 13 );
-            this.lHeightmapComingSoon.TabIndex = 0;
-            this.lHeightmapComingSoon.Text = "Coming soon";
             // 
             // tabTerrain
             // 
@@ -2379,8 +2355,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimZ)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).EndInit();
-            this.tabHeightmap.ResumeLayout( false );
-            this.tabHeightmap.PerformLayout();
             this.tabTerrain.ResumeLayout( false );
             this.tabTerrain.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout( false );
@@ -2491,7 +2465,6 @@
         private System.Windows.Forms.TabPage tabLoad;
         private System.Windows.Forms.TabPage tabCopy;
         private System.Windows.Forms.TabPage tabFlatgrass;
-        private System.Windows.Forms.TabPage tabHeightmap;
         private System.Windows.Forms.TabPage tabTerrain;
         private CustomPictureBox preview;
         private System.Windows.Forms.Label lMapFileOptions;
@@ -2524,7 +2497,6 @@
         private System.Windows.Forms.Label lFlatgrassX2;
         private System.Windows.Forms.NumericUpDown nFlatgrassDimZ;
         private System.Windows.Forms.NumericUpDown nFlatgrassDimY;
-        private System.Windows.Forms.Label lHeightmapComingSoon;
         private System.Windows.Forms.NumericUpDown nMaxDepth;
         private System.Windows.Forms.NumericUpDown nMaxHeight;
         private System.Windows.Forms.NumericUpDown nSeed;

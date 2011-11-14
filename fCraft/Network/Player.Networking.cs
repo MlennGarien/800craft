@@ -800,17 +800,17 @@ namespace fCraft {
             int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
 
             if( strLen >= 2 && strLen <= 16 ) {
-                string smpPlayerName = Encoding.UTF8.GetString( reader.ReadBytes( strLen ) );
+                string smpPlayerName = Encoding.BigEndianUnicode.GetString( reader.ReadBytes( strLen*2 ) );
 
                 Logger.Log( LogType.Warning,
-                            "Player.LoginSequence: Player \"{0}\" tried connecting with SMP/Beta client from {1}. " +
-                            "fCraft does not support SMP/Beta.", 
+                            "Player.LoginSequence: Player \"{0}\" tried connecting with Minecraft Beta client from {1}. " +
+                            "fCraft does not support Minecraft Beta.", 
                             smpPlayerName, IP );
 
                 // send SMP KICK packet
                 writer.Write( (byte)255 );
-                byte[] stringData = Encoding.UTF8.GetBytes( NoSmpMessage );
-                writer.Write( (short)stringData.Length );
+                byte[] stringData = Encoding.BigEndianUnicode.GetBytes( NoSmpMessage );
+                writer.Write( (short)NoSmpMessage.Length );
                 writer.Write( stringData );
                 BytesSent += (1 + stringData.Length);
                 writer.Flush();

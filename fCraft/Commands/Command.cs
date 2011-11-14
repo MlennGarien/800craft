@@ -4,9 +4,8 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary>
-    /// Aids parsing chat commands and their arguments.
-    /// </summary>
+    /// <summary> A text scanner that aids parsing chat commands and their arguments.
+    /// Breaks up a message into tokens at spaces. Treats quoted strings as whole tokens. </summary>
     public sealed class Command : ICloneable {
         public CommandDescriptor Descriptor { get; private set; }
         int offset;

@@ -21,8 +21,8 @@ using ThreadState = System.Threading.ThreadState;
 using fCraft.Portals;
 
 namespace fCraft {
-    /// <summary> Core of an fCraft server. Manages startup/shutdown, players and sessions,
-    /// and global scheduled tasks, and events related to Player and PlayerInfo. </summary>
+    /// <summary> Core of an fCraft server. Manages startup/shutdown, online player
+    /// sessions, and global events and scheduled tasks. </summary>
     public static partial class Server {
 
         /// <summary> Time when the server started (UTC). Used to check uptime. </summary>
@@ -375,7 +375,7 @@ namespace fCraft {
             WorldManager.UpdateWorldList();
             Logger.Log( LogType.SystemActivity,
                         "All available worlds: {0}",
-                        WorldManager.WorldList.JoinToString( ", ", w => w.Name ) );
+                        WorldManager.Worlds.JoinToString( ", ", w => w.Name ) );
 
             Logger.Log( LogType.SystemActivity,
                         "Main world: {0}; default rank: {1}",
@@ -497,10 +497,10 @@ namespace fCraft {
                 // kill IRC bot
                 IRC.Disconnect();
 
-                if( WorldManager.WorldList != null ) {
+                if( WorldManager.Worlds != null ) {
                     lock( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
-                        foreach( World world in WorldManager.WorldList ) {
+                        foreach( World world in WorldManager.Worlds ) {
                             if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
                             world.SaveMap();
                         }
@@ -770,12 +770,6 @@ namespace fCraft {
 
         #endregion
 
-        public static Player FindPlayerExact([NotNull] string name)
-        {
-            if (name == null) throw new ArgumentNullException("name");
-            return Players.FirstOrDefault(t => t != null &&
-                                                t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        }
 
         #region Utilities
 
@@ -869,7 +863,7 @@ namespace fCraft {
                 sb.Replace( "{WORLD}", player.World.ClassyName );
             }
             sb.Replace( "{PLAYERS}", CountVisiblePlayers( player ).ToString() );
-            sb.Replace( "{WORLDS}", WorldManager.WorldList.Length.ToString() );
+            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString() );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
             return sb.ToString();
@@ -1162,7 +1156,6 @@ namespace fCraft {
                     return null;
                 }
             }
-            player.LastUsedPlayerName = name;
             Player[] matches;
             if( includeHidden ) {
                 matches = FindPlayers( name, raiseEvent );

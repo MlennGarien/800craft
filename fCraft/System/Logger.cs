@@ -267,18 +267,18 @@ namespace fCraft {
                               "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
                     return true;
 
-                } else if( ex is MissingMethodException ) {
-                    message = "Something is incompatible with the current revision of fCraft. " +
-                              "If you installed third-party modifications, " +
-                              "make sure to use the correct revision (as specified by mod developers). " +
-                              "If your own modifications stopped working, your may need to make some updates.";
-                    return true;
-
                 } else if( ex.Message.Contains( "libMonoPosixHelper" ) ||
                            ex is EntryPointNotFoundException && ex.Message.Contains( "CreateZStream" ) ) {
                     message = "fCraft could not locate Mono's compression functionality. " +
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
                               "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";
+                    return true;
+
+                } else if( ex is MissingMemberException || ex is TypeLoadException ) {
+                    message = "Something is incompatible with the current revision of fCraft. " +
+                              "If you installed third-party modifications, " +
+                              "make sure to use the correct revision (as specified by mod developers). " +
+                              "If your own modifications stopped working, your may need to make some updates.";
                     return true;
 
                 } else if( ex is UnauthorizedAccessException ) {
@@ -287,12 +287,7 @@ namespace fCraft {
                     return true;
 
                 } else if( ex is OutOfMemoryException ) {
-                    message = "fCraft ran out of memory. Make sure there is enough RAM to run. " +
-                              "Note that large draw commands can consume a lot of RAM.";
-                    return true;
-
-                } else if( ex is TypeLoadException && ex.Message.Contains( "ZLibStream" ) ) {
-                    message = "Note that ZLibStream is obsolete since fCraft 0.498. Use GZipStream instead.";
+                    message = "fCraft ran out of memory. Make sure there is enough RAM to run.";
                     return true;
 
                 } else if( ex is SystemException && ex.Message == "Can't find current process" ) {

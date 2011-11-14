@@ -94,7 +94,6 @@ namespace fCraft {
 
         /// <summary> All zones within a map. </summary>
         public ZoneCollection Zones { get; private set; }
-       
 
 
         /// <summary> Creates an empty new map of given dimensions.
@@ -388,21 +387,6 @@ namespace fCraft {
 
                 // remove a cancelled drawOp from the list
                 if( op.IsCancelled ) {
-                    if( op.BlocksDenied > 0 ) {
-                        op.Player.Message( "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
-                                           op.Description,
-                                           DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                           op.BlocksProcessed, op.BlocksUpdated, op.BlocksDenied );
-                    } else {
-                        op.Player.Message( "{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
-                                           op.Description,
-                                           DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                           op.BlocksProcessed, op.BlocksUpdated );
-                    }
-                    Logger.Log( LogType.UserActivity,
-                                "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
-                                op.Player, op.Description, World.Name,
-                                op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
                     op.End();
                     drawOps.RemoveAt( i );
                     i--;
@@ -435,45 +419,23 @@ namespace fCraft {
 
                 // remove a completed drawOp from the list
                 if( op.IsDone ) {
-                    if( op.AnnounceCompletion ) {
-                        if( op.BlocksUpdated > 0 ) {
-                            if( op.BlocksDenied > 0 ) {
-                                op.Player.Message( "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
-                                                   op.Description,
-                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                                   op.BlocksUpdated, op.BlocksDenied );
-                            } else {
-                                op.Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
-                                                   op.Description,
-                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                                   op.BlocksUpdated );
-                            }
-                        } else {
-                            if( op.BlocksDenied > 0 ) {
-                                op.Player.Message( "{0}: Finished in {1}, no changes made. &WSkipped {2} blocks due to permission issues.",
-                                                   op.Description,
-                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString(),
-                                                   op.BlocksDenied );
-                            } else {
-                                op.Player.Message( "{0}: Finished in {1}, no changes needed.",
-                                                   op.Description,
-                                                   DateTime.UtcNow.Subtract( op.StartTime ).ToMiniString() );
-                            }
-                        }
-                    }
-                    if( op.AnnounceCompletion ) {
-                        Logger.Log( LogType.UserActivity,
-                                    "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
-                                    op.Player.Name, op.Description, World.Name,
-                                    op.Bounds.MinVertex, op.Bounds.MaxVertex,
-                                    op.BlocksProcessed, op.BlocksUpdated, op.BlocksSkipped, op.BlocksDenied );
-                    }
-                    drawOps.RemoveAt( i );
                     op.End();
+                    drawOps.RemoveAt( i );
                     i--;
                 }
             }
             return blocksDrawnTotal;
+        }
+
+
+        public void StopAllDrawOps() {
+            lock( drawOpLock ) {
+                for( int i = 0; i < drawOps.Count; i++ ) {
+                    drawOps[i].Cancel();
+                    drawOps[i].End();
+                }
+                drawOps.Clear();
+            }
         }
 
         #endregion

@@ -266,8 +266,8 @@ A higher setting (120+ seconds) is recommended for busy servers with many maps."
             AlwaysAllowZero = true, MinValue = 10 )]
         SaveInterval,
 
-        [BoolKey( ConfigSection.SavingAndBackup, true,
-@"Create a backup of every map when the server starts." )]
+        [BoolKey( ConfigSection.SavingAndBackup, false,
+@"Whether to create a backup of every map when the server starts." )]
         BackupOnStartup,
 
         [BoolKey( ConfigSection.SavingAndBackup, false,
@@ -280,19 +280,23 @@ Both a timestamp and player's name are included in the filename." )]
         BackupOnlyWhenChanged,
 
         [IntKey( ConfigSection.SavingAndBackup, 20,
-@"Create backups of loaded maps automatically once in a while.
-A world is considered ""loaded"" if there is at least one player on it.",
+@"Default interval for saving periodic map backups for loaded worlds.
+A world is considered ""loaded"" if there is at least one player on it.
+This setting can be overridden on a per-world basis.
+Set to 0 to disable periodic backups.",
             MinValue = 0 )]
         DefaultBackupInterval,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
 @"Maximum number of backup files that fCraft should keep.
-If exceeded, oldest backups will be deleted first." )]
+If exceeded, oldest backups will be deleted first.",
+            MinValue = 0 )]
         MaxBackups,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
 @"Maximum combined filesize of all backups, in MB.
-If exceeded, oldest backups will be deleted first." )]
+If exceeded, oldest backups will be deleted first.",
+            MinValue = 0 )]
         MaxBackupSize,
 
         [BoolKey( ConfigSection.SavingAndBackup, true,
@@ -310,7 +314,8 @@ If exceeded, oldest backups will be deleted first." )]
 
         [IntKey( ConfigSection.Logging, 0,
 @"Maximum number of log files to keep.
-If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs." )]
+If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs.",
+            MinValue = 0 )]
         MaxLogs,
 
         #endregion
@@ -355,14 +360,14 @@ Otherwise, only chat messages starting with a hash (#) will be relayed." )]
         IRCBotForwardFromIRC,
 
         [BoolKey( ConfigSection.IRC, false,
-@"Show a message on IRC when someone joins of leaves the server." )]
+@"Show a message on IRC when someone joins or leaves the Minecraft server." )]
         IRCBotAnnounceServerJoins,
 
         [BoolKey( ConfigSection.IRC, false,
-@"Show a message in-gam,e when someone joins of leaves the IRC channel." )]
+@"Show a message in-game when someone joins or leaves the IRC channel." )]
         IRCBotAnnounceIRCJoins,
 
-        [BoolKey( ConfigSection.IRC, false,
+        [BoolKey( ConfigSection.IRC, true,
 @"Announce server events (kicks, bans, promotions, demotions) on IRC." )]
         IRCBotAnnounceServerEvents,
 
@@ -372,22 +377,27 @@ or requires identification/authentication." )]
         IRCRegisteredNick,
 
         [StringKey( ConfigSection.IRC, "NickServ",
-@"Name of the registration service bot (usually NickServ).",
+@"Name of the nickname registration service bot
+(""Q"" on QuakeNet, ""NickServ"" on most others).",
             MinLength = 1, MaxLength = 32 )]
         IRCNickServ,
 
         [StringKey( ConfigSection.IRC, "IDENTIFY passwordGoesHere",
-@"Message to send to registration service bot." )]
+@"Message to send to nickname registration service bot." )]
         IRCNickServMessage,
 
         [ColorKey( ConfigSection.IRC, Color.IRCDefault,
-@"Color of IRC messages, as seen on the server/in-game." )]
+@"Color of IRC messages and event announcements, as seen on the server/in-game." )]
         IRCMessageColor,
+
+        [BoolKey( ConfigSection.IRC, true,
+@"Whether the bots should use colors and formatting on IRC." )]
+        IRCUseColor,
 
         [IntKey( ConfigSection.IRC, 750,
 @"Minimum delay (in milliseconds) between IRC messages. Many networks
 have strict message rate limits, so a delay of at least 500ms is recommended.",
-            MinValue = 0 )]
+            MinValue = 0, MaxValue = 10000 )]
         IRCDelay,
 
         [IntKey( ConfigSection.IRC, 1,
@@ -396,22 +406,21 @@ Using multiple bots helps bypass message rate limits on some servers.
 Note that some networks frown upon having multiple connections from one IP.
 It is recommended to leave this at 1 unless you are having specific issues
 with IRC bots falling behind on messages.",
-            MinValue = 1 )]
+            MinValue = 1, MaxValue=3 )]
         IRCThreads,
-
-        [BoolKey( ConfigSection.IRC, true,
-@"Whether the bots should use colors and formatting on IRC." )]
-        IRCUseColor,
 
         #endregion
 
 
         #region Advanced
 
-        [BoolKey( ConfigSection.Advanced, false,
-@"When a player places or deletes a block, vanilla Minecraft server
-relays the action back. This is not needed, and only wastes bandwidth." )]
-        RelayAllBlockUpdates,
+        [BoolKey( ConfigSection.Advanced, true,
+@"Crash reports are created when serious unexpected errors occur.
+Being able to receive crash reports helps identify bugs and improve fCraft!
+The report consists of the error information, OS and runtime versions,
+a copy of config.xml, and last 25 lines of the log file.
+Reports are confidential and are not displayed publicly." )]
+        SubmitCrashReports,
 
         [EnumKey( ConfigSection.Advanced, fCraft.UpdaterMode.Prompt,
 @"fCraft can automatically update to latest stable versions.
@@ -430,6 +439,11 @@ If enabled, the update check is done on-startup." )]
 @"It is recommended to save a backup of all data files before updating.
 This setting allows the updater to do that for you." )]
         BackupBeforeUpdate,
+
+        [BoolKey( ConfigSection.Advanced, false,
+@"When a player places or deletes a block, vanilla Minecraft server
+relays the action back. This is not needed, and only wastes bandwidth." )]
+        RelayAllBlockUpdates,
 
         [BoolKey( ConfigSection.Advanced, false,
 @"Minecraft protocol specifies 4 different movement packet types.
@@ -458,18 +472,12 @@ reduce bandwidth and CPU use, but will add latency to block placement.",
         TickInterval,
 
         [BoolKey( ConfigSection.Advanced, false,
-@"This mode reduces lag by up to 200ms, at the cost of vastly increased
-bandwidth use. It's only practical if you have a very fast connection
-with few players, or if your server is LAN-only." )]
+@"This mode reduces movement and block-placement lag by up to 200ms,
+at the cost of vastly increased bandwidth use. It's only practical if
+you have a very fast connection with few players, or if your server is LAN-only.
+Note that this may make the lag **worse** for players with low-speed,
+low-bandwidth connections." )]
         LowLatencyMode,
-
-        [BoolKey( ConfigSection.Advanced, true,
-@"Crash reports are created when serious unexpected errors occur.
-Being able to receive crash reports helps identify bugs and improve fCraft!
-The report consists of the error information, OS and runtime versions,
-a copy of config.xml, and last 25 lines of the log file.
-Reports are confidential and are not displayed publicly." )]
-        SubmitCrashReports,
 
         [IntKey( ConfigSection.Advanced, 2000000,
 @"The number of blocks that players can undo at a time.
@@ -503,8 +511,8 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
 @"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/" )]
         HeartbeatToWoMDirect,
 
-        [BoolKey( ConfigSection.Advanced, true,
-@"If enabled, allows changing enviromnent settings for WoM clients via /Env" )]
+        [BoolKey( ConfigSection.Advanced, false,
+@"If enabled, allows changing worlds' environment settings for WoM clients via /Env" )]
         WoMEnableEnvExtensions,
 
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,

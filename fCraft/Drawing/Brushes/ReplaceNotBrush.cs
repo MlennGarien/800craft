@@ -18,7 +18,7 @@ namespace fCraft.Drawing {
         public string[] Aliases { get; private set; }
 
         const string HelpString = "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
-                                  "Usage similar to &Z/ReplaceNot&S command.";
+                                  "Usage similar to &H/ReplaceNot&S command.";
         public string Help {
             get { return HelpString; }
         }
@@ -69,7 +69,7 @@ namespace fCraft.Drawing {
         #region IBrush members
 
         public IBrushFactory Factory {
-            get { return ReplaceBrushFactory.Instance; }
+            get { return ReplaceNotBrushFactory.Instance; }
         }
 
 

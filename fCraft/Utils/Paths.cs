@@ -53,7 +53,8 @@ namespace fCraft {
             DataFilesToBackup = new[]{
                 PlayerDBFileName,
                 IPBanListFileName,
-                WorldListFileName
+                WorldListFileName,
+                ConfigFileName
             };
         }
 

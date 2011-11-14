@@ -8,28 +8,15 @@ namespace fCraft {
     /// <summary> Contains commands related to zone management. </summary>
     static class ZoneCommands {
 
-        internal static void Init()
-        {
-            CommandManager.RegisterCommand(CdZoneAdd);
-            CommandManager.RegisterCommand(CdZoneEdit);
-            CommandManager.RegisterCommand(CdZoneInfo);
-            CommandManager.RegisterCommand(CdZoneList);
-            CommandManager.RegisterCommand(CdZoneMark);
-            CommandManager.RegisterCommand(CdZoneRemove);
-            CommandManager.RegisterCommand(CdZoneRename);
-            CommandManager.RegisterCommand(CdZoneTest);
-
-            //CommandManager.RegisterCommand(cdDoor);
-            //CommandManager.RegisterCommand(cdDoorRemove);
-
-           //Player.Clicked += PlayerClickedDoor;
-            Player.Clicked += PlayerClickedGuest;
-            Player.Clicked += PlayerClickedBuilder;
-            Player.Clicked += PlayerClickedAdvbuilder;
-            Player.Clicked += PlayerClickedProbuilder;
-            Player.Clicked += PlayerClickedOpLounge;
-            Player.Clicked += PlayerClickedEngineer;
-            Player.Clicked += PlayerClickedModerator;
+        internal static void Init() {
+            CommandManager.RegisterCommand( CdZoneAdd );
+            CommandManager.RegisterCommand( CdZoneEdit );
+            CommandManager.RegisterCommand( CdZoneInfo );
+            CommandManager.RegisterCommand( CdZoneList );
+            CommandManager.RegisterCommand( CdZoneMark );
+            CommandManager.RegisterCommand( CdZoneRemove );
+            CommandManager.RegisterCommand( CdZoneRename );
+            CommandManager.RegisterCommand( CdZoneTest );
         }
             
         
@@ -155,7 +142,13 @@ namespace fCraft {
             string[] doorVars = DoorLookUp[door];
             string x, y, z, b;
 
-            Player player = Server.FindPlayerExact(doorVars[4]);
+            Player player = Server.FindPlayerOrPrintMatches(Player.Console, doorVars[4], true, false);
+
+            if (player == null)
+            {
+                Logger.Log(LogType.Warning, "ZoneCommands.DoorTimer_Elapsed: unable to find player: " + doorVars[4]);
+                return;
+            }
             
 
             //parse values from DoorLookUp
@@ -534,7 +527,7 @@ namespace fCraft {
 
                 // Make sure that the name is not taken already.
                 // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
-                newZone.Name = givenZoneName;
+                newZone.Name = info.Name;
                 for( int i = 2; zoneCollection.Contains( newZone.Name ); i++ ) {
                     newZone.Name = givenZoneName + i;
                 }
@@ -553,7 +546,7 @@ namespace fCraft {
                 }
 
                 if( zoneCollection.Contains( givenZoneName ) ) {
-                    player.Message( "A zone with this name already exists. Use &Z/ZEdit&S to edit." );
+                    player.Message( "A zone with this name already exists. Use &H/ZEdit&S to edit." );
                     return;
                 }
 
@@ -561,7 +554,7 @@ namespace fCraft {
 
                 string rankName = cmd.Next();
                 if( rankName == null ) {
-                    player.Message( "No rank was specified. See &Z/Help zone" );
+                    player.Message( "No rank was specified. See &H/Help zone" );
                     return;
                 }
                 Rank minRank = RankManager.FindRank( rankName );
@@ -584,7 +577,7 @@ namespace fCraft {
 
                     newZone.Controller.MinRank = minRank;
                     player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
-                    player.Message( "Zone: Place a block or type &Z/Mark&S to use your location." );
+                    player.Message( "Zone: Place a block or type &H/Mark&S to use your location." );
 
                 } else {
                     player.MessageNoRank( rankName );
@@ -654,7 +647,7 @@ namespace fCraft {
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                player.Message( "No zone name specified. See &Z/Help ZEdit" );
+                player.Message( "No zone name specified. See &H/Help ZEdit" );
                 return;
             }
 
@@ -768,7 +761,7 @@ namespace fCraft {
         static void ZoneInfoHandler( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
-                player.Message( "No zone name specified. See &Z/Help ZInfo" );
+                player.Message( "No zone name specified. See &H/Help ZInfo" );
                 return;
             }
 
@@ -845,7 +838,7 @@ namespace fCraft {
                 player.Message( "List of zones on this world:" );
 
             } else {
-                player.Message( "When used from console, &Z/Zones&S command requires a world name." );
+                player.Message( "When used from console, &H/Zones&S command requires a world name." );
                 return;
             }
 
@@ -868,7 +861,7 @@ namespace fCraft {
                                     zone.Bounds.Length,
                                     zone.Bounds.Height );
                 }
-                player.Message( "   Type &Z/ZInfo ZoneName&S for details." );
+                player.Message( "   Type &H/ZInfo ZoneName&S for details." );
             } else {
                 player.Message( "   No zones defined." );
             }

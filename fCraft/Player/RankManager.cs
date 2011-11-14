@@ -179,6 +179,7 @@ namespace fCraft {
             if( newName == null ) throw new ArgumentNullException( "newName" );
             RanksByName.Remove( rank.Name.ToLower() );
             rank.Name = newName;
+            rank.FullName = rank.Name + "#" + rank.ID;
             RanksByName.Add( rank.Name.ToLower(), rank );
         }
 

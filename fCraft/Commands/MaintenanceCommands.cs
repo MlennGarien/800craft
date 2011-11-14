@@ -671,34 +671,34 @@ namespace fCraft {
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Allows direct editing of players' database records. List of editable properties: " +
                    "BanReason, DisplayedName, KickReason, PreviousRank, RankChangeType, " +
-                   "RankReason, TimesKicked, TotalTime, UnbanReason. For detailed help see &Z/Help SetInfo <Property>",
+                   "RankReason, TimesKicked, TotalTime, UnbanReason. For detailed help see &H/Help SetInfo <Property>",
             HelpSections = new Dictionary<string, string>{
-                { "banreason",      "&Z/SetInfo <PlayerName> BanReason <Reason>\n&S" +
+                { "banreason",      "&H/SetInfo <PlayerName> BanReason <Reason>\n&S" +
                                     "Changes ban reason for the given player. Original ban reason is preserved in the logs." },
-                { "displayedname",  "&Z/SetInfo <RealPlayerName> DisplayedName <DisplayedName>\n&S" +
+                { "displayedname",  "&H/SetInfo <RealPlayerName> DisplayedName <DisplayedName>\n&S" +
                                     "Sets or resets the way player's name is displayed in chat. "+
                                     "Any printable symbols or color codes may be used in the displayed name. "+
                                     "Note that player's real name is still used in logs and on the in-game player list. "+
-                                    "To remove a custom name, type \"&Z/SetInfo <RealName> DisplayedName&S\" (omit the name)." },
-                { "kickreason",     "&Z/SetInfo <PlayerName> KickReason <Reason>\n&S" +
+                                    "To remove a custom name, type \"&H/SetInfo <RealName> DisplayedName&S\" (omit the name)." },
+                { "kickreason",     "&H/SetInfo <PlayerName> KickReason <Reason>\n&S" +
                                     "Changes reason of most-recent kick for the given player. " +
                                     "Original kick reason is preserved in the logs." },
-                { "previousrank",   "&Z/SetInfo <PlayerName> PreviousRank <RankName>\n&S" +
+                { "previousrank",   "&H/SetInfo <PlayerName> PreviousRank <RankName>\n&S" +
                                     "Changes previous rank held by the player. " +
-                                    "To reset previous rank to \"none\" (will show as \"default\" in &Z/Info&S), " +
-                                    "type \"&Z/SetInfo <Name> PreviousRank&S\" (omit the rank name)." },
-                { "rankchangetype", "&Z/SetInfo <PlayerName> RankChangeType <Type>\n&S" +
+                                    "To reset previous rank to \"none\" (will show as \"default\" in &H/Info&S), " +
+                                    "type \"&H/SetInfo <Name> PreviousRank&S\" (omit the rank name)." },
+                { "rankchangetype", "&H/SetInfo <PlayerName> RankChangeType <Type>\n&S" +
                                     "Sets the type of rank change. <Type> can be: Promoted, Demoted, AutoPromoted, AutoDemoted." },
-                { "rankreason",     "&Z/SetInfo <PlayerName> RankReason <Reason>\n&S" +
+                { "rankreason",     "&H/SetInfo <PlayerName> RankReason <Reason>\n&S" +
                                     "Changes promotion/demotion reason for the given player. "+
                                     "Original promotion/demotion reason is preserved in the logs." },
-                { "timeskicked",    "&Z/SetInfo <PlayerName> TimesKicked <#>\n&S" +
+                { "timeskicked",    "&H/SetInfo <PlayerName> TimesKicked <#>\n&S" +
                                     "Changes the number of times that a player has been kicked. "+
                                     "Acceptible value range: 0-9999" },
-                { "totaltime",      "&Z/SetInfo <PlayerName> TotalTime <Time>\n&S" +
+                { "totaltime",      "&H/SetInfo <PlayerName> TotalTime <Time>\n&S" +
                                     "Changes the amount of game time that the player has on record. " +
                                     "Accepts values in the common compact time-span format." },
-                { "unbanreason",    "&Z/SetInfo <PlayerName> UnbanReason <Reason>\n&S" +
+                { "unbanreason",    "&H/SetInfo <PlayerName> UnbanReason <Reason>\n&S" +
                                     "Changes unban reason for the given player. " +
                                     "Original unban reason is preserved in the logs." }
             },
@@ -994,8 +994,8 @@ namespace fCraft {
             IsConsoleSafe = true,
             Help = "Shuts down the server remotely after a given delay. " +
                    "A shutdown reason or message can be specified to be shown to players. " +
-                   "Type &Z/Shutdown abort&S to cancel.",
-            Usage = "/Shutdown Delay [Reason]&S or &Z/Shutdown abort",
+                   "Type &H/Shutdown abort&S to cancel.",
+            Usage = "/Shutdown Delay [Reason]&S or &H/Shutdown abort",
             Handler = ShutdownHandler
         };
 
@@ -1056,8 +1056,8 @@ namespace fCraft {
             IsConsoleSafe = true,
             Help = "Restarts the server remotely after a given delay. " +
                    "A restart reason or message can be specified to be shown to players. " +
-                   "Type &Z/Restart abort&S to cancel.",
-            Usage = "/Restart Delay [Reason]&S or &Z/Restart abort",
+                   "Type &H/Restart abort&S to cancel.",
+            Usage = "/Restart Delay [Reason]&S or &H/Restart abort",
             Handler = RestartHandler
         };
 
@@ -1155,7 +1155,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Import },
-            Usage = "/Import bans Software File&S or &Z/Import ranks Software File Rank",
+            Usage = "/Import bans Software File&S or &H/Import ranks Software File Rank",
             Help = "Imports data from formats used by other servers. " +
                    "Currently only MCSharp/MCZall files are supported.",
             Handler = ImportHandler
@@ -1305,7 +1305,7 @@ namespace fCraft {
                 return;
             }
 
-            string reason = "~Import from " + serverName;
+            string reason = "(Import from " + serverName + ")";
             foreach( string name in names ) {
                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                   PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );

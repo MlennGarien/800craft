@@ -178,7 +178,7 @@ namespace fCraft {
             CommandDescriptor descriptor = GetDescriptor( cmd.Name, true );
 
             if( descriptor == null ) {
-                player.Message( "Unknown command \"{0}\". See &Z/Commands", cmd.Name );
+                player.Message( "Unknown command \"{0}\". See &H/Commands", cmd.Name );
                 return false;
             }
 

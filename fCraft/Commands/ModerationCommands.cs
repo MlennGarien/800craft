@@ -12,7 +12,7 @@ namespace fCraft {
     /// Most commands for server moderation - kick, ban, rank change, etc - are here.
     /// </summary>
     static class ModerationCommands {
-        const string BanCommonHelp = "Ban information can be viewed with &Z/BanInfo";
+        const string BanCommonHelp = "Ban information can be viewed with &H/BanInfo";
 
         internal static void Init() {
             CdBan.Help += BanCommonHelp;
@@ -1093,7 +1093,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
-            Usage = "/BanEx +PlayerName&S or &Z/BanEx -PlayerName",
+            Usage = "/BanEx +PlayerName&S or &H/BanEx -PlayerName",
             Help = "Adds or removes an IP-ban exemption for an account. " +
                    "Exempt accounts can log in from any IP, including banned ones.",
             Handler = BanExHandler
@@ -1162,7 +1162,7 @@ namespace fCraft {
         static void KickHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                player.Message( "Usage: &Z/Kick PlayerName [Message]" );
+                player.Message( "Usage: &H/Kick PlayerName [Message]" );
                 return;
             }
 
@@ -1230,7 +1230,7 @@ namespace fCraft {
             // Check arguments
             if( name == null || newRankName == null ) {
                 CdRank.PrintUsage( player );
-                player.Message( "See &Z/Ranks&S for list of ranks." );
+                player.Message( "See &H/Ranks&S for list of ranks." );
                 return;
             }
 
@@ -1242,6 +1242,14 @@ namespace fCraft {
             }
 
             // Parse player name
+            if( name == "-" ) {
+                if( player.LastUsedPlayerName != null ) {
+                    name = player.LastUsedPlayerName;
+                } else {
+                    player.Message( "Cannot repeat player name: you haven't used any names yet." );
+                    return;
+                }
+            }
             PlayerInfo targetInfo = PlayerDB.FindPlayerInfoExact( name );
             player.LastUsedPlayerName = name;
 
@@ -1250,21 +1258,21 @@ namespace fCraft {
                     player.MessageNoPlayer( name );
                     return;
                 }
-                if( Player.IsValidName( name ) ) {
-                    if( cmd.IsConfirmed ) {
-                        if( newRank > RankManager.DefaultRank ) {
-                            targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
-                        } else {
-                            targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
-                        }
+                if( !Player.IsValidName( name ) ) {
+                    player.MessageInvalidPlayerName( name );
+                    CdRank.PrintUsage( player );
+                    return;
+                }
+                if( cmd.IsConfirmed ) {
+                    if( newRank > RankManager.DefaultRank ) {
+                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
                     } else {
-                        player.Confirm( cmd,
-                                        "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
-                                        name );
-                        return;
+                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
                     }
                 } else {
-                    player.Message( "Player not found. Please specify a valid name." );
+                    player.Confirm( cmd,
+                                    "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
+                                    name );
                     return;
                 }
             }
@@ -1291,7 +1299,7 @@ namespace fCraft {
             Help = "Enables invisible mode. It looks to other players like you left the server, " +
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
                    "Great way to spy on griefers and scare newbies. " +
-                   "Call &Z/Unhide&S to reveal yourself.",
+                   "Call &H/Unhide&S to reveal yourself.",
             Handler = HideHandler
         };
 
@@ -1335,7 +1343,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
             Usage = "/Unhide [silent]",
-            Help = "Disables the &Z/Hide&S invisible mode. " +
+            Help = "Disables the &H/Hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
             Handler = UnhideHandler
         };
@@ -1444,7 +1452,7 @@ namespace fCraft {
             Usage = "/Freeze PlayerName",
             Help = "Freezes the specified player in place. " +
                    "This is usually effective, but not hacking-proof. " +
-                   "To release the player, use &Z/unfreeze PlayerName",
+                   "To release the player, use &H/unfreeze PlayerName",
             Handler = FreezeHandler
         };
 
@@ -1473,7 +1481,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Freeze },
             Usage = "/Unfreeze PlayerName",
-            Help = "Releases the player from a frozen state. See &Z/Help freeze&S for more information.",
+            Help = "Releases the player from a frozen state. See &H/Help freeze&S for more information.",
             Handler = UnfreezeHandler
         };
 
@@ -1503,7 +1511,7 @@ namespace fCraft {
             Name = "TP",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Teleport },
-            Usage = "/TP PlayerName&S or &Z/TP X Y Z",
+            Usage = "/TP PlayerName&S or &H/TP X Y Z",
             Help = "Teleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
             Handler = TPHandler
@@ -1685,7 +1693,7 @@ namespace fCraft {
             if( target == null || world == null ) return;
 
             if( target == player ) {
-                player.Message( "&WYou cannot &Z/WBring&W yourself." );
+                player.Message( "&WYou cannot &H/WBring&W yourself." );
                 return;
             }
 
@@ -1750,7 +1758,7 @@ namespace fCraft {
                         if( player.Can( Permission.Bring, rank ) ) {
                             targetRanks.Add( rank );
                         } else {
-                            player.Message( "&WYou are not allowed to &Z/Bring&W players of rank {0}",
+                            player.Message( "&WYou are not allowed to &H/Bring&W players of rank {0}",
                                             rank.ClassyName );
                         }
                         allRanks = false;
@@ -1990,20 +1998,19 @@ namespace fCraft {
 
         static void UnmuteHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
-            if( targetName != null && Player.IsValidName( targetName ) ) {
-
-                // find target
-                Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
-                if( target == null ) return;
-
-                try {
-                    target.Info.Unmute( player, true, true );
-                } catch( PlayerOpException ex ) {
-                    player.Message( ex.MessageColored );
-                }
-
-            } else {
+            if( targetName == null || !Player.IsValidName( targetName ) ) {
                 CdUnmute.PrintUsage( player );
+                return;
+            }
+
+            // find target
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
+            if( target == null ) return;
+
+            try {
+                target.Info.Unmute( player, true, true );
+            } catch( PlayerOpException ex ) {
+                player.Message( ex.MessageColored );
             }
         }
 

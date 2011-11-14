@@ -81,6 +81,19 @@ namespace fCraft {
             return map;
         }
 
+        [NotNull]
+        public static Map GenerateEmpty( int width, int length, int height ) {
+            return new Map( null, width, length, height, true );
+        }
+
+        [NotNull]
+        public static Map GenerateOcean( int width, int length, int height ) {
+            Map map = new Map( null, width, length, height, true );
+            map.Blocks.MemSet( (byte)Block.Sand, 0, width * length );
+            map.Blocks.MemSet( (byte)Block.Water, width * length, width * length * (height / 2 - 1) );
+            return map;
+        }
+
 
         #region Progress Reporting
 

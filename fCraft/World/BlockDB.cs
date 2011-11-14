@@ -795,7 +795,7 @@ namespace fCraft {
 
         static void FlushAll( SchedulerTask task ) {
             lock( WorldManager.SyncRoot ) {
-                foreach( World w in WorldManager.WorldList.Where( w => w.BlockDB.IsEnabled ) ) {
+                foreach( World w in WorldManager.Worlds.Where( w => w.BlockDB.IsEnabled ) ) {
                     w.BlockDB.Flush();
                 }
             }

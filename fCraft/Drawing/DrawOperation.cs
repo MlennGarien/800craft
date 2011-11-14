@@ -1,4 +1,5 @@
 ﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+//#define DEBUG_CHECK_DUPLICATE_COORDS
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -186,6 +187,11 @@ namespace fCraft.Drawing {
 
 
         internal void End() {
+            if( IsCancelled ) {
+                OnCancellation();
+            } else {
+                OnCompletion();
+            }
             Player.Info.ProcessDrawCommand( BlocksUpdated );
             Brush.End();
             RaiseEndedEvent( this );
@@ -200,8 +206,8 @@ namespace fCraft.Drawing {
                 return false;
             }
 
-#if DEBUG
-            //TestForDuplicateModification();
+#if DEBUG_CHECK_DUPLICATE_COORDS
+            TestForDuplicateModification();
 #endif
 
             Block newBlock = Brush.NextBlock( this );
@@ -282,7 +288,67 @@ namespace fCraft.Drawing {
         }
 
 
-#if DEBUG
+
+        void OnCompletion() {
+            if( AnnounceCompletion ) {
+                if( BlocksUpdated > 0 ) {
+                    if( BlocksDenied > 0 ) {
+                        Player.Message( "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
+                                           Description,
+                                           DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                                           BlocksUpdated, BlocksDenied );
+                    } else {
+                        Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
+                                        Description,
+                                        DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                                        BlocksUpdated );
+                    }
+                } else {
+                    if( BlocksDenied > 0 ) {
+                        Player.Message( "{0}: Finished in {1}, no changes made. &WSkipped {2} blocks due to permission issues.",
+                                           Description,
+                                           DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                                           BlocksDenied );
+                    } else {
+                        Player.Message( "{0}: Finished in {1}, no changes needed.",
+                                           Description,
+                                           DateTime.UtcNow.Subtract( StartTime ).ToMiniString() );
+                    }
+                }
+            }
+            if( AnnounceCompletion && Map.World != null ) {
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
+                            Player.Name, Description, Map.World.Name,
+                            Bounds.MinVertex, Bounds.MaxVertex,
+                            BlocksProcessed, BlocksUpdated, BlocksSkipped, BlocksDenied );
+            }
+        }
+
+
+        void OnCancellation() {
+            if( AnnounceCompletion ) {
+                if( BlocksDenied > 0 ) {
+                    Player.Message( "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
+                                    Description,
+                                    DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                                    BlocksProcessed, BlocksUpdated, BlocksDenied );
+                } else {
+                    Player.Message( "{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
+                                    Description,
+                                    DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                                    BlocksProcessed, BlocksUpdated );
+                }
+            }
+            if( LogCompletion && Map.World != null ) {
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
+                            Player, Description, Map.World.Name,
+                            BlocksProcessed, BlocksUpdated, BlocksSkipped, BlocksDenied );
+            }
+        }
+
+#if DEBUG_CHECK_DUPLICATE_COORDS
 
         // Single modification per block policy enforcement
         readonly HashSet<int> modifiedBlockIndices = new HashSet<int>();

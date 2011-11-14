@@ -10,15 +10,14 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fCraft</RootNamespace>
     <AssemblyName>fCraft</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
     <ApplicationIcon>
     </ApplicationIcon>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -95,9 +94,7 @@
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.ServiceModel.Web">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -113,6 +110,7 @@
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
+    <Compile Include="Network\Player.Networking.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Portals\Portal.cs" />
     <Compile Include="Portals\PortalDB.cs" />
@@ -159,7 +157,6 @@
     <Compile Include="System\Logger.cs" />
     <Compile Include="Network\PacketWriter.cs" />
     <Compile Include="Network\Packet.cs" />
-    <Compile Include="Player\Player.Networking.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Player\Rank.cs" />
     <Compile Include="Player\Player.cs" />

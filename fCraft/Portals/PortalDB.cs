@@ -28,7 +28,7 @@ namespace fCraft.Portals
                     using (FileStream fs = new FileStream(Paths.PortalDBFileName, FileMode.OpenOrCreate))
                     {
                         StringBuilder data = new StringBuilder();
-                        World[] worldsCopy = WorldManager.WorldList;
+                        World[] worldsCopy = WorldManager.Worlds;
 
                         foreach (World world in worldsCopy)
                         {

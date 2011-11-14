@@ -230,14 +230,14 @@ namespace fCraft.ConfigGUI {
         public string AccessPermission {
             get {
                 if( accessSecurity.HasRankRestriction ) {
-                    return accessSecurity.MinRank.ToComboBoxOption();
+                    return MainForm.ToComboBoxOption( accessSecurity.MinRank );
                 } else {
                     return DefaultRankOption;
                 }
             }
             set {
                 foreach( Rank rank in RankManager.Ranks ) {
-                    if( rank.ToComboBoxOption() == value ) {
+                    if( MainForm.ToComboBoxOption(rank) == value ) {
                         accessSecurity.MinRank = rank;
                         accessRankString = rank.FullName;
                         return;
@@ -254,14 +254,14 @@ namespace fCraft.ConfigGUI {
         public string BuildPermission {
             get {
                 if( buildSecurity.HasRankRestriction ) {
-                    return buildSecurity.MinRank.ToComboBoxOption();
+                    return MainForm.ToComboBoxOption(buildSecurity.MinRank);
                 } else {
                     return DefaultRankOption;
                 }
             }
             set {
                 foreach( Rank rank in RankManager.Ranks ) {
-                    if( rank.ToComboBoxOption() == value ) {
+                    if( MainForm.ToComboBoxOption(rank) == value ) {
                         buildSecurity.MinRank = rank;
                         buildRankString = rank.FullName;
                         return;

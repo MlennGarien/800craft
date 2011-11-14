@@ -260,20 +260,44 @@ namespace fCraft {
             if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return RawMessageType.Confirmation;
             if( message.EndsWith( " /" ) ) return RawMessageType.PartialMessage;
             if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
+
             switch( message[0] ) {
                 case '/':
-                    if( message.Length > 1 && message[1] == '/' ) return RawMessageType.Chat;
-                    if( message.Length < 2 || message[1] == ' ' ) return RawMessageType.Invalid;
-                    return RawMessageType.Command;
+                    if( message.Length < 2 ) {
+                        // message too short to be a command
+                        return RawMessageType.Invalid;
+                    }
+                    if( message[1] == '/' ) {
+                        // escaped slash in the beginning: "//blah"
+                        return RawMessageType.Chat;
+                    }
+                    if( message[1] != ' ' ) {
+                        // normal command: "/cmd"
+                        return RawMessageType.Command;
+                    }
+                    return RawMessageType.Invalid;
+
                 case '@':
-                    if( message.Length < 4 || message.IndexOf( ' ' ) < 0 ||
-                        (message[1] == ' ' && message.IndexOf( ' ', 2 ) == -1) ) {
+                    if( message.Length < 4 ) {
+                        // message too short to be a PM or rank chat
                         return RawMessageType.Invalid;
                     }
                     if( message[1] == '@' ) {
                         return RawMessageType.RankChat;
                     }
-                    return RawMessageType.PrivateChat;
+                    if( message[1] == '-' && message[2] == ' ' ) {
+                        // name shortcut: "@- blah"
+                        return RawMessageType.PrivateChat;
+                    }
+                    if( message[1] == ' ' && message.IndexOf( ' ', 2 ) != -1 ) {
+                        // alternative PM notation: "@ name blah"
+                        return RawMessageType.PrivateChat;
+                    }
+                    if( message[1] != ' ' && message.IndexOf( ' ' ) != -1 ) {
+                        // primary PM notation: "@name blah"
+                        return RawMessageType.PrivateChat;
+                    }
+                    return RawMessageType.Invalid;
             }
             return RawMessageType.Chat;
         }

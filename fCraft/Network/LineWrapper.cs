@@ -164,9 +164,11 @@ namespace fCraft {
                 case (byte)'-':
                     expectingColor = false;
                     if( !Append( ch ) ) {
-                        inputIndex = wrapIndex;
-                        outputIndex = wrapOutputIndex;
-                        color = wrapColor;
+                        if( wordLength < LineSize - prefix.Length ) {
+                            inputIndex = wrapIndex;
+                            outputIndex = wrapOutputIndex;
+                            color = wrapColor;
+                        }
                         return true;
                     }
                     spaceCount = 0;

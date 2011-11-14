@@ -12,8 +12,8 @@ namespace fCraft {
     public delegate void CommandHandler( Player source, Command cmd );
 
 
-    /// <summary> Describes a chat command.
-    /// Defines properties and usage information, and specifies a callback. </summary>
+    /// <summary> Describes a chat command. Defines properties, permission requirements, and usage information.
+    /// Specifies a handler method. </summary>
     public sealed class CommandDescriptor : IClassy {
 
         /// <summary> List of aliases. May be null or empty. Default: null </summary>
@@ -99,9 +99,9 @@ namespace fCraft {
         public void PrintUsage( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( Usage != null ) {
-                player.Message( "Usage: &Z{0}", Usage );
+                player.Message( "Usage: &H{0}", Usage );
             } else {
-                player.Message( "Usage: &Z/{0}", Name );
+                player.Message( "Usage: &H/{0}", Name );
             }
         }
 

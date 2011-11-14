@@ -4,7 +4,7 @@ using System;
 // This file condenses some of the player-related enumerations
 namespace fCraft {
     /// <summary> List of possible reasons for players leaving the server. </summary>
-    public enum LeaveReason {
+    public enum LeaveReason : byte {
         /// <summary> Unknown leave reason (default) </summary>
         Unknown = 0x00,
 
@@ -89,7 +89,7 @@ namespace fCraft {
 
 
     /// <summary> Describes the way player's rank was set. </summary>
-    public enum RankChangeType {
+    public enum RankChangeType : byte {
         /// <summary> Default rank (never been promoted or demoted). </summary>
         Default = 0,
 
@@ -109,7 +109,7 @@ namespace fCraft {
 
     /// <summary> Bandwidth use mode.
     /// This setting affects the way player receive movement updates. </summary>
-    public enum BandwidthUseMode {
+    public enum BandwidthUseMode : byte {
         /// <summary> Use server default. </summary>
         Default = 0,
 
@@ -192,7 +192,7 @@ namespace fCraft {
     }
 
 
-    public enum BanStatus {
+    public enum BanStatus : byte {
         /// <summary> Player is not banned. </summary>
         NotBanned,
 

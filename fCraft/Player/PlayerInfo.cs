@@ -5,8 +5,11 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
+using System.IO;
 
 namespace fCraft {
+    /// <summary> Object representing persistent state ("record") of a player, online or offline.
+    /// There is exactly one PlayerInfo object for each known Minecraft account. All data is stored in the PlayerDB. </summary>
     public sealed partial class PlayerInfo : IClassy {
         public const int MinFieldCount = 24;
 
@@ -441,8 +444,8 @@ namespace fCraft {
             if( info.ID < 256 )
                 info.ID = PlayerDB.GetNextID();
 
-            int rankChangeTypeCode;
-            if( Int32.TryParse( fields[30], out rankChangeTypeCode ) ) {
+            byte rankChangeTypeCode;
+            if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
                 info.RankChangeType = (RankChangeType)rankChangeTypeCode;
                 if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
                     info.GuessRankChangeType();
@@ -469,8 +472,8 @@ namespace fCraft {
             info.Password = Unescape( fields[42] );
             // fields[43] is "online", and is ignored
 
-            int bandwidthUseModeCode;
-            if( Int32.TryParse( fields[44], out bandwidthUseModeCode ) ) {
+            byte bandwidthUseModeCode;
+            if( Byte.TryParse( fields[44], out bandwidthUseModeCode ) ) {
                 info.BandwidthUseMode = (BandwidthUseMode)bandwidthUseModeCode;
                 if( !Enum.IsDefined( typeof( BandwidthUseMode ), bandwidthUseModeCode ) ) {
                     info.BandwidthUseMode = BandwidthUseMode.Default;
@@ -788,6 +791,131 @@ namespace fCraft {
             }
         }
 
+
+        internal static PlayerInfo LoadBinaryFormat0( [NotNull] BinaryReader reader ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
+            // ReSharper disable UseObjectOrCollectionInitializer
+            PlayerInfo info = new PlayerInfo();
+            // ReSharper restore UseObjectOrCollectionInitializer
+
+            // General
+            info.Name = reader.ReadString();
+            info.DisplayedName = ReadString( reader );
+            info.ID = Read7BitEncodedInt( reader );
+            info.LastSeen = DateTimeUtil.ToDateTime( reader.ReadUInt32() );
+
+            // Rank
+            int rankIndex = Read7BitEncodedInt( reader );
+            info.Rank = PlayerDB.GetRankByIndex(rankIndex);
+            {
+                bool hasPrevRank = reader.ReadBoolean();
+                if( hasPrevRank ) {
+                    int prevRankIndex = Read7BitEncodedInt( reader );
+                    info.Rank = PlayerDB.GetRankByIndex( prevRankIndex );
+                }
+            }
+            info.RankChangeType = (RankChangeType)reader.ReadByte();
+            if( info.RankChangeType != RankChangeType.Default ) {
+                info.RankChangeDate = ReadDate( reader );
+                info.RankChangedBy = ReadString( reader );
+                info.RankChangeReason = ReadString( reader );
+            }
+
+            // Bans
+            info.BanStatus = (BanStatus)reader.ReadByte();
+            info.BanDate = ReadDate( reader );
+            info.BannedBy = ReadString( reader );
+            info.BanReason = ReadString( reader );
+            if( info.BanStatus == BanStatus.Banned ) {
+                info.BannedUntil = ReadDate( reader );
+                info.LastFailedLoginDate = ReadDate( reader );
+                info.LastFailedLoginIP = new IPAddress( reader.ReadBytes( 4 ) );
+            } else {
+                info.UnbanDate = ReadDate( reader );
+                info.UnbannedBy = ReadString( reader );
+                info.UnbanReason = ReadString( reader );
+            }
+
+            // Stats
+            info.FirstLoginDate = DateTimeUtil.ToDateTime( reader.ReadUInt32() );
+            info.LastLoginDate = DateTimeUtil.ToDateTime( reader.ReadUInt32() );
+            info.TotalTime = new TimeSpan( reader.ReadUInt32() * TimeSpan.TicksPerSecond );
+            info.BlocksBuilt = Read7BitEncodedInt( reader );
+            info.BlocksDeleted = Read7BitEncodedInt( reader );
+            if( reader.ReadBoolean() ) {
+                info.BlocksDrawn = reader.ReadInt64();
+            }
+            info.TimesVisited = Read7BitEncodedInt( reader );
+            info.MessagesWritten = Read7BitEncodedInt( reader );
+            info.TimesKickedOthers = Read7BitEncodedInt( reader );
+            info.TimesBannedOthers = Read7BitEncodedInt( reader );
+
+            // Kicks
+            info.TimesKicked = Read7BitEncodedInt( reader );
+            if( info.TimesKicked > 0 ) {
+                info.LastKickDate = ReadDate( reader );
+                info.LastKickBy = ReadString( reader );
+                info.LastKickReason = ReadString( reader );
+            }
+
+            // Freeze/Mute
+            info.IsFrozen = reader.ReadBoolean();
+            if( info.IsFrozen ) {
+                info.FrozenOn = ReadDate( reader );
+                info.FrozenBy = ReadString( reader );
+            }
+            info.MutedUntil = ReadDate( reader );
+            if( info.MutedUntil != DateTime.MinValue ) {
+                info.MutedBy = ReadString( reader );
+            }
+
+            // Misc
+            info.Password = ReadString( reader );
+            info.LastModified = DateTimeUtil.ToDateTime( reader.ReadUInt32() );
+            info.IsOnline = reader.ReadBoolean();
+            info.IsHidden = reader.ReadBoolean();
+            info.LastIP = new IPAddress( reader.ReadBytes( 4 ) );
+            info.LeaveReason = (LeaveReason)reader.ReadByte();
+            info.BandwidthUseMode = (BandwidthUseMode)reader.ReadByte();
+
+            return info;
+        }
+
+
+        static DateTime ReadDate( [NotNull] BinaryReader reader ) {
+            if( reader.ReadBoolean() ) {
+                return DateTimeUtil.ToDateTime( reader.ReadUInt32() );
+            } else {
+                return DateTime.MinValue;
+            }
+        }
+
+
+        static string ReadString( [NotNull] BinaryReader reader ) {
+            if( reader.ReadBoolean() ) {
+                return reader.ReadString();
+            } else {
+                return null;
+            }
+        }
+
+
+        static int Read7BitEncodedInt( [NotNull] BinaryReader reader ) {
+            byte num3;
+            int num = 0;
+            int num2 = 0;
+            do {
+                if( num2 == 0x23 ) {
+                    throw new FormatException( "Invalid 7bit encoded integer." );
+                }
+                num3 = reader.ReadByte();
+                num |= (num3 & 0x7f) << num2;
+                num2 += 7;
+            }
+            while( (num3 & 0x80) != 0 );
+            return num;
+        }
+
         #endregion
 
 
@@ -912,6 +1040,124 @@ namespace fCraft {
 
             sb.Append( ',' );
             sb.AppendEscaped( DisplayedName ); // 47
+        }
+
+
+        internal void Serialize( [NotNull] BinaryWriter writer ) {
+            if( writer == null ) throw new ArgumentNullException( "writer" );
+            // General
+            writer.Write( Name ); // 0
+            WriteString( writer, DisplayedName ); // 1
+            Write7BitEncodedInt( writer, ID ); // 2
+            if( IsOnline ) {
+                writer.Write( (uint)DateTime.UtcNow.ToUnixTime() ); // 5
+            } else {
+                writer.Write( (uint)LastSeen.ToUnixTime() ); // 5
+            }
+
+            // Rank
+            Write7BitEncodedInt( writer, Rank.Index ); // 7
+            {
+                bool hasPrevRank = (PreviousRank != null);
+                writer.Write( hasPrevRank );
+                if( hasPrevRank ) {
+                    Write7BitEncodedInt( writer, PreviousRank.Index ); // 8
+                }
+            }
+            writer.Write( (byte)RankChangeType ); // 12
+            if( RankChangeType != RankChangeType.Default ) {
+                WriteDate( writer, RankChangeDate ); // 9
+                WriteString( writer, RankChangedBy ); // 10
+                WriteString( writer, RankChangeReason ); // 11
+            }
+
+            // Bans
+            writer.Write( (byte)BanStatus ); // 13
+            WriteDate( writer, BanDate ); // 14
+            WriteString( writer, BannedBy ); // 15
+            WriteString( writer, BanReason ); // 16
+            if( BanStatus == BanStatus.Banned ) {
+                WriteDate( writer, BannedUntil ); // 14
+                WriteDate( writer, LastFailedLoginDate ); // 20
+                writer.Write( LastFailedLoginIP.GetAddressBytes() ); // 21
+            } else {
+                WriteDate( writer, UnbanDate ); // 17
+                WriteString( writer, UnbannedBy ); // 18
+                WriteString( writer, UnbanReason ); // 18
+            }
+
+            // Stats
+            writer.Write( (uint)FirstLoginDate.ToUnixTime() ); // 3
+            writer.Write( (uint)LastLoginDate.ToUnixTime() ); // 4
+            if( IsOnline ) {
+                writer.Write( (uint)TotalTime.Add( TimeSinceLastLogin ).ToSeconds() ); // 22
+            } else {
+                writer.Write( (uint)TotalTime.ToSeconds() ); // 22
+            }
+            Write7BitEncodedInt( writer, BlocksBuilt ); // 23
+            Write7BitEncodedInt( writer, BlocksDeleted ); // 24
+            writer.Write( BlocksDrawn > 0 );
+            if( BlocksDrawn > 0 ) writer.Write( BlocksDrawn ); // 25
+            Write7BitEncodedInt( writer, TimesVisited ); // 26
+            Write7BitEncodedInt( writer, MessagesWritten ); // 27
+            Write7BitEncodedInt( writer, TimesKickedOthers ); // 28
+            Write7BitEncodedInt( writer, TimesBannedOthers ); // 29
+
+            // Kicks
+            Write7BitEncodedInt( writer, TimesKicked ); // 30
+            if( TimesKicked > 0 ) {
+                WriteDate( writer, LastKickDate ); // 31
+                WriteString( writer, LastKickBy ); // 32
+                WriteString( writer, LastKickReason ); // 33
+            }
+
+            // Freeze/Mute
+            writer.Write( IsFrozen ); // 34
+            if( IsFrozen ) {
+                WriteDate( writer, FrozenOn ); // 35
+                WriteString( writer, FrozenBy ); // 36
+            }
+            WriteDate( writer, MutedUntil ); // 37
+            if( MutedUntil != DateTime.MinValue ) {
+                WriteString( writer, MutedBy ); // 38
+            }
+
+            // Misc
+            WriteString( writer, Password );
+            writer.Write( (uint)LastModified.ToUnixTime() );
+            writer.Write( IsOnline ); // 39
+            writer.Write( IsHidden ); // 40
+            writer.Write( LastIP.GetAddressBytes() ); // 41
+            writer.Write( (byte)LeaveReason ); // 6
+            writer.Write( (byte)BandwidthUseMode ); // 6
+        }
+
+
+        static void WriteDate( [NotNull] BinaryWriter writer, DateTime dateTime ) {
+            bool hasDate = (dateTime != DateTime.MinValue);
+            writer.Write( hasDate );
+            if( hasDate ) {
+                writer.Write( (uint)dateTime.ToUnixTime() );
+            }
+        }
+
+
+        static void WriteString( [NotNull] BinaryWriter writer, [CanBeNull] string str ) {
+            bool hasString = (str != null);
+            writer.Write( hasString );
+            if( hasString ) {
+                writer.Write( str );
+            }
+        }
+
+
+        static void Write7BitEncodedInt( [NotNull] BinaryWriter writer, int value ) {
+            uint num = (uint)value;
+            while( num >= 0x80 ) {
+                writer.Write( (byte)(num | 0x80) );
+                num = num >> 7;
+            }
+            writer.Write( (byte)num );
         }
 
         #endregion
@@ -1055,12 +1301,9 @@ namespace fCraft {
                     }
                     sb.Append( Name );
                 }
-                
                 if( IsBanned ) {
                     sb.Append( Color.Red ).Append( '*' );
-                }
-                
-                else if( IsFrozen ){
+                } else if( IsFrozen ) {
                     sb.Append( Color.Blue ).Append( '*' );
                 }
                 return sb.ToString();

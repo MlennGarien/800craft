@@ -43,7 +43,7 @@ namespace fCraft.Drawing {
             int blocksDone = 0;
             while( coordEnumerator1.MoveNext() ) {
                 Coords = coordEnumerator1.Current;
-                if( DrawOneBlock() ) {
+                if( DrawOneBlockIfNotDuplicate() ) {
                     blocksDone++;
                     if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                 }
@@ -51,7 +51,7 @@ namespace fCraft.Drawing {
             }
             while( coordEnumerator2.MoveNext() ) {
                 Coords = coordEnumerator2.Current;
-                if( DrawOneBlock() ) {
+                if( DrawOneBlockIfNotDuplicate() ) {
                     blocksDone++;
                     if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                 }
@@ -59,7 +59,7 @@ namespace fCraft.Drawing {
             }
             while( coordEnumerator3.MoveNext() ) {
                 Coords = coordEnumerator3.Current;
-                if( DrawOneBlock() ) {
+                if( DrawOneBlockIfNotDuplicate() ) {
                     blocksDone++;
                     if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                 }
@@ -67,6 +67,20 @@ namespace fCraft.Drawing {
             }
             IsDone = true;
             return blocksDone;
+        }
+
+
+
+        readonly HashSet<int> modifiedBlocks = new HashSet<int>();
+
+        bool DrawOneBlockIfNotDuplicate() {
+            int index = Map.Index( Coords );
+            if( modifiedBlocks.Contains( index ) ) {
+                return false;
+            } else {
+                modifiedBlocks.Add( index );
+                return DrawOneBlock();
+            }
         }
     }
 }

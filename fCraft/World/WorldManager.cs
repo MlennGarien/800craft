@@ -12,10 +12,11 @@ namespace fCraft {
     public static class WorldManager {
         public const string BuildSecurityXmlTagName = "BuildSecurity",
                             AccessSecurityXmlTagName = "AccessSecurity",
-                            EnvironmentXmlTagName = "Environment";
+                            EnvironmentXmlTagName = "Environment",
+                            RankMainXmlTagName = "RankMainWorld";
 
-        public static World[] WorldList { get; private set; }
-        static readonly SortedDictionary<string, World> Worlds = new SortedDictionary<string, World>();
+        public static World[] Worlds { get; private set; }
+        static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>();
 
         internal static readonly object SyncRoot = new object();
 
@@ -54,7 +55,7 @@ namespace fCraft {
         static World firstWorld;
         internal static bool LoadWorldList() {
             World newMainWorld = null;
-            WorldList = new World[0];
+            Worlds = new World[0];
             if( File.Exists( Paths.WorldListFileName ) ) {
                 try {
                     XDocument doc = XDocument.Load( Paths.WorldListFileName );
@@ -248,7 +249,7 @@ namespace fCraft {
                 }
             }
 
-            foreach( XElement mainedRankEl in el.Elements( "RankMainWorld" ) ) {
+            foreach( XElement mainedRankEl in el.Elements( RankMainXmlTagName ) ) {
                 Rank rank = Rank.Parse( mainedRankEl.Value );
                 if( rank != null ) {
                     if( rank < world.AccessSecurity.MinRank ) {
@@ -323,7 +324,7 @@ namespace fCraft {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
 
-                foreach( World world in WorldList ) {
+                foreach( World world in Worlds ) {
                     XElement temp = new XElement( "World" );
                     temp.Add( new XAttribute( "name", world.Name ) );
 
@@ -348,7 +349,7 @@ namespace fCraft {
 
                     World world1 = world;
                     foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
-                        temp.Add( new XElement( "RankMainWorld", mainedRank.FullName ) );
+                        temp.Add( new XElement( RankMainXmlTagName, mainedRank.FullName ) );
                     }
 
                     if( !String.IsNullOrEmpty( world.LoadedBy ) ) {
@@ -395,7 +396,7 @@ namespace fCraft {
         [CanBeNull]
         public static World FindWorldExact( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            return WorldList.FirstOrDefault( w => w.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
+            return Worlds.FirstOrDefault( w => w.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
         }
 
 
@@ -404,7 +405,7 @@ namespace fCraft {
         /// Target worlds are not guaranteed to have a loaded map. </summary>
         public static World[] FindWorldsNoEvent( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            World[] worldListCache = WorldList;
+            World[] worldListCache = Worlds;
 
             List<World> results = new List<World>();
             for( int i = 0; i < worldListCache.Length; i++ ) {
@@ -484,7 +485,7 @@ namespace fCraft {
             }
 
             lock( SyncRoot ) {
-                if( Worlds.ContainsKey( name.ToLower() ) ) {
+                if( WorldIndex.ContainsKey( name.ToLower() ) ) {
                     throw new WorldOpException( name, WorldOpExceptionCode.DuplicateWorldName );
                 }
 
@@ -504,7 +505,7 @@ namespace fCraft {
                     newWorld.SaveMap();
                 }
 
-                Worlds.Add( name.ToLower(), newWorld );
+                WorldIndex.Add( name.ToLower(), newWorld );
                 UpdateWorldList();
 
                 RaiseWorldCreatedEvent( player, newWorld );
@@ -539,9 +540,9 @@ namespace fCraft {
                         }
                     }
 
-                    Worlds.Remove( world.Name.ToLower() );
+                    WorldIndex.Remove( world.Name.ToLower() );
                     world.Name = newName;
-                    Worlds.Add( newName.ToLower(), world );
+                    WorldIndex.Add( newName.ToLower(), world );
                     UpdateWorldList();
 
                     if( moveMapFile ) {
@@ -585,11 +586,11 @@ namespace fCraft {
                     throw new WorldOpException( oldWorld.Name, WorldOpExceptionCode.NoChangeNeeded );
                 }
 
-                if( !Worlds.ContainsValue( oldWorld ) ) {
+                if( !WorldIndex.ContainsValue( oldWorld ) ) {
                     throw new WorldOpException( oldWorld.Name, WorldOpExceptionCode.WorldNotFound );
                 }
 
-                if( Worlds.ContainsValue( newWorld ) ) {
+                if( WorldIndex.ContainsValue( newWorld ) ) {
                     throw new InvalidOperationException( "New world already exists on the list." );
                 }
 
@@ -601,7 +602,7 @@ namespace fCraft {
                     newWorld.UnloadMap( false );
                 }
 
-                Worlds[oldWorld.Name.ToLower()] = newWorld;
+                WorldIndex[oldWorld.Name.ToLower()] = newWorld;
                 oldWorld.Map = null;
 
                 // change the main world, if needed
@@ -635,14 +636,14 @@ namespace fCraft {
                                 "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}", ex );
                 }
 
-                Worlds.Remove( worldToDelete.Name.ToLower() );
+                WorldIndex.Remove( worldToDelete.Name.ToLower() );
                 UpdateWorldList();
             }
         }
 
 
         public static int CountLoadedWorlds() {
-            return WorldList.Count( world => world.IsLoaded );
+            return Worlds.Count( world => world.IsLoaded );
         }
 
 
@@ -653,19 +654,19 @@ namespace fCraft {
 
 
         public static IEnumerable<World> ListLoadedWorlds() {
-            return WorldList.Where( world => world.IsLoaded );
+            return Worlds.Where( world => world.IsLoaded );
         }
 
 
         public static IEnumerable<World> ListLoadedWorlds( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
-            return WorldList.Where( w => w.Players.Any( observer.CanSee ) );
+            return Worlds.Where( w => w.Players.Any( observer.CanSee ) );
         }
 
 
         public static void UpdateWorldList() {
             lock( SyncRoot ) {
-                WorldList = Worlds.Values.ToArray();
+                Worlds = WorldIndex.Values.ToArray();
             }
         }
 

@@ -87,6 +87,10 @@ namespace fCraft.Drawing {
             get { return NormalBrushFactory.Instance; }
         }
 
+        public NormalBrush( Block block ) {
+            Block = block;
+            AltBlock = Block.Undefined;
+        }
 
         public NormalBrush( Block block, Block altBlock ) {
             if( block == Block.Undefined && altBlock != Block.Undefined ) {

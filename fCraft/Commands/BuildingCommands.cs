@@ -12,8 +12,8 @@ namespace fCraft {
 
         public static int MaxUndoCount = 2000000;
 
-        const string GeneralDrawingHelp = " Use &Z/Cancel&S to cancel selection mode. " +
-                                          "Use &Z/Undo&S to stop and undo the last command.";
+        const string GeneralDrawingHelp = " Use &H/Cancel&S to cancel selection mode. " +
+                                          "Use &H/Undo&S to stop and undo the last command.";
 
         internal static void Init() {
             CommandManager.RegisterCommand( CdBind );
@@ -498,7 +498,7 @@ namespace fCraft {
             if( brush == null ) return;
             op.Brush = brush;
             player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );
-            player.Message( "{0}: Click {1} blocks or use &Z/Mark&S to make a selection.",
+            player.Message( "{0}: Click {1} blocks or use &H/Mark&S to make a selection.",
                             op.Description, op.ExpectedMarks );
         }
 
@@ -529,7 +529,8 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             RepeatableSelection = true,
-            Help = "Fills a continuous area with blocks, in 2D. Takes just 1 marks, and replaced the clicked block. " +
+            Help = "Fills a continuous area with blocks, in 2D. " +
+                    "Takes just 1 mark, and replaces blocks of the same type as the block you clicked. " +
                    "Works similar to \"Paint Bucket\" tool in Photoshop. " +
                    "Direction of effect is determined by where the player is looking.",
             Handler = Fill2DHandler
@@ -676,12 +677,11 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdBind = new CommandDescriptor {
             Name = "Bind",
-            Aliases = new[] { "b" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
             Help = "Assigns one blocktype to another. " +
                    "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
-                   "Calling &Z/Bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
+                   "Calling &H/Bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
             Usage = "/Bind OriginalBlockType ReplacementBlockType",
             Handler = BindHandler
         };
@@ -710,6 +710,11 @@ namespace fCraft {
                     player.Message( "{0} is not bound to anything.",
                                     originalBlock );
                 }
+                return;
+            }
+
+            if( cmd.HasNext ) {
+                CdBind.PrintUsage( player );
                 return;
             }
 
@@ -802,7 +807,7 @@ namespace fCraft {
             op.Brush = brush;
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}: Click 2 blocks or use &Z/Mark&S to make a selection.",
+            player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
                                op.Brush.InstanceDescription );
         }
 
@@ -853,7 +858,7 @@ namespace fCraft {
             RepeatableSelection = true,
             Usage = "/ReplaceBrush Block BrushName [Params]",
             Help = "Replaces all blocks of specified type(s) in an area with output of a given brush. " +
-                   "See &Z/Help brush&S for a list of available brushes.",
+                   "See &H/Help brush&S for a list of available brushes.",
             Handler = ReplaceBrushHandler
         };
 
@@ -876,11 +881,11 @@ namespace fCraft {
             Handler = UndoHandler
         };
 
-        static void UndoHandler( Player player, Command command ) {
+        static void UndoHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-            if( command.HasNext ) {
-                player.Message( "Undo command takes no parameters. Did you mean to do &Z/UndoPlayer&S or &Z/UndoArea&S?" );
+            if( cmd.HasNext ) {
+                player.Message( "Undo command takes no parameters. Did you mean to do &H/UndoPlayer&S or &H/UndoArea&S?" );
                 return;
             }
 
@@ -892,7 +897,7 @@ namespace fCraft {
             }
 
             // Cancel the last DrawOp, if still in progress
-            if( undoState.Op != null && !undoState.Op.IsDone ) {
+            if( undoState.Op != null && !undoState.Op.IsDone && !undoState.Op.IsCancelled ) {
                 undoState.Op.Cancel();
                 msg += String.Format( "Cancelled {0} (was {1}% done). ",
                                      undoState.Op.Description,
@@ -916,7 +921,7 @@ namespace fCraft {
                         undoState.Buffer.Count,
                         playerWorld.Name );
 
-            msg += String.Format( "Undo: Restoring {0} blocks. Type &Z/Redo&S to reverse.",
+            msg += String.Format( "Undo: Restoring {0} blocks. Type &H/Redo&S to reverse.",
                                   undoState.Buffer.Count );
             player.MessageNow( msg );
 
@@ -935,7 +940,12 @@ namespace fCraft {
             Handler = RedoHandler
         };
 
-        static void RedoHandler( Player player, Command command ) {
+        static void RedoHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdRedo.PrintUsage( player );
+                return;
+            }
+
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -960,7 +970,7 @@ namespace fCraft {
                         redoState.Buffer.Count,
                         playerWorld.Name );
 
-            msg += String.Format( "Redo: Restoring {0} blocks. Type &Z/Undo&S to reverse.",
+            msg += String.Format( "Redo: Restoring {0} blocks. Type &H/Undo&S to reverse.",
                                   redoState.Buffer.Count );
             player.MessageNow( msg );
 
@@ -986,6 +996,10 @@ namespace fCraft {
         static void CopySlotHandler( Player player, Command cmd ) {
             int slotNumber;
             if( cmd.NextInt( out slotNumber ) ) {
+                if( cmd.HasNext ) {
+                    CdCopySlot.PrintUsage( player );
+                    return;
+                }
                 if( slotNumber < 1 || slotNumber > player.Info.Rank.CopySlots ) {
                     player.Message( "CopySlot: Select a number between 1 and {0}", player.Info.Rank.CopySlots );
                 } else {
@@ -1020,12 +1034,16 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Copy blocks for pasting. " +
-                   "Used together with &Z/Paste&S and &Z/PasteNot&S commands. " +
-                   "Note that pasting starts at the same corner that you started &Z/Copy&S from.",
+                   "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
+                   "Note that pasting starts at the same corner that you started &H/Copy&S from.",
             Handler = CopyHandler
         };
 
         static void CopyHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdCopy.PrintUsage( player );
+                return;
+            }
             player.SelectionStart( 2, CopyCallback, null, CdCopy.Permissions );
             player.MessageNow( "Copy: Place a block or type /Mark to use your location." );
         }
@@ -1066,7 +1084,7 @@ namespace fCraft {
             copyInfo.CopyTime = DateTime.UtcNow;
             player.SetCopyInformation( copyInfo );
 
-            player.MessageNow( "{0} blocks copied into slot #{1}. You can now &Z/Paste",
+            player.MessageNow( "{0} blocks copied into slot #{1}. You can now &H/Paste",
                                volume, player.CopySlot + 1 );
             player.MessageNow( "Origin at {0} {1}{2} corner.",
                                (copyInfo.Orientation.X == 1 ? "bottom" : "top"),
@@ -1087,8 +1105,8 @@ namespace fCraft {
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
             Help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
-                   "Used together with &Z/Paste&S and &Z/PasteNot&S commands. " +
-                   "Note that pasting starts at the same corner that you started &Z/Cut&S from.",
+                   "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
+                   "Note that pasting starts at the same corner that you started &H/Cut&S from.",
             Usage = "/Cut [FillBlock]",
             Handler = CutHandler
         };
@@ -1098,18 +1116,22 @@ namespace fCraft {
             if( cmd.HasNext ) {
                 fillBlock = cmd.NextBlock( player );
                 if( fillBlock == Block.Undefined ) return;
+                if( cmd.HasNext ) {
+                    CdCut.PrintUsage( player );
+                    return;
+                }
             }
 
             CutDrawOperation op = new CutDrawOperation( player ) {
-                Brush = new NormalBrush( fillBlock, Block.Undefined )
+                Brush = new NormalBrush( fillBlock )
             };
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
             if( fillBlock != Block.Air ) {
-                player.Message( "Cut/{0}: Click 2 blocks or use &Z/Mark&S to make a selection.",
+                player.Message( "Cut/{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
                                 fillBlock );
             } else {
-                player.Message( "Cut: Click 2 blocks or use &Z/Mark&S to make a selection." );
+                player.Message( "Cut: Click 2 blocks or use &H/Mark&S to make a selection." );
             }
         }
 
@@ -1121,7 +1143,7 @@ namespace fCraft {
             Permissions = new[] { Permission.CopyAndPaste },
             Help = "Flips copied blocks along specified axis/axes. " +
                    "The axes are: X = horizontal (east-west), Y = horizontal (north-south), Z = vertical. " +
-                   "You can mirror more than one axis at a time, e.g. &Z/Mirror X Y",
+                   "You can mirror more than one axis at a time, e.g. &H/Mirror X Y",
             Usage = "/Mirror [X] [Y] [Z]",
             Handler = MirrorHandler
         };
@@ -1369,7 +1391,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
-            Help = "Pastes previously copied blocks, aligned. Used together with &Z/Copy&S command. " +
+            Help = "Pastes previously copied blocks, aligned. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
             Usage = "/PasteX [IncludedBlock [AnotherOne etc]]",
@@ -1380,7 +1402,7 @@ namespace fCraft {
             PasteDrawOperation op = new PasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click 2 blocks or use &Z/Mark&S to make a selection.",
+            player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
                                op.Description );
         }
 
@@ -1393,7 +1415,7 @@ namespace fCraft {
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
             Help = "Pastes previously copied blocks, aligned, except the given block type(s). " +
-                    "Used together with &Z/Copy&S command. " +
+                    "Used together with &H/Copy&S command. " +
                    "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
             Usage = "/PasteNotX ExcludedBlock [AnotherOne etc]",
             Handler = PasteNotXHandler
@@ -1403,7 +1425,7 @@ namespace fCraft {
             PasteDrawOperation op = new PasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click 2 blocks or use &Z/Mark&S to make a selection.",
+            player.MessageNow( "{0}: Click 2 blocks or use &H/Mark&S to make a selection.",
                                op.Description );
         }
 
@@ -1414,7 +1436,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
-            Help = "Pastes previously copied blocks. Used together with &Z/Copy&S command. " +
+            Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Alignment semantics are... complicated.",
             Usage = "/Paste [IncludedBlock [AnotherOne etc]]",
@@ -1425,7 +1447,7 @@ namespace fCraft {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, false );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click a block or use &Z/Mark&S to begin pasting.",
+            player.MessageNow( "{0}: Click a block or use &H/Mark&S to begin pasting.",
                                op.Description );
         }
 
@@ -1438,7 +1460,7 @@ namespace fCraft {
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
             Help = "Pastes previously copied blocks, except the given block type(s). " +
-                   "Used together with &Z/Copy&S command. " +
+                   "Used together with &H/Copy&S command. " +
                    "Alignment semantics are... complicated.",
             Usage = "/PasteNot ExcludedBlock [AnotherOne etc]",
             Handler = PasteNotHandler
@@ -1448,7 +1470,7 @@ namespace fCraft {
             QuickPasteDrawOperation op = new QuickPasteDrawOperation( player, true );
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( 1, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            player.MessageNow( "{0}: Click a block or use &Z/Mark&S to begin pasting.",
+            player.MessageNow( "{0}: Click a block or use &H/Mark&S to begin pasting.",
                                op.Description );
         }
 
@@ -1471,13 +1493,18 @@ namespace fCraft {
             },
             RepeatableSelection = true,
             Usage = "/Restore FileName",
-            Help = "Selectively restores/pastes part of mapfile into the current world.",
+            Help = "Selectively restores/pastes part of mapfile into the current world. "+
+                   "If the filename contains spaces, surround it with quote marks.",
             Handler = RestoreHandler
         };
 
         static void RestoreHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
+                CdRestore.PrintUsage( player );
+                return;
+            }
+            if( cmd.HasNext ) {
                 CdRestore.PrintUsage( player );
                 return;
             }
@@ -1502,7 +1529,7 @@ namespace fCraft {
 
             map.Metadata["fCraft.Temp", "FileName"] = fullFileName;
             player.SelectionStart( 2, RestoreCallback, map, CdRestore.Permissions );
-            player.MessageNow( "Restore: Select the area to restore. To mark a corner, place/click a block or type &Z/Mark" );
+            player.MessageNow( "Restore: Select the area to restore. To mark a corner, place/click a block or type &H/Mark" );
         }
 
 
@@ -1616,17 +1643,21 @@ namespace fCraft {
             Name = "Mark",
             Aliases = new[] { "m" },
             Category = CommandCategory.Building,
-            Usage = "/Mark&S or &Z/Mark X Y Z",
+            Usage = "/Mark&S or &H/Mark X Y H",
             Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "If three numbers are given, those coordinates are used instead.",
             Handler = MarkHandler
         };
 
-        static void MarkHandler( Player player, Command command ) {
+        static void MarkHandler( Player player, Command cmd ) {
             Map map = player.WorldMap;
             int x, y, z;
             Vector3I coords;
-            if( command.NextInt( out x ) && command.NextInt( out y ) && command.NextInt( out z ) ) {
+            if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out z ) ) {
+                if( cmd.HasNext ) {
+                    CdMark.PrintUsage( player );
+                    return;
+                }
                 coords = new Vector3I( x, y, z );
             } else {
                 coords = player.Position.ToBlockCoords();
@@ -1649,11 +1680,15 @@ namespace fCraft {
             Category = CommandCategory.Building,
             NotRepeatable = true,
             Help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
-                   "If you wish to stop a drawing in-progress, use &Z/Undo&S instead.",
+                   "If you wish to stop a drawing in-progress, use &H/Undo&S instead.",
             Handler = CancelHandler
         };
 
-        static void CancelHandler( Player player, Command command ) {
+        static void CancelHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdCancel.PrintUsage( player );
+                return;
+            }
             if( player.IsMakingSelection ) {
                 player.SelectionCancel();
                 player.MessageNow( "Selection cancelled." );
@@ -1696,11 +1731,11 @@ namespace fCraft {
         static readonly CommandDescriptor CdUndoArea = new CommandDescriptor {
             Name = "UndoArea",
             Aliases = new[] { "ua" },
-            Category = CommandCategory.Moderation | CommandCategory.Building,
+            Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
             RepeatableSelection = true,
             Usage = "/UndoArea PlayerName [TimeSpan|BlockCount]",
-            Help = "Reverses changes made by a given player in the current world.",
+            Help = "Reverses changes made by a given player in the current world, in the given area.",
             Handler = UndoAreaHandler
         };
 
@@ -1721,6 +1756,10 @@ namespace fCraft {
             string name = cmd.Next();
             string range = cmd.Next();
             if( name == null || range == null ) {
+                CdUndoArea.PrintUsage( player );
+                return;
+            }
+            if( cmd.HasNext ) {
                 CdUndoArea.PrintUsage( player );
                 return;
             }
@@ -1758,7 +1797,7 @@ namespace fCraft {
                 return;
             }
 
-            player.MessageNow( "UndoArea: Click 2 blocks or use &Z/Mark&S to make a selection." );
+            player.MessageNow( "UndoArea: Click 2 blocks or use &H/Mark&S to make a selection." );
         }
 
 
@@ -1868,7 +1907,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
             Name = "UndoPlayer",
             Aliases = new[] { "up", "undox" },
-            Category = CommandCategory.Moderation | CommandCategory.Building,
+            Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
             Usage = "/UndoPlayer PlayerName [TimeSpan|BlockCount]",
             Help = "Reverses changes made by a given player in the current world.",
@@ -1892,6 +1931,10 @@ namespace fCraft {
             string name = cmd.Next();
             string range = cmd.Next();
             if( name == null || range == null ) {
+                CdUndoPlayer.PrintUsage( player );
+                return;
+            }
+            if( cmd.HasNext ) {
                 CdUndoPlayer.PrintUsage( player );
                 return;
             }
@@ -1984,6 +2027,10 @@ namespace fCraft {
         };
 
         static void StaticHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdStatic.PrintUsage( player );
+                return;
+            }
             if( player.IsRepeatingSelection ) {
                 player.Message( "Static: Off" );
                 player.IsRepeatingSelection = false;

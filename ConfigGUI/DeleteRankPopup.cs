@@ -10,7 +10,7 @@ namespace fCraft.ConfigGUI {
             InitializeComponent();
             foreach( Rank rank in RankManager.Ranks ) {
                 if( rank != deletedRank ) {
-                    cSubstitute.Items.Add( rank.ToComboBoxOption() );
+                    cSubstitute.Items.Add( MainForm.ToComboBoxOption( rank ) );
                 }
             }
             lWarning.Text = String.Format( lWarning.Text, deletedRank.Name );
@@ -21,7 +21,7 @@ namespace fCraft.ConfigGUI {
         private void cSubstitute_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cSubstitute.SelectedIndex < 0 ) return;
             foreach( Rank rank in RankManager.Ranks ) {
-                if( cSubstitute.SelectedItem.ToString() != rank.ToComboBoxOption() ) continue;
+                if( cSubstitute.SelectedItem.ToString() != MainForm.ToComboBoxOption( rank ) ) continue;
                 SubstituteRank = rank;
                 bDelete.Enabled = true;
                 break;

@@ -683,7 +683,7 @@ namespace fCraft {
 
             if( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll().Trim();
-                if( player.Can( Permission.OwnerStuff ) && msg.Contains( "%" ) ) {
+                if( player.Can( Permission.UseColorCodes ) && msg.Contains( "%" ) ) {
                     msg = Color.ReplacePercentCodes( msg );
                 }
                 if( msg.Length > 0 ) {
@@ -749,6 +749,10 @@ namespace fCraft {
         static void IgnoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
+                if( cmd.HasNext ) {
+                    CdIgnore.PrintUsage( player );
+                    return;
+                }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
                 if( targetInfo == null ) return;
 
@@ -782,6 +786,10 @@ namespace fCraft {
         static void UnignoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if( name != null ) {
+                if( cmd.HasNext ) {
+                    CdUnignore.PrintUsage( player );
+                    return;
+                }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
                 if( targetInfo == null ) return;
 
@@ -847,9 +855,9 @@ namespace fCraft {
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             Help = "Gives random number between 1 and 100.\n" +
-                   "&Z/Roll MaxNumber\n" +
+                   "&H/Roll MaxNumber\n" +
                    "&S  Gives number between 1 and max.\n" +
-                   "&Z/Roll MinNumber MaxNumber\n" +
+                   "&H/Roll MinNumber MaxNumber\n" +
                    "&S  Gives number between min and max.",
             Handler = RollHandler
         };
@@ -900,12 +908,16 @@ namespace fCraft {
         };
 
         static void DeafenHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdDeafen.PrintUsage( player );
+                return;
+            }
             if( !player.IsDeaf ) {
                 for( int i = 0; i < LinesToClear; i++ ) {
                     player.MessageNow( "" );
                 }
                 player.MessageNow( "Deafened mode: ON" );
-                player.MessageNow( "You will not see ANY messages until you type &Z/Deafen&S again." );
+                player.MessageNow( "You will not see ANY messages until you type &H/Deafen&S again." );
                 player.IsDeaf = true;
             } else {
                 player.IsDeaf = false;
@@ -928,6 +940,10 @@ namespace fCraft {
         };
 
         static void ClearHandler( Player player, Command cmd ) {
+            if( cmd.HasNext ) {
+                CdClear.PrintUsage( player );
+                return;
+            }
             for( int i = 0; i < LinesToClear; i++ ) {
                 player.Message( "" );
             }
@@ -945,11 +961,11 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             Usage = "/Timer <Duration> <Message>",
             Help = "Starts a timer with a given duration and message. " +
-                   "As the timer counts down, announcements are shown globally. See also: &Z/Help Timer Abort",
+                   "As the timer counts down, announcements are shown globally. See also: &H/Help Timer Abort",
             HelpSections = new Dictionary<string, string> {
-                { "abort",  "&Z/Timer Abort <TimerID>\n&S" +
+                { "abort",  "&H/Timer Abort <TimerID>\n&S" +
                             "Aborts a timer with the given ID number. " +
-                            "To see a list of timers and their IDs, type &Z/Timer&S (without any parameters)." }
+                            "To see a list of timers and their IDs, type &H/Timer&S (without any parameters)." }
             },
             Handler = TimerHandler
         };

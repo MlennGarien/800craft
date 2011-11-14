@@ -66,6 +66,9 @@ namespace fCraft.ConfigGUI {
             // Redraw chat preview when re-entering the tab.
             // This ensured that changes to rank colors/prefixes are applied.
             tabChat.Enter += ( o, e2 ) => UpdateChatPreview();
+
+            bReadme.Enabled = File.Exists( ReadmeFileName );
+            bChangelog.Enabled = File.Exists( ChangelogFileName );
         }
 
 
@@ -195,7 +198,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             CheckMaxPlayersPerWorldValue();
         }
 
-        private void bViewCredits_Click( object sender, EventArgs e ) {
+        private void bCredits_Click( object sender, EventArgs e ) {
             new AboutWindow().Show();
         }
 
@@ -614,7 +617,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         void RebuildRankList() {
             vRanks.Items.Clear();
             foreach( Rank rank in RankManager.Ranks ) {
-                vRanks.Items.Add( rank.ToComboBoxOption() );
+                vRanks.Items.Add( MainForm.ToComboBoxOption( rank ) );
             }
 
             FillRankList( cDefaultRank, "(lowest rank)" );
@@ -676,7 +679,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( Rank rank in RankManager.Ranks ) {
-                box.Items.Add( rank.ToComboBoxOption() );
+                box.Items.Add( MainForm.ToComboBoxOption(rank) );
             }
         }
 
@@ -695,7 +698,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             RebuildRankList();
             SelectRank( rank );
 
-            rankNameList.Insert( rank.Index + 1, rank.ToComboBoxOption() );
+            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption(rank) );
         }
 
         private void bDeleteRank_Click( object sender, EventArgs e ) {
@@ -746,12 +749,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 // Update world permissions
                 string worldUpdates = "";
                 foreach( WorldListEntry world in Worlds ) {
-                    if( world.AccessPermission == deletedRank.ToComboBoxOption() ) {
-                        world.AccessPermission = replacementRank.ToComboBoxOption();
+                    if( world.AccessPermission == MainForm.ToComboBoxOption(deletedRank) ) {
+                        world.AccessPermission = MainForm.ToComboBoxOption(replacementRank);
                         worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
-                    if( world.BuildPermission == deletedRank.ToComboBoxOption() ) {
-                        world.BuildPermission = replacementRank.ToComboBoxOption();
+                    if( world.BuildPermission == MainForm.ToComboBoxOption(deletedRank) ) {
+                        world.BuildPermission = MainForm.ToComboBoxOption(replacementRank);
                         worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
@@ -777,6 +780,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void tPrefix_Validating( object sender, CancelEventArgs e ) {
             if( selectedRank == null ) return;
+            tPrefix.Text = tPrefix.Text.Trim();
             if( tPrefix.Text.Length > 0 && !Rank.IsValidPrefix( tPrefix.Text ) ) {
                 MessageBox.Show( "Invalid prefix character!\n" +
                     "Prefixes may only contain characters that are allowed in chat (except space).", "Warning" );
@@ -787,7 +791,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
             if( selectedRank.Prefix == tPrefix.Text ) return;
 
-            string oldName = selectedRank.ToComboBoxOption();
+            string oldName = MainForm.ToComboBoxOption(selectedRank);
 
             // To avoid DataErrors in World tab's DataGridView while renaming a rank,
             // the new name is first added to the list of options (without removing the old name)
@@ -1063,6 +1067,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void tRankName_Validating( object sender, CancelEventArgs e ) {
+            tRankName.ForeColor = SystemColors.ControlText;
             if( selectedRank == null ) return;
 
             string newName = tRankName.Text.Trim();
@@ -1087,9 +1092,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 e.Cancel = true;
 
             } else {
-                string oldName = selectedRank.ToComboBoxOption();
-
-                tRankName.ForeColor = SystemColors.ControlText;
+                string oldName = MainForm.ToComboBoxOption(selectedRank);
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a rank,
                 // the new name is first added to the list of options (without removing the old name)
@@ -1110,7 +1113,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.RaiseRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 1, selectedRank.ToComboBoxOption() );
+                rankNameList.Insert( selectedRank.Index + 1, MainForm.ToComboBoxOption(selectedRank) );
                 rankNameList.RemoveAt( selectedRank.Index + 3 );
             }
         }
@@ -1119,7 +1122,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.LowerRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 2, selectedRank.ToComboBoxOption() );
+                rankNameList.Insert( selectedRank.Index + 2, MainForm.ToComboBoxOption(selectedRank) );
                 rankNameList.RemoveAt( selectedRank.Index );
             }
         }
@@ -1357,9 +1360,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void UpdateChatPreview() {
             List<string> lines = new List<string>();
-            if( xShowJoinedWorldMessages.Checked ) {
-                lines.Add( String.Format( "{0}{1}Notch&S joined {2}{3}main",
-                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "&S",
+            if( xShowConnectionMessages.Checked ) {
+                lines.Add( String.Format( "&SPlayer {0}{1}Notch&S connected, joined {2}{3}main",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                           xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "",
                                           xRankColorsInWorldNames.Checked ? RankManager.LowestRank.Color : "",
                                           xRankPrefixesInChat.Checked ? RankManager.LowestRank.Prefix : "" ) );
@@ -1370,11 +1373,29 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                                       xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
                                       xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
             lines.Add( "&Pfrom Notch: This is a private message / whisper" );
-            lines.Add( "* &MNotch is using /Me to write this" );
-            lines.Add( "&SUnknown command \"kic\", see &H/Commands" );
-            lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
-                                      xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
-                                      xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
+            lines.Add( "&M*Notch is using /Me to write this" );
+            if( xShowJoinedWorldMessages.Checked ) {
+                Rank midRank = RankManager.LowestRank;
+                if( RankManager.LowestRank.NextRankUp != null ) {
+                    midRank = RankManager.LowestRank.NextRankUp;
+                }
+
+                lines.Add( String.Format( "&SPlayer {0}{1}Notch&S joined {2}{3}SomeOtherMap",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "",
+                                          xRankColorsInWorldNames.Checked ? midRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? midRank.Prefix : "" ) );
+            }
+            lines.Add( "&SUnknown command \"kikc\", see &H/Commands" );
+            if( xAnnounceKickAndBanReasons.Checked ) {
+                lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1&W: Reason goes here",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
+            } else {
+                lines.Add( String.Format( "&W{0}{1}Notch&W was kicked by {0}{1}gamer1",
+                                          xRankColorsInChat.Checked ? RankManager.HighestRank.Color : "",
+                                          xRankPrefixesInChat.Checked ? RankManager.HighestRank.Prefix : "" ) );
+            }
 
             if( xShowConnectionMessages.Checked ) {
                 lines.Add( String.Format( "&S{0}{1}Notch&S left the server.",
@@ -1487,7 +1508,43 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void nFillLimit_ValueChanged( object sender, EventArgs e ) {
             if( selectedRank == null ) return;
-            selectedRank.FillLimit = Convert.ToInt32(nFillLimit.Value);
+            selectedRank.FillLimit = Convert.ToInt32( nFillLimit.Value );
+        }
+
+        const string ReadmeFileName = "README.txt";
+        private void bReadme_Click( object sender, EventArgs e ) {
+            try {
+                if( File.Exists( ReadmeFileName ) ) {
+                    Process.Start( ReadmeFileName );
+                }
+            } catch( Exception ) { }
+        }
+
+        const string ChangelogFileName = "CHANGELOG.txt";
+        private void bChangelog_Click( object sender, EventArgs e ) {
+            try {
+                if( File.Exists( ChangelogFileName ) ) {
+                    Process.Start( ChangelogFileName );
+                }
+            } catch( Exception ) { }
+        }
+
+        public static bool usePrefixes = false;
+
+
+        public static string ToComboBoxOption( Rank rank) {
+            if( usePrefixes ) {
+                return String.Format( "{0,1}{1}", rank.Prefix, rank.Name );
+            } else {
+                return rank.Name;
+            }
+        }
+
+        private void xRankPrefixesInChat_CheckedChanged( object sender, EventArgs e ) {
+            usePrefixes = xRankPrefixesInChat.Checked;
+            tPrefix.Enabled = usePrefixes;
+            lPrefix.Enabled = usePrefixes;
+            RebuildRankList();
         }
     }
 }

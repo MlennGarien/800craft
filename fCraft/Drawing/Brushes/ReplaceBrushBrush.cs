@@ -17,7 +17,7 @@ namespace fCraft.Drawing {
         public string[] Aliases { get; private set; }
 
         const string HelpString = "ReplaceBrush brush: Replaces blocks of a given type with output of another brush. " +
-                                  "Usage: &Z/Brush rb <Block> <BrushName>";
+                                  "Usage: &H/Brush rb <Block> <BrushName>";
         public string Help {
             get { return HelpString; }
         }
@@ -28,7 +28,7 @@ namespace fCraft.Drawing {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
 
             if( !cmd.HasNext ) {
-                player.Message( "ReplaceBrush usage: &Z/Brush rb <Block> <BrushName>" );
+                player.Message( "ReplaceBrush usage: &H/Brush rb <Block> <BrushName>" );
                 return null;
             }
 
@@ -37,7 +37,7 @@ namespace fCraft.Drawing {
 
             string brushName = cmd.Next();
             if( brushName == null || !CommandManager.IsValidCommandName( brushName ) ) {
-                player.Message( "ReplaceBrush usage: &Z/Brush rb <Block> <BrushName>" );
+                player.Message( "ReplaceBrush usage: &H/Brush rb <Block> <BrushName>" );
                 return null;
             }
             IBrushFactory brushFactory = BrushManager.GetBrushFactory( brushName );
@@ -104,7 +104,7 @@ namespace fCraft.Drawing {
 
                 string brushName = cmd.Next();
                 if( brushName == null || !CommandManager.IsValidCommandName( brushName ) ) {
-                    player.Message( "ReplaceBrush usage: &Z/Brush rb <Block> <BrushName>" );
+                    player.Message( "ReplaceBrush usage: &H/Brush rb <Block> <BrushName>" );
                     return null;
                 }
                 IBrushFactory brushFactory = BrushManager.GetBrushFactory( brushName );

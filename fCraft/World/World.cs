@@ -438,8 +438,12 @@ namespace fCraft {
                     LockedBy = player.Name;
                     LockedDate = DateTime.UtcNow;
                     IsLocked = true;
-                    if( Map != null ) Map.ClearUpdateQueue();
-                    Players.Message( "&WMap was locked by {0}", player.ClassyName );
+                    Map mapCache = Map;
+                    if( mapCache != null ) {
+                        mapCache.ClearUpdateQueue();
+                        mapCache.StopAllDrawOps();
+                    }
+                    Players.Message( "&WWorld was locked by {0}", player.ClassyName );
                     Logger.Log( LogType.UserActivity,
                                 "World {0} was locked by {1}",
                                 Name, player.Name );

@@ -9,10 +9,7 @@ using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
-using System.Collections.Concurrent;
 using fCraft.Portals;
-
-
 
 namespace fCraft {
     /// <summary> Callback for a player-made selection of one or more blocks on a map.
@@ -27,7 +24,7 @@ namespace fCraft {
     public delegate void ConfirmationCallback( Player player, object tag, bool fromConsole );
 
 
-    /// <summary> Object representing volatile state of connected player.
+    /// <summary> Object representing volatile state ("session") of a connected player.
     /// For persistent state of a known player account, see PlayerInfo. </summary>
     public sealed partial class Player : IClassy {
 
@@ -146,7 +143,7 @@ namespace fCraft {
 
         #endregion
         
-        public ConcurrentDictionary<string, BlockUpdate> FlyCache;
+        public ConcurrentQueue<Vector3I> FlyCache;
 
         public bool IsAway;
         public bool IsFlying = false;
@@ -397,6 +394,15 @@ namespace fCraft {
                             messageText = Color.ReplacePercentCodes( messageText );
                         }
 
+                        if( otherPlayerName == "-" ) {
+                            if( LastUsedPlayerName != null ) {
+                                otherPlayerName = LastUsedPlayerName;
+                            } else {
+                                Message( "Cannot repeat player name: you haven't used any names yet." );
+                                return;
+                            }
+                        }
+
                         // first, find ALL players (visible and hidden)
                         Player[] allPlayers = Server.FindPlayers( otherPlayerName, true );
 
@@ -411,23 +417,27 @@ namespace fCraft {
                                 MessageNow( "Trying to talk to yourself?" );
                                 return;
                             }
-                            if( target.IsIgnoring( Info ) ) {
-                                if( CanSee( target ) ) {
-                                    MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
-                                }
-                            } else if( target.IsDeaf ) {
-                                MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
-                            } else {
+                            if( !target.IsIgnoring( Info ) && !target.IsDeaf ) {
                                 Chat.SendPM( this, target, messageText );
                                 SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
-                                if( !CanSee( target ) ) {
-                                    // message was sent to a hidden player
-                                    MessageNoPlayer( otherPlayerName );
+                            }
 
+                            if( !CanSee( target ) ) {
+                                // message was sent to a hidden player
+                                MessageNoPlayer( otherPlayerName );
+
+                            } else {
+                                // message was sent normally
+                                LastUsedPlayerName = target.Name;
+                                if( target.IsIgnoring( Info ) ) {
+                                    if( CanSee( target ) ) {
+                                        MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
+                                    }
+                                } else if( target.IsDeaf ) {
+                                    MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
                                 } else {
-                                    // message was sent normally
-                                    Message( "&Pto {0}: {1}",
-                                             target.Name, messageText );
+                                    MessageNow( "&Pto {0}: {1}",
+                                                target.Name, messageText );
                                 }
                             }
 
@@ -550,7 +560,7 @@ namespace fCraft {
 
         public void Message( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( this == Console ) {
+            if( IsSuper ) {
                 Logger.LogToConsole( message );
             } else {
                 foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
@@ -702,8 +712,12 @@ namespace fCraft {
 
 
         public void MessageInvalidWorldName( [NotNull] string worldName ) {
-            Message( "Unacceptable world name: \"{0}\"", worldName );
+            Message( "Unacceptible world name: \"{0}\"", worldName );
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
+        }
+
+        public void MessageInvalidPlayerName( [NotNull] string playerName ) {
+            Message( "\"{0}\" is not a valid player name.", playerName );
         }
 
 
@@ -1117,8 +1131,8 @@ namespace fCraft {
             CanPlaceResult result;
 
             // check whether coordinate is in bounds
-            Block block = map.GetBlock( coords );
-            if( block == Block.Undefined ) {
+            Block oldBlock = map.GetBlock( coords );
+            if( oldBlock == Block.Undefined ) {
                 result = CanPlaceResult.OutOfBounds;
                 goto eventCheck;
             }
@@ -1136,7 +1150,7 @@ namespace fCraft {
             }
 
             // check admincrete-related permissions
-            if( block == Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) {
+            if( oldBlock == Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) {
                 result = CanPlaceResult.BlocktypeDenied;
                 goto eventCheck;
             }
@@ -1158,7 +1172,7 @@ namespace fCraft {
                 case SecurityCheckResult.Allowed:
                     // Check world's rank permissions
                     if( (Can( Permission.Build ) || newBlock == Block.Air) &&
-                        (Can( Permission.Delete ) || block == Block.Air) ) {
+                        (Can( Permission.Delete ) || oldBlock == Block.Air) ) {
                         result = CanPlaceResult.Allowed;
                     } else {
                         result = CanPlaceResult.RankDenied;
@@ -1175,7 +1189,12 @@ namespace fCraft {
             }
 
         eventCheck:
-            return RaisePlayerPlacingBlockEvent( this, map, coords, block, newBlock, context, result );
+            var handler = PlacingBlock;
+            if( handler == null ) return result;
+
+            var e = new PlayerPlacingBlockEventArgs( this, map, coords, oldBlock, newBlock, context, result );
+            handler( null, e );
+            return e.Result;
         }
 
 
@@ -1490,6 +1509,12 @@ namespace fCraft {
         public static bool IsValidName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length < 2 || name.Length > 16 ) return false;
+            return ContainsValidCharacters(name);
+        }
+        
+        /// <summary> Ensures that a player name has the correct length and character set. </summary>
+        public static bool ContainsValidCharacters( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
