@@ -106,7 +106,7 @@ namespace fCraft.Portals
             {
                 if ((player.Position.Y / 32) <= Range.Ymax && (player.Position.Y / 32) >= Range.Ymin)
                 {
-                    if ((player.Position.Z / 32) <= Range.Zmax && (player.Position.Z / 32) >= Range.Zmin)
+                    if (((player.Position.Z / 32)-1) <= Range.Zmax && ((player.Position.Z / 32)-1) >= Range.Zmin)
                     {
                         return true;
                     }

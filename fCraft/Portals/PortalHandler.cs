@@ -30,7 +30,7 @@ namespace fCraft.Portals
 
         static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
         {
-            if ((e.OldPosition.X != e.NewPosition.X) || (e.OldPosition.Y != e.NewPosition.Y) || (e.OldPosition.Z != e.NewPosition.Z))
+            if ((e.OldPosition.X != e.NewPosition.X) || (e.OldPosition.Y != e.NewPosition.Y) || (e.OldPosition.Z != (e.NewPosition.Z)))
             {
                 if (e.Player.Can(Permission.UsePortal))
                 {

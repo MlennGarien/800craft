@@ -73,7 +73,7 @@ namespace fCraft
         private static void PortalH(Player player, Command command)
         {
             String option = command.Next();
-
+            
             if (option == null)
             {
                 CdPortal.PrintUsage(player);
@@ -82,7 +82,9 @@ namespace fCraft
             {
                 if (player.Can(Permission.ManagePortal))
                 {
+                    
                     string world = command.Next();
+                    
 
                     if (world != null && WorldManager.FindWorldExact(world) != null)
                     {
@@ -103,6 +105,8 @@ namespace fCraft
 
                         operation.Brush = brush;
                         player.PortalWord = world;
+
+                        
                         player.SelectionStart(operation.ExpectedMarks, PortalCreateCallback, operation, Permission.Draw);
                         player.Message("Click {0} blocks or use &Z/Mark&S to mark the area of the portal.", operation.ExpectedMarks);
                     }
@@ -154,6 +158,7 @@ namespace fCraft
                 CdPortal.PrintUsage(player);
             }
         }
+
 
         static void PortalCreateCallback(Player player, Vector3I[] marks, object tag)
         {
