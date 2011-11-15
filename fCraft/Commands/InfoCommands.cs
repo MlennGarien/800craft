@@ -75,9 +75,6 @@ namespace fCraft {
             }
         }
 
-        const string InvalidReq = "This command is for telling you what you need to do " +
-        "to advance to the next rank. Error: Requirements.txt is missing from the server root";
-
         static readonly CommandDescriptor CdReqs = new CommandDescriptor
         {
             Name = "Requirements",
@@ -97,16 +94,6 @@ namespace fCraft {
             if (sectionName == null)
             {
                 FileInfo reqFile = new FileInfo(Paths.ReqFileName);
-
-                if (reqFile.Exists)
-                {
-                    PrintReqFile(player, reqFile);
-                }
-                else
-                {
-                    player.Message(InvalidReq);
-                }
-
                 // print a list of available sections
                 string[] sections = GetReqSectionList();
                 if (sections != null)

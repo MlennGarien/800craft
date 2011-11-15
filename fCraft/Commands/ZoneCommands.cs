@@ -17,6 +17,11 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdZoneRemove );
             CommandManager.RegisterCommand( CdZoneRename );
             CommandManager.RegisterCommand( CdZoneTest );
+            //CommandManager.RegisterCommand(cdDoor);
+            //CommandManager.RegisterCommand(cdDoorRemove);
+
+            //Player.Clicked += PlayerClickedDoor;
+
         }
             
         
@@ -165,60 +170,7 @@ namespace fCraft {
 
 
         }
-        public static void PlayerClickedGuest(object sender, PlayerClickedEventArgs e)
-        {
-            
-            Zone[] allowed, denied;
-            if (e.Player.World.Map.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in denied)
-                {
-                    if (zone.Name.Contains("guest"))
-                    {
-                        GuestZone(zone, e.Player);
-                        
-
-                        break;
-
-                    }
-                }
-
-            }
-        }
-
-        public static void GuestZone(Zone zone, Player player)
-        {
-
-            JoinHandler(player, new Command("/goto guest"));
-
-        }
-
-
-        public static void PlayerClickedBuilder(object sender, PlayerClickedEventArgs e)
-        {
-
-            Zone[] allowed, denied;
-            if (e.Player.World.Map.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in denied)
-                {
-                    if (zone.Name.Contains("builder"))
-                    {
-                        
-
-                        BuilderZone(zone, e.Player);
-
-                    }
-                }
-
-            }
-        }
-
-        public static void BuilderZone(Zone zone, Player player)
-        {
-
-            JoinHandler(player, new Command("/goto builder"));
-        }
+        
 
         static void DoorAddCallback(Player player, Vector3I[] marks, object tag)
         {
@@ -280,193 +232,7 @@ namespace fCraft {
             }
         }
 
-        public static void PlayerClickedAdvbuilder(object sender, PlayerClickedEventArgs e)
-        {
-
-            Zone[] allowed, denied;
-            if (e.Player.World.Map.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in denied)
-                {
-                    if (zone.Name.Contains("advportal"))
-                    {
-                        
-                        AdvBuilderZone(zone, e.Player);
-
-                    }
-                }
-
-            }
-        }
-
-        public static void AdvBuilderZone(Zone zone, Player player)
-        {
-
-            JoinHandler(player, new Command("/goto advbuilder"));
-        }
-
-        public static void PlayerClickedProbuilder(object sender, PlayerClickedEventArgs e)
-        {
-
-            Zone[] allowed, denied;
-            if (e.Player.World.Map.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in denied)
-                {
-                    if (zone.Name.Contains("proportal"))
-                    {
-                        
-                        ProZone(zone, e.Player);
-
-                    }
-                }
-
-            }
-        }
-
-        public static void ProZone(Zone zone, Player player)
-        {
-
-            JoinHandler(player, new Command("/goto probuilder"));
-        }
-
-        public static void PlayerClickedEngineer(object sender, PlayerClickedEventArgs e)
-        {
-
-            Zone[] allowed, denied;
-            if (e.Player.World.Map.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in denied)
-                {
-                    if (zone.Name.Contains("engineer"))
-                    {
-                        EngZone(zone, e.Player);
-                        
-                        break;
-
-
-                    }
-                }
-
-            }
-        }
-
-        public static void EngZone(Zone zone, Player player)
-        {
-
-            JoinHandler(player, new Command("/goto engineer"));
-        }
-
-        public static void PlayerClickedOpLounge(object sender, PlayerClickedEventArgs e)
-        {
-
-            Zone[] allowed, denied;
-            if (e.Player.World.Map.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in denied)
-                {
-                    if (zone.Name.Contains("operator"))
-                    {
-                        
-                        OpZone(zone, e.Player);
-
-                    }
-                }
-
-            }
-        }
-
-        public static void OpZone(Zone zone, Player player)
-        {
-
-            JoinHandler(player, new Command("/goto operator"));
-        }
-
-        public static void PlayerClickedModerator(object sender, PlayerClickedEventArgs e)
-        {
-
-            Zone[] allowed, denied;
-            if (e.Player.World.Map.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in denied)
-                {
-                    if (zone.Name.Contains("moderator"))
-                    {
-                       
-                        ModZone(zone, e.Player);
-
-                    }
-                }
-
-            }
-        }
-
-        public static void ModZone(Zone zone, Player player)
-        {
-
-            JoinHandler(player, new Command("/goto moderator"));
-        }
         
-
-        #region joinhandler
-        static void JoinHandler(Player player, Command cmd)
-        {
-            string worldName = cmd.Next();
-
-
-            World[] worlds = WorldManager.FindWorlds(player, worldName);
-
-            if (worlds.Length > 1)
-            {
-                player.MessageManyMatches("world", worlds);
-
-            }
-            else if (worlds.Length == 1)
-            {
-                World world = worlds[0];
-                switch (world.AccessSecurity.CheckDetailed(player.Info))
-                {
-                    case SecurityCheckResult.Allowed:
-                    case SecurityCheckResult.WhiteListed:
-                        if (world.IsFull)
-                        {
-                            player.Message("Cannot join {0}&S: world is full.", world.ClassyName);
-                            return;
-                        }
-                        player.StopSpectating();
-                        if (!player.JoinWorldNow(world, true, WorldChangeReason.ManualJoin))
-                        {
-                            player.Message("ERROR: Failed to join world. See log for details.");
-                        }
-                        break;
-                    case SecurityCheckResult.BlackListed:
-                        player.Message("Cannot join world {0}&S: you are blacklisted",
-                                        world.ClassyName, world.AccessSecurity.MinRank.ClassyName);
-                        break;
-                    case SecurityCheckResult.RankTooLow:
-                        player.Message("Cannot join world {0}&S: must be {1}+",
-                                        world.ClassyName, world.AccessSecurity.MinRank.ClassyName);
-                        break;
-                }
-
-            }
-            else
-            {
-                // no worlds found - see if player meant to type in "/join" and not "/tp"
-                Player[] players = Server.FindPlayers(player, worldName, true);
-                if (players.Length == 1)
-                {
-                    player.StopSpectating();
-                    player.ParseMessage("/tp " + players[0].Name, false);
-                }
-                else
-                {
-                    player.MessageNoWorld(worldName);
-                }
-            }
-        }
-
-        #endregion
 
 
         #region ZoneAdd
