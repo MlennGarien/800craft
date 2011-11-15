@@ -32,66 +32,94 @@ namespace fCraft.Portals
 
         static void Player_PlacedBlock(object sender, Events.PlayerPlacedBlockEventArgs e)
         {
-            if (e.Player.World.Portals != null && e.Player.World.Portals.Count > 0 && e.Context != BlockChangeContext.PortalBuild)
+            try
             {
-                lock (e.Player.World.Portals.SyncRoot)
+                if (e.Player.World.Portals != null && e.Player.World.Portals.Count > 0 && e.Context != BlockChangeContext.Portal)
                 {
-                    foreach (Portal portal in e.Player.World.Portals)
+                    lock (e.Player.World.Portals.SyncRoot)
                     {
-                        if (portal.IsInRange(e.Coords))
+                        foreach (Portal portal in e.Player.World.Portals)
                         {
-                            BlockUpdate update = new BlockUpdate(null, e.Coords, e.OldBlock);
-                            e.Player.World.Map.QueueUpdate(update);
-                            e.Player.Message("You can not place a block inside portal: " + portal.Name);
+                            if (portal.IsInRange(e.Coords))
+                            {
+                                BlockUpdate update = new BlockUpdate(null, e.Coords, e.OldBlock);
+                                e.Player.World.Map.QueueUpdate(update);
+                                e.Player.Message("You can not place a block inside portal: " + portal.Name);
+                            }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "PortalHandler.Player_PlacedBlock: " + ex);
             }
         }
 
         static void Player_JoinedWorld(object sender, Events.PlayerJoinedWorldEventArgs e)
         {
-            // Player can use portals again
-            e.Player.CanUsePortal = true;
-            e.Player.LastUsedPortal = DateTime.Now;
+            try
+            {
+                // Player can use portals again
+                e.Player.CanUsePortal = true;
+                e.Player.LastUsedPortal = DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "PortalHandler.Player_JoinedWorld: " + ex);
+            }
         }
 
         static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
         {
-            lock (e.Player.PortalLock)
+            try
             {
-                if (e.Player.CanUsePortal)
+                if (e.Player.PortalsEnabled)
                 {
-                    if ((e.OldPosition.X != e.NewPosition.X) || (e.OldPosition.Y != e.NewPosition.Y) || (e.OldPosition.Z != (e.NewPosition.Z)))
+                    lock (e.Player.PortalLock)
                     {
-                        if (e.Player.Can(Permission.UsePortal))
+                        if (e.Player.CanUsePortal)
                         {
-                            if (PortalHandler.GetInstance().GetPortal(e.Player) != null && !e.Player.StandingInPortal)
+                            if ((e.OldPosition.X != e.NewPosition.X) || (e.OldPosition.Y != e.NewPosition.Y) || (e.OldPosition.Z != (e.NewPosition.Z)))
                             {
-                                if (e.Player.LastUsedPortal != null && (DateTime.Now - e.Player.LastUsedPortal).TotalSeconds < 5)
+                                if (e.Player.Can(Permission.UsePortal))
                                 {
-                                    // To prevent portal loops
-                                    e.Player.Message("You can not use portals within 5 seconds of joining a world.");
-                                    return;
+                                    if (PortalHandler.GetInstance().GetPortal(e.Player) != null && !e.Player.StandingInPortal)
+                                    {
+                                        if (e.Player.LastUsedPortal != null && (DateTime.Now - e.Player.LastUsedPortal).TotalSeconds < 5)
+                                        {
+                                            // To prevent portal loops
+                                            if (e.Player.LastWarnedPortal == null || (DateTime.Now - e.Player.LastWarnedPortal).TotalSeconds > 2)
+                                            {
+                                                e.Player.Message("You can not use portals within 5 seconds of joining a world.");
+                                            }
+
+                                            return;
+                                        }
+
+                                        // Make sure this method isn't called twice
+                                        e.Player.CanUsePortal = false;
+
+                                        e.Player.StandingInPortal = true;
+                                        Portal portal = PortalHandler.GetInstance().GetPortal(e.Player);
+
+                                        // Teleport player
+                                        e.Player.JoinWorldNow(WorldManager.FindWorldExact(portal.World), true, WorldChangeReason.Portal);
+                                        e.Player.Message("You used portal: " + portal.Name);
+                                    }
+                                    else
+                                    {
+                                        e.Player.StandingInPortal = false;
+                                    }
                                 }
-
-                                // Make sure this method isn't called twice
-                                e.Player.CanUsePortal = false;
-
-                                e.Player.StandingInPortal = true;
-                                Portal portal = PortalHandler.GetInstance().GetPortal(e.Player);
-
-                                // Teleport player
-                                e.Player.JoinWorldNow(WorldManager.FindWorldExact(portal.World), true, WorldChangeReason.Portal);
-                                e.Player.Message("You used portal: " + portal.Name);
-                            }
-                            else
-                            {
-                                e.Player.StandingInPortal = false;
                             }
                         }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "PortalHandler.Player_Moved: " + ex);
             }
         }
 
@@ -108,6 +136,34 @@ namespace fCraft.Portals
                         foreach (Portal possiblePortal in player.World.Portals)
                         {
                             if (possiblePortal.IsInRange(player))
+                            {
+                                return possiblePortal;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "PortalHandler.GetPortal: " + ex);
+            }
+
+            return portal;
+        }
+
+        public Portal GetPortal(World world, Vector3I block)
+        {
+            Portal portal = null;
+
+            try
+            {
+                if (world.Portals != null && world.Portals.Count > 0)
+                {
+                    lock (world.Portals.SyncRoot)
+                    {
+                        foreach (Portal possiblePortal in world.Portals)
+                        {
+                            if (possiblePortal.IsInRange(block))
                             {
                                 return possiblePortal;
                             }

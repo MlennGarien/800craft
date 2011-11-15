@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using fCraft.Drawing;
+using System.Threading;
 
 namespace fCraft.Portals
 {
@@ -13,8 +15,9 @@ namespace fCraft.Portals
         public String World { get; set; }
         public Vector3I[] AffectedBlocks { get; set; }
         public PortalRange Range { get; set; }
+        public String Place { get; set; }
 
-        public Portal(String world, Vector3I[] affectedBlocks, String Name, String Creator)
+        public Portal(String world, Vector3I[] affectedBlocks, String Name, String Creator, String Place)
         {
             this.World = world;
             this.AffectedBlocks = affectedBlocks;
@@ -22,9 +25,10 @@ namespace fCraft.Portals
             this.Name = Name;
             this.Creator = Creator;
             this.Created = DateTime.Now;
+            this.Place = Place;
         }
 
-        public Portal(String world, Vector3I[] affectedBlocks, String Name, String Creator, DateTime Created)
+        public Portal(String world, Vector3I[] affectedBlocks, String Name, String Creator, DateTime Created, String Place)
         {
             this.World = world;
             this.AffectedBlocks = affectedBlocks;
@@ -32,6 +36,7 @@ namespace fCraft.Portals
             this.Name = Name;
             this.Creator = Creator;
             this.Created = Created;
+            this.Place = Place;
         }
 
         public static PortalRange CalculateRange(Portal portal)
@@ -206,24 +211,26 @@ namespace fCraft.Portals
             return false;
         }
 
-        public void Remove()
+        public void Remove(Player requester)
         {
-            World world = WorldManager.FindWorldExact(World);
+            NormalBrush brush = new NormalBrush(Block.Air, Block.Air);
+            DrawOperation removeOperation = new CuboidDrawOperation(requester);
+            removeOperation.AnnounceCompletion = false;
+            removeOperation.Brush = brush;
+            removeOperation.Context = BlockChangeContext.Portal;
 
-            for (int x = Range.Xmin; x <= Range.Xmax; x++)
+            if (!removeOperation.Prepare(this.AffectedBlocks))
             {
-                for (int y = Range.Ymin; y <= Range.Ymax; y++)
-                {
-                    for (int z = Range.Zmin; z <= Range.Zmax; z++)
-                    {
-                        Vector3I block = new Vector3I(x, y, z);
-                        BlockUpdate update = new BlockUpdate(null, block, Block.Air);
-                        world.Map.QueueUpdate(update);
-                    }
-                }
+                throw new PortalException("Unable to remove portal.");
             }
 
-            world.Portals.Remove(this);
+            removeOperation.Begin();
+
+            lock (requester.World.Portals.SyncRoot)
+            {
+                requester.World.Portals.Remove(this);
+            }
+
             PortalDB.Save();
         }
     }

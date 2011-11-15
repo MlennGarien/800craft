@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using ServiceStack.Text;
 using System.Collections;
+using System.Runtime.Serialization.Json;
 
 namespace fCraft.Portals
 {
@@ -13,7 +14,6 @@ namespace fCraft.Portals
     {
         private static TimeSpan SaveInterval = TimeSpan.FromSeconds(90);
         private static readonly object SaveLoadLock = new object();
-
 
         public static void Save()
         {
@@ -25,9 +25,9 @@ namespace fCraft.Portals
                     int worlds = 0;
                     int portals = 0;
 
-                    using (FileStream fs = new FileStream(Paths.PortalDBFileName, FileMode.OpenOrCreate))
+                    using (StreamWriter fs = new StreamWriter(Paths.PortalDBFileName, false))
                     {
-                        StringBuilder data = new StringBuilder();
+                        ArrayList portalsList = new ArrayList();
                         World[] worldsCopy = WorldManager.Worlds;
 
                         foreach (World world in worldsCopy)
@@ -40,14 +40,12 @@ namespace fCraft.Portals
                                 foreach (Portal portal in portalsCopy)
                                 {
                                     portals++;
-                                    
-                                    data.AppendLine(JsonSerializer.SerializeToString(portal));
+                                    fs.WriteLine(JsonSerializer.SerializeToString(portal));
                                 }
                             }
                         }
 
-                        byte[] dataToWrite = Encoding.UTF8.GetBytes(data.ToString().ToCharArray(), 0, data.ToString().ToCharArray().Length);
-                        fs.Write(dataToWrite, 0, dataToWrite.Length);
+                        fs.Flush();
                         fs.Close();
                     }
 
@@ -75,31 +73,26 @@ namespace fCraft.Portals
 
                         while ((line = fs.ReadLine()) != null)
                         {
-                            try
+                            Portal portal = (Portal)JsonSerializer.DeserializeFromString(line, typeof(Portal));
+                            World world = WorldManager.FindWorldExact(portal.Place);
+
+                            if (world.Portals == null)
                             {
-                                Portal portal = (Portal)JsonSerializer.DeserializeFromString(line, typeof(Portal));
-
-                                World world = WorldManager.FindWorldExact(portal.World);
-
-                                if (world.Portals == null)
-                                {
-                                    world.Portals = new ArrayList();
-                                }
-
-                                lock (world.Portals.SyncRoot)
-                                {
-                                    world.Portals.Add(portal);
-                                }
-
-                                count ++;
+                                world.Portals = new ArrayList();
                             }
-                            catch (Exception)
+
+                            lock (world.Portals.SyncRoot)
                             {
-                                Logger.Log(LogType.Warning, "Unable to parse portal at line " + count);
+                                world.Portals.Add(portal);
                             }
+
+                            count++;
                         }
 
-                        Logger.Log(LogType.SystemActivity, "PortalDB.Load: Loaded " + count + " portals");
+                        if (count > 0)
+                        {
+                            Logger.Log(LogType.SystemActivity, "PortalDB.Load: Loaded " + count + " portals");
+                        }
                     }
                 }
             }
@@ -115,7 +108,7 @@ namespace fCraft.Portals
 
         public static void StartSaveTask()
         {
-            SchedulerTask saveTask = Scheduler.NewBackgroundTask(delegate { Save(); }).RunForever(SaveInterval, TimeSpan.FromSeconds(15));
+            SchedulerTask saveTask = Scheduler.NewBackgroundTask(delegate { Save(); }).RunForever(SaveInterval, SaveInterval + TimeSpan.FromSeconds(15));
         }
     }
 }

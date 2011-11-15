@@ -35,7 +35,7 @@ namespace fCraft {
         /// <summary> Block was filled (using /fill2d or /fill3d). </summary>
         Filled = 256,
 
-        /// <summary> System is building portal. </summary>
-        PortalBuild = 512
+        /// <summary> System is building / removing a portal. </summary>
+        Portal = 512
     }
 }

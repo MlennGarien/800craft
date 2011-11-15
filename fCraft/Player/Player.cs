@@ -155,8 +155,10 @@ namespace fCraft {
         public String PortalName;
         public bool BuildingPortal = true;
         public DateTime LastUsedPortal;
+        public DateTime LastWarnedPortal;
         public readonly object FlyLock = new object();
         public readonly object PortalLock = new object();
+        public bool PortalsEnabled = true;
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.
