@@ -53,6 +53,7 @@ namespace fCraft.Portals
         {
             // Player can use portals again
             e.Player.CanUsePortal = true;
+            e.Player.LastUsedPortal = DateTime.Now;
         }
 
         static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
@@ -67,6 +68,13 @@ namespace fCraft.Portals
                         {
                             if (PortalHandler.GetInstance().GetPortal(e.Player) != null && !e.Player.StandingInPortal)
                             {
+                                if (e.Player.LastUsedPortal != null && (DateTime.Now - e.Player.LastUsedPortal).Seconds < 5)
+                                {
+                                    // To prevent portal loops
+                                    e.Player.Message("You can not use portals within 5 seconds of joining a world.");
+                                    return;
+                                }
+
                                 // Make sure this method isn't called twice
                                 e.Player.CanUsePortal = false;
 
