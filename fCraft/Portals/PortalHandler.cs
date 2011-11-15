@@ -91,6 +91,7 @@ namespace fCraft.Portals
                                             // To prevent portal loops
                                             if (e.Player.LastWarnedPortal == null || (DateTime.Now - e.Player.LastWarnedPortal).TotalSeconds > 2)
                                             {
+                                                e.Player.LastWarnedPortal = DateTime.Now;
                                                 e.Player.Message("You can not use portals within 5 seconds of joining a world.");
                                             }
 
