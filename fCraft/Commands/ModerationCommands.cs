@@ -509,7 +509,13 @@ namespace fCraft {
 
             // find the target
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
-            if (target == null) return;
+
+            if (target == null)
+            {
+                player.MessageNoPlayer(targetName);
+                return;
+            };
+
             if (target == player)
             {
                 player.Message("Trying to T-Ban yourself? Fail!");
@@ -564,18 +570,25 @@ namespace fCraft {
         {
             string name = cmd.Next();
             string reason = cmd.NextAll();
+
             if (name == null)
             {
-                player.Message("&sPlease enter a player name to use the basscannon on");
+                player.Message("Please enter a player name to use the basscannon on.");
+                return;
             }
+
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-            if (target == null) return;
+
+            if (target == null)
+            {
+                player.MessageNoPlayer(name);
+                return;
+            }
 
             if (ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty(reason))
             {
                 player.Message("&WPlease specify a reason: &Z/basscannon PlayerName Reason");
                 // freeze the target player to prevent further damage
-
                 return;
             }
 
@@ -621,14 +634,20 @@ namespace fCraft {
         internal static void Warn(Player player, Command cmd)
         {
             string name = cmd.Next();
+
             if (name == null)
             {
-                player.Message("Please enter a name");
+                player.Message("No player specified.");
                 return;
             }
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-            if (target == null) return;
+
+            if (target == null)
+            {
+                player.MessageNoPlayer(name);
+                return;
+            }
 
             if (player.Can(Permission.Ban, target.Info.Rank))
             {
@@ -671,12 +690,17 @@ namespace fCraft {
             string name = cmd.Next();
             if (name == null)
             {
-                player.Message("Please enter a name");
+                player.Message("No player specified.");
                 return;
             }
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-            if (target == null) return;
+
+            if (target == null)
+            {
+                player.MessageNoPlayer(name);
+                return;
+            }
 
             if (player.Can(Permission.Ban, target.Info.Rank))
             {
