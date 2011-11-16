@@ -85,153 +85,6 @@ namespace fCraft {
             Handler = DummyHandler
         };
 
-
-        static readonly CommandDescriptor CdKill = new CommandDescriptor
-        {
-            Name = "Kill",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
-            Help = "Kills a player.",
-            NotRepeatable = true,
-            Usage = "/Kill playername",
-            Handler = KillHandler
-        };
-
-
-        static readonly CommandDescriptor CdPossess = new CommandDescriptor
-        {
-            Name = "Possess",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = false,
-            Permissions = new[] { Permission.ManageWorlds },
-            Help = "Possess a player.",
-            Usage = "/possess playername",
-            Handler = PossessHandler
-        };
-
-
-
-        static readonly CommandDescriptor CdUnPossess = new CommandDescriptor
-        {
-            Name = "Unpossess",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = false,
-            Permissions = new[] { Permission.ManageWorlds },
-            Help = "Unpossess a player.",
-            Usage = "/unpossess playername",
-            Handler = UnPossessHandler
-        };
-
-
-
-
-
-        static readonly CommandDescriptor CdSlap = new CommandDescriptor
-        {
-            Name = "Slap",
-            IsConsoleSafe = true,
-            NotRepeatable = true,
-            Aliases = new[] { "sky" },
-            Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Ban },
-            Help = "Slaps a player to the sky.",
-            Handler = Slap
-        };
-
-
-
-
-        static readonly CommandDescriptor CdTPZone = new CommandDescriptor
-        {
-            Name = "Tpzone",
-            IsConsoleSafe = false,
-            Aliases = new[] { "tpz", "zonetp" },
-            Category = CommandCategory.World | CommandCategory.Zone,
-            Permissions = new[] { Permission.Teleport },
-            Help = "Teleports you to the centre of a Zone listed in /Zones.",
-            Usage = "/tpzone ZoneName",
-            Handler = TPZone
-        };
-
-
-
-
-        static readonly CommandDescriptor CdTempBan = new CommandDescriptor
-        {
-            Name = "Tempban",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
-            Aliases = new[] { "tban" },
-            Permissions = new[] { Permission.BanIP },
-            Help = "Bans a player for a selected amount of time in seconds. 60 seconds = 1 minute. 1200 seconds = 1 hour",
-            Usage = "/tempban Player Seconds",
-            Handler = Tempban
-        };
-
-
-
-
-
-        static readonly CommandDescriptor CdBasscannon = new CommandDescriptor
-        {
-            Name = "Basscanon",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
-            Aliases = new[] { "bc" },
-            IsHidden = false,
-            Permissions = new[] { Permission.Ban },
-            Usage = "Let the Basscannon 'Kick' it!",
-            Help = "undoes a players actions upto 50000 blocks",
-            Handler = Basscannon
-        };
-
-        static readonly CommandDescriptor CdWarn = new CommandDescriptor
-        {
-            Name = "Warn",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
-            NotRepeatable = true,
-            Permissions = new[] { Permission.Mute },
-            Help = "Warns a player and puts a black star next to their name for 20 minutes. During them 20 minutes, if they are warned again, they will get kicked.",
-            Usage = "/warn playername",
-            Handler = Warn
-        };
-
-
-
-        static readonly CommandDescriptor CdUnWarn = new CommandDescriptor
-        {
-            Name = "Unwarn",
-
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban },
-            Usage = "/unwarn PlayerName",
-            Help = "",
-            Handler = UnWarn
-        };
-
-
-        
-
-        static readonly CommandDescriptor cdDisconnect = new CommandDescriptor
-        {
-            Name = "Disconnect",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
-            Aliases = new[] { "gtfo" },
-            IsHidden = false,
-            Permissions = new[] { Permission.OwnerStuff },
-            Usage = "/disconnect playername",
-            Help = "Get rid of those annoying people without saving to PlayerDB",
-            Handler = dc
-        };
-
-        #endregion
-
-        #region moderation commands
-
         public static void DummyHandler(Player player, Command cmd)
         {
 
@@ -256,6 +109,19 @@ namespace fCraft {
             Server.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos));
 
         }
+
+
+        static readonly CommandDescriptor CdKill = new CommandDescriptor
+        {
+            Name = "Kill",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.ManageWorlds },
+            Help = "Kills a player.",
+            NotRepeatable = true,
+            Usage = "/Kill playername",
+            Handler = KillHandler
+        };
 
         internal static void KillHandler(Player player, Command cmd)
         {
@@ -299,6 +165,16 @@ namespace fCraft {
             }
         }
 
+        static readonly CommandDescriptor CdPossess = new CommandDescriptor
+        {
+            Name = "Possess",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = false,
+            Permissions = new[] { Permission.ManageWorlds },
+            Help = "Possess a player.",
+            Usage = "/possess playername",
+            Handler = PossessHandler
+        };
         internal static void PossessHandler(Player player, Command cmd)
         {
             string name = cmd.Next();
@@ -307,8 +183,6 @@ namespace fCraft {
                 player.Message("Please enter a name");
                 return;
             }
-
-
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
@@ -334,43 +208,17 @@ namespace fCraft {
             }
         }
 
-        static void SpectateHandler2(Player player, Command cmd)
+
+        static readonly CommandDescriptor CdUnPossess = new CommandDescriptor
         {
-            string targetName = cmd.Next();
-            if (targetName == null)
-            {
-                PlayerInfo lastSpec = player.LastSpectatedPlayer;
-                if (lastSpec != null)
-                {
-                    Player spec = player.SpectatedPlayer;
-                    if (spec != null)
-                    {
-                        player.Message("You are being possessed", spec.ClassyName);
-                    }
-                    else
-                        return;
-                }
-                else
-                {
-                    player.Message("Please enter a name");
-                }
-                return;
-            }
-
-            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
-            if (target == null) return;
-
-            if (target == player)
-            {
-                player.Message("You cannot spectate yourself.");
-                return;
-            }
-
-            if (!player.Spectate(target))
-            {
-                player.Message("Already spectating {0}", target.ClassyName);
-            }
-        }
+            Name = "Unpossess",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = false,
+            Permissions = new[] { Permission.ManageWorlds },
+            Help = "Unpossess a player.",
+            Usage = "/unpossess playername",
+            Handler = UnPossessHandler
+        };
 
         internal static void UnPossessHandler(Player player, Command cmd)
         {
@@ -395,7 +243,7 @@ namespace fCraft {
             if (player.Can(Permission.BanIP, target.Info.Rank))
             {
 
-                UnspectateHandler2(target, new Command("/unfollow " + player.Name));
+               UnPossess(target, new Command("/unfollow " + player.Name));
                 player.Message("Stopped possessing " + target.Name);
                 return;
             }
@@ -407,13 +255,27 @@ namespace fCraft {
             }
         }
 
-        static void UnspectateHandler2(Player player, Command cmd)
+        static void UnPossess(Player player, Command cmd)
         {
             if (!player.StopSpectating())
             {
                 player.Message("You are not currently spectating anyone.");
             }
         }
+
+
+
+        static readonly CommandDescriptor CdSlap = new CommandDescriptor
+        {
+            Name = "Slap",
+            IsConsoleSafe = true,
+            NotRepeatable = true,
+            Aliases = new[] { "sky" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Ban },
+            Help = "Slaps a player to the sky.",
+            Handler = Slap
+        };
 
         static void Slap(Player player, Command cmd)
         {
@@ -459,6 +321,19 @@ namespace fCraft {
             }
         }
 
+
+        static readonly CommandDescriptor CdTPZone = new CommandDescriptor
+        {
+            Name = "Tpzone",
+            IsConsoleSafe = false,
+            Aliases = new[] { "tpz", "zonetp" },
+            Category = CommandCategory.World | CommandCategory.Zone,
+            Permissions = new[] { Permission.Teleport },
+            Help = "Teleports you to the centre of a Zone listed in /Zones.",
+            Usage = "/tpzone ZoneName",
+            Handler = TPZone
+        };
+
         static void TPZone(Player player, Command cmd)
         {
             string zoneName = cmd.Next();
@@ -482,6 +357,19 @@ namespace fCraft {
 
             }
         }
+
+
+        static readonly CommandDescriptor CdTempBan = new CommandDescriptor
+        {
+            Name = "Tempban",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Aliases = new[] { "tban" },
+            Permissions = new[] { Permission.BanIP },
+            Help = "Bans a player for a selected amount of time in seconds. 60 seconds = 1 minute. 1200 seconds = 1 hour",
+            Usage = "/tempban Player Seconds",
+            Handler = Tempban
+        };
 
         static void Tempban(Player player, Command cmd)
         {
@@ -566,6 +454,21 @@ namespace fCraft {
             }
         }
 
+
+
+        static readonly CommandDescriptor CdBasscannon = new CommandDescriptor
+        {
+            Name = "Basscannon",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Aliases = new[] { "bc" },
+            IsHidden = false,
+            Permissions = new[] { Permission.Ban },
+            Usage = "Let the Basscannon 'Kick' it!",
+            Help = "undoes a players actions upto 50000 blocks",
+            Handler = Basscannon
+        };
+
         internal static void Basscannon(Player player, Command cmd)
         {
             string name = cmd.Next();
@@ -631,6 +534,17 @@ namespace fCraft {
             }
         }
 
+        static readonly CommandDescriptor CdWarn = new CommandDescriptor
+        {
+            Name = "Warn",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            NotRepeatable = true,
+            Permissions = new[] { Permission.Mute },
+            Help = "Warns a player and puts a black star next to their name for 20 minutes. During them 20 minutes, if they are warned again, they will get kicked.",
+            Usage = "/warn playername",
+            Handler = Warn
+        };
         internal static void Warn(Player player, Command cmd)
         {
             string name = cmd.Next();
@@ -685,6 +599,20 @@ namespace fCraft {
             }
         }
 
+
+
+        static readonly CommandDescriptor CdUnWarn = new CommandDescriptor
+        {
+            Name = "Unwarn",
+
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Ban },
+            Usage = "/unwarn PlayerName",
+            Help = "",
+            Handler = UnWarn
+        };
+
         internal static void UnWarn(Player player, Command cmd)
         {
             string name = cmd.Next();
@@ -720,6 +648,20 @@ namespace fCraft {
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
+        
+
+        static readonly CommandDescriptor cdDisconnect = new CommandDescriptor
+        {
+            Name = "Disconnect",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Aliases = new[] { "gtfo" },
+            IsHidden = false,
+            Permissions = new[] { Permission.OwnerStuff },
+            Usage = "/disconnect playername",
+            Help = "Get rid of those annoying people without saving to PlayerDB",
+            Handler = dc
+        };
 
         internal static void dc(Player player, Command cmd)
         {
@@ -730,12 +672,8 @@ namespace fCraft {
                 return;
             }
 
-
-
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
-
-
 
             if (player.Can(Permission.OwnerStuff, target.Info.Rank))
             {
@@ -762,7 +700,49 @@ namespace fCraft {
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
+        #endregion
 
+        #region Custom Functions
+
+        static void SpectateHandler2(Player player, Command cmd)
+        {
+            string targetName = cmd.Next();
+            if (targetName == null)
+            {
+                PlayerInfo lastSpec = player.LastSpectatedPlayer;
+                if (lastSpec != null)
+                {
+                    Player spec = player.SpectatedPlayer;
+                    if (spec != null)
+                    {
+                        player.Message("You are being possessed", spec.ClassyName);
+                    }
+                    else
+                        return;
+                }
+                else
+                {
+                    player.Message("Please enter a name");
+                }
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
+            if (target == null) return;
+
+            if (target == player)
+            {
+                player.Message("You cannot spectate yourself.");
+                return;
+            }
+
+            if (!player.Spectate(target))
+            {
+                player.Message("Already spectating {0}", target.ClassyName);
+            }
+        }
+
+        
         static void TPHandler2(Player player, Command cmd)
         {
             string name = cmd.Next();
