@@ -70,7 +70,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdDummy);
             
         }
-
+         
         #region custom
 
         static readonly CommandDescriptor CdDummy = new CommandDescriptor
