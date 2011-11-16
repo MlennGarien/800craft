@@ -12,28 +12,35 @@ namespace fCraft {
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
-        public static bool SendGlobal( [NotNull] Player player, [NotNull] string rawMessage ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+        public static bool SendGlobal([NotNull] Player player, [NotNull] string rawMessage)
+        {
+                
+            
+            if (player == null) throw new ArgumentNullException("player");
+            if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
-            var recepientList = Server.Players.NotIgnoring( player );
 
-            string formattedMessage = String.Format( "{0}&F: {1}",
-                                                     player.ClassyName,
-                                                     rawMessage );
+            string Message = ProfanityFilter.Parse(rawMessage);
 
-            var e = new ChatSendingEventArgs( player,
-                                              rawMessage,
-                                              formattedMessage,
-                                              ChatMessageType.Global,
-                                              recepientList );
+                var recepientList = Server.Players.NotIgnoring(player);
+                
+                string formattedMessage = String.Format("{0}&F: {1}",
+                                                         player.ClassyName,
+                                                         Message);
 
-            if( !SendInternal( e ) ) return false;
+                var e = new ChatSendingEventArgs(player,
+                                                  Message,
+                                                  formattedMessage,
+                                                  ChatMessageType.Global,
+                                                  recepientList);
 
-            Logger.Log( LogType.GlobalChat,
-                        "{0}: {1}", player.Name, rawMessage );
-            return true;
-        }
+                if (!SendInternal(e)) return false;
+
+                Logger.Log(LogType.GlobalChat,
+                            "{0}: {1}", player.Name, Message);
+                return true;
+            }
+        
 
         public static bool SendAdmin(Player player, string rawMessage)
         {

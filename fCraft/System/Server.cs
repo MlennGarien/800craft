@@ -35,8 +35,9 @@ namespace fCraft {
                            MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
         internal static float TicksPerSecond;
         public static bool VoteIsOn;
-       public static float VoteYes = 0;
+        public static float VoteYes = 0;
         public static float VoteNo = 0;
+        public static bool profanityFilter = true;
 
 
         // networking
@@ -188,7 +189,7 @@ namespace fCraft {
             } else {
                 throw new IOException( "Could not set the map path." );
             }
-
+            
             // set config path
             Paths.ConfigFileName = Paths.ConfigFileNameDefault;
             string configFile = GetArg( ArgKey.Config );
@@ -287,6 +288,7 @@ namespace fCraft {
 
             // prepare the list of commands
             CommandManager.Init();
+            ProfanityFilter.Init();
 
             // prepare the brushes
             BrushManager.Init();
