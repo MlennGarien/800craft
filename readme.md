@@ -1,5 +1,3 @@
-﻿800craft
-
 800craft is a modified version of the popular Minecraft server software called fCraft. 
 It was created by Jonty800 and is now maintained by Jonty800 and GlennMR. 
 He created this project because fCraft lacked some features that a modern Minecraft server needs.
