@@ -491,33 +491,31 @@ namespace fCraft {
         static readonly CommandDescriptor cdHigh5 = new CommandDescriptor
         {
             Name = "High5",
+            Aliases = new string[] { "h5" },
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             Usage = "/high5 playername",
-            Help = "high5s.",
+            Help = "High fives a given player.",
             NotRepeatable = true,
-            Handler = High5
+            Handler = High5,
+            Permissions = new Permission[] { Permission.HighFive }
         };
-
-
-
 
         internal static void High5(Player player, Command cmd)
         {
             string targetName = cmd.Next();
+
             if (targetName == null)
             {
                 cdHigh5.PrintUsage(player);
-
                 return;
             }
 
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
 
-
             if (target == null)
             {
-                player.Message("Please enter the name of the player you want to high five.");
+                player.MessageNoPlayer(targetName);
                 return;
             }
             if (target == player)
@@ -525,18 +523,17 @@ namespace fCraft {
                 player.Message("You cannot high five yourself.");
                 return;
             }
-
-            if (Player.IsInValidName(targetName))
-            {
-                player.Message("Player not found. Please specify valid name.");
-                return;
-            }
-
             else
             {
-                Server.Players.Message("{0}&S was just &cHigh Fived &sby {1}&S",
-                                  target.ClassyName, player.ClassyName);
-                target.Message("&SIsn't that nice? :)");
+                if (target.IsOnline)
+                {
+                    Server.Players.Message("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName);
+                    target.Message("{0}&S high fived you.", player.ClassyName);
+                }
+                else
+                {
+                    player.Message("Player {0}&S is not online.", target.ClassyName);
+                }
             }
         }
 

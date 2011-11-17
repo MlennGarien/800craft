@@ -532,6 +532,12 @@ Affected commands:
 Affected commands:
     /portal create
     /portal remove";
+
+            vPermissions.Items[(int)Permission.HighFive].ToolTipText =
+@"Allows a player to high five another player
+Affected commands:
+    /high5
+    /h5";
         }
 
 
