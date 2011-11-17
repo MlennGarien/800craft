@@ -303,7 +303,7 @@ namespace fCraft {
                 {
                     if (target.Can(Permission.Teleport))
                     {
-                        Position slap = new Position(player.Position.X, player.Position.Y, player.World.Map.Bounds.ZMax);
+                        Position slap = new Position(player.Position.X, player.Position.Y, (player.World.Map.Bounds.ZMax)*32);
                         Server.Players.Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                         target.TeleportTo(slap);
                         return;
