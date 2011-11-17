@@ -30,6 +30,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdVote);
             CommandManager.RegisterCommand(CdBroMode);
             Chat.Sending += CapsLockCheck;
+            Chat.Sending += ProfanityCheck;
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
 
@@ -255,6 +256,12 @@ namespace fCraft
                     }
                 }
             }
+        }
+
+        static void ProfanityCheck(object sender, Events.ChatSendingEventArgs e)
+        {
+            ProfanityFilter.Parse(e.Message);
+            Chat.SendGlobal(e.Player, e.Message);
         }
 
         #region Troll
