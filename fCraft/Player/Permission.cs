@@ -37,6 +37,28 @@ namespace fCraft
         ReadEngineerChat,
         /// <summary> Ability to use realms. </summary>
         Realm,
+        /// <summary> Ability to turn bromode on or off. </summary>
+        BroMode,
+        /// <summary> Ability to read admin chat. </summary>
+        ReadAdminChat,
+        /// <summary> Ability to read engineer chat. </summary>
+        ReadEngineerChat,
+        /// <summary> Ability to create and manage a personal realm. </summary>
+        Realm,
+        /// <summary> Ability to possess other players. </summary>
+        Possess,
+        /// <summary> Ability to manually disconnect other players. </summary>
+        Gtfo,
+        /// <summary> Ability to tempban. </summary>
+        TempBan,
+        /// <summary> Ability to warn other players. </summary>
+        Warn,
+        /// <summary> Ability to slap players to the sky. </summary>
+        Slap,
+        /// <summary> Ability to kill other players. </summary>
+        Kill,
+        /// <summary> Ability to blast players out of the server (kick). </summary>
+        Basscannon,
         /// <summary> Ability to delete or replace admincrete. </summary>
         DeleteAdmincrete,
         /// <summary> Ability to view extended information about other players. </summary>

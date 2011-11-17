@@ -20,16 +20,14 @@ namespace fCraft {
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
 
-            string Message = ProfanityFilter.Parse(rawMessage);
-
                 var recepientList = Server.Players.NotIgnoring(player);
                 
                 string formattedMessage = String.Format("{0}&F: {1}",
                                                          player.ClassyName,
-                                                         Message);
+                                                         rawMessage);
 
                 var e = new ChatSendingEventArgs(player,
-                                                  Message,
+                                                  rawMessage,
                                                   formattedMessage,
                                                   ChatMessageType.Global,
                                                   recepientList);
@@ -37,7 +35,7 @@ namespace fCraft {
                 if (!SendInternal(e)) return false;
 
                 Logger.Log(LogType.GlobalChat,
-                            "{0}: {1}", player.Name, Message);
+                            "{0}: {1}", player.Name, rawMessage);
                 return true;
             }
         
