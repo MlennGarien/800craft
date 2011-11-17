@@ -232,13 +232,17 @@ namespace fCraft
                         {
                             bool found = false;
 
-                            foreach (Portal portal in player.World.Portals)
+                            lock (player.World.Portals.SyncRoot)
                             {
-                                if (portal.Name.Equals(portalName))
+                                foreach (Portal portal in player.World.Portals)
                                 {
-                                    player.Message("Portal {0}&S was created by {1}&S at {2} and teleports to world {3}&S.",
-                                        portal.Name, PlayerDB.FindPlayerInfoExact(portal.Creator).ClassyName, portal.Created, player.World.ClassyName);
-                                    found = true;
+                                    if (portal.Name.Equals(portalName))
+                                    {
+                                        World portalWorld = WorldManager.FindWorldExact(portal.World);
+                                        player.Message("Portal {0}&S was created by {1}&S at {2} and teleports to world {3}&S.",
+                                            portal.Name, PlayerDB.FindPlayerInfoExact(portal.Creator).ClassyName, portal.Created, portalWorld.ClassyName);
+                                        found = true;
+                                    }
                                 }
                             }
 
