@@ -37,14 +37,6 @@ namespace fCraft
         ReadEngineerChat,
         /// <summary> Ability to use realms. </summary>
         Realm,
-        /// <summary> Ability to turn bromode on or off. </summary>
-        BroMode,
-        /// <summary> Ability to read admin chat. </summary>
-        ReadAdminChat,
-        /// <summary> Ability to read engineer chat. </summary>
-        ReadEngineerChat,
-        /// <summary> Ability to create and manage a personal realm. </summary>
-        Realm,
         /// <summary> Ability to possess other players. </summary>
         Possess,
         /// <summary> Ability to manually disconnect other players. </summary>
