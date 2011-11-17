@@ -8,10 +8,10 @@ using fCraft.Events;
 namespace ConfigCLI {
     static class Program {
         static void Main( string[] args ) {
-            Console.Title = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
+            Console.Title = "800craft Configuration (" + Updater.CurrentRelease.VersionString + ")";
             try {
                 Logger.Logged += OnLogged;
-                Console.WriteLine( "Initializing fCraft..." );
+                Console.WriteLine( "Initializing 800craft..." );
                 Server.InitLibrary( args );
 
                 if( !File.Exists( Paths.ConfigFileName ) ) {
@@ -200,7 +200,7 @@ namespace ConfigCLI {
         static void ReportFailure( ShutdownReason reason ) {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
-            Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
+            Console.Title = String.Format( "800craft {0} {1}", Updater.CurrentRelease.VersionString, reason );
             Console.ResetColor();
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();

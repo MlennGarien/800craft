@@ -27,7 +27,7 @@ namespace fCraft {
  );
 
         public static string UserAgent {
-            get { return "fCraft " + CurrentRelease.VersionString; }
+            get { return "800craft " + CurrentRelease.VersionString; }
         }
 
         public const string LatestStable = "0.610_r1235";
@@ -36,7 +36,7 @@ namespace fCraft {
 
         static Updater() {
             UpdateCheckTimeout = 4000;
-            UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
+            UpdateUrl = "http://800craft.project-vanilla.com/UpdateCheck.php?r={0}";
         }
 
 

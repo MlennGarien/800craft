@@ -472,7 +472,7 @@ namespace fCraft {
             try {
 #endif
                 RaiseShutdownBeganEvent( shutdownParams );
-
+                
                 Scheduler.BeginShutdown();
 
                 Logger.Log( LogType.SystemActivity,
@@ -827,7 +827,7 @@ namespace fCraft {
         }
 
 
-        const string DataBackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
+        const string DataBackupFileNameFormat = "800craftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
 
         public static void BackupData() {
             string backupFileName = String.Format( DataBackupFileNameFormat, DateTime.Now ); // localized

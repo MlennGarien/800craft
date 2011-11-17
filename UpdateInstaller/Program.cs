@@ -35,7 +35,7 @@ using fCraft.UpdateInstaller.Properties;
 namespace fCraft.UpdateInstaller {
     static class Program {
         const string ConfigFileNameDefault = "config.xml",
-                     BackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}_BeforeUpdate.zip";
+                     BackupFileNameFormat = "800craftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}_BeforeUpdate.zip";
 
         static readonly string[] FilesToBackup = new[]{
             "PlayerDB.txt",
@@ -136,7 +136,7 @@ namespace fCraft.UpdateInstaller {
 
                             } catch( Exception ex ) {
                                 if( ex is IOException ) {
-                                    Console.WriteLine( "Waiting for fCraft-related applications to close..." );
+                                    Console.WriteLine( "Waiting for 800craft-related applications to close..." );
                                 } else {
                                     Console.Error.WriteLine( "ERROR: could not write to {0}: {1} - {2}",
                                                              fileName, ex.GetType().Name, ex.Message );
@@ -184,7 +184,7 @@ namespace fCraft.UpdateInstaller {
                 }
             }
 
-            Console.WriteLine( "fCraft update complete." );
+            Console.WriteLine( "800craft update complete." );
 
             // Restart fCraft (if requested)
             if( restartTarget != null ) {
