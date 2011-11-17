@@ -1303,6 +1303,14 @@ namespace fCraft {
                 }
                 if( IsBanned ) {
                     sb.Append( Color.Red ).Append( '*' );
+                    if (IsWarned)
+                    {
+                        sb.Append(Color.Black).Append('*');
+                    }
+                    if (IsMuted)
+                    {
+                        sb.Append(Color.Olive).Append('*');
+                    }
                 } else if( IsFrozen ) {
                     sb.Append( Color.Blue ).Append( '*' );
                 }

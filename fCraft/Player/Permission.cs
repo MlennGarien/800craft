@@ -35,7 +35,7 @@ namespace fCraft {
         OwnerStuff,
         BroMode,
 
-        Guestwipe,
+        
         ReadAdminChat,
         ReadEngineerChat,
 
