@@ -1546,5 +1546,54 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             lPrefix.Enabled = usePrefixes;
             RebuildRankList();
         }
+
+        private void bMineQueryPortCheck_Click(object sender, EventArgs e)
+        {
+            bMineQueryPortCheck.Text = "Checking";
+            Enabled = false;
+            TcpListener listener = null;
+
+            try
+            {
+                listener = new TcpListener(IPAddress.Any, (int)nMineQueryPort.Value);
+                listener.Start();
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://www.utorrent.com/testport?plain=1&port=" + nMineQueryPort.Value);
+                request.Timeout = 10 * 1000;
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        if (stream != null)
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            string returnMessage = reader.ReadLine();
+                            if (returnMessage != null && returnMessage.StartsWith("ok"))
+                            {
+                                MessageBox.Show("Port " + nMineQueryPort.Value + " is open!", "Port check success");
+                                return;
+                            }
+                        }
+                    }
+                }
+                MessageBox.Show("Port " + nMineQueryPort.Value + " is closed. You will need to set up forwarding.", "Port check failed");
+
+            }
+            catch
+            {
+                MessageBox.Show("Could not start listening on port " + nMineQueryPort.Value + ". Another program may be using the port.", "Port check failed");
+            }
+            finally
+            {
+                if (listener != null)
+                {
+                    listener.Stop();
+                }
+                Enabled = true;
+                bMineQueryPortCheck.Text = "Check";
+            }
+        }
     }
 }

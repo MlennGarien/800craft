@@ -116,6 +116,8 @@ namespace fCraft.ConfigGUI {
             tMOTD.Text = ConfigKey.MOTD.GetString();
 
             nMaxPlayers.Value = ConfigKey.MaxPlayers.GetInt();
+            xMineQuery.Checked = ConfigKey.MineQuery.Enabled();
+            nMineQueryPort.Value = ConfigKey.MineQueryPort.GetInt();
             CheckMaxPlayersPerWorldValue();
             nMaxPlayersPerWorld.Value = ConfigKey.MaxPlayersPerWorld.GetInt();
 
@@ -445,6 +447,11 @@ namespace fCraft.ConfigGUI {
                 ConfigKey.DefaultRank.TrySetValue( RankManager.DefaultRank.FullName );
             }
             ConfigKey.IsPublic.TrySetValue( cPublic.SelectedIndex == 0 );
+
+            // MineQuery
+            ConfigKey.MineQuery.TrySetValue(xMineQuery.Checked);
+            ConfigKey.MineQueryPort.TrySetValue(nMineQueryPort.Value);
+
             ConfigKey.Port.TrySetValue( nPort.Value );
             if( xIP.Checked ) {
                 ConfigKey.IP.TrySetValue( tIP.Text );
