@@ -116,7 +116,7 @@ namespace fCraft {
             Name = "Kill",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] { Permission.Kill },
             Help = "Kills a player.",
             NotRepeatable = true,
             Usage = "/Kill playername",
@@ -131,8 +131,6 @@ namespace fCraft {
                 player.Message("Please enter a name");
                 return;
             }
-
-
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
@@ -170,7 +168,7 @@ namespace fCraft {
             Name = "Possess",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = false,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] { Permission.Possess },
             Help = "Possess a player.",
             Usage = "/possess playername",
             Handler = PossessHandler
@@ -195,9 +193,10 @@ namespace fCraft {
 
             if (player.Can(Permission.BanIP, target.Info.Rank))
             {
-                TPHandler2(player, new Command("/tp " + target.Name));
-                SpectateHandler2(target, new Command("/follow " + player.Name));
-                player.Message("Now possessing " + target.Name);
+                Position P = target.Position;
+                player.TeleportTo(P);
+                Possess(target, cmd, name);
+                player.Message("Now possessing " + name);
                 return;
             }
             else
@@ -214,7 +213,7 @@ namespace fCraft {
             Name = "Unpossess",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = false,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] { Permission.Possess },
             Help = "Unpossess a player.",
             Usage = "/unpossess playername",
             Handler = UnPossessHandler
@@ -228,7 +227,6 @@ namespace fCraft {
                 player.Message("Please enter a name");
                 return;
             }
-
 
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
@@ -272,7 +270,7 @@ namespace fCraft {
             NotRepeatable = true,
             Aliases = new[] { "sky" },
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Ban },
+            Permissions = new[] { Permission.Slap },
             Help = "Slaps a player to the sky.",
             Handler = Slap
         };
@@ -365,7 +363,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Aliases = new[] { "tban" },
-            Permissions = new[] { Permission.BanIP },
+            Permissions = new[] { Permission.TempBan },
             Help = "Bans a player for a selected amount of time in seconds. 60 seconds = 1 minute. 1200 seconds = 1 hour",
             Usage = "/tempban Player Seconds",
             Handler = Tempban
@@ -463,7 +461,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Aliases = new[] { "bc" },
             IsHidden = false,
-            Permissions = new[] { Permission.Ban },
+            Permissions = new[] { Permission.Basscannon },
             Usage = "Let the Basscannon 'Kick' it!",
             Help = "undoes a players actions upto 50000 blocks",
             Handler = Basscannon
@@ -540,7 +538,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             NotRepeatable = true,
-            Permissions = new[] { Permission.Mute },
+            Permissions = new[] { Permission.Warn },
             Help = "Warns a player and puts a black star next to their name for 20 minutes. During them 20 minutes, if they are warned again, they will get kicked.",
             Usage = "/warn playername",
             Handler = Warn
@@ -607,7 +605,7 @@ namespace fCraft {
 
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban },
+            Permissions = new[] { Permission.Warn },
             Usage = "/unwarn PlayerName",
             Help = "",
             Handler = UnWarn
@@ -657,7 +655,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Aliases = new[] { "gtfo" },
             IsHidden = false,
-            Permissions = new[] { Permission.OwnerStuff },
+            Permissions = new[] { Permission.Gtfo },
             Usage = "/disconnect playername",
             Help = "Get rid of those annoying people without saving to PlayerDB",
             Handler = dc
@@ -704,41 +702,40 @@ namespace fCraft {
 
         #region Custom Functions
 
-        static void SpectateHandler2(Player player, Command cmd)
+        static void Possess(Player player, Command cmd, string targetName)
         {
-            string targetName = cmd.Next();
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
             if (targetName == null)
             {
-                PlayerInfo lastSpec = player.LastSpectatedPlayer;
+                PlayerInfo lastSpec = target.LastSpectatedPlayer;
                 if (lastSpec != null)
                 {
-                    Player spec = player.SpectatedPlayer;
+                    Player spec = target.SpectatedPlayer;
                     if (spec != null)
                     {
-                        player.Message("You are being possessed", spec.ClassyName);
+                        target.Message("You are being possessed");
                     }
                     else
                         return;
                 }
                 else
                 {
-                    player.Message("Please enter a name");
+                    target.Message("Please enter a name");
                 }
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
             if (target == null) return;
 
             if (target == player)
             {
-                player.Message("You cannot spectate yourself.");
+                player.Message("You cannot possess yourself.");
                 return;
             }
 
-            if (!player.Spectate(target))
+            if (!target.Spectate(target))
             {
-                player.Message("Already spectating {0}", target.ClassyName);
+                target.Message("Already possessing {0}", target.ClassyName);
             }
         }
 

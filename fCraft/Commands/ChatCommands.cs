@@ -93,6 +93,8 @@ namespace fCraft {
                 }
             }
 
+
+
          static readonly CommandDescriptor CdVote = new CommandDescriptor
         {
             Name = "Vote",
@@ -225,7 +227,7 @@ namespace fCraft {
                 return;
             }
 
-
+            
             if (player.DetectChatSpam()) return;
 
             string message = cmd.NextAll().Trim();
@@ -438,8 +440,6 @@ namespace fCraft {
         }
 
         #endregion
-
-
 
         static readonly CommandDescriptor cdAway = new CommandDescriptor
         {
@@ -761,6 +761,7 @@ namespace fCraft {
                 } else {
                     player.MessageNow( "You are already ignoring {0}", targetInfo.ClassyName );
                 }
+                
 
             } else {
                 PlayerInfo[] ignoreList = player.IgnoreList;
