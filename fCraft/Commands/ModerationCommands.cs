@@ -176,18 +176,23 @@ namespace fCraft {
         internal static void PossessHandler(Player player, Command cmd)
         {
             string name = cmd.Next();
+
             if (name == null)
             {
-                player.Message("Please enter a name");
+                CdPossess.PrintUsage(player);
                 return;
             }
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-            if (target == null) return;
+
+            if (target == null) {
+                player.MessageNoPlayer(name);
+                return;
+            }
 
             if (target == player)
             {
-                player.Message("Nope.avi");
+                player.Message("You can't possess yourself.");
                 return;
             }
 

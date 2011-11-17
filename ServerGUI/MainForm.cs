@@ -6,12 +6,15 @@ using System.Linq;
 using System.Windows.Forms;
 using fCraft.Events;
 using fCraft.GUI;
+using System.Threading;
 
 namespace fCraft.ServerGUI {
 
     public sealed partial class MainForm : Form {
         bool shutdownPending, shutdownComplete;
         const int MaxLinesInLog = 2000;
+        delegate void SetTextCallback(string text);
+        delegate void SetBooleanCallback(bool value);
 
         public MainForm() {
             InitializeComponent();
@@ -22,57 +25,77 @@ namespace fCraft.ServerGUI {
 
 
         void StartUp( object sender, EventArgs a ) {
-            Logger.Logged += OnLogged;
-            Heartbeat.UriChanged += OnHeartbeatUriChanged;
-            Server.PlayerListChanged += OnPlayerListChanged;
-            Server.ShutdownEnded += OnServerShutdownEnded;
+            Thread startUpThread = new Thread(new ThreadStart(delegate
+            {
+                Logger.Logged += OnLogged;
+                Heartbeat.UriChanged += OnHeartbeatUriChanged;
+                Server.PlayerListChanged += OnPlayerListChanged;
+                Server.ShutdownEnded += OnServerShutdownEnded;
 
 
 #if !DEBUG
-            try {
+                try
+                {
 #endif
-                Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
-                Server.InitLibrary( Environment.GetCommandLineArgs() );
-                Server.InitServer();
-                Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+                    SetConsoleText("fCraft " + Updater.CurrentRelease.VersionString + " - starting...");
+                    Server.InitLibrary(Environment.GetCommandLineArgs());
+                    Server.InitServer();
+                    SetConsoleText("fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString());
 
-                Application.DoEvents();
-                //StartServer();
+                    Application.DoEvents();
+                    //StartServer();
 
-                UpdaterResult update = Updater.CheckForUpdates();
+                    UpdaterResult update = Updater.CheckForUpdates();
 
-                if( update.UpdateAvailable ) {
-                    new UpdateWindow( update, false ).ShowDialog();
+                    if (update.UpdateAvailable)
+                    {
+                        new UpdateWindow(update, false).ShowDialog();
+                    }
+
+                    StartServer();
+#if !DEBUG
                 }
-
-                StartServer();
-#if !DEBUG
-            } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Unhandled exception in ServerGUI.StartUp", "ServerGUI", ex, true );
-                Shutdown( ShutdownReason.Crashed, false );
-            }
+                catch (Exception ex)
+                {
+                    Logger.LogAndReportCrash("Unhandled exception in ServerGUI.StartUp", "ServerGUI", ex, true);
+                    Shutdown(ShutdownReason.Crashed, false);
+                }
 #endif
+            }));
+            startUpThread.Start();
         }
 
-
         public void StartServer() {
-            if( !ConfigKey.ProcessPriority.IsBlank() ) {
-                try {
-                    Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
-                } catch( Exception ) {
-                    Logger.Log( LogType.Warning,
-                                "MainForm.StartServer: Could not set process priority, using defaults." );
+            Thread startServerThread = new Thread(new ThreadStart(delegate
+            {
+                if (!ConfigKey.ProcessPriority.IsBlank())
+                {
+                    try
+                    {
+                        Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                    }
+                    catch (Exception)
+                    {
+                        Logger.Log(LogType.Warning,
+                                    "MainForm.StartServer: Could not set process priority, using defaults.");
+                    }
                 }
-            }
-            if( Server.StartServer() ) {
-                if( !ConfigKey.HeartbeatEnabled.Enabled() ) {
-                    uriDisplay.Text = "Heartbeat disabled. See externalurl.txt";
+                if (Server.StartServer())
+                {
+                    if (!ConfigKey.HeartbeatEnabled.Enabled())
+                    {
+                        SetURIText("Heartbeat disabled. See externalurl.txt");
+                    }
+
+                    SetConsoleEnabled(true);
+                    SetConsoleText("");
                 }
-                console.Enabled = true;
-                console.Text = "";
-            } else {
-                Shutdown( ShutdownReason.FailedToStart, false );
-            }
+                else
+                {
+                    Shutdown(ShutdownReason.FailedToStart, false);
+                }
+            }));
+            startServerThread.Start();
         }
 
         void HandleShutDown( object sender, CancelEventArgs e ) {
@@ -84,12 +107,75 @@ namespace fCraft.ServerGUI {
         void Shutdown( ShutdownReason reason, bool quit ) {
             if( shutdownPending ) return;
             shutdownPending = true;
-            uriDisplay.Enabled = false;
-            console.Enabled = false;
-            console.Text = "Shutting down...";
+            SetURIDisplayEnabled(false);
+            SetConsoleEnabled(false);
+            SetConsoleText("Shutting down...");
             Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, quit, false ), false );
         }
 
+        private void SetConsoleText(String text)
+        {
+            if (console.InvokeRequired)
+            {
+                SetTextCallback callback = new SetTextCallback(delegate
+                {
+                    console.Text = text;
+                });
+                Invoke(callback, text);
+            }
+            else
+            {
+                console.Text = text;
+            }
+        }
+
+        private void SetConsoleEnabled(Boolean value)
+        {
+            if (console.InvokeRequired)
+            {
+                SetBooleanCallback callback = new SetBooleanCallback(delegate
+                {
+                    console.Enabled = value;
+                });
+                Invoke(callback, value);
+            }
+            else
+            {
+                console.Enabled = value;
+            }
+        }
+
+        private void SetURIText(String text)
+        {
+            if (uriDisplay.InvokeRequired)
+            {
+                SetTextCallback callback = new SetTextCallback(delegate
+                {
+                    uriDisplay.Text = text;
+                });
+                Invoke(callback, text);
+            }
+            else
+            {
+                uriDisplay.Text = text;
+            }
+        }
+
+        private void SetURIDisplayEnabled(Boolean value)
+        {
+            if (uriDisplay.InvokeRequired)
+            {
+                SetBooleanCallback callback = new SetBooleanCallback(delegate
+                {
+                    uriDisplay.Enabled = value;
+                });
+                Invoke(callback, value);
+            }
+            else
+            {
+                uriDisplay.Enabled = value;
+            }
+        }
 
         public void OnLogged( object sender, LogEventArgs e ) {
             if( !e.WriteToConsole ) return;
@@ -124,8 +210,8 @@ namespace fCraft.ServerGUI {
                     BeginInvoke( (EventHandler<UriChangedEventArgs>)OnHeartbeatUriChanged,
                             sender, e );
                 } else {
-                    uriDisplay.Text = e.NewUri.ToString();
-                    uriDisplay.Enabled = true;
+                    SetURIText(e.NewUri.ToString());
+                    SetURIDisplayEnabled(true);
                     bPlay.Enabled = true;
                 }
             } catch( ObjectDisposedException ) {
@@ -194,7 +280,7 @@ namespace fCraft.ServerGUI {
                 }
 #endif
             }
-            console.Text = "";
+            SetConsoleText("");
         }
 
         private void bPlay_Click( object sender, EventArgs e ) {

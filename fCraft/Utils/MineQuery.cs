@@ -45,10 +45,10 @@ namespace fCraft
                     {
                         started = true;
 
-                        listener = new TcpListener(IPAddress.Any, Server.Port + 1);
+                        listener = new TcpListener(IPAddress.Any, ConfigKey.MineQueryPort.GetInt());
                         listener.Start();
 
-                        Logger.Log(LogType.SystemActivity, "Started MineQuery on port " + (Server.Port + 1));
+                        Logger.Log(LogType.SystemActivity, "Started MineQuery on port " + ConfigKey.MineQueryPort.GetInt());
 
                         // Start loop
                         while (true)

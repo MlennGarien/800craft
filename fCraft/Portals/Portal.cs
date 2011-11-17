@@ -219,6 +219,13 @@ namespace fCraft.Portals
             removeOperation.Brush = brush;
             removeOperation.Context = BlockChangeContext.Portal;
 
+            if (this.AffectedBlocks == null)
+            {
+                this.AffectedBlocks = new Vector3I[2];
+                this.AffectedBlocks[0] = new Vector3I(Range.Xmin, Range.Ymin, Range.Zmin);
+                this.AffectedBlocks[1] = new Vector3I(Range.Xmax, Range.Ymax, Range.Zmax);
+            }
+
             if (!removeOperation.Prepare(this.AffectedBlocks))
             {
                 throw new PortalException("Unable to remove portal.");

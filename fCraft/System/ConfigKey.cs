@@ -13,6 +13,11 @@ official server list (if server is public).",
             MinLength = 1, MaxLength = 64 )]
         ServerName,
 
+        [BoolKey(ConfigSection.General, false, "Defines wether MineQuery should be used.")]
+        MineQuery,
+
+        [IntKey(ConfigSection.General, 25566, "Specifies the port MineQuery should use.")]
+        MineQueryPort,
 
         [StringKey( ConfigSection.General, "Welcome to the server!",
 @"MOTD (Message Of The Day) is a message shown to connecting players 
