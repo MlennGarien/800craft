@@ -554,14 +554,13 @@ namespace fCraft {
                                     info.TimesKicked,
                                     info.TimeSinceLastKick.ToMiniString(),
                                     info.LastKickByClassy );
-                    if( info.LastKickReason != null ) {
-                        player.Message( "  Kick reason: {0}", info.LastKickReason );
-                    }
                 } else {
                     player.Message( "  Got kicked {0} times.", info.TimesKicked );
                 }
-                if( info.LastKickReason != null ) {
-                    player.Message( "  Kick reason: {0}", info.LastKickReason );
+
+                if (info.LastKickReason != null)
+                {
+                    player.Message("  Kick reason: {0}", info.LastKickReason);
                 }
             }
 

@@ -144,12 +144,18 @@ namespace fCraft.Utils
 
         static void Player_Connected(object sender, Events.PlayerConnectedEventArgs e)
         {
-            BroMode.GetInstance().RegisterPlayer(e.Player);
+            if (Active)
+            {
+                BroMode.GetInstance().RegisterPlayer(e.Player);
+            }
         }
 
         static void Player_Disconnected(object sender, Events.PlayerDisconnectedEventArgs e)
         {
-            BroMode.GetInstance().UnregisterPlayer(e.Player);
+            if (Active)
+            {
+                BroMode.GetInstance().UnregisterPlayer(e.Player);
+            }
         }
 
         public void RegisterPlayer(Player player)
