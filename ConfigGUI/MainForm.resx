@@ -140,7 +140,7 @@
   </metadata>
   <data name="lCrashReportDisclaimer.Text" xml:space="preserve">
     <value>Crash reports are created when serious unexpected errors occur. Being able to receive crash reports helps
-identify bugs and improve fCraft! The report consists of the error information, OS and runtime versions,
+identify bugs and improve 800Craft! The report consists of the error information, OS and runtime versions,
 a copy of config.xml, and last 25 lines of the log file. Reports are confidential and are never displayed publicly.</value>
   </data>
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">

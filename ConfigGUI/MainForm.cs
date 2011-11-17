@@ -1546,5 +1546,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             lPrefix.Enabled = usePrefixes;
             RebuildRankList();
         }
+
+        private void xSubmitCrashReports_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
