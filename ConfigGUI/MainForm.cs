@@ -1598,5 +1598,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
 
         }
+
+        private void xSubmitCrashReports_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
