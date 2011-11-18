@@ -63,6 +63,7 @@ namespace fCraft
                 Logger.Log(LogType.UserActivity,
                             "{0} loaded new map for world \"{1}\" from {2}",
                             player.Name, world.Name, fileName);
+                world.IsRealm = true;
 
 
             }
@@ -130,6 +131,7 @@ namespace fCraft
                         try
                         {
                             map = MapUtility.Load(fullFileName);
+                            world.IsRealm = true;
                         }
                         catch (Exception ex)
                         {
@@ -141,6 +143,7 @@ namespace fCraft
                         {
                             world.MapChangedBy = player.Name;
                             world.ChangeMap(map);
+                            world.IsRealm = true;
                         }
                         catch (WorldOpException ex)
                         {
@@ -177,6 +180,7 @@ namespace fCraft
                         try
                         {
                             map = MapUtility.Load(fullFileName);
+                            world.IsRealm = true;
                         }
                         catch (Exception ex)
                         {
@@ -189,6 +193,7 @@ namespace fCraft
                         try
                         {
                             newWorld = WorldManager.AddWorld(player, worldName, map, false);
+                            world.IsRealm = true;
                         }
                         catch (WorldOpException ex)
                         {
@@ -275,10 +280,10 @@ namespace fCraft
                 return;
             }
 
-            string fileName2 = player.Name;
-            string fullFileName2 = null;
+            string fileName = player.Name;
+            string fullFileName = null;
 
-            if (fileName2 == null)
+            if (fileName == null)
             {
                 if (player.World == null)
                 {
@@ -288,36 +293,36 @@ namespace fCraft
                 }
                 if (!cmd.IsConfirmed)
                 {
-                    player.Confirm(cmd, "Replace this world's map2 with a generated one?");
+                    player.Confirm(cmd, "Replace this world's map with a generated one?");
                     return;
                 }
             }
             else
             {
-                fileName2 = fileName2.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-                if (!fileName2.EndsWith(".fcm", StringComparison.OrdinalIgnoreCase))
+                fileName = fileName.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                if (!fileName.EndsWith(".fcm", StringComparison.OrdinalIgnoreCase))
                 {
-                    fileName2 += ".fcm";
+                    fileName += ".fcm";
                 }
-                fullFileName2 = Path.Combine(Paths.MapPath, fileName2);
-                if (!Paths.IsValidPath(fullFileName2))
+                fullFileName = Path.Combine(Paths.MapPath, fileName);
+                if (!Paths.IsValidPath(fullFileName))
                 {
                     player.Message("Invalid filename.");
                     return;
                 }
-                if (!Paths.Contains(Paths.MapPath, fullFileName2))
+                if (!Paths.Contains(Paths.MapPath, fullFileName))
                 {
                     player.MessageUnsafePath();
                     return;
                 }
-                string dirName = fullFileName2.Substring(0, fullFileName2.LastIndexOf(Path.DirectorySeparatorChar));
+                string dirName = fullFileName.Substring(0, fullFileName.LastIndexOf(Path.DirectorySeparatorChar));
                 if (!Directory.Exists(dirName))
                 {
                     Directory.CreateDirectory(dirName);
                 }
-                if (!cmd.IsConfirmed && File.Exists(fullFileName2))
+                if (!cmd.IsConfirmed && File.Exists(fullFileName))
                 {
-                    player.Confirm(cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName2);
+                    player.Confirm(cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName);
                     return;
                 }
             }
@@ -397,31 +402,31 @@ namespace fCraft
             {
                 Logger.Log(LogType.Error, "MapGenerator: Generation failed: {0}",
                             ex);
-                player.MessageNow("&WAn error occured while generating the map2.");
+                player.MessageNow("&WAn error occured while generating the map.");
                 return;
             }
 
-            if (fileName2 != null)
+            if (fileName != null)
             {
-                if (map2.Save(fullFileName2))
+                if (map2.Save(fullFileName))
                 {
-                    player.MessageNow("Generation done. Saved to {0}", fileName2);
+                    player.MessageNow("Generation done. Saved to {0}", fileName);
                 }
                 else
                 {
-                    player.Message("&WAn error occured while saving generated map2 to {0}", fileName2);
+                    player.Message("&WAn error occured while saving generated map to {0}", fileName);
                 }
             }
             else
             {
-                player.MessageNow("Generation done. Changing map2...");
+                player.MessageNow("Generation done. Changing map...");
                 player.World.ChangeMap(map2);
             }
         }
 
 
 
-        #region waccess2
+
         internal static void RealmAccess(Player player, Command cmd, string worldName, string name)
         {
 
@@ -674,14 +679,13 @@ namespace fCraft
                     p.Message("&WYou are no longer allowed to join world {0}", world.ClassyName);
                     p.JoinWorld(WorldManager.MainWorld, WorldChangeReason.PermissionChanged);
                 }
+                
                 WorldManager.SaveWorldList();
             }
         }
-        #endregion
 
-        #region wbuild2
 
-        internal static void WorldBuild2(Player player, Command cmd, string worldName, string name, string NameIfRankIsName)
+        internal static void RealmBuild(Player player, Command cmd, string worldName, string name, string NameIfRankIsName)
         {
 
 
@@ -926,6 +930,6 @@ namespace fCraft
                 WorldManager.SaveWorldList();
             }
         }
-#endregion
+
     }
 }

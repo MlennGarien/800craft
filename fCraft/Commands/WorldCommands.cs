@@ -60,7 +60,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
         }
-
+    #region portals
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor
         {
@@ -377,6 +377,7 @@ namespace fCraft
                 Logger.Log(LogType.Error, "WorldCommands.PortalCreateCallback: " + ex);
             }
         }
+#endregion
 
         static readonly CommandDescriptor CdRankHide = new CommandDescriptor
         {
@@ -612,8 +613,7 @@ namespace fCraft
                 case "activate":
                     {
                         RealmHandler.RealmLoad(player, cmd, player.Name, player.Name);
-                        RealmHandler.WorldBuild2(player, cmd, player.Name, "owner", "+" + player.Name);
-                        WorldHideHandler(player, new Command("/whide " + player.Name));
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "owner", "+" + player.Name);
                         break;
                     }
                 case "spawn":
@@ -709,7 +709,7 @@ namespace fCraft
 
                     else
                     {
-                        RealmHandler.WorldBuild2(player, cmd, player.Name, "+" + target4.Name, null);
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "+" + target4.Name, null);
                         if (Player.IsInValidName(target4.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
@@ -744,7 +744,7 @@ namespace fCraft
 
                     else
                     {
-                        RealmHandler.WorldBuild2(player, cmd, player.Name, "-" + target2.Name, null);
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "-" + target2.Name, null);
                         if (Player.IsInValidName(target2.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
@@ -1987,6 +1987,11 @@ namespace fCraft
                         listName = "populated worlds";
                         extraParam = "populated ";
                         worlds = WorldManager.Worlds.Where( w => w.IsLoaded ).ToArray();
+                        break;
+                    case 'r':
+                        listName = "Available Realms";
+                        extraParam = "realms";
+                        worlds = WorldManager.Worlds.Where(w => w.IsRealm).ToArray();
                         break;
                     case '@':
                         if( param.Length == 1 ) {

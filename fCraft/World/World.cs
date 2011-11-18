@@ -21,6 +21,10 @@ namespace fCraft {
         /// Can be assigned directly. </summary>
         public bool IsHidden { get; set; }
 
+        /// <summary> for realms </summary>
+        
+        public bool IsRealm { get; set; }
+
         public ArrayList Portals;
 
         public bool physics = true;
@@ -173,6 +177,7 @@ namespace fCraft {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
+                    IsRealm = IsRealm,
                     BlockDB = BlockDB,
                     lastBackup = lastBackup,
                     LoadedBy = LoadedBy,
