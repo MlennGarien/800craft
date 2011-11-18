@@ -1949,7 +1949,7 @@ namespace fCraft
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Aliases = new[] { "maps", "levels" },
-            Usage = "/Worlds [all/hidden/populated/@Rank]",
+            Usage = "/Worlds [all/hidden/realms/populated/@Rank]",
             Help = "Shows a list of available worlds. To join a world, type &H/Join WorldName&S. " +
                    "If the optional \"all\" is added, also shows inaccessible or hidden worlds. " +
                    "If \"hidden\" is added, shows only inaccessible and hidden worlds. " +

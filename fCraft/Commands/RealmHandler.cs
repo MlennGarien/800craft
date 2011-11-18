@@ -64,6 +64,7 @@ namespace fCraft
                             "{0} loaded new map for world \"{1}\" from {2}",
                             player.Name, world.Name, fileName);
                 world.IsRealm = true;
+                world.IsHidden = false; //temp
                 WorldManager.SaveWorldList();
 
 
@@ -133,6 +134,7 @@ namespace fCraft
                         {
                             map = MapUtility.Load(fullFileName);
                             world.IsRealm = true;
+                            world.IsHidden = false; //temp
                             WorldManager.SaveWorldList();
                         }
                         catch (Exception ex)
@@ -146,6 +148,7 @@ namespace fCraft
                             world.MapChangedBy = player.Name;
                             world.ChangeMap(map);
                             world.IsRealm = true;
+                            world.IsHidden = false; //temp
                             WorldManager.SaveWorldList();
                         }
                         catch (WorldOpException ex)
@@ -184,6 +187,7 @@ namespace fCraft
                         {
                             map = MapUtility.Load(fullFileName);
                             world.IsRealm = true;
+                            world.IsHidden = false; //temp
                             WorldManager.SaveWorldList();
                         }
                         catch (Exception ex)
@@ -198,6 +202,7 @@ namespace fCraft
                         {
                             newWorld = WorldManager.AddWorld(player, worldName, map, false);
                             world.IsRealm = true;
+                            world.IsHidden = false; //temp
                             WorldManager.SaveWorldList();
                         }
                         catch (WorldOpException ex)
