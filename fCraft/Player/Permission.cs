@@ -146,6 +146,10 @@ namespace fCraft
         /// <summary> Ability to create or delete a portal. </summary>
         ManagePortal,
         /// <summary> Ability to high five someone. </summary>
-        HighFive
+        HighFive,
+        /// <summary> Ability to chat in capital letters. </summary>
+        ChatCaps,
+        /// <summary> Ability to swear. </summary>
+        Swear
     }
 }

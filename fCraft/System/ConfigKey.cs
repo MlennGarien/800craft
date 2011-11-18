@@ -79,6 +79,9 @@ overwhelming the Internet connection with data.",
 
         #region Chat
 
+        [IntKey(ConfigSection.Chat, 7, "Maximum allowed number of capital letters.")]
+        MaxCaps,
+
         [BoolKey( ConfigSection.Chat, true,
 @"Color player names in chat and in-game based on their rank." )]
         RankColorsInChat,

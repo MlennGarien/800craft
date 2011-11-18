@@ -21,6 +21,30 @@ namespace fCraft {
 
 
                 var recepientList = Server.Players.NotIgnoring(player);
+
+                // Check caps
+                if (!player.Can(Permission.ChatCaps))
+                {
+                    int caps = 0;
+                    for (int i = 0; i < rawMessage.Length; i++)
+                    {
+                        if (Char.IsUpper(rawMessage[i]))
+                        {
+                            caps++;
+                            if (caps > ConfigKey.MaxCaps.GetInt())
+                            {
+                                rawMessage = rawMessage.ToLower();
+                                player.Message("Your message was changed to lowercase as it exceeded the maximum amount of capital letters.");
+                            }
+                        }
+                    }
+                }
+
+                // Swear filter
+                if (!player.Can(Permission.Swear))
+                {
+                    rawMessage = ProfanityFilter.Parse(rawMessage);
+                }
                 
                 string formattedMessage = String.Format("{0}&F: {1}",
                                                          player.ClassyName,

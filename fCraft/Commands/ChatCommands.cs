@@ -29,8 +29,6 @@ namespace fCraft
             CommandManager.RegisterCommand(CdTroll);
             CommandManager.RegisterCommand(CdVote);
             CommandManager.RegisterCommand(CdBroMode);
-            Chat.Sending += CapsLockCheck;
-            Chat.Sending += ProfanityCheck;
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
 
@@ -233,37 +231,6 @@ namespace fCraft
                 }
                 Chat.SendEngineer(player, message);
             }
-        }
-
-
-        const int MaxCaps = 7;
-        static void CapsLockCheck(object sender, Events.ChatSendingEventArgs e)
-        {
-            if (e.Player.Info.Rank.Name == "Guest" || e.Player.Info.Rank.Name == "Builder")
-            {
-                int caps = 0;
-                for (int i = 0; i < e.Message.Length; i++)
-                {
-                    if (Char.IsUpper(e.Message[i]))
-                    {
-                        caps++;
-                        if (caps > MaxCaps)
-                        {
-                            e.Cancel = true;
-                            e.Player.Message("Message failed to send: &9Too many caps!");
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-        static void ProfanityCheck(object sender, Events.ChatSendingEventArgs e)
-        {
-            string CheckedMessage =ProfanityFilter.Parse(e.Message);
-            e.Cancel = true;
-            Server.Players.Message("{0}&f: {1}", e.Player.ClassyName, CheckedMessage);
-            return;
         }
 
         #region Troll
