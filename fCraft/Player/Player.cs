@@ -913,18 +913,22 @@ namespace fCraft {
                 return false;
             }
 
+            
+
             if( CheckBlockSpam() ) return true;
 
             BlockChangeContext context = BlockChangeContext.Manual;
             if( IsPainting && action == ClickAction.Delete ) {
                 context = BlockChangeContext.Replaced;
             }
+           
 
             // bindings
             bool requiresUpdate = (type != bindings[(byte)type] || IsPainting);
             if( action == ClickAction.Delete && !IsPainting ) {
                 type = Block.Air;
             }
+            
             type = bindings[(byte)type];
 
             // selection handling
@@ -947,6 +951,7 @@ namespace fCraft {
             switch( canPlaceResult ) {
                 case CanPlaceResult.Allowed:
                     BlockUpdate blockUpdate;
+                    
                     if( type == Block.Stair && coord.Z > 0 && map.GetBlock( coordBelow ) == Block.Stair ) {
                         // handle stair stacking
                         blockUpdate = new BlockUpdate( this, coordBelow, Block.DoubleStair );

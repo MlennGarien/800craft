@@ -91,10 +91,37 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
             CommandManager.RegisterCommand(CdFly);
+            CommandManager.RegisterCommand(CdSand);
 
             //CommandManager.RegisterCommand( CdTree );
         }
 
+        static readonly CommandDescriptor CdSand = new CommandDescriptor
+        {
+            Name = "Sand",
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/sand",
+            Help = "Allows a player to fly.",
+            UsableByFrozenPlayers = false,
+            Handler = SandH
+        };
+
+        public static void SandH(Player player, Command cmd)
+        {
+            if (!player.World.physics)
+            {
+                player.World.physics = true;
+                player.Message("Sand: ON");
+                return;
+            }
+            if (player.World.physics)
+            {
+                player.World.physics = false;
+                player.Message("Sand: OFF");
+            }
+        }
         static readonly CommandDescriptor CdFly = new CommandDescriptor
         {
             Name = "Fly",

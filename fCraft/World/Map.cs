@@ -214,10 +214,14 @@ namespace fCraft {
         /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( int x, int y, int z, Block type ) {
+            
             if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 ) {
                 Blocks[Index( x, y, z )] = (byte)type;
                 HasChangedSinceSave = true;
+                
             }
+            
+            
         }
 
 

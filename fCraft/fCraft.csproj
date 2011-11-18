@@ -114,6 +114,7 @@
     <Compile Include="Network\Player.Networking.cs" />
     <Compile Include="Player\ProfanityFilter.cs" />
     <Compile Include="Player\SecurityController.cs" />
+    <Compile Include="Player\Test.cs" />
     <Compile Include="Portals\Portal.cs" />
     <Compile Include="Portals\PortalDB.cs" />
     <Compile Include="Portals\PortalException.cs" />
@@ -176,6 +177,8 @@
     <Compile Include="World\MapGenerator.cs">
     </Compile>
     <Compile Include="World\MapGeneratorArgs.cs" />
+    <Compile Include="World\Sand.cs" />
+    <Compile Include="World\SandHandler.cs" />
     <Compile Include="World\World.cs" />
     <Compile Include="World\Zone.cs" />
   </ItemGroup>
