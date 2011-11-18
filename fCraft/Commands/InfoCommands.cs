@@ -953,6 +953,7 @@ namespace fCraft {
             }
             player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
             foreach( Rank rank in RankManager.Ranks ) {
+                if(!rank.IsHidden)
                 player.Message( "&S    {0}  ({1} players)",
                                 rank.ClassyName,
                                 rank.PlayerCount );

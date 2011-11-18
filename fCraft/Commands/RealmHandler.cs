@@ -14,9 +14,9 @@ namespace fCraft
 {
     class RealmHandler
     {
-        public static void RealmLoad(Player player, Command cmd, string fileName, string worldName2)
+        public static void RealmLoad(Player player, Command cmd, string fileName, string worldName)
         {
-            if (worldName2 == null && player.World == null)
+            if (worldName == null && player.World == null)
             {
                 player.Message("When using /WLoad from console, you must specify the world name.");
                 return;
@@ -33,7 +33,7 @@ namespace fCraft
             if (fullFileName == null) return;
 
             // Loading map into current world
-            if (worldName2 == null)
+            if (worldName == null)
             {
                 if (!cmd.IsConfirmed)
                 {
@@ -69,9 +69,9 @@ namespace fCraft
             else
             {
                 // Loading to some other (or new) world
-                if (!World.IsValidName(worldName2))
+                if (!World.IsValidName(worldName))
                 {
-                    player.MessageInvalidWorldName(worldName2);
+                    player.MessageInvalidWorldName(worldName);
                     return;
                 }
 
@@ -99,11 +99,11 @@ namespace fCraft
                 }
 
                 // Retype world name, if needed
-                if (worldName2 == "-")
+                if (worldName == "-")
                 {
                     if (player.LastUsedWorldName != null)
                     {
-                        worldName2 = player.LastUsedWorldName;
+                        worldName = player.LastUsedWorldName;
                     }
                     else
                     {
@@ -114,7 +114,7 @@ namespace fCraft
 
                 lock (WorldManager.SyncRoot)
                 {
-                    World world = WorldManager.FindWorldExact(worldName2);
+                    World world = WorldManager.FindWorldExact(worldName);
                     if (world != null)
                     {
                         player.LastUsedWorldName = world.Name;
@@ -161,7 +161,7 @@ namespace fCraft
                     else
                     {
                         // Adding a new world
-                        string targetFullFileName = Path.Combine(Paths.MapPath, worldName2 + ".fcm");
+                        string targetFullFileName = Path.Combine(Paths.MapPath, worldName + ".fcm");
                         if (!cmd.IsConfirmed &&
                             File.Exists(targetFullFileName) && // target file already exists
                             !Paths.Compare(targetFullFileName, fullFileName))
@@ -188,7 +188,7 @@ namespace fCraft
                         World newWorld;
                         try
                         {
-                            newWorld = WorldManager.AddWorld(player, worldName2, map, false);
+                            newWorld = WorldManager.AddWorld(player, worldName, map, false);
                         }
                         catch (WorldOpException ex)
                         {
@@ -202,7 +202,7 @@ namespace fCraft
                             return;
                         }
 
-                        player.LastUsedWorldName = worldName2;
+                        player.LastUsedWorldName = worldName;
                         newWorld.BuildSecurity.MinRank = buildRank;
                         if (accessRank == null)
                         {
@@ -223,7 +223,7 @@ namespace fCraft
                                         player.ClassyName, newWorld.ClassyName);
                         Logger.Log(LogType.UserActivity,
                                     "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
-                                    player.Name, worldName2, fileName);
+                                    player.Name, worldName, fileName);
                         WorldManager.SaveWorldList();
                         player.MessageNow("Access permission is {0}+&S, and build permission is {1}+",
                                            newWorld.AccessSecurity.MinRank.ClassyName,

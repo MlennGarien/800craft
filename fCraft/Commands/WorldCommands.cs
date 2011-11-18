@@ -429,7 +429,7 @@ namespace fCraft
          {
              if (!ConfigKey.WoMEnableEnvExtensions.Enabled())
              {
-                 player.Message("Env command is disabled on this server.");
+                 player.Message("Env is disabled on this server.");
                  return;
              }
 
@@ -525,10 +525,8 @@ namespace fCraft
                 case "like":
                     
                         worldName = player.World.Name;
-
-
                         World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
-                        if (world == null) return;
+                        if (world == null) player.Message("You need to enter a realm name");
 
                         Server.Players.Message("{0}&S likes realm {1}.",
                                                 player.ClassyName, world.ClassyName);
@@ -683,8 +681,6 @@ namespace fCraft
                         JoinHandler(player, new Command("/goto " + jimbob));
                         return;
                     }
-                    
-
 
                 case "allow":
 
