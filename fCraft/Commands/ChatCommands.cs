@@ -266,7 +266,6 @@ namespace fCraft
 
         #region Troll
 
-
         static readonly CommandDescriptor CdTroll = new CommandDescriptor
         {
             Name = "Troll",
@@ -274,7 +273,6 @@ namespace fCraft
             Permissions = new[] { Permission.OwnerStuff },
             IsConsoleSafe = true,
             NotRepeatable = false,
-
             Usage = "/troll Player type Message",
             Help = "Does a little somthin'-somethin'.",
             Handler = TrollHandler
