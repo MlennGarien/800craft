@@ -260,8 +260,10 @@ namespace fCraft
 
         static void ProfanityCheck(object sender, Events.ChatSendingEventArgs e)
         {
-            ProfanityFilter.Parse(e.Message);
-            Chat.SendGlobal(e.Player, e.Message);
+            string CheckedMessage =ProfanityFilter.Parse(e.Message);
+            e.Cancel = true;
+            Server.Players.Message("{0}&f: {1}", e.Player.ClassyName, CheckedMessage);
+            return;
         }
 
         #region Troll

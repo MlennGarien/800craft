@@ -33,7 +33,7 @@ namespace fCraft
             RegexReduce.Add("z", "[2]");
 
             // Load/create the SwearWords.txt file and import them into the SwearWords list
-            if (!File.Exists("text/SwearWords.txt"))
+            if (!File.Exists("SwearWords.txt"))
             {
                 // No file exists yet, so let's create one
                 StringBuilder sb = new StringBuilder();
