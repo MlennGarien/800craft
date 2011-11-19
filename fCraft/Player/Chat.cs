@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Helper class for handling player-generated chat. </summary>
     public static class Chat {
+        static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
         /// <summary> Sends a global (white) chat. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -18,8 +19,48 @@ namespace fCraft {
             
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
+            /*rawMessage = rawMessage.Replace(":)", "(darksmile)");
+            rawMessage = rawMessage.Replace(":D", "(smile)");
+            rawMessage = rawMessage.Replace("<3", "(heart)");
+            byte[] stored = new byte[1];
 
-
+            stored[0] = (byte)1;
+            rawMessage = rawMessage.Replace("(darksmile)", enc.GetString(stored));
+            stored[0] = (byte)2;
+            rawMessage = rawMessage.Replace("(smile)", enc.GetString(stored));
+            stored[0] = (byte)3;
+            rawMessage = rawMessage.Replace("(heart)", enc.GetString(stored));
+            stored[0] = (byte)4;
+            rawMessage = rawMessage.Replace("(diamond)", enc.GetString(stored));
+            stored[0] = (byte)7;
+            rawMessage = rawMessage.Replace("(bullet)", enc.GetString(stored));
+            stored[0] = (byte)8;
+            rawMessage = rawMessage.Replace("(hole)", enc.GetString(stored));
+            stored[0] = (byte)11;
+            rawMessage = rawMessage.Replace("(male)", enc.GetString(stored));
+            stored[0] = (byte)12;
+            rawMessage = rawMessage.Replace("(female)", enc.GetString(stored));
+            stored[0] = (byte)15;
+            rawMessage = rawMessage.Replace("(sun)", enc.GetString(stored));
+            stored[0] = (byte)16;
+            rawMessage = rawMessage.Replace("(right)", enc.GetString(stored));
+            stored[0] = (byte)17;
+            rawMessage = rawMessage.Replace("(left)", enc.GetString(stored));
+            stored[0] = (byte)19;
+            rawMessage = rawMessage.Replace("(double)", enc.GetString(stored));
+            stored[0] = (byte)22;
+            rawMessage = rawMessage.Replace("(half)", enc.GetString(stored));
+            stored[0] = (byte)24;
+            rawMessage = rawMessage.Replace("(uparrow)", enc.GetString(stored));
+            stored[0] = (byte)25;
+            rawMessage = rawMessage.Replace("(downarrow)", enc.GetString(stored));
+            stored[0] = (byte)26;
+            rawMessage = rawMessage.Replace("(rightarrow)", enc.GetString(stored));
+            stored[0] = (byte)30;
+            rawMessage = rawMessage.Replace("(up)", enc.GetString(stored));
+            stored[0] = (byte)31;
+            rawMessage = rawMessage.Replace("(down)", enc.GetString(stored));
+            */
                 var recepientList = Server.Players.NotIgnoring(player);
 
                 // Check caps

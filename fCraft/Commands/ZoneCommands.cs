@@ -21,16 +21,8 @@ namespace fCraft {
             //CommandManager.RegisterCommand(cdDoorRemove);
 
             //Player.Clicked += PlayerClickedDoor;
-           // Player.PlacingBlock += SandTrig;
-
         }
 
-
-
-        public static void SandTrig(object sender, PlayerPlacingBlockEventArgs e)
-        {
-            SandHandler.Trigger(e.Player, e.Player.World.Map, (Int32)e.Coords.X, (Int32)e.Coords.Y, (Int32)e.Coords.Z, Block.Sand);
-        }
         public static void PlayerClickedDoor(object sender, PlayerClickedEventArgs e)
         {
 

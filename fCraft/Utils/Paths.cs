@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security;
 using JetBrains.Annotations;
 
+
 namespace fCraft {
     /// <summary> Contains fCraft path settings, and some filesystem-related utilities. </summary>
     public static class Paths {
