@@ -20,6 +20,8 @@ namespace fCraft {
             
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
+
+            rawMessage = rawMessage.Replace("$motd", ConfigKey.MOTD.GetString());
             /*StringBuilder sb = new StringBuilder(rawMessage);
             byte[] stored = new byte[1];
 
