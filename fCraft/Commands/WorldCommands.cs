@@ -612,7 +612,7 @@ namespace fCraft
 
                 case "activate":
                     {
-                        RealmHandler.RealmLoad(player, cmd, player.Name, player.Name);
+                        RealmHandler.RealmLoad(player, cmd, player.Name, player.Name );
                         RealmHandler.RealmBuild(player, cmd, player.Name, "owner", "+" + player.Name);
                         break;
                     }

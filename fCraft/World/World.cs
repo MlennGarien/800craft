@@ -304,15 +304,32 @@ namespace fCraft {
 
                 UpdatePlayerList();
 
-                if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
+                //world joining announcer
+                if( !IsRealm && announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
                     Server.Players.CanSee( player )
-                                  .Message( "&SPlayer {0}&S joined {1}",
+                                  .Message( "&SPlayer {0}&S joined World {1}",
                                             player.ClassyName, ClassyName );
                 }
 
-                Logger.Log( LogType.UserActivity,
-                            "Player {0} joined world {1}.",
-                            player.Name, Name );
+                //realm joining announcer
+                if (IsRealm && announce && ConfigKey.ShowJoinedWorldMessages.Enabled())
+                {
+                    Server.Players.CanSee(player)
+                                  .Message("&SPlayer {0}&S joined Realm {1}",
+                                            player.ClassyName, ClassyName);
+                }
+
+                if (IsRealm){
+                Logger.Log(LogType.UserActivity,
+                "Player {0} joined realm {1}.",
+                player.Name, Name);
+                }
+
+                if (!IsRealm){
+                Logger.Log(LogType.UserActivity,
+                "Player {0} joined world {1}.",
+                player.Name, Name);
+                }
 
                 if( IsLocked ) {
                     player.Message( "&WThis map is currently locked (read-only)." );
