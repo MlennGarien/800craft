@@ -30,11 +30,12 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.Button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.bMineQueryPortCheck = new System.Windows.Forms.Button();
             this.nMineQueryPort = new System.Windows.Forms.NumericUpDown();
@@ -296,7 +297,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.Button1 = new System.Windows.Forms.Button();
             this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
@@ -386,6 +386,7 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabGeneral.Controls.Add(this.Button1);
             this.tabGeneral.Controls.Add(this.groupBox1);
             this.tabGeneral.Controls.Add(this.gUpdaterSettings);
@@ -399,7 +400,18 @@
             this.tabGeneral.Size = new System.Drawing.Size(652, 508);
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
-            this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // Button1
+            // 
+            this.Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.Button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Button1.Location = new System.Drawing.Point(494, 391);
+            this.Button1.Name = "Button1";
+            this.Button1.Size = new System.Drawing.Size(138, 28);
+            this.Button1.TabIndex = 6;
+            this.Button1.Text = "Edit Profanity List";
+            this.Button1.UseVisualStyleBackColor = true;
+            this.Button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // groupBox1
             // 
@@ -687,6 +699,7 @@
             // 
             // gBasic
             // 
+            this.gBasic.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.gBasic.Controls.Add(this.nMaxPlayersPerWorld);
             this.gBasic.Controls.Add(this.lMaxPlayersPerWorld);
             this.gBasic.Controls.Add(this.bPortCheck);
@@ -956,6 +969,7 @@
             // 
             // tabChat
             // 
+            this.tabChat.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabChat.Controls.Add(this.gChatColors);
             this.tabChat.Controls.Add(this.gAppearence);
             this.tabChat.Controls.Add(this.chatPreview);
@@ -965,7 +979,6 @@
             this.tabChat.Size = new System.Drawing.Size(652, 508);
             this.tabChat.TabIndex = 10;
             this.tabChat.Text = "Chat";
-            this.tabChat.UseVisualStyleBackColor = true;
             // 
             // gChatColors
             // 
@@ -1201,6 +1214,7 @@
             // 
             // tabWorlds
             // 
+            this.tabWorlds.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabWorlds.Controls.Add(this.xWoMEnableEnvExtensions);
             this.tabWorlds.Controls.Add(this.bMapPath);
             this.tabWorlds.Controls.Add(this.xMapPath);
@@ -1219,7 +1233,6 @@
             this.tabWorlds.Size = new System.Drawing.Size(652, 508);
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
-            this.tabWorlds.UseVisualStyleBackColor = true;
             // 
             // xWoMEnableEnvExtensions
             // 
@@ -1361,8 +1374,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvWorlds.RowTemplate.Height = 24;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size(636, 351);
@@ -1421,8 +1434,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle5;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1431,6 +1444,7 @@
             // 
             // tabRanks
             // 
+            this.tabRanks.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabRanks.Controls.Add(this.gPermissionLimits);
             this.tabRanks.Controls.Add(this.lRankList);
             this.tabRanks.Controls.Add(this.bLowerRank);
@@ -1447,7 +1461,6 @@
             this.tabRanks.Size = new System.Drawing.Size(652, 508);
             this.tabRanks.TabIndex = 2;
             this.tabRanks.Text = "Ranks";
-            this.tabRanks.UseVisualStyleBackColor = true;
             // 
             // gPermissionLimits
             // 
@@ -1883,6 +1896,7 @@
             // 
             // tabSecurity
             // 
+            this.tabSecurity.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabSecurity.Controls.Add(this.gBlockDB);
             this.tabSecurity.Controls.Add(this.gSecurityMisc);
             this.tabSecurity.Controls.Add(this.gSpamChat);
@@ -1893,7 +1907,6 @@
             this.tabSecurity.Size = new System.Drawing.Size(652, 508);
             this.tabSecurity.TabIndex = 7;
             this.tabSecurity.Text = "Security";
-            this.tabSecurity.UseVisualStyleBackColor = true;
             // 
             // gBlockDB
             // 
@@ -2282,6 +2295,7 @@
             // 
             // tabSavingAndBackup
             // 
+            this.tabSavingAndBackup.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabSavingAndBackup.Controls.Add(this.gDataBackup);
             this.tabSavingAndBackup.Controls.Add(this.gSaving);
             this.tabSavingAndBackup.Controls.Add(this.gBackups);
@@ -2291,7 +2305,6 @@
             this.tabSavingAndBackup.Size = new System.Drawing.Size(652, 508);
             this.tabSavingAndBackup.TabIndex = 4;
             this.tabSavingAndBackup.Text = "Saving and Backup";
-            this.tabSavingAndBackup.UseVisualStyleBackColor = true;
             // 
             // gDataBackup
             // 
@@ -2497,6 +2510,7 @@
             // 
             // tabLogging
             // 
+            this.tabLogging.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabLogging.Controls.Add(this.gLogFile);
             this.tabLogging.Controls.Add(this.gConsole);
             this.tabLogging.Location = new System.Drawing.Point(4, 24);
@@ -2505,7 +2519,6 @@
             this.tabLogging.Size = new System.Drawing.Size(652, 508);
             this.tabLogging.TabIndex = 5;
             this.tabLogging.Text = "Logging";
-            this.tabLogging.UseVisualStyleBackColor = true;
             // 
             // gLogFile
             // 
@@ -2650,6 +2663,7 @@
             // 
             // tabIRC
             // 
+            this.tabIRC.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabIRC.Controls.Add(this.xIRCListShowNonEnglish);
             this.tabIRC.Controls.Add(this.gIRCOptions);
             this.tabIRC.Controls.Add(this.gIRCNetwork);
@@ -2662,7 +2676,6 @@
             this.tabIRC.Size = new System.Drawing.Size(652, 508);
             this.tabIRC.TabIndex = 8;
             this.tabIRC.Text = "IRC";
-            this.tabIRC.UseVisualStyleBackColor = true;
             // 
             // xIRCListShowNonEnglish
             // 
@@ -3038,6 +3051,7 @@
             // 
             // tabAdvanced
             // 
+            this.tabAdvanced.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.tabAdvanced.Controls.Add(this.gPerformance);
             this.tabAdvanced.Controls.Add(this.gAdvancedMisc);
             this.tabAdvanced.Controls.Add(this.gCrashReport);
@@ -3047,7 +3061,6 @@
             this.tabAdvanced.Size = new System.Drawing.Size(652, 508);
             this.tabAdvanced.TabIndex = 6;
             this.tabAdvanced.Text = "Advanced";
-            this.tabAdvanced.UseVisualStyleBackColor = true;
             // 
             // gPerformance
             // 
@@ -3064,9 +3077,9 @@
             this.gPerformance.Controls.Add(this.nThrottling);
             this.gPerformance.Controls.Add(this.lThrottling);
             this.gPerformance.Controls.Add(this.lThrottlingUnits);
-            this.gPerformance.Location = new System.Drawing.Point(8, 328);
+            this.gPerformance.Location = new System.Drawing.Point(8, 352);
             this.gPerformance.Name = "gPerformance";
-            this.gPerformance.Size = new System.Drawing.Size(636, 177);
+            this.gPerformance.Size = new System.Drawing.Size(636, 153);
             this.gPerformance.TabIndex = 2;
             this.gPerformance.TabStop = false;
             this.gPerformance.Text = "Performance";
@@ -3225,9 +3238,9 @@
             this.gAdvancedMisc.Controls.Add(this.xMaxUndo);
             this.gAdvancedMisc.Controls.Add(this.xRelayAllBlockUpdates);
             this.gAdvancedMisc.Controls.Add(this.xNoPartialPositionUpdates);
-            this.gAdvancedMisc.Location = new System.Drawing.Point(8, 118);
+            this.gAdvancedMisc.Location = new System.Drawing.Point(8, 128);
             this.gAdvancedMisc.Name = "gAdvancedMisc";
-            this.gAdvancedMisc.Size = new System.Drawing.Size(636, 204);
+            this.gAdvancedMisc.Size = new System.Drawing.Size(636, 218);
             this.gAdvancedMisc.TabIndex = 1;
             this.gAdvancedMisc.TabStop = false;
             this.gAdvancedMisc.Text = "Miscellaneous";
@@ -3399,7 +3412,7 @@
             // 
             this.lCrashReportDisclaimer.AutoSize = true;
             this.lCrashReportDisclaimer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lCrashReportDisclaimer.Location = new System.Drawing.Point(45, 57);
+            this.lCrashReportDisclaimer.Location = new System.Drawing.Point(45, 42);
             this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
             this.lCrashReportDisclaimer.Size = new System.Drawing.Size(521, 39);
             this.lCrashReportDisclaimer.TabIndex = 1;
@@ -3482,18 +3495,6 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // Button1
-            // 
-            this.Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.Button1.Enabled = false;
-            this.Button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Button1.Location = new System.Drawing.Point(500, 405);
-            this.Button1.Name = "Button1";
-            this.Button1.Size = new System.Drawing.Size(138, 28);
-            this.Button1.TabIndex = 6;
-            this.Button1.Text = "Edit Profanity List";
-            this.Button1.UseVisualStyleBackColor = true;
-            // 
             // chatPreview
             // 
             this.chatPreview.Location = new System.Drawing.Point(7, 256);
@@ -3506,6 +3507,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.ClientSize = new System.Drawing.Size(684, 589);
             this.Controls.Add(this.bApply);
             this.Controls.Add(this.bResetAll);
@@ -3876,5 +3878,6 @@
         private System.Windows.Forms.CheckBox xMineQuery;
         private System.Windows.Forms.Button bMineQueryPortCheck;
         private System.Windows.Forms.Button Button1;
+       // private System.Windows.Forms.Button Button1;
     }
 }

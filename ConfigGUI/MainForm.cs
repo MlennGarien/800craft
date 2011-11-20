@@ -110,12 +110,6 @@ namespace fCraft.ConfigGUI {
             popup.ShowDialog();
         }
 
-        private void bButton1(object sender, EventArgs e)
-        {
-            TextEditorPopup popup = new TextEditorPopup("SwearWords.txt", "");
-            popup.ShowDialog();
-        }
-
         private void xAnnouncements_CheckedChanged( object sender, EventArgs e ) {
             nAnnouncements.Enabled = xAnnouncements.Checked;
             bAnnouncements.Enabled = xAnnouncements.Checked;
@@ -1607,6 +1601,20 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void xSubmitCrashReports_CheckedChanged(object sender, EventArgs e)
         {
+
+        }
+        const string SwearFile = "SwearWords.txt";
+        private void Button1_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+                if (File.Exists(SwearFile))
+                {
+                    Process.Start(SwearFile);
+                }
+            }
+            catch (Exception) { }
 
         }
     }
