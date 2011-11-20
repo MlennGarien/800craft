@@ -39,7 +39,7 @@ namespace fCraft.ServerCLI {
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
 
-            Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+            Console.Title = "800Craft " + Updater.CurrentRelease.VersionString + " - starting...";
 
 #if !DEBUG
             try {
@@ -50,7 +50,7 @@ namespace fCraft.ServerCLI {
                 Server.InitServer();
 
                 CheckForUpdates();
-                Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+                Console.Title = "800Craft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
 
                 if( !ConfigKey.ProcessPriority.IsBlank() ) {
                     try {
@@ -61,7 +61,7 @@ namespace fCraft.ServerCLI {
                 }
 
                 if( Server.StartServer() ) {
-                    Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
+                    Console.WriteLine( "** Running 800Craft version {0}. **", Updater.CurrentRelease.VersionString );
                     Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
 
                     while( !Server.IsShuttingDown ) {
@@ -92,7 +92,7 @@ namespace fCraft.ServerCLI {
 
 
         static void ReportFailure( ShutdownReason reason ) {
-            Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
+            Console.Title = String.Format( "800Craft {0} {1}", Updater.CurrentRelease.VersionString, reason );
             if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
             if( useColor ) Console.ResetColor();
@@ -184,7 +184,7 @@ namespace fCraft.ServerCLI {
             UpdaterResult update = Updater.CheckForUpdates();
 
             if( update.UpdateAvailable ) {
-                Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
+                Console.WriteLine( "** A new version of 800Craft is available: {0}, released {1:0} day(s) ago. **",
                                    update.LatestRelease.VersionString,
                                    update.LatestRelease.Age.TotalDays );
                 if( updaterMode != UpdaterMode.Notify ) {
