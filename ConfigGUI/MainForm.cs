@@ -110,6 +110,12 @@ namespace fCraft.ConfigGUI {
             popup.ShowDialog();
         }
 
+        private void bButton1(object sender, EventArgs e)
+        {
+            TextEditorPopup popup = new TextEditorPopup("SwearWords.txt", "");
+            popup.ShowDialog();
+        }
+
         private void xAnnouncements_CheckedChanged( object sender, EventArgs e ) {
             nAnnouncements.Enabled = xAnnouncements.Checked;
             bAnnouncements.Enabled = xAnnouncements.Checked;
@@ -183,11 +189,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void bOpenWiki_Click( object sender, EventArgs e ) {
-            Process.Start( "http://www.fcraft.net/wiki/Main_Page" );
+            Process.Start("https://github.com/GlennMR/800craft/wiki");
         }
 
         private void bReportABug_Click( object sender, EventArgs e ) {
-            Process.Start( "http://forum.fcraft.net/viewforum.php?f=5" );
+            Process.Start("http://www.au70galaxy.com/314/upload/index.php?/forum/36-bug-reports/");
         }
 
         private void nMaxPlayerPerWorld_Validating( object sender, CancelEventArgs e ) {

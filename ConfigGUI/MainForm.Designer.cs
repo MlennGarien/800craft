@@ -101,7 +101,6 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -297,6 +296,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.Button1 = new System.Windows.Forms.Button();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -385,6 +386,7 @@
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add(this.Button1);
             this.tabGeneral.Controls.Add(this.groupBox1);
             this.tabGeneral.Controls.Add(this.gUpdaterSettings);
             this.tabGeneral.Controls.Add(this.groupBox2);
@@ -406,9 +408,9 @@
             this.groupBox1.Controls.Add(this.lMineQueryPort);
             this.groupBox1.Controls.Add(this.xMineQuery);
             this.groupBox1.Location = new System.Drawing.Point(8, 306);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox1.Size = new System.Drawing.Size(636, 59);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
@@ -459,7 +461,7 @@
             // 
             this.xMineQuery.AutoSize = true;
             this.xMineQuery.Location = new System.Drawing.Point(64, 30);
-            this.xMineQuery.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.xMineQuery.Margin = new System.Windows.Forms.Padding(2);
             this.xMineQuery.Name = "xMineQuery";
             this.xMineQuery.Size = new System.Drawing.Size(128, 19);
             this.xMineQuery.TabIndex = 0;
@@ -1141,7 +1143,7 @@
             this.xShowConnectionMessages.AutoSize = true;
             this.xShowConnectionMessages.Location = new System.Drawing.Point(325, 45);
             this.xShowConnectionMessages.Name = "xShowConnectionMessages";
-            this.xShowConnectionMessages.Size = new System.Drawing.Size(230, 15);
+            this.xShowConnectionMessages.Size = new System.Drawing.Size(306, 19);
             this.xShowConnectionMessages.TabIndex = 4;
             this.xShowConnectionMessages.Text = "Show a message when players join/leave SERVER.";
             this.xShowConnectionMessages.UseVisualStyleBackColor = true;
@@ -1151,7 +1153,7 @@
             this.xShowJoinedWorldMessages.AutoSize = true;
             this.xShowJoinedWorldMessages.Location = new System.Drawing.Point(325, 20);
             this.xShowJoinedWorldMessages.Name = "xShowJoinedWorldMessages";
-            this.xShowJoinedWorldMessages.Size = new System.Drawing.Size(196, 15);
+            this.xShowJoinedWorldMessages.Size = new System.Drawing.Size(261, 19);
             this.xShowJoinedWorldMessages.TabIndex = 3;
             this.xShowJoinedWorldMessages.Text = "Show a message when players join worlds.";
             this.xShowJoinedWorldMessages.UseVisualStyleBackColor = true;
@@ -1161,7 +1163,7 @@
             this.xRankColorsInWorldNames.AutoSize = true;
             this.xRankColorsInWorldNames.Location = new System.Drawing.Point(325, 70);
             this.xRankColorsInWorldNames.Name = "xRankColorsInWorldNames";
-            this.xRankColorsInWorldNames.Size = new System.Drawing.Size(182, 15);
+            this.xRankColorsInWorldNames.Size = new System.Drawing.Size(243, 19);
             this.xRankColorsInWorldNames.TabIndex = 5;
             this.xRankColorsInWorldNames.Text = "Color world names based on build rank.";
             this.xRankColorsInWorldNames.UseVisualStyleBackColor = true;
@@ -1171,7 +1173,7 @@
             this.xRankPrefixesInList.AutoSize = true;
             this.xRankPrefixesInList.Location = new System.Drawing.Point(44, 70);
             this.xRankPrefixesInList.Name = "xRankPrefixesInList";
-            this.xRankPrefixesInList.Size = new System.Drawing.Size(164, 15);
+            this.xRankPrefixesInList.Size = new System.Drawing.Size(219, 19);
             this.xRankPrefixesInList.TabIndex = 2;
             this.xRankPrefixesInList.Text = "Prefixes in player list (breaks skins).";
             this.xRankPrefixesInList.UseVisualStyleBackColor = true;
@@ -1181,7 +1183,7 @@
             this.xRankPrefixesInChat.AutoSize = true;
             this.xRankPrefixesInChat.Location = new System.Drawing.Point(25, 45);
             this.xRankPrefixesInChat.Name = "xRankPrefixesInChat";
-            this.xRankPrefixesInChat.Size = new System.Drawing.Size(100, 15);
+            this.xRankPrefixesInChat.Size = new System.Drawing.Size(133, 19);
             this.xRankPrefixesInChat.TabIndex = 1;
             this.xRankPrefixesInChat.Text = "Show rank prefixes.";
             this.xRankPrefixesInChat.UseVisualStyleBackColor = true;
@@ -1192,18 +1194,10 @@
             this.xRankColorsInChat.AutoSize = true;
             this.xRankColorsInChat.Location = new System.Drawing.Point(25, 20);
             this.xRankColorsInChat.Name = "xRankColorsInChat";
-            this.xRankColorsInChat.Size = new System.Drawing.Size(92, 15);
+            this.xRankColorsInChat.Size = new System.Drawing.Size(123, 19);
             this.xRankColorsInChat.TabIndex = 0;
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 256);
-            this.chatPreview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 241);
-            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -1930,7 +1924,7 @@
             this.xBlockDBAutoEnable.Enabled = false;
             this.xBlockDBAutoEnable.Location = new System.Drawing.Point(76, 55);
             this.xBlockDBAutoEnable.Name = "xBlockDBAutoEnable";
-            this.xBlockDBAutoEnable.Size = new System.Drawing.Size(270, 15);
+            this.xBlockDBAutoEnable.Size = new System.Drawing.Size(360, 19);
             this.xBlockDBAutoEnable.TabIndex = 1;
             this.xBlockDBAutoEnable.TabStop = false;
             this.xBlockDBAutoEnable.Text = "Automatically enable BlockDB on worlds that can be edited by";
@@ -1942,7 +1936,7 @@
             this.xBlockDBEnabled.AutoSize = true;
             this.xBlockDBEnabled.Location = new System.Drawing.Point(42, 30);
             this.xBlockDBEnabled.Name = "xBlockDBEnabled";
-            this.xBlockDBEnabled.Size = new System.Drawing.Size(187, 15);
+            this.xBlockDBEnabled.Size = new System.Drawing.Size(249, 19);
             this.xBlockDBEnabled.TabIndex = 0;
             this.xBlockDBEnabled.Text = "Enable BlockDB (per-block edit tracking).";
             this.xBlockDBEnabled.UseVisualStyleBackColor = true;
@@ -2314,7 +2308,7 @@
             this.xBackupDataOnStartup.AutoSize = true;
             this.xBackupDataOnStartup.Location = new System.Drawing.Point(16, 20);
             this.xBackupDataOnStartup.Name = "xBackupDataOnStartup";
-            this.xBackupDataOnStartup.Size = new System.Drawing.Size(196, 15);
+            this.xBackupDataOnStartup.Size = new System.Drawing.Size(261, 19);
             this.xBackupDataOnStartup.TabIndex = 0;
             this.xBackupDataOnStartup.Text = "Backup PlayerDB and IP ban list on startup.";
             this.xBackupDataOnStartup.UseVisualStyleBackColor = true;
@@ -2705,7 +2699,7 @@
             this.xIRCBotAnnounceServerEvents.AutoSize = true;
             this.xIRCBotAnnounceServerEvents.Location = new System.Drawing.Point(38, 109);
             this.xIRCBotAnnounceServerEvents.Name = "xIRCBotAnnounceServerEvents";
-            this.xIRCBotAnnounceServerEvents.Size = new System.Drawing.Size(313, 15);
+            this.xIRCBotAnnounceServerEvents.Size = new System.Drawing.Size(417, 19);
             this.xIRCBotAnnounceServerEvents.TabIndex = 7;
             this.xIRCBotAnnounceServerEvents.Text = "Announce SERVER events (kicks, bans, promotions, demotions) on IRC.";
             this.xIRCBotAnnounceServerEvents.UseVisualStyleBackColor = true;
@@ -2715,7 +2709,7 @@
             this.xIRCUseColor.AutoSize = true;
             this.xIRCUseColor.Location = new System.Drawing.Point(325, 23);
             this.xIRCUseColor.Name = "xIRCUseColor";
-            this.xIRCUseColor.Size = new System.Drawing.Size(112, 15);
+            this.xIRCUseColor.Size = new System.Drawing.Size(149, 19);
             this.xIRCUseColor.TabIndex = 2;
             this.xIRCUseColor.Text = "Use text colors on IRC.";
             this.xIRCUseColor.UseVisualStyleBackColor = true;
@@ -2735,7 +2729,7 @@
             this.xIRCBotAnnounceIRCJoins.AutoSize = true;
             this.xIRCBotAnnounceIRCJoins.Location = new System.Drawing.Point(325, 84);
             this.xIRCBotAnnounceIRCJoins.Name = "xIRCBotAnnounceIRCJoins";
-            this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size(227, 15);
+            this.xIRCBotAnnounceIRCJoins.Size = new System.Drawing.Size(303, 19);
             this.xIRCBotAnnounceIRCJoins.TabIndex = 6;
             this.xIRCBotAnnounceIRCJoins.Text = "Announce people joining/leaving the IRC channels.";
             this.xIRCBotAnnounceIRCJoins.UseVisualStyleBackColor = true;
@@ -2764,7 +2758,7 @@
             this.xIRCBotForwardFromIRC.AutoSize = true;
             this.xIRCBotForwardFromIRC.Location = new System.Drawing.Point(38, 84);
             this.xIRCBotForwardFromIRC.Name = "xIRCBotForwardFromIRC";
-            this.xIRCBotForwardFromIRC.Size = new System.Drawing.Size(180, 15);
+            this.xIRCBotForwardFromIRC.Size = new System.Drawing.Size(240, 19);
             this.xIRCBotForwardFromIRC.TabIndex = 4;
             this.xIRCBotForwardFromIRC.Text = "Forward ALL chat from IRC to SERVER.";
             this.xIRCBotForwardFromIRC.UseVisualStyleBackColor = true;
@@ -2774,7 +2768,7 @@
             this.xIRCBotAnnounceServerJoins.AutoSize = true;
             this.xIRCBotAnnounceServerJoins.Location = new System.Drawing.Point(325, 59);
             this.xIRCBotAnnounceServerJoins.Name = "xIRCBotAnnounceServerJoins";
-            this.xIRCBotAnnounceServerJoins.Size = new System.Drawing.Size(209, 15);
+            this.xIRCBotAnnounceServerJoins.Size = new System.Drawing.Size(279, 19);
             this.xIRCBotAnnounceServerJoins.TabIndex = 5;
             this.xIRCBotAnnounceServerJoins.Text = "Announce people joining/leaving the SERVER.";
             this.xIRCBotAnnounceServerJoins.UseVisualStyleBackColor = true;
@@ -2784,7 +2778,7 @@
             this.xIRCBotForwardFromServer.AutoSize = true;
             this.xIRCBotForwardFromServer.Location = new System.Drawing.Point(38, 59);
             this.xIRCBotForwardFromServer.Name = "xIRCBotForwardFromServer";
-            this.xIRCBotForwardFromServer.Size = new System.Drawing.Size(180, 15);
+            this.xIRCBotForwardFromServer.Size = new System.Drawing.Size(240, 19);
             this.xIRCBotForwardFromServer.TabIndex = 3;
             this.xIRCBotForwardFromServer.Text = "Forward ALL chat from SERVER to IRC.";
             this.xIRCBotForwardFromServer.UseVisualStyleBackColor = true;
@@ -3488,6 +3482,26 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // Button1
+            // 
+            this.Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.Button1.Enabled = false;
+            this.Button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Button1.Location = new System.Drawing.Point(500, 405);
+            this.Button1.Name = "Button1";
+            this.Button1.Size = new System.Drawing.Size(138, 28);
+            this.Button1.TabIndex = 6;
+            this.Button1.Text = "Edit Profanity List";
+            this.Button1.UseVisualStyleBackColor = true;
+            // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point(7, 256);
+            this.chatPreview.Margin = new System.Windows.Forms.Padding(4);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 241);
+            this.chatPreview.TabIndex = 2;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3861,5 +3875,6 @@
         private System.Windows.Forms.Label lMineQueryPort;
         private System.Windows.Forms.CheckBox xMineQuery;
         private System.Windows.Forms.Button bMineQueryPortCheck;
+        private System.Windows.Forms.Button Button1;
     }
 }
