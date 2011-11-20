@@ -512,8 +512,8 @@ namespace fCraft
         internal static void Realm(Player player, Command cmd)
         {
 
-            string worldName = cmd.Next();
-             switch (worldName)
+            string Choice = cmd.Next();
+             switch (Choice)
             {
                  default:
                 CdRealm.PrintUsage(player);
@@ -525,8 +525,8 @@ namespace fCraft
 
                 case "like":
                     
-                        worldName = player.World.Name;
-                        World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
+                        Choice = player.World.Name;
+                        World world = WorldManager.FindWorldOrPrintMatches(player, Choice);
                         if (world == null) player.Message("You need to enter a realm name");
 
                         Server.Players.Message("{0}&S likes realm {1}.",
@@ -639,17 +639,17 @@ namespace fCraft
                         return;
                     }
 
-                    Player targets = Server.FindPlayerOrPrintMatches(player, invite, false, true);
+                    Player targetInvite = Server.FindPlayerOrPrintMatches(player, invite, false, true);
 
 
-                    if (targets == null)
+                    if (targetInvite == null)
                     {
                         player.Message("Please enter the name of the player you want to invite into your Realm.");
                         return;
                     }
 
 
-                    if (Player.IsInValidName(targets.Name))
+                    if (Player.IsInValidName(targetInvite.Name))
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
@@ -657,51 +657,51 @@ namespace fCraft
 
                     if (!cmd.IsConfirmed)
                     {
-                        targets.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
+                        targetInvite.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
                         return;
                     }
                     else
                     {
-                        JoinHandler(targets, new Command("/join " + player.Name));
+                        JoinHandler(targetInvite, new Command("/join " + player.Name));
                         return;
                     }
                     
 
                 case "join":
 
-                    string jimbob = cmd.Next();
-                    if (jimbob == null)
+                    string JoinCmd = cmd.Next();
+                    if (JoinCmd == null)
                     {
                         player.Message("Derp. Invalid Realm.");
                         return;
                     }
                     else
                     {
-                        Player target = Server.FindPlayerOrPrintMatches(player, worldName, false, true);
-                        JoinHandler(player, new Command("/goto " + jimbob));
+                        Player target = Server.FindPlayerOrPrintMatches(player, Choice, false, true);
+                        JoinHandler(player, new Command("/goto " + JoinCmd));
                         return;
                     }
 
                 case "allow":
 
-                    string user4 = cmd.Next();
+                    string toAllow = cmd.Next();
 
-                    if (user4 == null)
+                    if (toAllow == null)
                     {
                         player.Message("Allows a player to build in your world. useage: /realm allow playername.");
                         return;
                     }
-                    PlayerInfo target4 = PlayerDB.FindPlayerInfoOrPrintMatches(player, user4);
+                    PlayerInfo targetAllow = PlayerDB.FindPlayerInfoOrPrintMatches(player, toAllow);
 
 
-                    if (target4 == null)
+                    if (targetAllow == null)
                     {
                         player.Message("Please enter the name of the player you want to allow to build in your Realm.");
                         return;
                     }
 
 
-                    if (Player.IsInValidName(target4.Name))
+                    if (Player.IsInValidName(targetAllow.Name))
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
@@ -709,8 +709,8 @@ namespace fCraft
 
                     else
                     {
-                        RealmHandler.RealmBuild(player, cmd, player.Name, "+" + target4.Name, null);
-                        if (Player.IsInValidName(target4.Name))
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "+" + targetAllow.Name, null);
+                        if (Player.IsInValidName(targetAllow.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
                             return;
@@ -719,24 +719,24 @@ namespace fCraft
                     break;
 
                 case "unallow":
-                    string user2 = cmd.Next();
+                    string Unallow = cmd.Next();
 
-                    if (user2 == null)
+                    if (Unallow == null)
                     {
-                        player.Message("Stops a player from building in your world. useage: /realm unallow playername.");
+                        player.Message("Stops a player from building in your world. usage: /realm unallow playername.");
                         return;
                     }
-                    PlayerInfo target2 = PlayerDB.FindPlayerInfoOrPrintMatches(player, user2);
+                    PlayerInfo targetUnallow = PlayerDB.FindPlayerInfoOrPrintMatches(player, Unallow);
 
 
-                    if (target2 == null)
+                    if (targetUnallow == null)
                     {
                         player.Message("Please enter the name of the player you want to stop building in your Realm.");
                         return;
                     }
 
 
-                    if (Player.IsInValidName(target2.Name))
+                    if (Player.IsInValidName(targetUnallow.Name))
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
@@ -744,8 +744,8 @@ namespace fCraft
 
                     else
                     {
-                        RealmHandler.RealmBuild(player, cmd, player.Name, "-" + target2.Name, null);
-                        if (Player.IsInValidName(target2.Name))
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "-" + targetUnallow.Name, null);
+                        if (Player.IsInValidName(targetUnallow.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
                             return;
@@ -755,24 +755,24 @@ namespace fCraft
 
                 case "ban":
                    
-                        string user3 = cmd.Next();
+                        string Ban = cmd.Next();
 
-                        if (user3 == null)
+                        if (Ban == null)
                         {
                             player.Message("Bans a player from accessing your Realm. useage: /realm ban playername.");
                             return;
                         }
-                        Player target3 = Server.FindPlayerOrPrintMatches(player, user3, false, true);
+                        Player targetBan = Server.FindPlayerOrPrintMatches(player, Ban, false, true);
 
 
-                        if (target3 == null)
+                        if (targetBan == null)
                         {
                             player.Message("Please enter the name of the player you want to ban from your Realm.");
                             return;
                         }
 
 
-                        if (Player.IsInValidName(target3.Name))
+                        if (Player.IsInValidName(targetBan.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
                             return;
@@ -780,8 +780,8 @@ namespace fCraft
 
                         else
                         {
-                            RealmHandler.RealmAccess(player,cmd, player.Name, "-"+target3.Name);
-                            if (Player.IsInValidName(target3.Name))
+                            RealmHandler.RealmAccess(player, cmd, player.Name, "-" + targetBan.Name);
+                            if (Player.IsInValidName(targetBan.Name))
                             {
                                 player.Message("Player not found. Please specify valid name.");
                                 return;
@@ -792,24 +792,24 @@ namespace fCraft
 
                 case "unban":
                     
-                        string user = cmd.Next();
+                        string UnBan = cmd.Next();
 
-                        if (user == null)
+                        if (UnBan == null)
                         {
                             player.Message("Unbans a player from your Realm. useage: /realm unban playername.");
                             return;
                         }
-                        PlayerInfo target5 = PlayerDB.FindPlayerInfoOrPrintMatches(player, user);
+                        PlayerInfo targetUnBan = PlayerDB.FindPlayerInfoOrPrintMatches(player, UnBan);
 
 
-                        if (target5 == null)
+                        if (targetUnBan == null)
                         {
                             player.Message("Please enter the name of the player you want to unban from your Realm.");
                             return;
                         }
 
 
-                        if (Player.IsInValidName(target5.Name))
+                        if (Player.IsInValidName(targetUnBan.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
                             return;
@@ -817,8 +817,8 @@ namespace fCraft
 
                         else
                         {
-                            RealmHandler.RealmAccess(player, cmd, player.Name, "+" + target5.Name);
-                            if (Player.IsInValidName(target5.Name))
+                            RealmHandler.RealmAccess(player, cmd, player.Name, "+" + targetUnBan.Name);
+                            if (Player.IsInValidName(targetUnBan.Name))
                             {
                                 player.Message("Player not found. Please specify valid name.");
                                 return;
