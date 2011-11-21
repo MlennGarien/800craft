@@ -422,7 +422,8 @@ namespace fCraft
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = false,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/terrain Normal|blackwhite|tron|mario|highres|mono|simple|",
+            Usage = "/terrain Normal | fall | winter | tron | mario | highres | 8bit | simple |" +
+                 " indev | messa | portal | zelda",
             Handler = TerrainHandler
         };
 
@@ -439,7 +440,8 @@ namespace fCraft
              
              string option = cmd.Next();
              if (option == null)
-                 player.Message("/terrain Normal|blackwhite|tron|mario|highres|mono|simple|");
+                 player.Message("&A/terrain Normal | fall | winter | tron | mario | highres | 8bit |/n simple |"+
+                 " indev | messa | portal | zelda ");
 
             
 
@@ -465,15 +467,15 @@ namespace fCraft
              }
              if (option == "tron")
              {
-                 world.Terrain = "3562a277b483cfd32b2fe16d9bba9373e12e89a8";
+                 world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
                  player.Message("Terrain Changed! Rejoin world to see changes");
                  return;
              }
 
              
-             if (option == "mono")
+             if (option == "8bit")
              {
-                 world.Terrain = "e893d18984f19aea8ef0c8398e3e298eacfe84d8";
+                 world.Terrain = "5a3fb1994e2ae526815ceaaca3a4dac0051aa890";
                  player.Message("Terrain Changed! Rejoin world to see changes");
                  return;
              }
@@ -483,12 +485,45 @@ namespace fCraft
                  player.Message("Terrain Changed! Rejoin world to see changes");
                  return;
              }
-             if (option == "blackwhite")
+             if (option == "fall")
              {
-                 world.Terrain = "153aa0f493f8cf37127353c9816ef45683105282";
+                 world.Terrain = "b7c6dcb7a858639077f95ef94e8e2d51bedc3307";
                  player.Message("Terrain Changed! Rejoin world to see changes");
                  return;
              }
+             if (option == "indev")
+             {
+                 world.Terrain = "73d1ef4441725bdcc9ac3616205faa3dff46e12a";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             if (option == "messa")
+             {
+                 world.Terrain = "db0feeac8702704a3146a71365622db55fb5a4c4";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             if (option == "portal")
+             {
+                 world.Terrain = "d4b455134394763296994d0c819b0ac0ea338457";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+
+             if (option == "winter")
+             {
+                 world.Terrain = "3d22ed0ab311e003ed4e3ba17c3cf455019e7f35";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             if (option == "zelda")
+             {
+                 world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
+                 player.Message("Terrain Changed! Rejoin world to see changes");
+                 return;
+             }
+             
+             
              else
                  player.Message("Error: you need to type a Terrain type");
              
