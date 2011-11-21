@@ -19,6 +19,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 using ThreadState = System.Threading.ThreadState;
 using fCraft.Portals;
+using fCraft.Physics;
 
 namespace fCraft {
     /// <summary> Core of an fCraft server. Manages startup/shutdown, online player
@@ -444,6 +445,7 @@ namespace fCraft {
             RaiseEvent( Started );
             PortalHandler.GetInstance();
             PortalDB.Load();
+            Physics.Physics.Load();
 
             if (ConfigKey.MineQuery.Enabled())
             {
