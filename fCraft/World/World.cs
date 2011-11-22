@@ -610,8 +610,8 @@ namespace fCraft {
                    FogColor = -1,
                    SkyColor = -1,
                    EdgeLevel = -1;
-         public string Terrain;
-
+        public string Terrain { get; set; }
+        
         public Block EdgeBlock = Block.Water;
 
         public string GenerateWoMConfig( bool sendMotd ) {
@@ -627,7 +627,7 @@ namespace fCraft {
             if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
             if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
             if( EdgeLevel > -1 ) sb.AppendLine( "environment.level = " + EdgeLevel );
-            if( Terrain == null ) sb.AppendLine( "environment.terrain = bc4acee575474f5266105430c3cc628b8b3948a2" );
+            if(Terrain != null) sb.AppendLine( "environment.terrain = " + Terrain );
             if( EdgeBlock != Block.Water ) {
                 string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
                 if( edgeTexture != null ) {
@@ -635,14 +635,6 @@ namespace fCraft {
                 }
             }
 
-            
-            {
-                string TerrainType = Terrain;
-                if (TerrainType != null)
-                {
-                    sb.AppendLine("environment.terrain = " + TerrainType);
-                }
-            }
             sb.AppendLine( "server.sendwomid = true" );
             return sb.ToString();
         }

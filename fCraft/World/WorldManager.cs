@@ -215,6 +215,7 @@ namespace fCraft {
                 if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.CloudColor ) ) {
                         world.CloudColor = -1;
+                        
                         Logger.Log( LogType.Warning,
                                     "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
@@ -222,12 +223,14 @@ namespace fCraft {
                 }
                 if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
+                        
                         world.FogColor = -1;
                         Logger.Log( LogType.Warning,
                                     "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
+
                 if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.SkyColor ) ) {
                         world.SkyColor = -1;
@@ -244,6 +247,17 @@ namespace fCraft {
                                     worldName );
                     }
                 }
+
+                if( (tempAttr = envEl.Attribute( "level" )) != null ) {
+                    if( !Int32.TryParse( tempAttr.Value, out world.EdgeLevel ) ) {
+                        world.EdgeLevel = -1;
+                        Logger.Log( LogType.Warning,
+                                    "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    worldName );
+                    }
+                }
+
+               
                 if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
                     Block block = Map.GetBlockByName( tempAttr.Value );
                     if( block == Block.Undefined ) {
@@ -390,6 +404,7 @@ namespace fCraft {
                     if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
                     if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
                     if( world.EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", world.EdgeLevel ) );
+                    if (world.Terrain != null) elEnv.Add(new XAttribute("terrain", world.Terrain));
                     if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
                     if( elEnv.HasAttributes ) {
                         temp.Add( elEnv );
