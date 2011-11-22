@@ -2788,80 +2788,106 @@ namespace fCraft
             Handler = WorldInfoHandler
         };
 
-        static void WorldInfoHandler( Player player, Command cmd ) {
+        static void WorldInfoHandler(Player player, Command cmd)
+        {
             string worldName = cmd.Next();
-            if( worldName == null ) {
-                if( player.World == null ) {
-                    player.Message( "Please specify a world name when calling /WInfo from console." );
+            if (worldName == null)
+            {
+                if (player.World == null)
+                {
+                    player.Message("Please specify a world name when calling /WInfo from console.");
                     return;
-                } else {
+                }
+                else
+                {
                     worldName = player.World.Name;
                 }
             }
 
-            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
+            World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
+            if (world == null) return;
 
-            player.Message( "World {0}&S has {1} player(s) on.",
+            player.Message("World {0}&S has {1} player(s) on.",
                             world.ClassyName,
-                            world.CountVisiblePlayers( player ) );
+                            world.CountVisiblePlayers(player));
 
             Map map = world.Map;
 
             // If map is not currently loaded, grab its header from disk
-            if( map == null ) {
-                try {
-                    map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.MapFileName ) );
-                } catch( Exception ex ) {
-                    player.Message( "  Map information could not be loaded: {0}: {1}",
-                                    ex.GetType().Name, ex.Message );
+            if (map == null)
+            {
+                try
+                {
+                    map = MapUtility.LoadHeader(Path.Combine(Paths.MapPath, world.MapFileName));
+                }
+                catch (Exception ex)
+                {
+                    player.Message("  Map information could not be loaded: {0}: {1}",
+                                    ex.GetType().Name, ex.Message);
                 }
             }
 
-            if( map != null ) {
-                player.Message( "  Map dimensions are {0} x {1} x {2}",
-                                map.Width, map.Length, map.Height );
+            if (map != null)
+            {
+                player.Message("  Map dimensions are {0} x {1} x {2}",
+                                map.Width, map.Length, map.Height);
             }
 
             // Print access/build limits
-            player.Message( "  " + world.AccessSecurity.GetDescription( world, "world", "accessed" ) );
-            player.Message( "  " + world.BuildSecurity.GetDescription( world, "world", "modified" ) );
+            player.Message("  " + world.AccessSecurity.GetDescription(world, "world", "accessed"));
+            player.Message("  " + world.BuildSecurity.GetDescription(world, "world", "modified"));
 
             // Print lock/unlock information
-            if( world.IsLocked ) {
-                player.Message( "  {0}&S was locked {1} ago by {2}",
+            if (world.IsLocked)
+            {
+                player.Message("  {0}&S was locked {1} ago by {2}",
                                 world.ClassyName,
-                                DateTime.UtcNow.Subtract( world.LockedDate ).ToMiniString(),
-                                world.LockedBy );
-            } else if( world.UnlockedBy != null ) {
-                player.Message( "  {0}&S was unlocked {1} ago by {2}",
+                                DateTime.UtcNow.Subtract(world.LockedDate).ToMiniString(),
+                                world.LockedBy);
+            }
+            else if (world.UnlockedBy != null)
+            {
+                player.Message("  {0}&S was unlocked {1} ago by {2}",
                                 world.ClassyName,
-                                DateTime.UtcNow.Subtract( world.UnlockedDate ).ToMiniString(),
-                                world.UnlockedBy );
+                                DateTime.UtcNow.Subtract(world.UnlockedDate).ToMiniString(),
+                                world.UnlockedBy);
             }
 
-            if( !String.IsNullOrEmpty( world.LoadedBy ) && world.LoadedOn != DateTime.MinValue ) {
-                player.Message( "  {0}&S was created/loaded {1} ago by {2}",
+            if (!String.IsNullOrEmpty(world.LoadedBy) && world.LoadedOn != DateTime.MinValue)
+            {
+                player.Message("  {0}&S was created/loaded {1} ago by {2}",
                                 world.ClassyName,
-                                DateTime.UtcNow.Subtract( world.LoadedOn ).ToMiniString(),
-                                world.LoadedByClassy );
+                                DateTime.UtcNow.Subtract(world.LoadedOn).ToMiniString(),
+                                world.LoadedByClassy);
             }
 
-            if( !String.IsNullOrEmpty( world.MapChangedBy ) && world.MapChangedOn != DateTime.MinValue ) {
-                player.Message( "  Map was last changed {0} ago by {1}",
-                                DateTime.UtcNow.Subtract( world.MapChangedOn ).ToMiniString(),
-                                world.MapChangedByClassy );
+            if (!String.IsNullOrEmpty(world.MapChangedBy) && world.MapChangedOn != DateTime.MinValue)
+            {
+                player.Message("  Map was last changed {0} ago by {1}",
+                                DateTime.UtcNow.Subtract(world.MapChangedOn).ToMiniString(),
+                                world.MapChangedByClassy);
             }
 
-            if( world.BlockDB.IsEnabled ) {
-                if( world.BlockDB.EnabledState == YesNoAuto.Auto ) {
-                    player.Message( "  BlockDB is enabled (auto) on {0}", world.ClassyName );
-                } else {
-                    player.Message( "  BlockDB is enabled on {0}", world.ClassyName );
+            if (world.BlockDB.IsEnabled)
+            {
+                if (world.BlockDB.EnabledState == YesNoAuto.Auto)
+                {
+                    player.Message("  BlockDB is enabled (auto) on {0}", world.ClassyName);
                 }
-            } else {
-                player.Message( "  BlockDB is disabled on {0}", world.ClassyName );
+                else
+                {
+                    player.Message("  BlockDB is enabled on {0}", world.ClassyName);
+                }
             }
+            else
+            {
+                player.Message("  BlockDB is disabled on {0}", world.ClassyName);
+            }
+            if (world.RealisticEnv)
+                player.Message("  Realistic ENV is enabled on this world");
+            if (!world.RealisticEnv)
+                player.Message("  Realistic ENV is disabled on this world");
+
         }
 
         #endregion

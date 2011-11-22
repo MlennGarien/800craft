@@ -1382,50 +1382,68 @@ namespace fCraft {
             Handler = CommandsHandler
         };
 
-        internal static void CommandsHandler( Player player, Command cmd ) {
+        internal static void CommandsHandler(Player player, Command cmd)
+        {
             string param = cmd.Next();
-            if( cmd.HasNext ) {
-                CdCommands.PrintUsage( player );
-                return;
-            }
             CommandDescriptor[] cd;
-            CommandCategory category;
 
-            string prefix;
+            if (param == null)
+            {
+                player.Message("&SCommands Available:\n" +
+                "&SFor &aBuilding &Scommands, type &a/Commands building" +
+                "\n&SFor &fChat &Scommands, type &a/Commands chat" +
+                "\n&SFor &fInfo &Scommands, type &a/Commands info" +
+                "\n&SFor &3Moderation &scommands, type &a/Commands moderation" +
+                "\n&SFor &9World &Scommands, type &a/Commands world" +
+                "\n&SFor &bZone &Scommands, type &a/Commands zone");
+            }
 
-            if( param == null ) {
-                prefix = "Available commands";
-                cd = CommandManager.GetCommands( player.Info.Rank, false );
-
-            } else if( param.StartsWith( "@" ) ) {
-                string rankName = param.Substring( 1 );
-                Rank rank = RankManager.FindRank( rankName );
-                if( rank == null ) {
-                    player.Message( "Unknown rank: {0}", rankName );
+            else if (param.StartsWith("@"))
+            {
+                string rankName = param.Substring(1);
+                Rank rank = RankManager.FindRank(rankName);
+                if (rank == null)
+                {
+                    player.Message("Unknown rank: {0}", rankName);
                     return;
-                } else {
-                    prefix = String.Format( "Commands available to {0}&S", rank.ClassyName );
-                    cd = CommandManager.GetCommands( rank, true );
+                }
+                else
+                {
+                    player.Message("List of commands available to {0}&S:", rank.ClassyName);
+                    cd = CommandManager.GetCommands(rank, true);
+                    player.MessagePrefixed("&S  ", "&S  " + cd.JoinToClassyString());
                 }
 
-            } else if( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
-                prefix = "All commands";
+            }
+            else if (param.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                player.Message("List of ALL commands:");
                 cd = CommandManager.GetCommands();
+                player.MessagePrefixed("&S  ", "&S  " + cd.JoinToClassyString());
 
-            } else if( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
-                prefix =  "Hidden commands";
-                cd = CommandManager.GetCommands( true );
+            }
+            else if (param.Equals("hidden", StringComparison.OrdinalIgnoreCase))
+            {
+                player.Message("List of hidden commands:");
+                cd = CommandManager.GetCommands(true);
+                player.MessagePrefixed("&S  ", "&S  " + cd.JoinToClassyString());
 
-            } else if( EnumUtil.TryParse( param, out category, true ) ) {
-                prefix = String.Format( "{0} commands", category );
-                cd = CommandManager.GetCommands( category, false );
+            }
+            else if (Enum.GetNames(typeof(CommandCategory)).Contains(param, StringComparer.OrdinalIgnoreCase))
+            {
+                CommandCategory category = (CommandCategory)Enum.Parse(typeof(CommandCategory), param, true);
+                player.Message("List of {0} commands:", category);
+                cd = CommandManager.GetCommands(category, false);
+                player.MessagePrefixed("&S  ", "&S  " + cd.JoinToClassyString());
 
-            } else {
-                CdCommands.PrintUsage( player );
+            }
+            else
+            {
+                CdCommands.PrintUsage(player);
                 return;
             }
 
-            player.MessagePrefixed( "&S  ", "{0}: {1}", prefix, cd.JoinToClassyString() );
+
         }
 
         #endregion
