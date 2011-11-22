@@ -452,12 +452,15 @@ namespace fCraft
                  return;
              }
 
+
              if (option == "simple")
              {
                  world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
                  player.Message("Terrain Changed! Rejoin world to see changes");
                  return;
              }
+
+             
              
              if (option == "highres")
              {
@@ -1364,6 +1367,25 @@ namespace fCraft
             }
             string worldName = cmd.Next();
             World world;
+            if (worldName == "realistic")
+            {
+                world = player.World;
+                if (!world.RealisticEnv)
+                {
+                    world.RealisticEnv = true;
+                    World RWorld = player.World;
+                    Scheduler.NewTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(59));
+                    player.Message("Realistic Environment has been turned ON for world {0}", RWorld.ClassyName);
+                    return;
+                }
+
+                if (world.RealisticEnv)
+                {
+                    world.RealisticEnv = false;
+                    player.Message("Realistic Environment has been turned OFF for world {0}", player.World.ClassyName);
+                    return;
+                }
+            }
             if( worldName == null ) {
                 world = player.World;
                 if( world == null ) {
@@ -1562,7 +1584,93 @@ namespace fCraft
 
         #endregion
 
+        static void TimeCheck(World world, Player player)
+        {
+            if (world.RealisticEnv)
+            {
+                int sky;
+                int clouds;
+                int fog;
+                DateTime now = DateTime.Now;
 
+                if (now.ToString("t") == "06:30") //sunrise
+                {
+                    sky = ParseHexColor("ffff33");
+                    clouds = ParseHexColor("ff0033");
+                    fog = ParseHexColor("ff3333");
+                    world.SkyColor = sky;
+                    world.CloudColor = clouds;
+                    world.FogColor = fog;
+                    world.EdgeBlock = Block.Water;
+                }
+
+                if (now.ToString("t") == "07:30") //end of sunrise
+                {
+                    sky = -1;
+                    clouds = ParseHexColor("ff0033");
+                    fog = ParseHexColor("fffff0");
+                    world.SkyColor = sky;
+                    world.CloudColor = clouds;
+                    world.FogColor = fog;
+                }
+
+                if (now.ToString("t") == "12:00") //env normal
+                {
+                    sky = -1;
+                    clouds = -1;
+                    fog = -1;
+                    world.SkyColor = sky;
+                    world.CloudColor = clouds;
+                    world.FogColor = fog;
+                }
+
+                if (now.ToString("t") == "17:00") //evening
+                {
+                    sky = ParseHexColor("99cccc");
+                    clouds = -1;
+                    fog = ParseHexColor("99ccff");
+                    world.SkyColor = sky;
+                    world.CloudColor = clouds;
+                    world.FogColor = fog;
+                }
+
+                if (now.ToString("t") == "19:00") //sunset
+                {
+                    sky = ParseHexColor("9999cc");
+                    clouds = ParseHexColor("000033");
+                    fog = ParseHexColor("cc9966");
+                    world.SkyColor = sky;
+                    world.CloudColor = clouds;
+                    world.FogColor = fog;
+                }
+
+                if (now.ToString("t") == "19:30") //end of sunset
+                {
+                    sky = ParseHexColor("003366");
+                    clouds = ParseHexColor("000033");
+                    fog = ParseHexColor("000033");
+                    world.SkyColor = sky;
+                    world.CloudColor = clouds;
+                    world.FogColor = fog;
+                    world.EdgeBlock = Block.Black;
+                }
+
+                if (now.ToString("t") == "00:30") //black
+                {
+                    sky = ParseHexColor("000000");
+                    clouds = ParseHexColor("000033");
+                    fog = ParseHexColor("000033");
+                    world.SkyColor = sky;
+                    world.CloudColor = clouds;
+                    world.FogColor = fog;
+                    world.EdgeBlock = Block.Obsidian;
+                }
+            }
+            else return;
+
+
+
+        }
         #region Gen
 
         static readonly CommandDescriptor CdGenerate = new CommandDescriptor {

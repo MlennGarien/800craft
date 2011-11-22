@@ -25,6 +25,8 @@ namespace fCraft {
         
         public bool IsRealm { get; set; }
 
+        public bool RealisticEnv = false;
+
         public ArrayList Portals;
 
         /// <summary> Whether this world is currently pending unload 
