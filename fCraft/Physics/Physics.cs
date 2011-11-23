@@ -36,7 +36,7 @@ namespace fCraft.Physics
 
         public static void Load()
         {
-            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(CheckGrass).RunForever(TimeSpan.FromSeconds(5));
+            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(CheckGrass).RunForever(TimeSpan.FromSeconds(1));
             SchedulerTask checkGrassQueue = Scheduler.NewBackgroundTask(CheckGrassQueue).RunForever(TimeSpan.FromSeconds(1));
         }
 
@@ -67,8 +67,8 @@ namespace fCraft.Physics
                                         if (CanPutGrassOn(new Vector3I(x, y, z), world))
                                         {
                                             // Okay let's plant some seeds
-                                            int randomDelay = new Random().Next(1, 60);
-                                            GrassUpdate update = new GrassUpdate(world, new Vector3I(x, y, z), DateTime.Now.AddSeconds(randomDelay));
+                                            int randomDelay = new Random().Next(1, 60001);
+                                            GrassUpdate update = new GrassUpdate(world, new Vector3I(x, y, z), DateTime.Now.AddMilliseconds(randomDelay));
                                             
                                             lock (grassQueue.SyncRoot)
                                             {
