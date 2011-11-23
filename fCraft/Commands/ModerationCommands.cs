@@ -487,7 +487,6 @@ namespace fCraft {
 
             if (target == null)
             {
-                player.MessageNoPlayer(name);
                 return;
             }
 
