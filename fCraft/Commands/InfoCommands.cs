@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using fCraft.Utils;
 
 namespace fCraft {
     /// <summary> Contains commands that don't do anything besides displaying some information or text.
@@ -36,7 +37,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdColors );
 
-           // CommandManager.RegisterCommand(cdFly);
+            CommandManager.RegisterCommand(cdFly);
             CommandManager.RegisterCommand(CdReqs);
 
 #if DEBUG_SCHEDULER
@@ -58,20 +59,13 @@ namespace fCraft {
 
         static void Fly(Player player, Command cmd)
         {
-
-            string playerName = cmd.Next();
-
-            if (playerName == null)
+            if (player.IsFlying)
             {
-
-                player.Message("&sVisit &9TinyUrl.com/flyinginmc &sfor information on how to fly");
-                return;
+                FlyHandler.GetInstance().StopFlying(player);
             }
-
             else
             {
-                player.Message("&sVisit &9TinyUrl.com/flyinginmc &sfor information on how to fly");
-                return;
+                FlyHandler.GetInstance().StartFlying(player);
             }
         }
 

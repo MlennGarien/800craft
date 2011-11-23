@@ -10,6 +10,8 @@ using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
 using fCraft.Portals;
+using System.Collections;
+using System.Collections.Concurrent;
 
 namespace fCraft {
     /// <summary> Callback for a player-made selection of one or more blocks on a map.
@@ -143,12 +145,9 @@ namespace fCraft {
 
         #endregion
         
-        public ConcurrentQueue<Vector3I> FlyCache;
-
         public bool IsAway;
         public bool IsFlying = false;
-        public Vector3I[] OldFlyCache;
-        public Vector3I[] NewFlyCache;
+        public ConcurrentDictionary<String, Vector3I> FlyCache;
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
         public String PortalWorld;

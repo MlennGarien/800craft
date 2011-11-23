@@ -87,27 +87,34 @@ namespace fCraft {
 
         public static void DummyHandler(Player player, Command cmd)
         {
-
-            string name = cmd.Next();
-            World world = player.World;
-            if (name == null)
+            try
             {
-                player.Message(Color.Sys, "Usage: " + Color.Help + "/dummy name");
-                return;
+                string name = cmd.Next();
+                World world = player.World;
+
+                if (name == null)
+                {
+                    player.Message(Color.Sys, "Usage: " + Color.Help + "/dummy name");
+                    return;
+                }
+
+                if (!Player.IsValidName(name))
+                {
+                    player.Message(Color.Sys, "Invalid name format.");
+                    return;
+                }
+
+                Position pos = player.Position;
+                Player dummy = new Player(name);
+
+                dummy.Info.ID = player.Info.ID + 100;
+
+                Server.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos));
             }
-            if (!Player.IsValidName(name))
+            catch (Exception ex)
             {
-                player.Message(Color.Sys, "Invalid name format.");
-                return;
+                Logger.Log(LogType.Error, "ModerationCommands.DummyHandler: " + ex);
             }
-
-            Position pos = player.Position;
-            Player dummy = new Player(name);
-
-            dummy.Info.ID = player.Info.ID + 100;
-
-            Server.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos));
-
         }
 
 
@@ -186,7 +193,6 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
 
             if (target == null) {
-                player.MessageNoPlayer(name);
                 return;
             }
 
