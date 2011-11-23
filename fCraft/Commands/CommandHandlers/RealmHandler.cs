@@ -12,27 +12,30 @@ using System.Threading;
 namespace fCraft
 {
     class RealmHandler
+
+
     {
         public static void RealmLoad(Player player, Command cmd, string fileName, string worldName)
         {
+            //
 
             if (worldName == null && player.World == null)
             {
-                player.Message("When using /WLoad from console, you must specify the realm name.");
+                player.Message("When using /WLoad from console, you must specify the world name.");
                 return;
             }
 
             if (fileName == null)
             {
                 // No params given at all
-
+                
                 return;
             }
 
             string fullFileName = WorldManager.FindMapFile(player, fileName);
             if (fullFileName == null) return;
 
-            // Loading map into current realm
+            // Loading map into current world
             if (worldName == null)
             {
                 if (!cmd.IsConfirmed)
@@ -44,34 +47,32 @@ namespace fCraft
                 try
                 {
                     map = MapUtility.Load(fullFileName);
-
                 }
                 catch (Exception ex)
                 {
                     player.MessageNow("Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message);
                     return;
                 }
-                World realm = player.World;
-                realm.IsRealm = true;
-                realm.IsHidden = false; //temp
+                World world = player.World;
 
-                // Loading to current realm
-                realm.MapChangedBy = player.Name;
-                realm.ChangeMap(map);
+                // Loading to current world
+                world.MapChangedBy = player.Name;
+                world.ChangeMap(map);
 
-                realm.Players.Message(player, "{0}&S loaded a new map for this realm.",
+                world.Players.Message(player, "{0}&S loaded a new map for this world.",
                                               player.ClassyName);
-                player.MessageNow("New map loaded for the realm {0}", realm.ClassyName);
+                player.MessageNow("New map loaded for the world {0}", world.ClassyName);
 
                 Logger.Log(LogType.UserActivity,
-                            "{0} loaded new map for realm \"{1}\" from {2}",
-                            player.Name, realm.Name, fileName);
-
+                            "{0} loaded new map for world \"{1}\" from {2}",
+                            player.Name, world.Name, fileName);
+                world.IsRealm = true;
+                world.IsHidden = false;
 
             }
             else
             {
-                // Loading to some other (or new) realm
+                // Loading to some other (or new) world
                 if (!World.IsValidName(worldName))
                 {
                     player.MessageInvalidWorldName(worldName);
@@ -101,31 +102,17 @@ namespace fCraft
                     }
                 }
 
-                // Retype realm name, if needed
-                if (worldName == "-")
-                {
-                    if (player.LastUsedWorldName != null)
-                    {
-                        worldName = player.LastUsedWorldName;
-                    }
-                    else
-                    {
-                        player.Message("Cannot repeat realm name: you haven't used any names yet.");
-                        return;
-                    }
-                }
-
+                player.LastUsedWorldName = worldName;
                 lock (WorldManager.SyncRoot)
                 {
-                    World realm = WorldManager.FindWorldExact(worldName);
-                    if (realm != null)
+                    World world = WorldManager.FindWorldExact(worldName);
+                    if (world != null)
                     {
-                        player.LastUsedWorldName = realm.Name;
-                        // Replacing existing realm's map
+                        // Replacing existing world's map
                         if (!cmd.IsConfirmed)
                         {
                             player.Confirm(cmd, "About to replace map for {0}&S with \"{1}\".",
-                                            realm.ClassyName, fileName);
+                                                       world.ClassyName, fileName);
                             return;
                         }
 
@@ -133,8 +120,9 @@ namespace fCraft
                         try
                         {
                             map = MapUtility.Load(fullFileName);
-                            realm.IsRealm = true;
-                            realm.IsHidden = false; //temp
+                            world.IsRealm = true;
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
                         }
                         catch (Exception ex)
                         {
@@ -144,10 +132,8 @@ namespace fCraft
 
                         try
                         {
-                            realm.MapChangedBy = player.Name;
-                            realm.ChangeMap(map);
-                            realm.IsRealm = true;
-                            realm.IsHidden = false; //temp
+                            world.MapChangedBy = player.Name;
+                            world.ChangeMap(map);
                         }
                         catch (WorldOpException ex)
                         {
@@ -157,26 +143,25 @@ namespace fCraft
                             return;
                         }
 
-                        realm.Players.Message(player, "{0}&S loaded a new map for the realm {1}",
-                                               player.ClassyName, realm.ClassyName);
-                        player.MessageNow("New map for the realm {0}&S has been loaded.", realm.ClassyName);
+                        world.Players.Message(player, "{0}&S loaded a new map for the world {1}",
+                                               player.ClassyName, world.ClassyName);
+                        player.MessageNow("New map for the world {0}&S has been loaded.", world.ClassyName);
                         Logger.Log(LogType.UserActivity,
-                                    "{0} loaded new map for realm \"{1}\" from {2}",
-                                    player.Name, realm.Name, fullFileName);
+                                    "{0} loaded new map for world \"{1}\" from {2}",
+                                    player.Name, world.Name, fullFileName);
+                        
 
                     }
                     else
                     {
-                        // Adding a new realm
+                        // Adding a new world
                         string targetFullFileName = Path.Combine(Paths.MapPath, worldName + ".fcm");
                         if (!cmd.IsConfirmed &&
                             File.Exists(targetFullFileName) && // target file already exists
                             !Paths.Compare(targetFullFileName, fullFileName))
-                        {
-                            // and is different from sourceFile
-                            player.Confirm(cmd,
-                                            "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                            Path.GetFileName(targetFullFileName), Path.GetFileName(fullFileName));
+                        { // and is different from sourceFile
+                            player.Confirm(cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
+                                                       Path.GetFileName(targetFullFileName), Path.GetFileName(fullFileName));
                             return;
                         }
 
@@ -196,8 +181,6 @@ namespace fCraft
                         try
                         {
                             newWorld = WorldManager.AddWorld(player, worldName, map, false);
-                            realm.IsRealm = true;
-                            realm.IsHidden = false; //temp
                         }
                         catch (WorldOpException ex)
                         {
@@ -205,44 +188,47 @@ namespace fCraft
                             return;
                         }
 
-                        if (newWorld == null)
+                        if (newWorld != null)
                         {
-                            player.MessageNow("Failed to create a new realm.");
-                            return;
-                        }
-
-                        player.LastUsedWorldName = worldName;
-                        newWorld.BuildSecurity.MinRank = buildRank;
-                        if (accessRank == null)
-                        {
-                            newWorld.AccessSecurity.ResetMinRank();
+                            newWorld.BuildSecurity.MinRank = buildRank;
+                            if (accessRank == null)
+                            {
+                                newWorld.AccessSecurity.ResetMinRank();
+                            }
+                            else
+                            {
+                                newWorld.AccessSecurity.MinRank = accessRank;
+                            }
+                            newWorld.BlockDB.AutoToggleIfNeeded();
+                            if (BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled)
+                            {
+                                player.Message("BlockDB is now auto-enabled on world {0}", newWorld.ClassyName);
+                            }
+                            newWorld.LoadedBy = player.Name;
+                            newWorld.LoadedOn = DateTime.UtcNow;
+                            Server.Message("{0}&S created a new Realm named {1}",
+                                              player.ClassyName, newWorld.ClassyName);
+                            Logger.Log(LogType.UserActivity,
+                                        "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
+                                        player.Name, worldName, fileName);
+                            newWorld.IsRealm = true;
+                            newWorld.IsHidden = false;
+                            WorldManager.SaveWorldList();
+                            player.MessageNow("Access permission is {0}+&S, and build permission is {1}+",
+                                               newWorld.AccessSecurity.MinRank.ClassyName,
+                                               newWorld.BuildSecurity.MinRank.ClassyName);
                         }
                         else
                         {
-                            newWorld.AccessSecurity.MinRank = accessRank;
+                            player.MessageNow("Failed to create a new world.");
                         }
-                        newWorld.BlockDB.AutoToggleIfNeeded();
-                        if (BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled)
-                        {
-                            player.Message("BlockDB is now auto-enabled on realm {0}", newWorld.ClassyName);
-                        }
-                        newWorld.LoadedBy = player.Name;
-                        newWorld.LoadedOn = DateTime.UtcNow;
-                        Server.Message("{0}&S created a new realm named {1}",
-                                        player.ClassyName, newWorld.ClassyName);
-                        Logger.Log(LogType.UserActivity,
-                                    "{0} created a new realm named \"{1}\" (loaded from \"{2}\")",
-                                    player.Name, worldName, fileName);
-                        WorldManager.SaveWorldList();
-                        player.MessageNow("Access permission is {0}+&S, and build permission is {1}+",
-                                           newWorld.AccessSecurity.MinRank.ClassyName,
-                                           newWorld.BuildSecurity.MinRank.ClassyName);
                     }
                 }
             }
 
             Server.RequestGC();
         }
+
         public static void RealmCreate(Player player, Command cmd, string themeName, string templateName)
         {
             MapGenTemplate template;

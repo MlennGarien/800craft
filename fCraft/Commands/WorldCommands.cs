@@ -530,12 +530,19 @@ namespace fCraft
                     "If there are any Bugs, report them to Jonty800@gmail.com.");
                     break;
 
-                case "activate":
+                
+                    case "activate":
                     {
-                        RealmHandler.RealmLoad(player, cmd, player.Name, player.Name );
+                        if (player.World.Name == player.Name)
+                        {
+                            player.Message("You cannot use /realm activate when you are in your realm");
+                            return;
+                        }
+                        RealmHandler.RealmLoad(player, cmd, player.Name + ".fcm", player.Name);
                         RealmHandler.RealmBuild(player, cmd, player.Name, RankManager.HighestRank.Name, "+" + player.Name);
                         break;
                     }
+                
                 case "spawn":
                     
                     if (player.World.Name == player.Name)
