@@ -565,7 +565,7 @@ namespace fCraft {
                 return;
             }
 
-            if (player.Can(Permission.Ban, target.Info.Rank))
+            if (player.Can(Permission.Warn, target.Info.Rank))
             {
                 target.Info.IsHidden = false;
                 if (target.Info.Warn(player.Name))
@@ -596,7 +596,7 @@ namespace fCraft {
             else
             {
                 player.Message("You can only warn players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.Kick).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Ban).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
@@ -632,7 +632,7 @@ namespace fCraft {
                 return;
             }
 
-            if (player.Can(Permission.Ban, target.Info.Rank))
+            if (player.Can(Permission.Warn, target.Info.Rank))
             {
                 if (target.Info.UnWarn())
                 {
@@ -646,7 +646,7 @@ namespace fCraft {
             else
             {
                 player.Message("You can only unwarn players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.Kick).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Warn).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
