@@ -951,34 +951,49 @@ namespace fCraft {
             Handler = BanAllHandler
         };
 
-        static void BanAllHandler( Player player, Command cmd ) {
+        static void BanAllHandler(Player player, Command cmd)
+        {
             string targetNameOrIP = cmd.Next();
-            if( targetNameOrIP == null ) {
-                CdBanAll.PrintUsage( player );
+            if (targetNameOrIP == null)
+            {
+                CdBanAll.PrintUsage(player);
                 return;
             }
             string reason = cmd.NextAll();
 
             IPAddress targetAddress;
-            if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
-                try {
-                    targetAddress.BanAll( player, reason, true, true );
-                } catch( PlayerOpException ex ) {
-                    player.Message( ex.MessageColored );
+            if (Server.IsIP(targetNameOrIP) && IPAddress.TryParse(targetNameOrIP, out targetAddress))
+            {
+                try
+                {
+                    targetAddress.BanAll(player, reason, true, true);
                 }
-            } else {
-                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                if( target == null ) return;
-                try {
-                    if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
-                        target.Ban( player, reason, true, true );
-                    } else {
-                        target.BanAll( player, reason, true, true );
+                catch (PlayerOpException ex)
+                {
+                    player.Message(ex.MessageColored);
+                }
+            }
+            else
+            {
+                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetNameOrIP);
+                if (target == null) return;
+                try
+                {
+                    if (target.LastIP.Equals(IPAddress.Any) || target.LastIP.Equals(IPAddress.None))
+                    {
+                        target.Ban(player, reason, true, true);
                     }
-                } catch( PlayerOpException ex ) {
-                    player.Message( ex.MessageColored );
-                    if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
-                        FreezeIfAllowed( player, target );
+                    else
+                    {
+                        target.BanAll(player, reason, true, true);
+                    }
+                }
+                catch (PlayerOpException ex)
+                {
+                    player.Message(ex.MessageColored);
+                    if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
+                    {
+                        FreezeIfAllowed(player, target);
                     }
                 }
             }
@@ -1027,31 +1042,43 @@ namespace fCraft {
             Handler = UnbanIPHandler
         };
 
-        static void UnbanIPHandler( Player player, Command cmd ) {
+        static void UnbanIPHandler(Player player, Command cmd)
+        {
             string targetNameOrIP = cmd.Next();
-            if( targetNameOrIP == null ) {
-                CdUnbanIP.PrintUsage( player );
+            if (targetNameOrIP == null)
+            {
+                CdUnbanIP.PrintUsage(player);
                 return;
             }
             string reason = cmd.NextAll();
 
-            try {
+            try
+            {
                 IPAddress targetAddress;
-                if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
-                    targetAddress.UnbanIP( player, reason, true, true );
-                } else {
-                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                    if( target == null ) return;
-                    if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
-                        target.Unban( player, reason, true, true );
-                    } else {
-                        target.UnbanIP( player, reason, true, true );
+                if (Server.IsIP(targetNameOrIP) && IPAddress.TryParse(targetNameOrIP, out targetAddress))
+                {
+                    targetAddress.UnbanIP(player, reason, true, true);
+                }
+                else
+                {
+                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetNameOrIP);
+                    if (target == null) return;
+                    if (target.LastIP.Equals(IPAddress.Any) || target.LastIP.Equals(IPAddress.None))
+                    {
+                        target.Unban(player, reason, true, true);
+                    }
+                    else
+                    {
+                        target.UnbanIP(player, reason, true, true);
                     }
                 }
-            } catch( PlayerOpException ex ) {
-                player.Message( ex.MessageColored );
+            }
+            catch (PlayerOpException ex)
+            {
+                player.Message(ex.MessageColored);
             }
         }
+
 
 
 
@@ -1067,29 +1094,40 @@ namespace fCraft {
             Handler = UnbanAllHandler
         };
 
-        static void UnbanAllHandler( Player player, Command cmd ) {
+        static void UnbanAllHandler(Player player, Command cmd)
+        {
             string targetNameOrIP = cmd.Next();
-            if( targetNameOrIP == null ) {
-                CdUnbanAll.PrintUsage( player );
+            if (targetNameOrIP == null)
+            {
+                CdUnbanAll.PrintUsage(player);
                 return;
             }
             string reason = cmd.NextAll();
 
-            try {
+            try
+            {
                 IPAddress targetAddress;
-                if( IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
-                    targetAddress.UnbanAll( player, reason, true, true );
-                } else {
-                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                    if( target == null ) return;
-                    if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
-                        target.Unban( player, reason, true, true );
-                    } else {
-                        target.UnbanAll( player, reason, true, true );
+                if (Server.IsIP(targetNameOrIP) && IPAddress.TryParse(targetNameOrIP, out targetAddress))
+                {
+                    targetAddress.UnbanAll(player, reason, true, true);
+                }
+                else
+                {
+                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetNameOrIP);
+                    if (target == null) return;
+                    if (target.LastIP.Equals(IPAddress.Any) || target.LastIP.Equals(IPAddress.None))
+                    {
+                        target.Unban(player, reason, true, true);
+                    }
+                    else
+                    {
+                        target.UnbanAll(player, reason, true, true);
                     }
                 }
-            } catch( PlayerOpException ex ) {
-                player.Message( ex.MessageColored );
+            }
+            catch (PlayerOpException ex)
+            {
+                player.Message(ex.MessageColored);
             }
         }
 
