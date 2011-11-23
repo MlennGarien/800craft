@@ -1,11 +1,10 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 using fCraft.Drawing;
-using fCraft.Portals;
 using System.Collections;
 using System.Text;
 using System.Threading;
@@ -16,27 +15,26 @@ namespace fCraft
     {
         public static void RealmLoad(Player player, Command cmd, string fileName, string worldName)
         {
-            
+
             if (worldName == null && player.World == null)
             {
-                player.Message("When using /WLoad from console, you must specify the world name.");
+                player.Message("When using /WLoad from console, you must specify the realm name.");
                 return;
             }
 
             if (fileName == null)
             {
                 // No params given at all
-                
+
                 return;
             }
 
             string fullFileName = WorldManager.FindMapFile(player, fileName);
             if (fullFileName == null) return;
 
-            // Loading map into current world
+            // Loading map into current realm
             if (worldName == null)
             {
-                World world = player.World;
                 if (!cmd.IsConfirmed)
                 {
                     player.Confirm(cmd, "About to replace THIS MAP with \"{0}\".", fileName);
@@ -46,35 +44,34 @@ namespace fCraft
                 try
                 {
                     map = MapUtility.Load(fullFileName);
-                    world.IsRealm = true;
-                    world.IsHidden = false; //temp
-                    
+
                 }
                 catch (Exception ex)
                 {
                     player.MessageNow("Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message);
                     return;
                 }
-                
-               
+                World realm = player.World;
+                realm.IsRealm = true;
+                realm.IsHidden = false; //temp
 
-                // Loading to current world
-                world.MapChangedBy = player.Name;
-                world.ChangeMap(map);
+                // Loading to current realm
+                realm.MapChangedBy = player.Name;
+                realm.ChangeMap(map);
 
-                world.Players.Message(player, "{0}&S loaded a new map for this world.",
+                realm.Players.Message(player, "{0}&S loaded a new map for this realm.",
                                               player.ClassyName);
-                player.MessageNow("New map loaded for the world {0}", world.ClassyName);
+                player.MessageNow("New map loaded for the realm {0}", realm.ClassyName);
 
                 Logger.Log(LogType.UserActivity,
-                            "{0} loaded new map for world \"{1}\" from {2}",
-                            player.Name, world.Name, fileName);
+                            "{0} loaded new map for realm \"{1}\" from {2}",
+                            player.Name, realm.Name, fileName);
 
 
             }
             else
             {
-                // Loading to some other (or new) world
+                // Loading to some other (or new) realm
                 if (!World.IsValidName(worldName))
                 {
                     player.MessageInvalidWorldName(worldName);
@@ -104,7 +101,7 @@ namespace fCraft
                     }
                 }
 
-                // Retype world name, if needed
+                // Retype realm name, if needed
                 if (worldName == "-")
                 {
                     if (player.LastUsedWorldName != null)
@@ -113,22 +110,22 @@ namespace fCraft
                     }
                     else
                     {
-                        player.Message("Cannot repeat world name: you haven't used any names yet.");
+                        player.Message("Cannot repeat realm name: you haven't used any names yet.");
                         return;
                     }
                 }
 
                 lock (WorldManager.SyncRoot)
                 {
-                    World world = WorldManager.FindWorldExact(worldName);
-                    if (world != null)
+                    World realm = WorldManager.FindWorldExact(worldName);
+                    if (realm != null)
                     {
-                        player.LastUsedWorldName = world.Name;
-                        // Replacing existing world's map
+                        player.LastUsedWorldName = realm.Name;
+                        // Replacing existing realm's map
                         if (!cmd.IsConfirmed)
                         {
                             player.Confirm(cmd, "About to replace map for {0}&S with \"{1}\".",
-                                            world.ClassyName, fileName);
+                                            realm.ClassyName, fileName);
                             return;
                         }
 
@@ -136,8 +133,8 @@ namespace fCraft
                         try
                         {
                             map = MapUtility.Load(fullFileName);
-                            world.IsRealm = true;
-                            world.IsHidden = false; //temp
+                            realm.IsRealm = true;
+                            realm.IsHidden = false; //temp
                         }
                         catch (Exception ex)
                         {
@@ -147,11 +144,10 @@ namespace fCraft
 
                         try
                         {
-                            world.MapChangedBy = player.Name;
-                            world.ChangeMap(map);
-                            world.IsRealm = true;
-                            world.IsHidden = false; //temp
-
+                            realm.MapChangedBy = player.Name;
+                            realm.ChangeMap(map);
+                            realm.IsRealm = true;
+                            realm.IsHidden = false; //temp
                         }
                         catch (WorldOpException ex)
                         {
@@ -161,19 +157,17 @@ namespace fCraft
                             return;
                         }
 
-                        world.Players.Message(player, "{0}&S loaded a new map for the world {1}",
-                                               player.ClassyName, world.ClassyName);
-                        player.MessageNow("New map for the world {0}&S has been loaded.", world.ClassyName);
+                        realm.Players.Message(player, "{0}&S loaded a new map for the realm {1}",
+                                               player.ClassyName, realm.ClassyName);
+                        player.MessageNow("New map for the realm {0}&S has been loaded.", realm.ClassyName);
                         Logger.Log(LogType.UserActivity,
-                                    "{0} loaded new map for world \"{1}\" from {2}",
-                                    player.Name, world.Name, fullFileName);
-                        world.IsRealm = true;
-                        world.IsHidden = false; //temp
-                        WorldManager.SaveWorldList();
+                                    "{0} loaded new map for realm \"{1}\" from {2}",
+                                    player.Name, realm.Name, fullFileName);
+
                     }
                     else
                     {
-                        // Adding a new world
+                        // Adding a new realm
                         string targetFullFileName = Path.Combine(Paths.MapPath, worldName + ".fcm");
                         if (!cmd.IsConfirmed &&
                             File.Exists(targetFullFileName) && // target file already exists
@@ -190,9 +184,6 @@ namespace fCraft
                         try
                         {
                             map = MapUtility.Load(fullFileName);
-                            world.IsRealm = true;
-                            world.IsHidden = false; //temp
-                            WorldManager.SaveWorldList();
                         }
                         catch (Exception ex)
                         {
@@ -205,9 +196,8 @@ namespace fCraft
                         try
                         {
                             newWorld = WorldManager.AddWorld(player, worldName, map, false);
-                            world.IsRealm = true;
-                            world.IsHidden = false; //temp
-                            WorldManager.SaveWorldList();
+                            realm.IsRealm = true;
+                            realm.IsHidden = false; //temp
                         }
                         catch (WorldOpException ex)
                         {
@@ -217,7 +207,7 @@ namespace fCraft
 
                         if (newWorld == null)
                         {
-                            player.MessageNow("Failed to create a new world.");
+                            player.MessageNow("Failed to create a new realm.");
                             return;
                         }
 
@@ -234,14 +224,14 @@ namespace fCraft
                         newWorld.BlockDB.AutoToggleIfNeeded();
                         if (BlockDB.IsEnabledGlobally && newWorld.BlockDB.IsEnabled)
                         {
-                            player.Message("BlockDB is now auto-enabled on world {0}", newWorld.ClassyName);
+                            player.Message("BlockDB is now auto-enabled on realm {0}", newWorld.ClassyName);
                         }
                         newWorld.LoadedBy = player.Name;
                         newWorld.LoadedOn = DateTime.UtcNow;
-                        Server.Message("{0}&S created a new world named {1}",
+                        Server.Message("{0}&S created a new realm named {1}",
                                         player.ClassyName, newWorld.ClassyName);
                         Logger.Log(LogType.UserActivity,
-                                    "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
+                                    "{0} created a new realm named \"{1}\" (loaded from \"{2}\")",
                                     player.Name, worldName, fileName);
                         WorldManager.SaveWorldList();
                         player.MessageNow("Access permission is {0}+&S, and build permission is {1}+",
@@ -307,7 +297,7 @@ namespace fCraft
                 }
                 if (!cmd.IsConfirmed)
                 {
-                    player.Confirm(cmd, "Replace this world's map with a generated one?");
+                    player.Confirm(cmd, "Replace this realm's map with a generated one?");
                     return;
                 }
             }
@@ -444,7 +434,7 @@ namespace fCraft
         internal static void RealmAccess(Player player, Command cmd, string worldName, string name)
         {
 
-            // Print information about the current world
+            // Print information about the current realm
             if (worldName == null)
             {
                 if (player.World == null)
@@ -453,25 +443,25 @@ namespace fCraft
                 }
                 else
                 {
-                    player.Message(player.World.AccessSecurity.GetDescription(player.World, "world", "accessed"));
+                    player.Message(player.World.AccessSecurity.GetDescription(player.World, "realm", "accessed"));
                 }
                 return;
             }
 
-            // Find a world by name
-            World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
-            if (world == null) return;
+            // Find a realm by name
+            World realm = WorldManager.FindWorldOrPrintMatches(player, worldName);
+            if (realm == null) return;
 
 
 
             if (name == null)
             {
-                player.Message(world.AccessSecurity.GetDescription(world, "world", "accessed"));
+                player.Message(realm.AccessSecurity.GetDescription(realm, "realm", "accessed"));
                 return;
             }
-            if (world == WorldManager.MainWorld)
+            if (realm == WorldManager.MainWorld)
             {
-                player.Message("The main world cannot have access restrictions.");
+                player.Message("The main realm cannot have access restrictions.");
                 return;
             }
 
@@ -498,62 +488,62 @@ namespace fCraft
                     // prevent players from whitelisting themselves to bypass protection
 
 
-                    if (world.AccessSecurity.CheckDetailed(info) == SecurityCheckResult.Allowed)
+                    if (realm.AccessSecurity.CheckDetailed(info) == SecurityCheckResult.Allowed)
                     {
                         player.Message("{0}&S is already allowed to access {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName);
+                                        info.ClassyName, realm.ClassyName);
                         continue;
                     }
 
                     Player target = info.PlayerObject;
                     if (target == player) target = null; // to avoid duplicate messages
 
-                    switch (world.AccessSecurity.Include(info))
+                    switch (realm.AccessSecurity.Include(info))
                     {
                         case PermissionOverride.Deny:
-                            if (world.AccessSecurity.Check(info))
+                            if (realm.AccessSecurity.Check(info))
                             {
                                 player.Message("{0}&S is unbanned from Realm {1}",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
                                     target.Message("You are now unbanned from Realm {0}&S (removed from blacklist by {1}&S).",
-                                                    world.ClassyName, player.ClassyName);
+                                                    realm.ClassyName, player.ClassyName);
                                 }
                             }
                             else
                             {
                                 player.Message("{0}&S was unbanned from Realm {1}&S. " +
                                                 "Player is still NOT allowed to join (by rank).",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
                                     target.Message("You were Unbanned from Realm {0}&S by {1}&S. " +
                                                     "You are still NOT allowed to join (by rank).",
-                                                    player.ClassyName, world.ClassyName);
+                                                    player.ClassyName, realm.ClassyName);
                                 }
                             }
                             Logger.Log(LogType.UserActivity, "{0} removed {1} from the access blacklist of {2}",
-                                        player.Name, info.Name, world.Name);
+                                        player.Name, info.Name, realm.Name);
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.None:
                             player.Message("{0}&S is now allowed to access {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             if (target != null)
                             {
-                                target.Message("You can now access world {0}&S (whitelisted by {1}&S).",
-                                                world.ClassyName, player.ClassyName);
+                                target.Message("You can now access realm {0}&S (whitelisted by {1}&S).",
+                                                realm.ClassyName, player.ClassyName);
                             }
-                            Logger.Log(LogType.UserActivity, "{0} added {1} to the access whitelist on world {2}",
-                                        player.Name, info.Name, world.Name);
+                            Logger.Log(LogType.UserActivity, "{0} added {1} to the access whitelist on realm {2}",
+                                        player.Name, info.Name, realm.Name);
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
                             player.Message("{0}&S is already on the access whitelist of {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             break;
                     }
 
@@ -573,62 +563,62 @@ namespace fCraft
                         continue;
                     }
 
-                    if (world.AccessSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooHigh ||
-                        world.AccessSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooLow)
+                    if (realm.AccessSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooHigh ||
+                        realm.AccessSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooLow)
                     {
                         player.Message("{0}&S is already barred from accessing {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName);
+                                        info.ClassyName, realm.ClassyName);
                         continue;
                     }
 
                     Player target = info.PlayerObject;
                     if (target == player) target = null; // to avoid duplicate messages
 
-                    switch (world.AccessSecurity.Exclude(info))
+                    switch (realm.AccessSecurity.Exclude(info))
                     {
                         case PermissionOverride.Deny:
                             player.Message("{0}&S is already banned from Realm {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             break;
 
                         case PermissionOverride.None:
                             player.Message("{0}&S is now banned from accessing {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             if (target != null)
                             {
-                                target.Message("&WYou were banned by {0}&W from accessing world {1}",
-                                                player.ClassyName, world.ClassyName);
+                                target.Message("&WYou were banned by {0}&W from accessing realm {1}",
+                                                player.ClassyName, realm.ClassyName);
                             }
-                            Logger.Log(LogType.UserActivity, "{0} added {1} to the access blacklist on world {2}",
-                                        player.Name, info.Name, world.Name);
+                            Logger.Log(LogType.UserActivity, "{0} added {1} to the access blacklist on realm {2}",
+                                        player.Name, info.Name, realm.Name);
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
-                            if (world.AccessSecurity.Check(info))
+                            if (realm.AccessSecurity.Check(info))
                             {
                                 player.Message("{0}&S is no longer on the access whitelist of {1}&S. " +
                                                 "Player is still allowed to join (by rank).",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
                                     target.Message("You were banned from Realm {0}&S by {1}&S. " +
                                                     "You are still allowed to join (by rank).",
-                                                    player.ClassyName, world.ClassyName);
+                                                    player.ClassyName, realm.ClassyName);
                                 }
                             }
                             else
                             {
                                 player.Message("{0}&S is no longer allowed to access {1}",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
                                     target.Message("&WYou were banned from Realm {0}&W (Banned by {1}&W).",
-                                                    world.ClassyName, player.ClassyName);
+                                                    realm.ClassyName, player.ClassyName);
                                 }
                             }
-                            Logger.Log(LogType.UserActivity, "{0} removed {1} from the access whitelist on world {2}",
-                                        player.Name, info.Name, world.Name);
+                            Logger.Log(LogType.UserActivity, "{0} removed {1} from the access whitelist on realm {2}",
+                                        player.Name, info.Name, realm.Name);
                             changesWereMade = true;
                             break;
                     }
@@ -647,12 +637,12 @@ namespace fCraft
                     else
                     {
                         // list players who are redundantly blacklisted
-                        var exceptionList = world.AccessSecurity.ExceptionList;
+                        var exceptionList = realm.AccessSecurity.ExceptionList;
                         PlayerInfo[] noLongerExcluded = exceptionList.Excluded.Where(excludedPlayer => excludedPlayer.Rank < rank).ToArray();
                         if (noLongerExcluded.Length > 0)
                         {
                             player.Message("Following players no longer need to be blacklisted to be barred from {0}&S: {1}",
-                                            world.ClassyName,
+                                            realm.ClassyName,
                                             noLongerExcluded.JoinToClassyString());
                         }
 
@@ -661,36 +651,36 @@ namespace fCraft
                         if (noLongerIncluded.Length > 0)
                         {
                             player.Message("Following players no longer need to be whitelisted to access {0}&S: {1}",
-                                            world.ClassyName,
+                                            realm.ClassyName,
                                             noLongerIncluded.JoinToClassyString());
                         }
 
                         // apply changes
-                        world.AccessSecurity.MinRank = rank;
+                        realm.AccessSecurity.MinRank = rank;
                         changesWereMade = true;
-                        if (world.AccessSecurity.MinRank == RankManager.LowestRank)
+                        if (realm.AccessSecurity.MinRank == RankManager.LowestRank)
                         {
-                            Server.Message("{0}&S made the world {1}&S accessible to everyone.",
-                                              player.ClassyName, world.ClassyName);
+                            Server.Message("{0}&S made the realm {1}&S accessible to everyone.",
+                                              player.ClassyName, realm.ClassyName);
                         }
                         else
                         {
-                            Server.Message("{0}&S made the world {1}&S accessible only by {2}+",
-                                              player.ClassyName, world.ClassyName,
-                                              world.AccessSecurity.MinRank.ClassyName);
+                            Server.Message("{0}&S made the realm {1}&S accessible only by {2}+",
+                                              player.ClassyName, realm.ClassyName,
+                                              realm.AccessSecurity.MinRank.ClassyName);
                         }
-                        Logger.Log(LogType.UserActivity, "{0} set access rank for world {1} to {2}+",
-                                    player.Name, world.Name, world.AccessSecurity.MinRank.Name);
+                        Logger.Log(LogType.UserActivity, "{0} set access rank for realm {1} to {2}+",
+                                    player.Name, realm.Name, realm.AccessSecurity.MinRank.Name);
                     }
                 }
             } while ((name = cmd.Next()) != null);
 
             if (changesWereMade)
             {
-                var playersWhoCantStay = world.Players.Where(p => !p.CanJoin(world));
+                var playersWhoCantStay = realm.Players.Where(p => !p.CanJoin(realm));
                 foreach (Player p in playersWhoCantStay)
                 {
-                    p.Message("&WYou are no longer allowed to join world {0}", world.ClassyName);
+                    p.Message("&WYou are no longer allowed to join realm {0}", realm.ClassyName);
                     p.JoinWorld(WorldManager.MainWorld, WorldChangeReason.PermissionChanged);
                 }
 
@@ -703,28 +693,28 @@ namespace fCraft
         {
 
 
-            // Print information about the current world
+            // Print information about the current realm
             if (worldName == null)
             {
                 if (player.World == null)
                 {
-                    player.Message("When calling /wbuild from console, you must specify a world name.");
+                    player.Message("When calling /wbuild from console, you must specify a realm name.");
                 }
                 else
                 {
-                    player.Message(player.World.BuildSecurity.GetDescription(player.World, "world", "modified"));
+                    player.Message(player.World.BuildSecurity.GetDescription(player.World, "realm", "modified"));
                 }
                 return;
             }
 
-            // Find a world by name
-            World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
-            if (world == null) return;
+            // Find a realm by name
+            World realm = WorldManager.FindWorldOrPrintMatches(player, worldName);
+            if (realm == null) return;
 
 
             if (name == null)
             {
-                player.Message(world.BuildSecurity.GetDescription(world, "world", "modified"));
+                player.Message(realm.BuildSecurity.GetDescription(realm, "realm", "modified"));
                 return;
             }
 
@@ -749,61 +739,61 @@ namespace fCraft
 
 
 
-                    if (world.BuildSecurity.CheckDetailed(info) == SecurityCheckResult.Allowed)
+                    if (realm.BuildSecurity.CheckDetailed(info) == SecurityCheckResult.Allowed)
                     {
                         player.Message("{0}&S is already allowed to build in {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName);
+                                        info.ClassyName, realm.ClassyName);
                         continue;
                     }
 
                     Player target = info.PlayerObject;
                     if (target == player) target = null; // to avoid duplicate messages
 
-                    switch (world.BuildSecurity.Include(info))
+                    switch (realm.BuildSecurity.Include(info))
                     {
                         case PermissionOverride.Deny:
-                            if (world.BuildSecurity.Check(info))
+                            if (realm.BuildSecurity.Check(info))
                             {
                                 player.Message("{0}&S is no longer barred from building in {1}",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
-                                    target.Message("You can now build in world {0}&S (removed from blacklist by {1}&S).",
-                                                    world.ClassyName, player.ClassyName);
+                                    target.Message("You can now build in realm {0}&S (removed from blacklist by {1}&S).",
+                                                    realm.ClassyName, player.ClassyName);
                                 }
                             }
                             else
                             {
                                 player.Message("{0}&S was removed from the build blacklist of {1}&S. " +
                                                 "Player is still NOT allowed to build (by rank).",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
-                                    target.Message("You were removed from the build blacklist of world {0}&S by {1}&S. " +
+                                    target.Message("You were removed from the build blacklist of realm {0}&S by {1}&S. " +
                                                     "You are still NOT allowed to build (by rank).",
-                                                    player.ClassyName, world.ClassyName);
+                                                    player.ClassyName, realm.ClassyName);
                                 }
                             }
                             Logger.Log(LogType.UserActivity, "{0} removed {1} from the build blacklist of {2}",
-                                        player.Name, info.Name, world.Name);
+                                        player.Name, info.Name, realm.Name);
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.None:
                             player.Message("{0}&S is now allowed to build in {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             if (target != null)
                             {
-                                target.Message("You can now build in world {0}&S (whitelisted by {1}&S).",
-                                                world.ClassyName, player.ClassyName);
+                                target.Message("You can now build in realm {0}&S (whitelisted by {1}&S).",
+                                                realm.ClassyName, player.ClassyName);
                             }
-                            Logger.Log(LogType.UserActivity, "{0} added {1} to the build whitelist on world {2}",
-                                        player.Name, info.Name, world.Name);
+                            Logger.Log(LogType.UserActivity, "{0} added {1} to the build whitelist on realm {2}",
+                                        player.Name, info.Name, realm.Name);
                             break;
 
                         case PermissionOverride.Allow:
                             player.Message("{0}&S is already on the build whitelist of {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             break;
                     }
 
@@ -823,62 +813,62 @@ namespace fCraft
                         continue;
                     }
 
-                    if (world.BuildSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooHigh ||
-                        world.BuildSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooLow)
+                    if (realm.BuildSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooHigh ||
+                        realm.BuildSecurity.CheckDetailed(info) == SecurityCheckResult.RankTooLow)
                     {
                         player.Message("{0}&S is already barred from building in {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName);
+                                        info.ClassyName, realm.ClassyName);
                         continue;
                     }
 
                     Player target = info.PlayerObject;
                     if (target == player) target = null; // to avoid duplicate messages
 
-                    switch (world.BuildSecurity.Exclude(info))
+                    switch (realm.BuildSecurity.Exclude(info))
                     {
                         case PermissionOverride.Deny:
                             player.Message("{0}&S is already on build blacklist of {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             break;
 
                         case PermissionOverride.None:
                             player.Message("{0}&S is now barred from building in {1}",
-                                            info.ClassyName, world.ClassyName);
+                                            info.ClassyName, realm.ClassyName);
                             if (target != null)
                             {
-                                target.Message("&WYou were barred by {0}&W from building in world {1}",
-                                                player.ClassyName, world.ClassyName);
+                                target.Message("&WYou were barred by {0}&W from building in realm {1}",
+                                                player.ClassyName, realm.ClassyName);
                             }
-                            Logger.Log(LogType.UserActivity, "{0} added {1} to the build blacklist on world {2}",
-                                        player.Name, info.Name, world.Name);
+                            Logger.Log(LogType.UserActivity, "{0} added {1} to the build blacklist on realm {2}",
+                                        player.Name, info.Name, realm.Name);
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
-                            if (world.BuildSecurity.Check(info))
+                            if (realm.BuildSecurity.Check(info))
                             {
                                 player.Message("{0}&S is no longer on the build whitelist of {1}&S. " +
                                                 "Player is still allowed to build (by rank).",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
-                                    target.Message("You were removed from the build whitelist of world {0}&S by {1}&S. " +
+                                    target.Message("You were removed from the build whitelist of realm {0}&S by {1}&S. " +
                                                     "You are still allowed to build (by rank).",
-                                                    player.ClassyName, world.ClassyName);
+                                                    player.ClassyName, realm.ClassyName);
                                 }
                             }
                             else
                             {
                                 player.Message("{0}&S is no longer allowed to build in {1}",
-                                                info.ClassyName, world.ClassyName);
+                                                info.ClassyName, realm.ClassyName);
                                 if (target != null)
                                 {
-                                    target.Message("&WYou can no longer build in world {0}&W (removed from whitelist by {1}&W).",
-                                                    world.ClassyName, player.ClassyName);
+                                    target.Message("&WYou can no longer build in realm {0}&W (removed from whitelist by {1}&W).",
+                                                    realm.ClassyName, player.ClassyName);
                                 }
                             }
-                            Logger.Log(LogType.UserActivity, "{0} removed {1} from the build whitelist on world {2}",
-                                        player.Name, info.Name, world.Name);
+                            Logger.Log(LogType.UserActivity, "{0} removed {1} from the build whitelist on realm {2}",
+                                        player.Name, info.Name, realm.Name);
                             changesWereMade = true;
                             break;
                     }
@@ -893,21 +883,21 @@ namespace fCraft
                         player.MessageNoRank(name);
                     }
                     else if (!player.Info.Rank.AllowSecurityCircumvention &&
-                             world.BuildSecurity.MinRank > rank &&
-                             world.BuildSecurity.MinRank > player.Info.Rank)
+                             realm.BuildSecurity.MinRank > rank &&
+                             realm.BuildSecurity.MinRank > player.Info.Rank)
                     {
-                        player.Message("&WYou must be ranked {0}&W+ to lower build restrictions for world {1}",
-                                        world.BuildSecurity.MinRank.ClassyName, world.ClassyName);
+                        player.Message("&WYou must be ranked {0}&W+ to lower build restrictions for realm {1}",
+                                        realm.BuildSecurity.MinRank.ClassyName, realm.ClassyName);
                     }
                     else
                     {
                         // list players who are redundantly blacklisted
-                        var exceptionList = world.BuildSecurity.ExceptionList;
+                        var exceptionList = realm.BuildSecurity.ExceptionList;
                         PlayerInfo[] noLongerExcluded = exceptionList.Excluded.Where(excludedPlayer => excludedPlayer.Rank < rank).ToArray();
                         if (noLongerExcluded.Length > 0)
                         {
-                            player.Message("Following players no longer need to be blacklisted on world {0}&S: {1}",
-                                            world.ClassyName,
+                            player.Message("Following players no longer need to be blacklisted on realm {0}&S: {1}",
+                                            realm.ClassyName,
                                             noLongerExcluded.JoinToClassyString());
                         }
 
@@ -915,26 +905,26 @@ namespace fCraft
                         PlayerInfo[] noLongerIncluded = exceptionList.Included.Where(includedPlayer => includedPlayer.Rank >= rank).ToArray();
                         if (noLongerIncluded.Length > 0)
                         {
-                            player.Message("Following players no longer need to be whitelisted on world {0}&S: {1}",
-                                            world.ClassyName,
+                            player.Message("Following players no longer need to be whitelisted on realm {0}&S: {1}",
+                                            realm.ClassyName,
                                             noLongerIncluded.JoinToClassyString());
                         }
 
                         // apply changes
-                        world.BuildSecurity.MinRank = rank;
+                        realm.BuildSecurity.MinRank = rank;
                         changesWereMade = true;
-                        if (world.BuildSecurity.MinRank == RankManager.LowestRank)
+                        if (realm.BuildSecurity.MinRank == RankManager.LowestRank)
                         {
-                            Server.Message("{0}&S allowed anyone to build on world {1}",
-                                              player.ClassyName, world.ClassyName);
+                            Server.Message("{0}&S allowed anyone to build on realm {1}",
+                                              player.ClassyName, realm.ClassyName);
                         }
                         else
                         {
-                            Server.Message("{0}&S allowed only {1}+&S to build in world {2}",
-                                              player.ClassyName, world.BuildSecurity.MinRank.ClassyName, world.ClassyName);
+                            Server.Message("{0}&S allowed only {1}+&S to build in realm {2}",
+                                              player.ClassyName, realm.BuildSecurity.MinRank.ClassyName, realm.ClassyName);
                         }
-                        Logger.Log(LogType.UserActivity, "{0} set build rank for world {1} to {2}+",
-                                    player.Name, world.Name, world.BuildSecurity.MinRank.Name);
+                        Logger.Log(LogType.UserActivity, "{0} set build rank for realm {1} to {2}+",
+                                    player.Name, realm.Name, realm.BuildSecurity.MinRank.Name);
                     }
                 }
             } while ((name = cmd.Next()) != null);
