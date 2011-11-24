@@ -37,7 +37,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdColors );
 
-            CommandManager.RegisterCommand(cdFly);
+            //CommandManager.RegisterCommand(cdFly);
             CommandManager.RegisterCommand(CdReqs);
 
 #if DEBUG_SCHEDULER
@@ -45,30 +45,7 @@ namespace fCraft {
 #endif
         }
 
-        static readonly CommandDescriptor cdFly = new CommandDescriptor
-        {
-            Name = "Fly",
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Aliases = new[] { "speed" },
-            Permissions = new[] { Permission.Chat },
-            Usage = "/fly",
-            Help = "How to fly or speed",
-            Handler = Fly
-        };
-
-        static void Fly(Player player, Command cmd)
-        {
-            if (player.IsFlying)
-            {
-                FlyHandler.GetInstance().StopFlying(player);
-            }
-            else
-            {
-                FlyHandler.GetInstance().StartFlying(player);
-            }
-        }
-
+       
         static readonly CommandDescriptor CdReqs = new CommandDescriptor
         {
             Name = "Requirements",

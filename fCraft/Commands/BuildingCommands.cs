@@ -90,7 +90,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
-            //CommandManager.RegisterCommand(CdFly);
+            CommandManager.RegisterCommand(CdFly);
            
             //CommandManager.RegisterCommand( CdTree );
         }

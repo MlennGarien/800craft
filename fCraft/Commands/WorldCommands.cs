@@ -1263,7 +1263,7 @@ namespace fCraft
                 {
                     world.RealisticEnv = true;
                     World RWorld = player.World;
-                    Scheduler.NewTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(59));
+                    Scheduler.NewTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(120));
                     player.Message("Realistic Environment has been turned ON for world {0}", RWorld.ClassyName);
                     return;
                 }
@@ -1598,8 +1598,22 @@ namespace fCraft
                 int clouds;
                 int fog;
                 DateTime now = DateTime.Now;
+                TimeSpan SunriseStart = new TimeSpan(6,30,0);
+                TimeSpan SunriseEnd = new TimeSpan(7, 29, 59);
+                TimeSpan MorningStart = new TimeSpan(7, 30, 0);
+                TimeSpan MorningEnd = new TimeSpan(11, 59, 59);
+                TimeSpan NormalStart = new TimeSpan(12, 0, 0);
+                TimeSpan NormalEnd = new TimeSpan(16, 59, 59);
+                TimeSpan EveningStart = new TimeSpan(17, 0, 0);
+                TimeSpan EveningEnd = new TimeSpan(18, 59, 59);
+                TimeSpan SunsetStart = new TimeSpan(19, 0, 0);
+                TimeSpan SunsetEnd = new TimeSpan(19, 29, 59);
+                TimeSpan NightaStart = new TimeSpan(19, 30, 0);
+                TimeSpan NightaEnd = new TimeSpan(0, 0, 0);
+                TimeSpan NightbStart = new TimeSpan(0, 0, 1);
+                TimeSpan NightbEnd = new TimeSpan(6, 29, 59);
 
-                if (now.ToString("t") == "06:30") //sunrise
+                if (now.TimeOfDay > SunriseStart && now.TimeOfDay > SunriseEnd ) //sunrise
                 {
                     sky = ParseHexColor("ffff33");
                     clouds = ParseHexColor("ff0033");
@@ -1610,7 +1624,7 @@ namespace fCraft
                     world.EdgeBlock = Block.Water;
                 }
 
-                if (now.ToString("t") == "07:30") //end of sunrise
+                if (now.TimeOfDay > MorningStart && now.TimeOfDay > MorningEnd) //end of sunrise
                 {
                     sky = -1;
                     clouds = ParseHexColor("ff0033");
@@ -1620,7 +1634,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.ToString("t") == "12:00") //env normal
+                if (now.TimeOfDay > NormalStart && now.TimeOfDay > NormalEnd)//env normal
                 {
                     sky = -1;
                     clouds = -1;
@@ -1630,7 +1644,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.ToString("t") == "17:00") //evening
+                if (now.TimeOfDay > EveningStart && now.TimeOfDay > EveningEnd) //evening
                 {
                     sky = ParseHexColor("99cccc");
                     clouds = -1;
@@ -1640,7 +1654,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.ToString("t") == "19:00") //sunset
+                if (now.TimeOfDay > SunsetStart && now.TimeOfDay > SunsetEnd) //sunset
                 {
                     sky = ParseHexColor("9999cc");
                     clouds = ParseHexColor("000033");
@@ -1650,7 +1664,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.ToString("t") == "19:30") //end of sunset
+                if (now.TimeOfDay > NightaStart && now.TimeOfDay > NightaEnd) //end of sunset
                 {
                     sky = ParseHexColor("003366");
                     clouds = ParseHexColor("000033");
@@ -1661,7 +1675,7 @@ namespace fCraft
                     world.EdgeBlock = Block.Black;
                 }
 
-                if (now.ToString("t") == "00:30") //black
+                if (now.TimeOfDay > NightbStart && now.TimeOfDay > NightbEnd) //black
                 {
                     sky = ParseHexColor("000000");
                     clouds = ParseHexColor("000033");
