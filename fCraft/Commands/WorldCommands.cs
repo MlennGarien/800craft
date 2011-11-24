@@ -1229,6 +1229,10 @@ namespace fCraft
             HelpSections = new Dictionary<string, string>{
                 { "normal",     "&H/Env <WorldName> normal\n&S" +
                                 "Resets all environment settings to their defaults for the given world." },
+               { "terrain",     "&H/Env terrain terrainType. Leave blank for a list\n&S" +
+                                "Changes the blockset for the world you are currently in." },
+               { "realistic",     "&H/Env realistic. Toggles realistic mode on or off\n&S" +
+                                "Changes the environment according to the server time for the world you are in" },
                 { "clouds",     "&H/Env <WorldName> clouds <Color>\n&S" +
                                 "Sets color of the clouds. Use \"normal\" instead of color to reset." },
                 { "fog",        "&H/Env <WorldName> fog <Color>\n&S" +
@@ -1244,7 +1248,7 @@ namespace fCraft
                                 "Changes the type of block that's visible beyond the map boundaries. "+
                                 "Use \"normal\" instead of a number to reset to default (water)." }
             },
-            Usage = "/Env <WorldName> <Variable>",
+            Usage = "/Env <WorldName> <Variable> or /env terrain | realistic",
             IsConsoleSafe = true,
             Handler = EnvHandler
         };
