@@ -22,6 +22,7 @@ namespace fCraft {
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
             rawMessage = rawMessage.Replace("$motd", ConfigKey.MOTD.GetString());
+            rawMessage = rawMessage.Replace("$time", DateTime.Now.TimeOfDay.ToString());
             /*StringBuilder sb = new StringBuilder(rawMessage);
             byte[] stored = new byte[1];
 

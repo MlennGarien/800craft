@@ -1607,7 +1607,7 @@ namespace fCraft
                 int sky;
                 int clouds;
                 int fog;
-                DateTime now = DateTime.Now;
+                DateTime now = DateTime.UtcNow;
                 TimeSpan SunriseStart = new TimeSpan(6,30,0);
                 TimeSpan SunriseEnd = new TimeSpan(7, 29, 59);
                 TimeSpan MorningStart = new TimeSpan(7, 30, 0);
@@ -1642,7 +1642,6 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
-                    world.EdgeBlock = Block.Water;
                 }
 
                 if (now.TimeOfDay > NormalStart && now.TimeOfDay < NormalEnd)//env normal
@@ -1653,7 +1652,6 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
-                    world.EdgeBlock = Block.Water;
                 }
 
                 if (now.TimeOfDay > EveningStart && now.TimeOfDay < EveningEnd) //evening
@@ -1664,7 +1662,6 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
-                    world.EdgeBlock = Block.Water;
                 }
 
                 if (now.TimeOfDay > SunsetStart && now.TimeOfDay < SunsetEnd) //sunset
@@ -1675,7 +1672,6 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
-                    world.EdgeBlock = Block.Water;
                 }
 
                 if (now.TimeOfDay > NightaStart && now.TimeOfDay < NightaEnd) //end of sunset

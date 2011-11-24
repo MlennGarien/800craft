@@ -25,7 +25,7 @@ namespace fCraft {
         
         public bool IsRealm { get; set; }
 
-        public bool RealisticEnv = false;
+        public bool RealisticEnv { get; set; }
 
         public ArrayList Portals;
 
