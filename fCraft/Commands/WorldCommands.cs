@@ -462,6 +462,12 @@ namespace fCraft
                 case "create":
                     
             string create = cmd.Next();
+            if (player.World.Name == player.Name)
+            {
+                player.Message("You cannot create a new Realm when you are in your Realm");
+                return;
+            }
+
 
                         if (create == null)
                         {
