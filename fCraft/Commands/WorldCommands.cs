@@ -1613,7 +1613,7 @@ namespace fCraft
                 TimeSpan NightbStart = new TimeSpan(0, 0, 1);
                 TimeSpan NightbEnd = new TimeSpan(6, 29, 59);
 
-                if (now.TimeOfDay > SunriseStart && now.TimeOfDay > SunriseEnd ) //sunrise
+                if (now.TimeOfDay > SunriseStart && now.TimeOfDay < SunriseEnd ) //sunrise
                 {
                     sky = ParseHexColor("ffff33");
                     clouds = ParseHexColor("ff0033");
@@ -1624,7 +1624,7 @@ namespace fCraft
                     world.EdgeBlock = Block.Water;
                 }
 
-                if (now.TimeOfDay > MorningStart && now.TimeOfDay > MorningEnd) //end of sunrise
+                if (now.TimeOfDay > MorningStart && now.TimeOfDay < MorningEnd) //end of sunrise
                 {
                     sky = -1;
                     clouds = ParseHexColor("ff0033");
@@ -1634,7 +1634,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.TimeOfDay > NormalStart && now.TimeOfDay > NormalEnd)//env normal
+                if (now.TimeOfDay > NormalStart && now.TimeOfDay < NormalEnd)//env normal
                 {
                     sky = -1;
                     clouds = -1;
@@ -1644,7 +1644,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.TimeOfDay > EveningStart && now.TimeOfDay > EveningEnd) //evening
+                if (now.TimeOfDay > EveningStart && now.TimeOfDay < EveningEnd) //evening
                 {
                     sky = ParseHexColor("99cccc");
                     clouds = -1;
@@ -1654,7 +1654,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.TimeOfDay > SunsetStart && now.TimeOfDay > SunsetEnd) //sunset
+                if (now.TimeOfDay > SunsetStart && now.TimeOfDay < SunsetEnd) //sunset
                 {
                     sky = ParseHexColor("9999cc");
                     clouds = ParseHexColor("000033");
@@ -1664,7 +1664,7 @@ namespace fCraft
                     world.FogColor = fog;
                 }
 
-                if (now.TimeOfDay > NightaStart && now.TimeOfDay > NightaEnd) //end of sunset
+                if (now.TimeOfDay > NightaStart && now.TimeOfDay < NightaEnd) //end of sunset
                 {
                     sky = ParseHexColor("003366");
                     clouds = ParseHexColor("000033");
@@ -1675,7 +1675,7 @@ namespace fCraft
                     world.EdgeBlock = Block.Black;
                 }
 
-                if (now.TimeOfDay > NightbStart && now.TimeOfDay > NightbEnd) //black
+                if (now.TimeOfDay > NightbStart && now.TimeOfDay < NightbEnd) //black
                 {
                     sky = ParseHexColor("000000");
                     clouds = ParseHexColor("000033");
