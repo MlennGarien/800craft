@@ -1473,7 +1473,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit", Permission.Mute, DefaultPermissionLimitString );
             permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring, DefaultPermissionLimitString );
             permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit", Permission.Spectate, DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox( "Undo limit", Permission.UndoOthersActions, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox("Undo limit", Permission.UndoOthersActions, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Slap] = new PermissionLimitBox("Slap limit", Permission.Slap, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Kill] = new PermissionLimitBox("Kill limit", Permission.Kill, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Possess] = new PermissionLimitBox("Possess limit", Permission.Possess, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Warn] = new PermissionLimitBox("Warn limit", Permission.Warn, DefaultPermissionLimitString);
+
 
             foreach( var box in permissionLimitBoxes.Values ) {
                 permissionLimitBoxContainer.Controls.Add( box );
@@ -1629,6 +1634,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void tServerName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void permissionLimitBoxContainer_Paint(object sender, PaintEventArgs e)
         {
 
         }

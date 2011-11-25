@@ -81,6 +81,8 @@
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabChat = new System.Windows.Forms.TabPage();
             this.gChatColors = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.ChatChannel = new System.Windows.Forms.TextBox();
             this.lColorMe = new System.Windows.Forms.Label();
             this.bColorMe = new System.Windows.Forms.Button();
             this.lColorWarning = new System.Windows.Forms.Label();
@@ -298,8 +300,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.ChatChannel = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -1008,6 +1008,28 @@
             this.gChatColors.TabStop = false;
             this.gChatColors.Text = "Colors";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(334, 109);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(187, 15);
+            this.label1.TabIndex = 15;
+            this.label1.Text = "Custom Chat Channel Command";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
+            // 
+            // ChatChannel
+            // 
+            this.ChatChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.ChatChannel.HideSelection = false;
+            this.ChatChannel.Location = new System.Drawing.Point(525, 109);
+            this.ChatChannel.MaxLength = 64;
+            this.ChatChannel.Name = "ChatChannel";
+            this.ChatChannel.Size = new System.Drawing.Size(100, 21);
+            this.ChatChannel.TabIndex = 14;
+            this.ChatChannel.TextChanged += new System.EventHandler(this.ChatChannel_TextChanged);
+            // 
             // lColorMe
             // 
             this.lColorMe.AutoSize = true;
@@ -1499,6 +1521,7 @@
             this.permissionLimitBoxContainer.Size = new System.Drawing.Size(301, 192);
             this.permissionLimitBoxContainer.TabIndex = 0;
             this.permissionLimitBoxContainer.WrapContents = false;
+            this.permissionLimitBoxContainer.Paint += new System.Windows.Forms.PaintEventHandler(this.permissionLimitBoxContainer_Paint);
             // 
             // lRankList
             // 
@@ -3507,28 +3530,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // ChatChannel
-            // 
-            this.ChatChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.ChatChannel.HideSelection = false;
-            this.ChatChannel.Location = new System.Drawing.Point(525, 109);
-            this.ChatChannel.MaxLength = 64;
-            this.ChatChannel.Name = "ChatChannel";
-            this.ChatChannel.Size = new System.Drawing.Size(100, 21);
-            this.ChatChannel.TabIndex = 14;
-            this.ChatChannel.TextChanged += new System.EventHandler(this.ChatChannel_TextChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(334, 109);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(187, 15);
-            this.label1.TabIndex = 15;
-            this.label1.Text = "Custom Chat Channel Command";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // MainForm
             // 

@@ -155,7 +155,7 @@ namespace fCraft {
             else
             {
 
-                if (player.Can(Permission.Chat, target.Info.Rank))
+                if (player.Can(Permission.Kill, target.Info.Rank))
                 {
                     target.TeleportTo(player.World.Map.Spawn);
                     Server.Players.Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
@@ -164,7 +164,7 @@ namespace fCraft {
                 else
                 {
                     player.Message("You can only Kill players ranked {0}&S or lower",
-                                    player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                    player.Info.Rank.GetLimit(Permission.Kill).ClassyName);
                     player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
                 }
             }
@@ -202,7 +202,7 @@ namespace fCraft {
                 return;
             }
 
-            if (player.Can(Permission.BanIP, target.Info.Rank))
+            if (player.Can(Permission.Possess, target.Info.Rank))
             {
                 Position P = target.Position;
                 player.TeleportTo(P);
@@ -213,7 +213,7 @@ namespace fCraft {
             else
             {
                 player.Message("You can only Possess players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
@@ -249,7 +249,7 @@ namespace fCraft {
                 return;
             }
 
-            if (player.Can(Permission.BanIP, target.Info.Rank))
+            if (player.Can(Permission.Possess, target.Info.Rank))
             {
 
                UnPossess(target, new Command("/unfollow " + player.Name));
@@ -259,7 +259,7 @@ namespace fCraft {
             else
             {
                 player.Message("Unpossess failed. Try to /hide then /unhide",
-                                player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
@@ -305,7 +305,7 @@ namespace fCraft {
                     return;
                 }
 
-                if (player.Can(Permission.Ban, target.Info.Rank))
+                if (player.Can(Permission.Slap, target.Info.Rank))
                 {
                     if (target.Can(Permission.Teleport))
                     {
@@ -323,7 +323,7 @@ namespace fCraft {
 
                 {
                     player.Message("&sYou can only Slap players ranked {0}&S or lower",
-                                    player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                    player.Info.Rank.GetLimit(Permission.Slap).ClassyName);
                     player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
 
                 }
