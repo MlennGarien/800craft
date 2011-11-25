@@ -1617,5 +1617,20 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             catch (Exception) { }
 
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ChatChannel_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tServerName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

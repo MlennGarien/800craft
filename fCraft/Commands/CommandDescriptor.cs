@@ -10,6 +10,7 @@ namespace fCraft {
     /// <param name="source"> Player who called the command. </param>
     /// <param name="cmd"> Command arguments. </param>
     public delegate void CommandHandler( Player source, Command cmd );
+    
 
 
     /// <summary> Describes a chat command. Defines properties, permission requirements, and usage information.

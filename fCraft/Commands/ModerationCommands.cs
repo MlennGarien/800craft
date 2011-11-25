@@ -169,7 +169,7 @@ namespace fCraft {
                 }
             }
         }
-
+        
         static readonly CommandDescriptor CdPossess = new CommandDescriptor
         {
             Name = "Possess",

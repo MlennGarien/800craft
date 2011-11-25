@@ -30,8 +30,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -102,6 +102,7 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -297,7 +298,8 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
+            this.ChatChannel = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -847,6 +849,7 @@
             this.tServerName.Name = "tServerName";
             this.tServerName.Size = new System.Drawing.Size(507, 21);
             this.tServerName.TabIndex = 1;
+            this.tServerName.TextChanged += new System.EventHandler(this.tServerName_TextChanged);
             // 
             // lUploadBandwidthUnits
             // 
@@ -982,6 +985,8 @@
             // 
             // gChatColors
             // 
+            this.gChatColors.Controls.Add(this.label1);
+            this.gChatColors.Controls.Add(this.ChatChannel);
             this.gChatColors.Controls.Add(this.lColorMe);
             this.gChatColors.Controls.Add(this.bColorMe);
             this.gChatColors.Controls.Add(this.lColorWarning);
@@ -1212,6 +1217,14 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point(7, 256);
+            this.chatPreview.Margin = new System.Windows.Forms.Padding(4);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 241);
+            this.chatPreview.TabIndex = 2;
+            // 
             // tabWorlds
             // 
             this.tabWorlds.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
@@ -1374,8 +1387,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.RowTemplate.Height = 24;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size(636, 351);
@@ -1434,8 +1447,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -3495,13 +3508,27 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // chatPreview
+            // ChatChannel
             // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 256);
-            this.chatPreview.Margin = new System.Windows.Forms.Padding(4);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 241);
-            this.chatPreview.TabIndex = 2;
+            this.ChatChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.ChatChannel.HideSelection = false;
+            this.ChatChannel.Location = new System.Drawing.Point(525, 109);
+            this.ChatChannel.MaxLength = 64;
+            this.ChatChannel.Name = "ChatChannel";
+            this.ChatChannel.Size = new System.Drawing.Size(100, 21);
+            this.ChatChannel.TabIndex = 14;
+            this.ChatChannel.TextChanged += new System.EventHandler(this.ChatChannel_TextChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(334, 109);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(187, 15);
+            this.label1.TabIndex = 15;
+            this.label1.Text = "Custom Chat Channel Command";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // MainForm
             // 
@@ -3878,6 +3905,8 @@
         private System.Windows.Forms.CheckBox xMineQuery;
         private System.Windows.Forms.Button bMineQueryPortCheck;
         private System.Windows.Forms.Button Button1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox ChatChannel;
        // private System.Windows.Forms.Button Button1;
     }
 }

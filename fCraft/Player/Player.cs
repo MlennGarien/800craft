@@ -144,7 +144,7 @@ namespace fCraft {
         public MetadataCollection<object> Metadata { get; private set; }
 
         #endregion
-        
+        public string elol = "lol";
         public bool IsAway;
         public bool IsFlying = false;
         public ConcurrentDictionary<String, Vector3I> FlyCache;
