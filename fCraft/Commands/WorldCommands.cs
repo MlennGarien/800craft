@@ -70,8 +70,8 @@ namespace fCraft
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.UsePortal },
             IsConsoleSafe = false,
-            Usage = "/portal [create|remove|info|list|enable|disable]",
-            Help = "Controls portals, options are: create, remove, list, info, disable, enable\n&S" +
+            Usage = "/portal [create | remove | info | list | enable | disable ]",
+            Help = "Controls portals, options are: create, remove, list, info, enable, disable\n&S" +
                    "See &H/Help portal <option>&S for details about each option.",
             HelpSections = new Dictionary<string,string>() {
                 { "create",     "&H/portal create Guest\n&S" +
