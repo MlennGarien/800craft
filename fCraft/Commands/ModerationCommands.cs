@@ -712,8 +712,9 @@ namespace fCraft {
 
         #region Custom Functions
 
-        static void Possess(Player player, Command cmd, string targetName)
+        static void Possess(Player player, Command cmd, string toPossess)
         {
+            string targetName = cmd.Next();
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
             if (targetName == null)
             {
@@ -722,30 +723,23 @@ namespace fCraft {
                 {
                     Player spec = target.SpectatedPlayer;
                     if (spec != null)
-                    {
-                        target.Message("You are being possessed");
-                    }
-                    else
-                        return;
+                        player.Message("Now possessing {0}", target.ClassyName);
+                    
                 }
                 else
                 {
-                    target.Message("Please enter a name");
+                    CdPossess.PrintUsage(player);
                 }
                 return;
             }
 
+            
             if (target == null) return;
 
             if (target == player)
             {
-                player.Message("You cannot possess yourself.");
+                player.Message("You cannot Possess yourself.");
                 return;
-            }
-
-            if (!target.Spectate(target))
-            {
-                target.Message("Already possessing {0}", target.ClassyName);
             }
         }
 
