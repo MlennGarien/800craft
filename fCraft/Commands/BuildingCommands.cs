@@ -1644,7 +1644,7 @@ namespace fCraft {
             Name = "Mark",
             Aliases = new[] { "m" },
             Category = CommandCategory.Building,
-            Usage = "/Mark&S or &H/Mark X Y H",
+            Usage = "/Mark&S or &H/Mark X Y Z",
             Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "If three numbers are given, those coordinates are used instead.",
             Handler = MarkHandler

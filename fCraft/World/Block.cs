@@ -58,6 +58,7 @@ namespace fCraft {
         TNT = 46,
         Books = 47,
         MossyRocks = 48,
-        Obsidian = 49
+        Obsidian = 49,
+        
     }
 }
