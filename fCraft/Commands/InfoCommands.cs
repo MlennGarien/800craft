@@ -207,13 +207,6 @@ namespace fCraft {
                 // own name given
                 player.LastUsedPlayerName = player.Name;
                 PrintPlayerInfo( player, player.Info );
-                float blocks = ((player.Info.BlocksBuilt + player.Info.BlocksDrawn) - player.Info.BlocksDeleted);
-                if (blocks < 0)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append(Color.Green).Append('*');
-                }
-                return;
 
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 // someone else's name or IP given, permission required.

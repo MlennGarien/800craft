@@ -59,7 +59,9 @@ namespace fCraft
             CommandManager.RegisterCommand(CdGuestwipe);
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
+            CommandManager.RegisterCommand(CdWorldSearch);
         }
+
     #region portals
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor
@@ -378,6 +380,39 @@ namespace fCraft
             }
         }
 #endregion
+
+        static readonly CommandDescriptor CdWorldSearch = new CommandDescriptor
+        {
+            Name = "Worldsearch",
+            Aliases = new[] { "ws" },
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
+            Usage = "/Worldsearch WorldName",
+            Handler = WorldSearchHandler
+        };
+
+        static void WorldSearchHandler(Player player, Command cmd)
+        {
+            string worldName = cmd.Next();
+            if (worldName == null)
+            {
+                CdWorldSearch.PrintUsage(player);
+                return;
+            }
+
+            else
+            {
+                World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
+                if(world == null) return;
+                if(!world.IsLoaded || world.IsLoaded)
+                    player.Message("Worlds found: ");
+                    player.Message("{0}", world.ClassyName);
+                return;
+            }
+        }
+
+        
 
         static readonly CommandDescriptor CdRankHide = new CommandDescriptor
         {
