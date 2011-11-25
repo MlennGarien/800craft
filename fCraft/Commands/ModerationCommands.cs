@@ -122,7 +122,7 @@ namespace fCraft {
         {
             Name = "Kill",
             Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
+            IsConsoleSafe = false,
             Permissions = new[] { Permission.Kill },
             Help = "Kills a player.",
             NotRepeatable = true,
