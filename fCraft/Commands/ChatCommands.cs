@@ -259,6 +259,12 @@ namespace fCraft
 
                     Player target = Server.FindPlayerOrPrintMatches(player, pName, true, true);
 
+                    if (Player.IsInValidName(pName))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+
                     if (msg.Length == 0)
                     {
                         player.Message("Error: Please enter a message for {0}.", target.ClassyName);
@@ -282,6 +288,11 @@ namespace fCraft
                     string msgAc = cmd.NextAll().Trim();
 
                     Player target2 = Server.FindPlayerOrPrintMatches(player, aName, true, true);
+                    if (Player.IsInValidName(aName))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
 
                     if (msgAc.Length == 0)
                     {
@@ -313,6 +324,12 @@ namespace fCraft
                     string eName = cmd.Next();
                     string msgEc = cmd.NextAll().Trim();
 
+                    if (Player.IsInValidName(eName))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+
                     Player target3 = Server.FindPlayerOrPrintMatches(player, eName, true, true);
 
                     if (msgEc.Length == 0)
@@ -330,6 +347,11 @@ namespace fCraft
                     string SName = cmd.Next();
                     string msgSc = cmd.NextAll().Trim();
 
+                    if (Player.IsInValidName(SName))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
                     Player target4 = Server.FindPlayerOrPrintMatches(player, SName, true, true);
 
                     if (msgSc.Length == 0)
@@ -394,6 +416,12 @@ namespace fCraft
                     string elol = cmd.Next();
                     if (elol == null)
                     { player.Message("Nope"); return; }
+
+                    if (Player.IsInValidName(elol))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
                     else
                     {
                         Player target6 = Server.FindPlayerOrPrintMatches(player, elol, true, true);
