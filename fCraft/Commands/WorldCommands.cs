@@ -1346,6 +1346,8 @@ namespace fCraft
                     return;
                 }
 
+
+
                 if (option == "highres")
                 {
                     world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
@@ -2954,8 +2956,10 @@ namespace fCraft
             }
             if (world.RealisticEnv)
                 player.Message("  Realistic ENV is enabled on this world");
+            WorldManager.SaveWorldList();
             if (!world.RealisticEnv)
                 player.Message("  Realistic ENV is disabled on this world");
+            WorldManager.SaveWorldList();
 
         }
 

@@ -130,6 +130,7 @@ namespace fCraft {
             return true;
         }
 
+        
         static void LoadWorldListEntry( [NotNull] XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute tempAttr;
@@ -176,6 +177,17 @@ namespace fCraft {
                                 worldName);
                 }
             }
+
+            if ((tempAttr = el.Attribute("RealisticEnv")) != null)
+            {
+                bool RealisticEnv;
+                if (Boolean.TryParse(tempAttr.Value, out RealisticEnv))
+                {
+                    world.RealisticEnv = RealisticEnv;
+                }
+                
+            }
+            
             if( firstWorld == null ) firstWorld = world;
 
             XElement tempEl;
@@ -375,6 +387,11 @@ namespace fCraft {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
 
+                    if (world.RealisticEnv)
+                    {
+                        temp.Add(new XAttribute("RealisticEnv", true));
+                    }
+
                     if (world.IsRealm)
                     {
                         temp.Add(new XAttribute("realm", true));
@@ -404,7 +421,7 @@ namespace fCraft {
                     if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
                     if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
                     if( world.EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", world.EdgeLevel ) );
-                    if (world.Terrain != null) elEnv.Add(new XAttribute("terrain", world.Terrain));
+                    if (world.Terrain != null) elEnv.Add(new XAttribute("Terrain", world.Terrain));
                     if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
                     if( elEnv.HasAttributes ) {
                         temp.Add( elEnv );
