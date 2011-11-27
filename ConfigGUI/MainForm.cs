@@ -1657,5 +1657,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         }
 
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
