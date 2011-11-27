@@ -30,8 +30,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -81,6 +81,7 @@
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabChat = new System.Windows.Forms.TabPage();
             this.gChatColors = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.bColorCustom = new System.Windows.Forms.Button();
             this.ChatColorLabel = new System.Windows.Forms.Label();
             this.CustomChatLabel = new System.Windows.Forms.Label();
@@ -303,7 +304,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.label2 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -1010,12 +1010,26 @@
             this.gChatColors.Controls.Add(this.lColorAnnouncement);
             this.gChatColors.Controls.Add(this.bColorHelp);
             this.gChatColors.Controls.Add(this.bColorSay);
-            this.gChatColors.Location = new System.Drawing.Point(8, 8);
+            this.gChatColors.Location = new System.Drawing.Point(8, 3);
             this.gChatColors.Name = "gChatColors";
-            this.gChatColors.Size = new System.Drawing.Size(636, 167);
+            this.gChatColors.Size = new System.Drawing.Size(636, 172);
             this.gChatColors.TabIndex = 0;
             this.gChatColors.TabStop = false;
             this.gChatColors.Text = "Colors";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Cursor = System.Windows.Forms.Cursors.Help;
+            this.label2.ForeColor = System.Drawing.Color.Red;
+            this.label2.Location = new System.Drawing.Point(310, 133);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(320, 30);
+            this.label2.TabIndex = 18;
+            this.label2.Text = "The name should be in this format: \'staffchat\'. No spaces, \r\nsymbols (including \"" +
+                "/\") or Capital Letters (lowercase only)";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // bColorCustom
             // 
@@ -1442,8 +1456,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.RowTemplate.Height = 24;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size(636, 351);
@@ -1502,8 +1516,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -3563,20 +3577,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Cursor = System.Windows.Forms.Cursors.Help;
-            this.label2.ForeColor = System.Drawing.Color.Red;
-            this.label2.Location = new System.Drawing.Point(370, 133);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(255, 30);
-            this.label2.TabIndex = 18;
-            this.label2.Text = "The name should be in this format: \'Staffchat\' \r\nNo spaces, symbols or extra Capi" +
-                "tal Letters.";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // MainForm
             // 

@@ -148,7 +148,7 @@ Announcements are shown to all players, one line at a time, in random order.",
             MinValue = 0 )]
         AnnouncementInterval,
 
-        [StringKey(ConfigSection.Chat, "EngineerChat",
+        [StringKey(ConfigSection.Chat, "engineerchat",
 @"The name of a custon chat channel. It should be only one word, starting with a capital letter.",
             MinLength = 1, MaxLength = 30)]
         CustomChatChannel,
