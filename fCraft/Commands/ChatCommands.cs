@@ -22,7 +22,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdTimer);
             CommandManager.RegisterCommand(cdReview);
             CommandManager.RegisterCommand(CdAdminChat);
-            CommandManager.RegisterCommand(CdEngineerChat);
+            CommandManager.RegisterCommand(CdCustomChat);
             CommandManager.RegisterCommand(cdAway);
             CommandManager.RegisterCommand(cdHigh5);
             CommandManager.RegisterCommand(CdPoke);
@@ -198,16 +198,15 @@ namespace fCraft
             }
         }
 
-        static readonly CommandDescriptor CdEngineerChat = new CommandDescriptor
+        static readonly CommandDescriptor CdCustomChat = new CommandDescriptor
         {
-            Name = "Engineerchat",
-            Aliases = new[] { "ec", "en" },
+            Name = ConfigKey.CustomChatChannel.GetString(),
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             NotRepeatable = true,
-            Usage = "/ec Message",
-            Help = "Broadcasts your message to all engineers+ on the server at once.",
+            Usage = "/Customname Message",
+            Help = "Broadcasts your message to all players allowed to read the CustomChatChannel.",
             Handler = EngineerHandler
         };
 
@@ -229,7 +228,7 @@ namespace fCraft
                 {
                     message = Color.ReplacePercentCodes(message);
                 }
-                Chat.SendEngineer(player, message);
+                Chat.SendCustom(player, message);
             }
         }
 
@@ -316,30 +315,6 @@ namespace fCraft
                         {
                             //dancer.SendNow(PacketWriter.MakeMoveRotate(dancer.Position);
                         }
-                    }
-                    break;
-                case "en":
-                case "ec":
-                case "engineerchat":
-                    string eName = cmd.Next();
-                    string msgEc = cmd.NextAll().Trim();
-
-                    if (Player.IsInValidName(eName))
-                    {
-                        player.Message("Player not found. Please specify valid name.");
-                        return;
-                    }
-
-                    Player target3 = Server.FindPlayerOrPrintMatches(player, eName, true, true);
-
-                    if (msgEc.Length == 0)
-                    {
-                        player.Message("Error: Please enter a message for {0}.", target3.ClassyName);
-                        return;
-                    }
-                    else
-                    {
-                        Chat.SendEngineer(target3, msgEc);
                     }
                     break;
                 case "st":

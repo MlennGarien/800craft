@@ -131,18 +131,18 @@ namespace fCraft {
             Logger.Log(LogType.GlobalChat, "(Admin){0}: {1}", player.Name, rawMessage);
             return true;
         }
-
-        public static bool SendEngineer(Player player, string rawMessage)
+       
+        public static bool SendCustom(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
-            var recepientList = Server.Players.Can(Permission.ReadEngineerChat)
+            var recepientList = Server.Players.Can(Permission.ReadCustomChat)
                                               .NotIgnoring(player);
 
-            string formattedMessage = String.Format("&e(Engineer){0}&b: {1}",
+            string formattedMessage = String.Format(Color.Custom+"({2}){0}&b: {1}",
                                                      player.ClassyName,
-                                                     rawMessage);
+                                                     rawMessage, ConfigKey.CustomChatChannel.GetString());
 
             var e = new ChatSendingEventArgs(player,
                                               rawMessage,
@@ -152,7 +152,7 @@ namespace fCraft {
 
             if (!SendInternal(e)) return false;
 
-            Logger.Log(LogType.GlobalChat, "(Engineer){0}: {1}", player.Name, rawMessage);
+            Logger.Log(LogType.GlobalChat, "({2}){0}: {1}", player.Name, rawMessage, ConfigKey.CustomChatChannel.GetString());
             return true;
         }
 

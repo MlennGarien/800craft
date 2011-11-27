@@ -579,6 +579,10 @@ namespace fCraft {
                     Color.Sys = Color.Parse( key.GetString() );
                     break;
 
+                case ConfigKey.CustomMessageColor:
+                    Color.Custom = Color.Parse(key.GetString());
+                    break;
+
                 case ConfigKey.TickInterval:
                     Server.TicksPerSecond = 1000 / (float)key.GetInt();
                     break;

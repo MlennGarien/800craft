@@ -37,10 +37,10 @@ namespace fCraft.ServerGUI {
                 try
                 {
 #endif
-                    SetConsoleText("fCraft " + Updater.CurrentRelease.VersionString + " - starting...");
+                    SetConsoleText("800Craft " + Updater.CurrentRelease.VersionString + " - starting...");
                     Server.InitLibrary(Environment.GetCommandLineArgs());
                     Server.InitServer();
-                    SetConsoleText("fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString());
+                    SetConsoleText("800Craft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString());
 
                     Application.DoEvents();
                     //StartServer();

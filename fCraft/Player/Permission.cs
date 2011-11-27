@@ -33,8 +33,8 @@ namespace fCraft
         BroMode,
         /// <summary> Ability to read admin chat. </summary>
         ReadAdminChat,
-        /// <summary> Ability to read engineer chat. </summary>
-        ReadEngineerChat,
+        /// <summary> Ability to read from the custom chat channel. </summary>
+        ReadCustomChat,
         /// <summary> Ability to use realms. </summary>
         Realm,
         /// <summary> Ability to possess other players. </summary>

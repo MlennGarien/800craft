@@ -112,6 +112,10 @@ will not show custom skins for players with prefixed names." )]
 @"Color of normal system messages." )]
         SystemMessageColor,
 
+        [ColorKey(ConfigSection.Chat, Color.CustomDefault,
+@"Color of custom chat channel name.")]
+        CustomMessageColor,
+
         [ColorKey( ConfigSection.Chat, Color.HelpDefault,
 @"Color of command usage examples in help." )]
         HelpColor,
@@ -145,9 +149,9 @@ Announcements are shown to all players, one line at a time, in random order.",
         AnnouncementInterval,
 
         [StringKey(ConfigSection.Chat, "EngineerChat",
-@"The name of a custon chat channel. It should be only one word, startijng with a capital letter.",
-            MinLength = 1, MaxLength = 120)]
-        ChatChannel_TextChanged,
+@"The name of a custon chat channel. It should be only one word, starting with a capital letter.",
+            MinLength = 1, MaxLength = 30)]
+        CustomChatChannel,
 
         #endregion
 

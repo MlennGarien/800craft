@@ -102,6 +102,7 @@ You can use any color codes, and these special variables:
 
             toolTip.SetToolTip( bColorWarning, ConfigKey.WarningColor.GetDescription() );
             toolTip.SetToolTip( lColorWarning, ConfigKey.WarningColor.GetDescription() );
+            toolTip.SetToolTip(tChatChannel, ConfigKey.CustomChatChannel.GetDescription());
         }
 
 

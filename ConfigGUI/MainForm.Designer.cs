@@ -81,8 +81,11 @@
             this.lMaxPlayers = new System.Windows.Forms.Label();
             this.tabChat = new System.Windows.Forms.TabPage();
             this.gChatColors = new System.Windows.Forms.GroupBox();
+            this.bColorCustom = new System.Windows.Forms.Button();
+            this.ChatColorLabel = new System.Windows.Forms.Label();
+            this.CustomChatLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.ChatChannel = new System.Windows.Forms.TextBox();
+            this.tChatChannel = new System.Windows.Forms.TextBox();
             this.lColorMe = new System.Windows.Forms.Label();
             this.bColorMe = new System.Windows.Forms.Button();
             this.lColorWarning = new System.Windows.Forms.Label();
@@ -385,6 +388,7 @@
             this.tabs.SelectedIndex = 0;
             this.tabs.Size = new System.Drawing.Size(660, 536);
             this.tabs.TabIndex = 0;
+            this.tabs.SelectedIndexChanged += new System.EventHandler(this.tabs_SelectedIndexChanged);
             // 
             // tabGeneral
             // 
@@ -985,8 +989,11 @@
             // 
             // gChatColors
             // 
+            this.gChatColors.Controls.Add(this.bColorCustom);
+            this.gChatColors.Controls.Add(this.ChatColorLabel);
+            this.gChatColors.Controls.Add(this.CustomChatLabel);
             this.gChatColors.Controls.Add(this.label1);
-            this.gChatColors.Controls.Add(this.ChatChannel);
+            this.gChatColors.Controls.Add(this.tChatChannel);
             this.gChatColors.Controls.Add(this.lColorMe);
             this.gChatColors.Controls.Add(this.bColorMe);
             this.gChatColors.Controls.Add(this.lColorWarning);
@@ -1003,32 +1010,58 @@
             this.gChatColors.Controls.Add(this.bColorSay);
             this.gChatColors.Location = new System.Drawing.Point(8, 8);
             this.gChatColors.Name = "gChatColors";
-            this.gChatColors.Size = new System.Drawing.Size(636, 139);
+            this.gChatColors.Size = new System.Drawing.Size(636, 167);
             this.gChatColors.TabIndex = 0;
             this.gChatColors.TabStop = false;
             this.gChatColors.Text = "Colors";
             // 
+            // bColorCustom
+            // 
+            this.bColorCustom.BackColor = System.Drawing.Color.White;
+            this.bColorCustom.Location = new System.Drawing.Point(193, 135);
+            this.bColorCustom.Name = "bColorCustom";
+            this.bColorCustom.Size = new System.Drawing.Size(100, 23);
+            this.bColorCustom.TabIndex = 17;
+            this.bColorCustom.UseVisualStyleBackColor = false;
+            this.bColorCustom.Click += new System.EventHandler(this.bColorCustom_Click);
+            // 
+            // ChatColorLabel
+            // 
+            this.ChatColorLabel.AutoSize = true;
+            this.ChatColorLabel.Location = new System.Drawing.Point(31, 139);
+            this.ChatColorLabel.Name = "ChatColorLabel";
+            this.ChatColorLabel.Size = new System.Drawing.Size(156, 15);
+            this.ChatColorLabel.TabIndex = 16;
+            this.ChatColorLabel.Text = "Custom Chat Channel color";
+            // 
+            // CustomChatLabel
+            // 
+            this.CustomChatLabel.AutoSize = true;
+            this.CustomChatLabel.Location = new System.Drawing.Point(356, 112);
+            this.CustomChatLabel.Name = "CustomChatLabel";
+            this.CustomChatLabel.Size = new System.Drawing.Size(163, 15);
+            this.CustomChatLabel.TabIndex = 15;
+            this.CustomChatLabel.Text = "Custom Chat Channel Name";
+            // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(334, 109);
+            this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(187, 15);
-            this.label1.TabIndex = 15;
-            this.label1.Text = "Custom Chat Channel Command";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
+            this.label1.Size = new System.Drawing.Size(100, 23);
+            this.label1.TabIndex = 0;
             // 
-            // ChatChannel
+            // tChatChannel
             // 
-            this.ChatChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.tChatChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.ChatChannel.HideSelection = false;
-            this.ChatChannel.Location = new System.Drawing.Point(525, 109);
-            this.ChatChannel.MaxLength = 64;
-            this.ChatChannel.Name = "ChatChannel";
-            this.ChatChannel.Size = new System.Drawing.Size(100, 21);
-            this.ChatChannel.TabIndex = 14;
-            this.ChatChannel.TextChanged += new System.EventHandler(this.ChatChannel_TextChanged);
+            this.tChatChannel.HideSelection = false;
+            this.tChatChannel.Location = new System.Drawing.Point(525, 109);
+            this.tChatChannel.MaxLength = 64;
+            this.tChatChannel.Name = "tChatChannel";
+            this.tChatChannel.Size = new System.Drawing.Size(100, 21);
+            this.tChatChannel.TabIndex = 14;
+            this.tChatChannel.Text = "Engineerchat";
+            this.tChatChannel.TextChanged += new System.EventHandler(this.tChatChannel_TextChanged);
             // 
             // lColorMe
             // 
@@ -1171,7 +1204,7 @@
             this.gAppearence.Controls.Add(this.xRankPrefixesInList);
             this.gAppearence.Controls.Add(this.xRankPrefixesInChat);
             this.gAppearence.Controls.Add(this.xRankColorsInChat);
-            this.gAppearence.Location = new System.Drawing.Point(7, 153);
+            this.gAppearence.Location = new System.Drawing.Point(7, 181);
             this.gAppearence.Name = "gAppearence";
             this.gAppearence.Size = new System.Drawing.Size(637, 97);
             this.gAppearence.TabIndex = 1;
@@ -1241,10 +1274,9 @@
             // 
             // chatPreview
             // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 256);
-            this.chatPreview.Margin = new System.Windows.Forms.Padding(4);
+            this.chatPreview.Location = new System.Drawing.Point(7, 284);
             this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 241);
+            this.chatPreview.Size = new System.Drawing.Size(637, 213);
             this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
@@ -3907,7 +3939,10 @@
         private System.Windows.Forms.Button bMineQueryPortCheck;
         private System.Windows.Forms.Button Button1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox ChatChannel;
+        private System.Windows.Forms.TextBox tChatChannel;
+        private System.Windows.Forms.Button bColorCustom;
+        private System.Windows.Forms.Label ChatColorLabel;
+        private System.Windows.Forms.Label CustomChatLabel;
        // private System.Windows.Forms.Button Button1;
     }
 }
