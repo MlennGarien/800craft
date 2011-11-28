@@ -694,6 +694,25 @@ namespace fCraft
 
         static void StaffHandler(Player player, Command cmd)
         {
+            string message = cmd.NextAll().Trim();
+
+            if(message == "static")
+            {
+                if (player.IsStaticStaff)
+                {
+                    player.IsStaticStaff = false;
+                    player.Message("&W(Staff): Static mode is now OFF.");
+                    return;
+                }
+
+                if (!player.IsStaticStaff)
+                {
+                    player.IsStaticStaff = true;
+                    player.Message("&W(Staff): Static mode is now ON. Use /Staff to turn OFF");
+                    return;
+                }
+            }
+            
             if (player.Info.IsMuted)
             {
                 player.MessageMuted();
@@ -702,7 +721,6 @@ namespace fCraft
 
             if (player.DetectChatSpam()) return;
 
-            string message = cmd.NextAll().Trim();
             if (message.Length > 0)
             {
                 if (player.Can(Permission.UseColorCodes) && message.Contains("%"))
