@@ -1165,8 +1165,8 @@ namespace fCraft {
                     player.Message( "There are no players {0}", qualifier );
 
                 } else if( visiblePlayers.Length <= PlayersPerPage || player.IsSuper ) {
-                    player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2}",
-                                            visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString() );
+                    player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2} &S{3},",
+                                            visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString(), visiblePlayers.JoinToString().Remove(0, 6));
 
                 } else {
                     if( offset >= visiblePlayers.Length ) {
