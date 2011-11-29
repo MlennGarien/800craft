@@ -78,7 +78,7 @@ namespace fCraft {
             Name = "Dummy",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = false,
-            Permissions = new[] { Permission.OwnerStuff },
+            Permissions = new[] { Permission.MakeDummys },
             Help = "Makes a dummy player.",
             NotRepeatable = false,
             Usage = "/dummy name",
@@ -683,13 +683,13 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
 
-            if (player.Can(Permission.OwnerStuff, target.Info.Rank))
+            if (player.Can(Permission.Gtfo))
             {
 
                 try
                 {
                     Player targetPlayer = target;
-                    target.Kick(player, "Manually disconnected by an Owner", LeaveReason.Kick, true, true, false);
+                    target.Kick(player, "Manually disconnected by "+player.Name, LeaveReason.Kick, true, true, false);
 
 
                 }

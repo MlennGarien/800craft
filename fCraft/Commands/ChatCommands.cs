@@ -238,7 +238,7 @@ namespace fCraft
         {
             Name = "Troll",
             Category = CommandCategory.Chat,
-            Permissions = new[] { Permission.OwnerStuff },
+            Permissions = new[] { Permission.Troll },
             IsConsoleSafe = true,
             NotRepeatable = false,
             Usage = "/troll Player type Message",
