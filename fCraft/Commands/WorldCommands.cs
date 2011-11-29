@@ -467,16 +467,26 @@ namespace fCraft
 
         internal static void Realm(Player player, Command cmd)
         {
-
+            
             string Choice = cmd.Next();
-             switch (Choice)
+             
+            switch (Choice)
             {
                  default:
                 CdRealm.PrintUsage(player);
                 break;
 
                 case "review":
+
+                if (player.World.Name == player.Name )
+                {
                     Server.Players.Message("{0} &Cwould like you to review their realm", player.ClassyName);
+                    return;
+                }
+
+                else
+                    player.Message("You are not in your Realm");
+
                     break;
 
                 case "like":
@@ -485,8 +495,14 @@ namespace fCraft
                         World world = WorldManager.FindWorldOrPrintMatches(player, Choice);
                         if (world == null) player.Message("You need to enter a realm name");
 
-                        Server.Players.Message("{0}&S likes realm {1}.",
-                                                player.ClassyName, world.ClassyName);
+                        if (world.IsRealm)
+                        {
+                            Server.Players.Message("{0}&S likes realm {1}.",
+                                                   player.ClassyName, world.ClassyName);
+                            return;
+                        }
+                        else player.Message("You are not in a Realm");
+
                         break;
                     
                 case "flush":
@@ -499,10 +515,9 @@ namespace fCraft
             string create = cmd.Next();
             if (player.World.Name == player.Name)
             {
-                player.Message("You cannot create a new Realm when you are in your Realm");
+                player.Message("You cannot create a new Realm when you are inside your Realm");
                 return;
             }
-
 
                         if (create == null)
                         {
@@ -557,12 +572,12 @@ namespace fCraft
                             RealmHandler.RealmCreate(player, cmd, "forest", "hills");
                             player.Message("You have created a Realm. Activate it with /realm activate");
                         }
+
                         break;
 
                 case "home":
                     JoinHandler(player, new Command("/join " + player.Name));
                     break;
-
 
                 case "help":
 
@@ -571,7 +586,6 @@ namespace fCraft
                     "If there are any Bugs, report them to Jonty800@gmail.com.");
                     break;
 
-                
                     case "activate":
                     {
                         if (player.World.Name == player.Name)
@@ -628,6 +642,7 @@ namespace fCraft
                         targetInvite.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
                         return;
                     }
+
                     else
                     {
                         JoinHandler(targetInvite, new Command("/join " + player.Name));
@@ -643,6 +658,7 @@ namespace fCraft
                         player.Message("Derp. Invalid Realm.");
                         return;
                     }
+
                     else
                     {
                         Player target = Server.FindPlayerOrPrintMatches(player, Choice, false, true);
@@ -659,15 +675,14 @@ namespace fCraft
                         player.Message("Allows a player to build in your world. useage: /realm allow playername.");
                         return;
                     }
-                    PlayerInfo targetAllow = PlayerDB.FindPlayerInfoOrPrintMatches(player, toAllow);
 
+                    PlayerInfo targetAllow = PlayerDB.FindPlayerInfoOrPrintMatches(player, toAllow);
 
                     if (targetAllow == null)
                     {
                         player.Message("Please enter the name of the player you want to allow to build in your Realm.");
                         return;
                     }
-
 
                     if (Player.IsInValidName(targetAllow.Name))
                     {
@@ -687,6 +702,7 @@ namespace fCraft
                     break;
 
                 case "unallow":
+
                     string Unallow = cmd.Next();
 
                     if (Unallow == null)
@@ -702,7 +718,6 @@ namespace fCraft
                         player.Message("Please enter the name of the player you want to stop building in your Realm.");
                         return;
                     }
-
 
                     if (Player.IsInValidName(targetUnallow.Name))
                     {
@@ -739,7 +754,6 @@ namespace fCraft
                             return;
                         }
 
-
                         if (Player.IsInValidName(targetBan.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
@@ -769,13 +783,11 @@ namespace fCraft
                         }
                         PlayerInfo targetUnBan = PlayerDB.FindPlayerInfoOrPrintMatches(player, UnBan);
 
-
                         if (targetUnBan == null)
                         {
                             player.Message("Please enter the name of the player you want to unban from your Realm.");
                             return;
                         }
-
 
                         if (Player.IsInValidName(targetUnBan.Name))
                         {
