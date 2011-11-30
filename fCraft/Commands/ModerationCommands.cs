@@ -81,21 +81,32 @@ namespace fCraft {
             Permissions = new[] { Permission.MakeDummys },
             Help = "Makes a dummy player.",
             NotRepeatable = false,
-            Usage = "/dummy name",
+            Usage = "/dummy create | remove | list [name]",
             Handler = DummyHandler
         };
 
         public static void DummyHandler(Player player, Command cmd)
         {
-            
-            try
-            {
-                string name = cmd.Next();
-                World world = player.World;
+            string option = cmd.Next();
+            World world = player.World;
 
+            switch (option)
+            {
+                case "create":
+
+                string name = cmd.Next();
+
+                Player dummy = new Player(name);
+                    
                 if (name == null)
                 {
                     player.Message(Color.Sys, "Usage: " + Color.Help + "/dummy name");
+                    return;
+                }
+
+                if (name.Length < 2)
+                {
+                    player.Message("The name you have chosen is too small");
                     return;
                 }
 
@@ -105,26 +116,83 @@ namespace fCraft {
                     return;
                 }
 
-                Position pos = player.Position;
-                Player dummy = new Player(name);
-                dummy.Info.ID = player.Info.ID;
-                dummy.Info.ID += world.DummyCounter;
+                try
+                {
+                    
+                    Position pos = player.Position;
+                    world.DummyCount++;
+                    dummy.Info.ID = world.DummyCount;
 
-                world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos));
-                world.Dummys.Add(dummy);
-               world.DummyCount++;
-                world.DummyCounter++;
-                dummy.Info.DummyID = dummy.Info.ID;
-                dummy.Info.DummyName = name;
-                dummy.Info.DummyPos = pos;
+                    world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos)); //makes the dummy
+                    world.Dummys.Add(dummy); //adds the dummy to a list
 
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.Error, "ModerationCommands.DummyHandler: " + ex);
+                    world.DummyCounter++; //counts how many dummys are on each world
+                    dummy.Info.DummyID = dummy.Info.ID;
+                    dummy.Info.DummyName = name;
+                    dummy.Info.DummyPos = pos;
+                }
+
+                catch (Exception ex)
+                {
+                    Logger.Log(LogType.Error, "ModerationCommands.DummyHandler: " + ex);
+                }
+                    break;
+
+                case "remove":
+                    string name2 = cmd.Next();
+                    double Num;
+                    bool isNum = double.TryParse(name2, out Num); //checks if user entered an ID (anti-string)
+                    int id = Convert.ToInt32(name2);
+
+                    if (name2 == null || !isNum) //if user didnt enter an int
+                    {
+                        player.Message("Usage: /dummy remove #ID \nFind the ID in /dummy list");
+                        return;
+                    }
+
+                    if(id > world.DummyCount) //stops user from deleting dummys that doent exist
+                    {
+                        player.Message("Dummy ID does not exists. Use /dummy list");
+                        return;
+                    }
+
+                        Player dummy2 = new Player(name2);
+                        player.World.Players.Send(PacketWriter.MakeRemoveEntity(id)); //removes the dummy from the world
+                        
+                        player.World.DummyCount--;
+                        List<Player> toRemove = new List<Player>();
+                        foreach (Player d in world.Dummys)
+                        {
+                            if (d.Info.ID == id)
+                                toRemove.Add(d); //adds chosed ID to a removing list
+                        }
+
+                        foreach (Player r in toRemove)
+                        {
+                            world.Dummys.Remove(r); //removes the dummy from the list of dummys
+                        }
+                        
+                        
+                        player.Message("Dummy {0}&S has been removed", dummy2.ClassyName); //yes
+                    
+                    break;
+
+
+                case "list":
+                    if (world.DummyCount > 0)
+                    {
+                        player.Message("Dummys available on world {0}: ", world.ClassyName);
+                        foreach (Player d in world.Dummys)
+                        {
+                            player.Message("Name: {0}&S  ID: {1}", d.ClassyName, d.Info.ID);
+                        }
+                    }
+                    else player.Message("There are no dummys on world {0}", world.ClassyName);
+                    break;
+
+                default:  CdDummy.PrintUsage(player); break;
             }
         }
-
 
         static readonly CommandDescriptor CdKill = new CommandDescriptor
         {
