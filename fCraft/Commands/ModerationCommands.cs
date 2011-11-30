@@ -87,6 +87,7 @@ namespace fCraft {
 
         public static void DummyHandler(Player player, Command cmd)
         {
+            
             try
             {
                 string name = cmd.Next();
@@ -106,10 +107,17 @@ namespace fCraft {
 
                 Position pos = player.Position;
                 Player dummy = new Player(name);
+                dummy.Info.ID = player.Info.ID;
+                dummy.Info.ID += world.DummyCounter;
 
-                dummy.Info.ID = player.Info.ID + 100;
+                world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos));
+                world.Dummys.Add(dummy);
+               world.DummyCount++;
+                world.DummyCounter++;
+                dummy.Info.DummyID = dummy.Info.ID;
+                dummy.Info.DummyName = name;
+                dummy.Info.DummyPos = pos;
 
-                Server.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos));
             }
             catch (Exception ex)
             {

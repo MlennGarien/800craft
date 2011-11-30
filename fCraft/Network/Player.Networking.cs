@@ -1019,6 +1019,13 @@ namespace fCraft {
             if (World.IsRealm && oldWorld == newWorld)
             {
                 Message("Rejoined Realm {0}", newWorld.ClassyName);
+                if (World.DummyCount > 0)
+                {
+                    foreach (Player d in World.Dummys)
+                    {
+                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                    }
+                }
                 
             }
             else if(World.IsRealm)
@@ -1029,6 +1036,13 @@ namespace fCraft {
 
             if( !World.IsRealm && oldWorld == newWorld ) {
                 Message( "Rejoined world {0}", newWorld.ClassyName );
+                if (World.DummyCount > 0)
+                {
+                    foreach (Player d in World.Dummys)
+                    {
+                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                    }
+                }
             } else if(!World.IsRealm) {
                 Message( "Joined world {0}", newWorld.ClassyName );
             }

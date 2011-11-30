@@ -28,7 +28,6 @@ namespace fCraft
         PlaceLava,
         /// <summary> Ability to build admincrete. </summary>
         PlaceAdmincrete,
-        
         /// <summary> Ability to start bromode. </summary>
         BroMode,
         /// <summary> Ability to impersonate other players (Power Abusable Tool). </summary>

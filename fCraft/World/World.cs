@@ -27,6 +27,11 @@ namespace fCraft {
 
         public bool RealisticEnv { get; set; }
 
+        
+        public List<Player> Dummys = new List<Player>();
+        public int DummyCount;
+        public int DummyCounter;
+
         public ArrayList Portals;
 
         /// <summary> Whether this world is currently pending unload 
@@ -238,6 +243,7 @@ namespace fCraft {
                 if( Map == null ) return;
                 Players.Message( "&WMap is being flushed. Stay put, world will reload shortly." );
                 IsFlushing = true;
+                
             }
         }
 
@@ -248,6 +254,8 @@ namespace fCraft {
                 Players.Message( "&WMap flushed. Reloading..." );
                 foreach( Player player in Players ) {
                     player.JoinWorld( this, WorldChangeReason.Rejoin, player.Position );
+                    
+
                 }
             }
         }
@@ -313,6 +321,7 @@ namespace fCraft {
                                             player.ClassyName, ClassyName );
                 }
 
+
                 //realm joining announcer
                 if (IsRealm && announce && ConfigKey.ShowJoinedWorldMessages.Enabled())
                 {
@@ -339,6 +348,13 @@ namespace fCraft {
 
                 if( player.Info.IsHidden ) {
                     player.Message( "&8Reminder: You are still hidden." );
+                }
+
+                if(DummyCount > 0){
+                    foreach (Player d in Dummys)
+                    {
+                        player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                    }
                 }
 
                 return Map;
