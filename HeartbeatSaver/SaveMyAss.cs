@@ -5,7 +5,7 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Threading;
-
+using fCraft;
 namespace HeartbeatSender
 {
     class HeartbeatSender
@@ -13,10 +13,18 @@ namespace HeartbeatSender
         static void Main()
         {
             bool on = true;
+            string port = Server.Port.ToString();
+            string Salt = Heartbeat.Salt;
+            string Name = ConfigKey.ServerName.GetString();
+            
             do
             {
                 // this is what we are sending
-                string post_data = "port=20010&max=32&name=Rebelliousdude&public=True&version=7&salt=kr6YzJqjeBPwD9FCGbNCcdbSH9HqcwTS&users=0";
+                StringBuilder sb = new StringBuilder();
+            sb.AppendFormat( "public=True&max=20&users=20&port={0}&version=7&salt={1}&name=HeartBeatSaver", port, Salt, Name);
+            string post_data = sb.ToString();
+            Console.WriteLine("Sending " + sb.ToString()+"\n");
+            
 
                 // this is where we will send it
                 string uri = "http://www.minecraft.net/heartbeat.jsp";
@@ -39,7 +47,7 @@ namespace HeartbeatSender
                 requestStream.Write(postBytes, 0, postBytes.Length);
                 requestStream.Close();
 
-                Console.WriteLine("Sent");
+                Console.WriteLine("Sent\n");
             }
             while (on);
         }
