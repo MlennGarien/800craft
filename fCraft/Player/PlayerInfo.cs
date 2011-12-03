@@ -22,6 +22,7 @@ namespace fCraft {
         [NotNull]
         public string Name { get; internal set; }
 
+
         /// <summary> If set, replaces Name when printing name in chat. </summary>
         [CanBeNull]
         public string DisplayedName;

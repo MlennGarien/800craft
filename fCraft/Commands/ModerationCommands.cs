@@ -57,7 +57,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdSpectate );
             CommandManager.RegisterCommand( CdUnspectate );
 
-              CommandManager.RegisterCommand(CdSlap);
+            CommandManager.RegisterCommand(CdSlap);
             CommandManager.RegisterCommand(CdTPZone);
             CommandManager.RegisterCommand(CdBasscannon);
             CommandManager.RegisterCommand(CdKill);
@@ -70,7 +70,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdDummy);
             
         }
-         
+        public struct Pos { public string type, newscript; public int seconds, rotspeed; public ushort x, y, z; public byte rotx, roty; }
         #region custom
 
         static readonly CommandDescriptor CdDummy = new CommandDescriptor
@@ -172,13 +172,32 @@ namespace fCraft {
                             world.Dummys.Remove(r); //removes the dummy from the list of dummys
                         }
                         
-                        
                         player.Message("Dummy {0}&S has been removed", dummy2.ClassyName); //yes
                     
                     break;
 
+                case "spin":
+                    foreach (Player d in world.Dummys)
+                    {
+                        List<Pos> Waypoints = new List<Pos>();
+
+                        byte[] rot = new byte[2] { 0, 0 };
+                        int currentPoint = 0;
+
+                        if (rot[0] + (byte)Waypoints[currentPoint].rotspeed > 255) rot[0] = 0;
+                        else if (rot[0] + (byte)Waypoints[currentPoint].rotspeed < 0) rot[0] = 255;
+                        else rot[0] += (byte)Waypoints[currentPoint].rotspeed;
+
+
+                        currentPoint++;
+                        if (currentPoint == Waypoints.Count) currentPoint = 0;
+                    }
+                    break;
+
+
 
                 case "list":
+                
                     if (world.DummyCount > 0)
                     {
                         player.Message("Dummys available on world {0}: ", world.ClassyName);
