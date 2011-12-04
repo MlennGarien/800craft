@@ -29,6 +29,12 @@ On top of all the amazing features fCraft already has, we have implemented:
 * Profanity detector
 * Physics
 
+## HeartbeatSaver
+
+There are 2 ways you can use this.
+*Run the Heartbeat Saver while your server is up to give additional support to your server's uptime not resetting
+*When you shutdown your server, the Heartbeat Saver automatically opens, keeping your uptime the same as it was before shutdown.
+-A Unique server software feature only found in 800Craft
 
 
 We are expecting to release the software on the 16th of December and any further updates from us will be recieved automatically
