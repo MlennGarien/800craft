@@ -116,6 +116,7 @@
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Player\ProfanityFilter.cs" />
     <Compile Include="Player\SecurityController.cs" />
+    <Compile Include="Portals\DoorTest.cs" />
     <Compile Include="Portals\Portal.cs" />
     <Compile Include="Portals\PortalDB.cs" />
     <Compile Include="Portals\PortalException.cs" />

@@ -18,19 +18,31 @@ namespace HeartbeatSender
     class HeartbeatSender
     {
         public static float count = 1;
-        
-        public static bool On = false;
+
+        public static bool ShowIntro = true;
         public static string Players = ConfigKey.MaxPlayers.GetString();
-        public static string Name = "Au70 Galaxy";
+        public static string Name = "Vanilla Galaxy";
         public static string ServerName = Uri.EscapeDataString(Name);
         public static string Public = "True";
         public static int Port = 25565;
-       
-        public static string Salt = Heartbeat.Salt.ToString(); 
-        
+
+        public static string Salt = Heartbeat.Salt.ToString();
+
 
         static void Main()
         {
+            if (ShowIntro == true)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("************************************\n");
+                Console.WriteLine(" Welcome to 800Craft HeartbeatSaver\n");
+                Console.WriteLine(" This program is designed to send a\n    Heartbeat to minecraft.net      \n");
+                Console.WriteLine("************************************\n");
+                Console.ResetColor();
+                Console.WriteLine("\nSending Information... Name: {0}, Port: {1}\n\n", Name, Port);
+            }
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            ShowIntro = false;
             string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
             string mutexId = string.Format("Global\\{{{0}}}", appGuid);
 
@@ -53,21 +65,19 @@ namespace HeartbeatSender
                     {
                         Console.WriteLine("Something went wrong :(");
                     }
-                    
+
                     // this is what we are sending
                     StringBuilder sb = new StringBuilder();
-                    sb.AppendFormat("public={0}&max={1}&users={2}&port={3}&version=7&salt={4}&name={5}", 
+                    sb.AppendFormat("public={0}&max={1}&users={2}&port={3}&version=7&salt={4}&name={5}",
                     Public,
                     120,
-                    Players,
-                    Port, 
-                    Salt, 
+                    32,
+                    Port,
+                    Salt,
                     ServerName);
 
                     string post_data = sb.ToString();
-                    Console.WriteLine("Sending " + sb.ToString() + "\n");
-                    Console.WriteLine("Count: " + count + "\n");
-
+                    Console.WriteLine("Sending Heartbeat... Count: " + count + "\n");
 
                     // this is where we will send it
                     string uri = "http://www.minecraft.net/heartbeat.jsp";
@@ -91,13 +101,25 @@ namespace HeartbeatSender
                     requestStream.Write(postBytes, 0, postBytes.Length);
                     requestStream.Flush();
                     requestStream.Close();
-                    //message
 
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    try
+                    {
+                        Console.WriteLine(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                        Console.WriteLine(response.StatusCode + "\n");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("" + ex);
+                    }
 
                     Thread.Sleep(5000);
                     count++;
+                    Console.ResetColor();
                     Main();
+
                 }
+
                 finally
                 {
                     mutex.ReleaseMutex();
@@ -106,6 +128,10 @@ namespace HeartbeatSender
         }
     }
 }
+    
+
+
+
         
     
 
