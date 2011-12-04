@@ -6,56 +6,107 @@ using System.Net;
 using System.IO;
 using System.Threading;
 using fCraft;
+using System.Runtime.InteropServices;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
+
+
 namespace HeartbeatSender
 {
     class HeartbeatSender
     {
-        public static bool On = true;
-
+        public static float count = 1;
+        
+        public static bool On = false;
+        public static string Players = ConfigKey.MaxPlayers.GetString();
+        public static string Name = "Au70 Galaxy";
+        public static string ServerName = Uri.EscapeDataString(Name);
+        public static string Public = "True";
+        public static int Port = 25565;
+       
+        public static string Salt = Heartbeat.Salt.ToString(); 
+        
 
         static void Main()
         {
-            string port = Server.Port.ToString();
-            string Salt = Heartbeat.Salt;
-            string Name = ConfigKey.ServerName.GetString();
+            string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value.ToString();
+            string mutexId = string.Format("Global\\{{{0}}}", appGuid);
 
-            // this is what we are sending
-            StringBuilder sb = new StringBuilder();
-            sb.AppendFormat("public=True&max=20&users=120&port=25565&version=7&salt={1}&name=Au70Galaxy", port, Salt, Name);
-            string post_data = sb.ToString();
-            Console.WriteLine("Sending " + sb.ToString() + "\n");
+            using (var mutex = new Mutex(false, mutexId))
+            {
+                try
+                {
+                    try
+                    {
+                        if (!mutex.WaitOne(TimeSpan.FromSeconds(1), false))
+                        {
+                            Console.WriteLine("-------------------------------------\n");
+                            Console.WriteLine("The HeartbeatSaver is already running\n");
+                            Console.WriteLine("-------------------------------------\n\nExiting...");
+                            Thread.Sleep(2000);
+                            Environment.Exit(0);
+                        }
+                    }
+                    catch (AbandonedMutexException)
+                    {
+                        Console.WriteLine("Something went wrong :(");
+                    }
+                    
+                    // this is what we are sending
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendFormat("public={0}&max={1}&users={2}&port={3}&version=7&salt={4}&name={5}", 
+                    Public,
+                    120,
+                    Players,
+                    Port, 
+                    Salt, 
+                    ServerName);
+
+                    string post_data = sb.ToString();
+                    Console.WriteLine("Sending " + sb.ToString() + "\n");
+                    Console.WriteLine("Count: " + count + "\n");
 
 
-            // this is where we will send it
-            string uri = "http://www.minecraft.net/heartbeat.jsp";
+                    // this is where we will send it
+                    string uri = "http://www.minecraft.net/heartbeat.jsp";
 
-            // create a request
-            HttpWebRequest request = (HttpWebRequest)
-            WebRequest.Create(uri); request.KeepAlive = false;
-            request.ProtocolVersion = HttpVersion.Version10;
-            request.Method = "POST";
+                    // create a request
+                    HttpWebRequest request = (HttpWebRequest)
+                    WebRequest.Create(uri); request.KeepAlive = true;
+                    request.ProtocolVersion = HttpVersion.Version10;
+                    request.Method = "POST";
 
-            // turn our request string into a byte stream
-            byte[] postBytes = Encoding.ASCII.GetBytes(post_data);
+                    // turn request string into a byte stream
+                    byte[] postBytes = Encoding.ASCII.GetBytes(post_data);
+
+                    request.ContentType = "application/x-www-form-urlencoded";
+                    request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+                    request.ContentLength = postBytes.Length;
+                    request.Timeout = 15000;
+                    Stream requestStream = request.GetRequestStream();
+
+                    // send it
+                    requestStream.Write(postBytes, 0, postBytes.Length);
+                    requestStream.Flush();
+                    requestStream.Close();
+                    //message
 
 
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = postBytes.Length;
-            Stream requestStream = request.GetRequestStream();
-
-            // send it
-
-            requestStream.Write(postBytes, 0, postBytes.Length);
-            requestStream.Close();
-
-            Console.WriteLine("Sent\n");
-            On = false;
-
-            Thread.Sleep(15000);
-            Main();
+                    Thread.Sleep(5000);
+                    count++;
+                    Main();
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
+            }
         }
     }
-   
-
 }
+        
+    
 
+            

@@ -29,8 +29,8 @@ namespace fCraft {
         static Heartbeat() {
             MinecraftNetUri = new Uri( "http://www.minecraft.net/heartbeat.jsp" );
             WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
-            Delay = TimeSpan.FromSeconds( 10 );
-            Timeout = TimeSpan.FromSeconds( 10 );
+            Delay = TimeSpan.FromSeconds( 15 );
+            Timeout = TimeSpan.FromSeconds( 15 );
             Salt = Server.GetRandomString( 32 );
         }
 
