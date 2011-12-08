@@ -155,6 +155,8 @@ namespace fCraft
         /// <summary> Ability to chat in capital letters. </summary>
         ChatCaps,
         /// <summary> Ability to swear. </summary>
-        Swear
+        Swear,
+        /// <summary> Ability to Make votes in /vote </summary>
+        MakeVotes
     }
 }

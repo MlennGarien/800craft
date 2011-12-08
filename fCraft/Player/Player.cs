@@ -129,6 +129,8 @@ namespace fCraft {
             }
         }
 
+        
+
         /// <summary> Name formatted for display in chat. </summary>
         [NotNull]
         public string ClassyName {

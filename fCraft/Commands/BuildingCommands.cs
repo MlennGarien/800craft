@@ -115,6 +115,11 @@ namespace fCraft {
                 fCraft.Utils.FlyHandler.GetInstance().StopFlying(player);
                 player.Message("You are no longer flying.");
             }
+            if (player.IsUsingWoM)
+            {
+                player.Message("You cannot use /fly when using WOM");
+                return;
+            }
             else
             {
                 fCraft.Utils.FlyHandler.GetInstance().StartFlying(player);

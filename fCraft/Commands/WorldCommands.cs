@@ -1669,8 +1669,8 @@ namespace fCraft
                 var SunsetStart = new TimeSpan(19, 0, 0);
                 var SunsetEnd = new TimeSpan(19, 29, 59);
                 var NightaStart = new TimeSpan(19, 30, 0);
-                var NightaEnd = new TimeSpan(24, 0, 1);
-                var NightbStart = new TimeSpan(24, 0, 2);
+                var NightaEnd = new TimeSpan(1, 0, 1);
+                var NightbStart = new TimeSpan(1, 0, 2);
                 var NightbEnd = new TimeSpan(6, 29, 59);
 
                 if (now.TimeOfDay > SunriseStart && now.TimeOfDay < SunriseEnd ) //sunrise

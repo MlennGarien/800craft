@@ -103,8 +103,12 @@ namespace fCraft
         {
             string option = cmd.Next();
 
+
             if (option == null)
+            {
+                CdVote.PrintUsage(player);
                 return;
+            }
 
             if (option == "yes")
             {
@@ -121,16 +125,13 @@ namespace fCraft
                 }
                 else
                 {
-                    Scheduler.NewTask(t => player.Info.HasVoted = false).RunOnce(TimeSpan.FromSeconds(60));
+                    Server.Voted.Add(player);
                     Server.VoteYes++;
                     player.Info.HasVoted = true;
                     player.Message("You have voted for 'Yes'");
                     return;
                 }
             }
-
-
-
 
             if (option == "no")
             {
@@ -149,26 +150,27 @@ namespace fCraft
                 else
                 {
                     Server.VoteNo++;
+                    Server.Voted.Add(player);
                     player.Info.HasVoted = true;
-                    Scheduler.NewTask(t => player.Info.HasVoted = false).RunOnce(TimeSpan.FromSeconds(60));
                     player.Message("You have voted for 'No'");
                     return;
                 }
             }
-
+            
             if (option == "ask")
             {
-                if (player.Can(Permission.ReadStaffChat))
+                if (player.Can(Permission.MakeVotes))
                 {
                     string question = cmd.NextAll();
+
                     if (Server.VoteIsOn)
                     {
-                        player.Message("A vote is already on");
+                        player.Message("A vote has already started. Each vote lasts 1 minute.");
                         return;
                     }
                     if (!Server.VoteIsOn)
                     {
-                        if (question == null)
+                        if (question.Length < 5)
                         {
                             player.Message("Invalid question");
                             return;
@@ -176,25 +178,34 @@ namespace fCraft
 
                         else
                         {
-
                             Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question);
                             Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
                             Server.VoteIsOn = true;
-                            Scheduler.NewTask(t => Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName,
-                                               question, Server.VoteYes,
-                                               Server.VoteNo))
-                                               .RunOnce(TimeSpan.FromSeconds(60));
-
-                            Scheduler.NewTask(t => Server.VoteIsOn = false).RunOnce(TimeSpan.FromSeconds(60));
-                            Scheduler.NewTask(t => Server.VoteYes = 0).RunOnce(TimeSpan.FromSeconds(61));
-                            Scheduler.NewTask(t => Server.VoteNo = 0).RunOnce(TimeSpan.FromSeconds(61));
-
+                            Scheduler.NewTask(t => VoteCheck(player)).RunOnce(TimeSpan.FromSeconds(60));
+                            Server.Question = question;
                         }
+                        
+                        
                     }
                     else
                         player.Message("You do not have permissions to ask a question");
                     return;
                 }
+            }
+        }
+
+        public static void VoteCheck(Player player)
+        {
+            Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName,
+                                               Server.Question, Server.VoteYes,
+                                               Server.VoteNo);
+            Server.VoteYes = 0;
+            Server.VoteNo = 0;
+            Server.VoteIsOn = false;
+
+            foreach (Player V in Server.Voted)
+            {
+                V.Info.HasVoted = false;
             }
         }
 

@@ -128,11 +128,3 @@ namespace HeartbeatSender
         }
     }
 }
-    
-
-
-
-        
-    
-
-            

@@ -898,7 +898,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "Player.JoinWorldNow may only be called from player's own thread. " +
                                                      "Use Player.JoinWorld instead." );
             }
-
+            
             string textLine1 = ConfigKey.ServerName.GetString();
             string textLine2;
 
@@ -929,8 +929,12 @@ namespace fCraft {
                                 "but the world did not contain the player." );
                 }
             }
-
+            
             ResetVisibleEntities();
+
+            if(oldWorld != null) 
+            DummyEvent(this.World); //super coding going on right here
+
 
             ClearLowPriotityOutputQueue();
 
@@ -938,8 +942,11 @@ namespace fCraft {
 
             // try to join the new world
             if( oldWorld != newWorld ) {
+                
                 bool announce = (oldWorld != null) && (oldWorld.Name != newWorld.Name);
                 map = newWorld.AcceptPlayer( this, announce );
+                
+                
                 if( map == null ) {
                     return false;
                 }
@@ -1019,9 +1026,9 @@ namespace fCraft {
             if (World.IsRealm && oldWorld == newWorld)
             {
                 Message("Rejoined Realm {0}", newWorld.ClassyName);
-                if (World.DummyCount > 0)
+                if (World.Map.DummyCount > 0)
                 {
-                    foreach (Player d in World.Dummys)
+                    foreach (Player d in World.Map.Dummys)
                     {
                         this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
                     }
@@ -1031,20 +1038,35 @@ namespace fCraft {
             else if(World.IsRealm)
             {
                 Message("Joined Realm {0}", newWorld.ClassyName);
+                if (World.Map.DummyCount > 0)
+                {
+                    foreach (Player d in World.Map.Dummys)
+                    {
+                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+
+                    }
+                }
             }
 
 
             if( !World.IsRealm && oldWorld == newWorld ) {
                 Message( "Rejoined world {0}", newWorld.ClassyName );
-                if (World.DummyCount > 0)
+                if (World.Map.DummyCount > 0)
                 {
-                    foreach (Player d in World.Dummys)
+                    foreach (Player d in World.Map.Dummys)
                     {
                         this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
                     }
                 }
             } else if(!World.IsRealm) {
                 Message( "Joined world {0}", newWorld.ClassyName );
+                if (World.Map.DummyCount > 0)
+                {
+                    foreach (Player d in World.Map.Dummys)
+                    {
+                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                    }
+                }
             }
 
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
@@ -1056,7 +1078,14 @@ namespace fCraft {
         }
 
         #endregion
-
+        public void DummyEvent(World world)
+        {
+            foreach (Player d in world.Map.Dummys)
+            {
+                Send(PacketWriter.MakeRemoveEntity(d.Info.DummyID));
+                //dummy in TAB fix for new worlds
+            }
+        }
 
         #region Sending
 
