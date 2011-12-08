@@ -341,6 +341,8 @@ namespace fCraft {
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
 
+            PluginManager.GetInstance();
+
             // open the port
             Port = ConfigKey.Port.GetInt();
             InternalIP = IPAddress.Parse( ConfigKey.IP.GetString() );
