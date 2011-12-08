@@ -12,7 +12,7 @@ namespace fCraft.Portals
 {
     public class PortalDB
     {
-        private static TimeSpan SaveInterval = TimeSpan.FromSeconds(90);
+        private static TimeSpan SaveInterval = TimeSpan.FromSeconds(120);
         private static readonly object SaveLoadLock = new object();
 
         public static void Save()

@@ -22,7 +22,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdTimer);
             CommandManager.RegisterCommand(cdReview);
             CommandManager.RegisterCommand(CdAdminChat);
-            CommandManager.RegisterCommand(CdEngineerChat);
+            CommandManager.RegisterCommand(CdCustomChat);
             CommandManager.RegisterCommand(cdAway);
             CommandManager.RegisterCommand(cdHigh5);
             CommandManager.RegisterCommand(CdPoke);
@@ -48,8 +48,8 @@ namespace fCraft
         {
             if (!fCraft.Utils.BroMode.Active)
             {
-                Server.Players.Message("{0}&S turned Bro mode on.", player.ClassyName);
-
+               Server.Players.Message("{0}&S turned Bro mode on.", player.ClassyName);
+                
                 foreach (Player p in Server.Players)
                 {
                     fCraft.Utils.BroMode.GetInstance().RegisterPlayer(p);
@@ -59,7 +59,7 @@ namespace fCraft
             }
             else
             {
-                Server.Players.Message("{0}&S turned Bro Mode off.", player.Info.oldname);
+                Server.Players.Message("{0}&S turned Bro Mode off.", player.Name);
 
                 foreach (Player p in Server.Players)
                 {
@@ -103,8 +103,12 @@ namespace fCraft
         {
             string option = cmd.Next();
 
+
             if (option == null)
+            {
+                CdVote.PrintUsage(player);
                 return;
+            }
 
             if (option == "yes")
             {
@@ -121,16 +125,13 @@ namespace fCraft
                 }
                 else
                 {
-                    Scheduler.NewTask(t => player.Info.HasVoted = false).RunOnce(TimeSpan.FromSeconds(60));
+                    Server.Voted.Add(player);
                     Server.VoteYes++;
                     player.Info.HasVoted = true;
                     player.Message("You have voted for 'Yes'");
                     return;
                 }
             }
-
-
-
 
             if (option == "no")
             {
@@ -149,26 +150,27 @@ namespace fCraft
                 else
                 {
                     Server.VoteNo++;
+                    Server.Voted.Add(player);
                     player.Info.HasVoted = true;
-                    Scheduler.NewTask(t => player.Info.HasVoted = false).RunOnce(TimeSpan.FromSeconds(60));
                     player.Message("You have voted for 'No'");
                     return;
                 }
             }
-
+            
             if (option == "ask")
             {
-                if (player.Can(Permission.ReadStaffChat))
+                if (player.Can(Permission.MakeVotes))
                 {
                     string question = cmd.NextAll();
+
                     if (Server.VoteIsOn)
                     {
-                        player.Message("A vote is already on");
+                        player.Message("A vote has already started. Each vote lasts 1 minute.");
                         return;
                     }
                     if (!Server.VoteIsOn)
                     {
-                        if (question == null)
+                        if (question.Length < 5)
                         {
                             player.Message("Invalid question");
                             return;
@@ -176,20 +178,14 @@ namespace fCraft
 
                         else
                         {
-
                             Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question);
                             Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
                             Server.VoteIsOn = true;
-                            Scheduler.NewTask(t => Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName,
-                                               question, Server.VoteYes,
-                                               Server.VoteNo))
-                                               .RunOnce(TimeSpan.FromSeconds(60));
-
-                            Scheduler.NewTask(t => Server.VoteIsOn = false).RunOnce(TimeSpan.FromSeconds(60));
-                            Scheduler.NewTask(t => Server.VoteYes = 0).RunOnce(TimeSpan.FromSeconds(61));
-                            Scheduler.NewTask(t => Server.VoteNo = 0).RunOnce(TimeSpan.FromSeconds(61));
-
+                            Scheduler.NewTask(t => VoteCheck(player)).RunOnce(TimeSpan.FromSeconds(60));
+                            Server.Question = question;
                         }
+                        
+                        
                     }
                     else
                         player.Message("You do not have permissions to ask a question");
@@ -198,16 +194,30 @@ namespace fCraft
             }
         }
 
-        static readonly CommandDescriptor CdEngineerChat = new CommandDescriptor
+        public static void VoteCheck(Player player)
         {
-            Name = "Engineerchat",
-            Aliases = new[] { "ec", "en" },
+            Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName,
+                                               Server.Question, Server.VoteYes,
+                                               Server.VoteNo);
+            Server.VoteYes = 0;
+            Server.VoteNo = 0;
+            Server.VoteIsOn = false;
+
+            foreach (Player V in Server.Voted)
+            {
+                V.Info.HasVoted = false;
+            }
+        }
+
+        static readonly CommandDescriptor CdCustomChat = new CommandDescriptor
+        {
+            Name = ConfigKey.CustomChatChannel.GetString(),
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             NotRepeatable = true,
-            Usage = "/ec Message",
-            Help = "Broadcasts your message to all engineers+ on the server at once.",
+            Usage = "/Customname Message",
+            Help = "Broadcasts your message to all players allowed to read the CustomChatChannel.",
             Handler = EngineerHandler
         };
 
@@ -229,7 +239,7 @@ namespace fCraft
                 {
                     message = Color.ReplacePercentCodes(message);
                 }
-                Chat.SendEngineer(player, message);
+                Chat.SendCustom(player, message);
             }
         }
 
@@ -239,7 +249,7 @@ namespace fCraft
         {
             Name = "Troll",
             Category = CommandCategory.Chat,
-            Permissions = new[] { Permission.OwnerStuff },
+            Permissions = new[] { Permission.Troll },
             IsConsoleSafe = true,
             NotRepeatable = false,
             Usage = "/troll Player type Message",
@@ -258,6 +268,12 @@ namespace fCraft
                     string msg = cmd.NextAll().Trim();
 
                     Player target = Server.FindPlayerOrPrintMatches(player, pName, true, true);
+
+                    if (Player.IsInValidName(pName))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
 
                     if (msg.Length == 0)
                     {
@@ -282,6 +298,11 @@ namespace fCraft
                     string msgAc = cmd.NextAll().Trim();
 
                     Player target2 = Server.FindPlayerOrPrintMatches(player, aName, true, true);
+                    if (Player.IsInValidName(aName))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
 
                     if (msgAc.Length == 0)
                     {
@@ -307,29 +328,16 @@ namespace fCraft
                         }
                     }
                     break;
-                case "en":
-                case "ec":
-                case "engineerchat":
-                    string eName = cmd.Next();
-                    string msgEc = cmd.NextAll().Trim();
-
-                    Player target3 = Server.FindPlayerOrPrintMatches(player, eName, true, true);
-
-                    if (msgEc.Length == 0)
-                    {
-                        player.Message("Error: Please enter a message for {0}.", target3.ClassyName);
-                        return;
-                    }
-                    else
-                    {
-                        Chat.SendEngineer(target3, msgEc);
-                    }
-                    break;
                 case "st":
                 case "staff":
                     string SName = cmd.Next();
                     string msgSc = cmd.NextAll().Trim();
 
+                    if (Player.IsInValidName(SName))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
                     Player target4 = Server.FindPlayerOrPrintMatches(player, SName, true, true);
 
                     if (msgSc.Length == 0)
@@ -394,6 +402,12 @@ namespace fCraft
                     string elol = cmd.Next();
                     if (elol == null)
                     { player.Message("Nope"); return; }
+
+                    if (Player.IsInValidName(elol))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
                     else
                     {
                         Player target6 = Server.FindPlayerOrPrintMatches(player, elol, true, true);
@@ -691,6 +705,25 @@ namespace fCraft
 
         static void StaffHandler(Player player, Command cmd)
         {
+            string message = cmd.NextAll().Trim();
+
+            if(message == "static")
+            {
+                if (player.IsStaticStaff)
+                {
+                    player.IsStaticStaff = false;
+                    player.Message("&W(Staff): Static mode is now OFF.");
+                    return;
+                }
+
+                if (!player.IsStaticStaff)
+                {
+                    player.IsStaticStaff = true;
+                    player.Message("&W(Staff): Static mode is now ON. Use /Staff to turn OFF");
+                    return;
+                }
+            }
+            
             if (player.Info.IsMuted)
             {
                 player.MessageMuted();
@@ -699,7 +732,6 @@ namespace fCraft
 
             if (player.DetectChatSpam()) return;
 
-            string message = cmd.NextAll().Trim();
             if (message.Length > 0)
             {
                 if (player.Can(Permission.UseColorCodes) && message.Contains("%"))

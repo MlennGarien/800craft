@@ -7,7 +7,7 @@ namespace fCraft {
     public enum ConfigKey {
         #region General
 
-        [StringKey( ConfigSection.General, "Custom Minecraft Server (fCraft)",
+        [StringKey( ConfigSection.General, "Custom Minecraft Server (800Craft)",
 @"The name of the server, as shown on the welcome screen and the
 official server list (if server is public).",
             MinLength = 1, MaxLength = 64 )]
@@ -112,6 +112,10 @@ will not show custom skins for players with prefixed names." )]
 @"Color of normal system messages." )]
         SystemMessageColor,
 
+        [ColorKey(ConfigSection.Chat, Color.CustomDefault,
+@"Color of custom chat channel name.")]
+        CustomMessageColor,
+
         [ColorKey( ConfigSection.Chat, Color.HelpDefault,
 @"Color of command usage examples in help." )]
         HelpColor,
@@ -143,6 +147,11 @@ colorcodes in announcement and rule files." )]
 Announcements are shown to all players, one line at a time, in random order.",
             MinValue = 0 )]
         AnnouncementInterval,
+
+        [StringKey(ConfigSection.Chat, "engineerchat",
+@"The name of a custon chat channel. It should be only one word, starting with a capital letter.",
+            MinLength = 1, MaxLength = 30)]
+        CustomChatChannel,
 
         #endregion
 

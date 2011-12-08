@@ -168,7 +168,7 @@ namespace fCraft.Portals
 
                         foreach (Portal portal in world.Portals)
                         {
-                            if (portal.Name.Equals("Portal" + portalID))
+                            if (portal.Name.Equals("portal" + portalID))
                             {
                                 taken = true;
                                 break;

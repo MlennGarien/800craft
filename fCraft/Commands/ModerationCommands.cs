@@ -57,7 +57,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdSpectate );
             CommandManager.RegisterCommand( CdUnspectate );
 
-              CommandManager.RegisterCommand(CdSlap);
+            CommandManager.RegisterCommand(CdSlap);
             CommandManager.RegisterCommand(CdTPZone);
             CommandManager.RegisterCommand(CdBasscannon);
             CommandManager.RegisterCommand(CdKill);
@@ -68,9 +68,8 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(cdDisconnect);
             CommandManager.RegisterCommand(CdDummy);
-            
         }
-         
+        
         #region custom
 
         static readonly CommandDescriptor CdDummy = new CommandDescriptor
@@ -78,51 +77,118 @@ namespace fCraft {
             Name = "Dummy",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = false,
-            Permissions = new[] { Permission.OwnerStuff },
+            Permissions = new[] { Permission.MakeDummys },
             Help = "Makes a dummy player.",
             NotRepeatable = false,
-            Usage = "/dummy name",
+            Usage = "/dummy create | undo | list ",
             Handler = DummyHandler
         };
 
         public static void DummyHandler(Player player, Command cmd)
         {
-            try
+            string option = cmd.Next();
+            World world = player.World;
+
+            switch (option)
             {
-                string name = cmd.Next();
-                World world = player.World;
+                case "create":
 
-                if (name == null)
-                {
-                    player.Message(Color.Sys, "Usage: " + Color.Help + "/dummy name");
-                    return;
-                }
+                    string name = cmd.Next();
+                    if (name == null)
+                    {
+                        CdDummy.PrintUsage(player);
+                        return;
+                    }
+                   
+                    if (name.Length < 2)
+                    {
+                        player.Message("The name you have chosen is too small");
+                        return;
+                    }
 
-                if (!Player.IsValidName(name))
-                {
-                    player.Message(Color.Sys, "Invalid name format.");
-                    return;
-                }
+                    if (!Player.IsValidName(name))
+                    {
+                        player.Message("Invalid name format.");
+                        return;
+                    }
 
-                Position pos = player.Position;
-                Player dummy = new Player(name);
+                    try
+                    {
+                        Player dummy = new Player(name);
+                        Position pos = player.Position;
+                        world.Map.DummyCount++;
+                        dummy.Info.ID = world.Map.DummyCount;
+                        world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos)); //makes the dummy
+                        world.Map.Dummys.Add(dummy); //adds the dummy to a list
+                        world.Map.DummyCounter++; //counts how many dummys are on each world
 
-                dummy.Info.ID = player.Info.ID + 100;
+                        //used for reloading dummies.
+                        dummy.Info.DummyID = dummy.Info.ID;
+                        dummy.Info.DummyName = name;
+                        dummy.Info.DummyPos = pos;
+                    }
 
-                Server.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos));
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.Error, "ModerationCommands.DummyHandler: " + ex);
+                    catch (Exception ex)
+                    {
+                        Logger.Log(LogType.Error, "ModerationCommands.DummyHandler: " + ex);
+                    }
+                    break;
+
+                case "undo":
+                    string name2 = cmd.Next();
+
+                    if (name2 == null) //if user didnt enter an int
+                    {
+
+                        if (world.Map.DummyCount == 0) //stops user from deleting dummys that doent exist
+                        {
+                            player.Message("All dummys have been removed on this world");
+                            return;
+                        }
+
+                        player.World.Players.Send(PacketWriter.MakeRemoveEntity(world.Map.DummyCount)); //removes the dummy from the world
+
+                        player.World.Map.DummyCount--;
+                        List<Player> toRemove = new List<Player>();
+                        foreach (Player d in world.Map.Dummys)
+                        {
+                            if (d.Info.ID == world.Map.DummyCount + 1)
+                                toRemove.Add(d); //adds chosed ID to a removing list
+                        }
+
+                        foreach (Player r in toRemove)
+                        {
+                            world.Map.Dummys.Remove(r); //removes the dummy from the list of dummys
+                            player.Message("Dummy {0}&S has been removed", r.ClassyName);
+                        }
+                    }
+                    else CdDummy.PrintUsage(player);
+                    //yes
+
+                    break;
+
+                case "list":
+
+                    if (world.Map.DummyCount > 0)
+                    {
+                        player.Message("Dummys available on world {0}: ", world.ClassyName);
+                        foreach (Player d in world.Map.Dummys)
+                        {
+                            player.Message("Name: {0}&S  ID: {1}", d.ClassyName, d.Info.ID);
+                        }
+                    }
+                    else player.Message("There are no dummys on world {0}", world.ClassyName);
+                    break;
+
+                default: CdDummy.PrintUsage(player); break;
             }
         }
-
 
         static readonly CommandDescriptor CdKill = new CommandDescriptor
         {
             Name = "Kill",
             Category = CommandCategory.Moderation,
-            IsConsoleSafe = true,
+            IsConsoleSafe = false,
             Permissions = new[] { Permission.Kill },
             Help = "Kills a player.",
             NotRepeatable = true,
@@ -155,7 +221,7 @@ namespace fCraft {
             else
             {
 
-                if (player.Can(Permission.Chat, target.Info.Rank))
+                if (player.Can(Permission.Kill, target.Info.Rank))
                 {
                     target.TeleportTo(player.World.Map.Spawn);
                     Server.Players.Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
@@ -164,12 +230,12 @@ namespace fCraft {
                 else
                 {
                     player.Message("You can only Kill players ranked {0}&S or lower",
-                                    player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                    player.Info.Rank.GetLimit(Permission.Kill).ClassyName);
                     player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
                 }
             }
         }
-
+        
         static readonly CommandDescriptor CdPossess = new CommandDescriptor
         {
             Name = "Possess",
@@ -202,7 +268,7 @@ namespace fCraft {
                 return;
             }
 
-            if (player.Can(Permission.BanIP, target.Info.Rank))
+            if (player.Can(Permission.Possess, target.Info.Rank))
             {
                 Position P = target.Position;
                 player.TeleportTo(P);
@@ -213,7 +279,7 @@ namespace fCraft {
             else
             {
                 player.Message("You can only Possess players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
@@ -249,7 +315,7 @@ namespace fCraft {
                 return;
             }
 
-            if (player.Can(Permission.BanIP, target.Info.Rank))
+            if (player.Can(Permission.Possess, target.Info.Rank))
             {
 
                UnPossess(target, new Command("/unfollow " + player.Name));
@@ -259,7 +325,7 @@ namespace fCraft {
             else
             {
                 player.Message("Unpossess failed. Try to /hide then /unhide",
-                                player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
@@ -305,11 +371,11 @@ namespace fCraft {
                     return;
                 }
 
-                if (player.Can(Permission.Ban, target.Info.Rank))
+                if (player.Can(Permission.Slap, target.Info.Rank))
                 {
                     if (target.Can(Permission.Teleport))
                     {
-                        Position slap = new Position(player.Position.X, player.Position.Y, (player.World.Map.Bounds.ZMax)*32);
+                        Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax)*32);
                         Server.Players.Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                         target.TeleportTo(slap);
                         return;
@@ -323,7 +389,7 @@ namespace fCraft {
 
                 {
                     player.Message("&sYou can only Slap players ranked {0}&S or lower",
-                                    player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                    player.Info.Rank.GetLimit(Permission.Slap).ClassyName);
                     player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
 
                 }
@@ -683,13 +749,13 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
 
-            if (player.Can(Permission.OwnerStuff, target.Info.Rank))
+            if (player.Can(Permission.Gtfo))
             {
 
                 try
                 {
                     Player targetPlayer = target;
-                    target.Kick(player, "Manually disconnected by an Owner", LeaveReason.Kick, true, true, false);
+                    target.Kick(player, "Manually disconnected by "+player.Name, LeaveReason.Kick, true, true, false);
 
 
                 }
@@ -712,8 +778,9 @@ namespace fCraft {
 
         #region Custom Functions
 
-        static void Possess(Player player, Command cmd, string targetName)
+        static void Possess(Player player, Command cmd, string toPossess)
         {
+            string targetName = cmd.Next();
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
             if (targetName == null)
             {
@@ -722,30 +789,23 @@ namespace fCraft {
                 {
                     Player spec = target.SpectatedPlayer;
                     if (spec != null)
-                    {
-                        target.Message("You are being possessed");
-                    }
-                    else
-                        return;
+                        player.Message("Now possessing {0}", target.ClassyName);
+                    
                 }
                 else
                 {
-                    target.Message("Please enter a name");
+                    CdPossess.PrintUsage(player);
                 }
                 return;
             }
 
+            
             if (target == null) return;
 
             if (target == player)
             {
-                player.Message("You cannot possess yourself.");
+                player.Message("You cannot Possess yourself.");
                 return;
-            }
-
-            if (!target.Spectate(target))
-            {
-                target.Message("Already possessing {0}", target.ClassyName);
             }
         }
 

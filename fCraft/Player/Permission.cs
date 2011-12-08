@@ -28,13 +28,18 @@ namespace fCraft
         PlaceLava,
         /// <summary> Ability to build admincrete. </summary>
         PlaceAdmincrete,
-        OwnerStuff,
         /// <summary> Ability to start bromode. </summary>
         BroMode,
+        /// <summary> Ability to impersonate other players (Power Abusable Tool). </summary>
+        Troll,
+        /// <summary> Ability to hide selected ranks. </summary>
+        HideRanks,
+        /// <summary> Ability to spawn skins to your position. </summary>
+        MakeDummys,
         /// <summary> Ability to read admin chat. </summary>
         ReadAdminChat,
-        /// <summary> Ability to read engineer chat. </summary>
-        ReadEngineerChat,
+        /// <summary> Ability to read from the custom chat channel. </summary>
+        ReadCustomChat,
         /// <summary> Ability to use realms. </summary>
         Realm,
         /// <summary> Ability to possess other players. </summary>
@@ -150,6 +155,8 @@ namespace fCraft
         /// <summary> Ability to chat in capital letters. </summary>
         ChatCaps,
         /// <summary> Ability to swear. </summary>
-        Swear
+        Swear,
+        /// <summary> Ability to Make votes in /vote </summary>
+        MakeVotes
     }
 }

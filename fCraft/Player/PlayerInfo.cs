@@ -13,13 +13,21 @@ namespace fCraft {
     public sealed partial class PlayerInfo : IClassy {
         public const int MinFieldCount = 24;
 
+        public int DummyID;
+        public string DummyName;
+        public Position DummyPos;
+
+
         /// <summary> Player's Minecraft account name. </summary>
         [NotNull]
         public string Name { get; internal set; }
 
+
         /// <summary> If set, replaces Name when printing name in chat. </summary>
         [CanBeNull]
         public string DisplayedName;
+
+        public bool changedName = false;
 
         /// <summary> Player's unique numeric ID. Issued on first join. </summary>
         public int ID;

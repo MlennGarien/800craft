@@ -38,6 +38,8 @@ namespace fCraft {
         public static bool VoteIsOn;
         public static float VoteYes = 0;
         public static float VoteNo = 0;
+        public static List<Player> Voted = new List<Player>();
+        public static string Question;
         public static bool profanityFilter = true;
 
 
@@ -447,7 +449,7 @@ namespace fCraft {
             RaiseEvent( Started );
             PortalHandler.GetInstance();
             PortalDB.Load();
-            Physics.Physics.Load();
+            //Physics.Physics.Load();
 
             if (ConfigKey.MineQuery.Enabled())
             {

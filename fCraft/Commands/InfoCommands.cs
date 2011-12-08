@@ -37,7 +37,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdColors );
 
-            CommandManager.RegisterCommand(cdFly);
+            //CommandManager.RegisterCommand(cdFly);
             CommandManager.RegisterCommand(CdReqs);
 
 #if DEBUG_SCHEDULER
@@ -45,30 +45,7 @@ namespace fCraft {
 #endif
         }
 
-        static readonly CommandDescriptor cdFly = new CommandDescriptor
-        {
-            Name = "Fly",
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            Aliases = new[] { "speed" },
-            Permissions = new[] { Permission.Chat },
-            Usage = "/fly",
-            Help = "How to fly or speed",
-            Handler = Fly
-        };
-
-        static void Fly(Player player, Command cmd)
-        {
-            if (player.IsFlying)
-            {
-                FlyHandler.GetInstance().StopFlying(player);
-            }
-            else
-            {
-                FlyHandler.GetInstance().StartFlying(player);
-            }
-        }
-
+       
         static readonly CommandDescriptor CdReqs = new CommandDescriptor
         {
             Name = "Requirements",
@@ -230,13 +207,6 @@ namespace fCraft {
                 // own name given
                 player.LastUsedPlayerName = player.Name;
                 PrintPlayerInfo( player, player.Info );
-                float blocks = ((player.Info.BlocksBuilt + player.Info.BlocksDrawn) - player.Info.BlocksDeleted);
-                if (blocks < 0)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append(Color.Green).Append('*');
-                }
-                return;
 
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 // someone else's name or IP given, permission required.
@@ -602,9 +572,9 @@ namespace fCraft {
                 player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
                                 totalTime.TotalHours,
                                 totalTime.TotalMinutes );
-                float blocks = ((info.BlocksBuilt + info.BlocksDrawn) - info.BlocksDeleted);
+                float blocks = ((info.BlocksBuilt + info.BlocksDrawn) - info.BlocksDeleted); 
                 if (blocks < 0)
-                    player.Message(" &CWARNING! {0}&S has deleted more than built!", info.ClassyName);
+                    player.Message(" &CWARNING! {0}&S has deleted more than built!", info.ClassyName);//<---- GlennMR on Au70 Galaxy
 
                 else return;
             }
@@ -1195,8 +1165,10 @@ namespace fCraft {
                     player.Message( "There are no players {0}", qualifier );
 
                 } else if( visiblePlayers.Length <= PlayersPerPage || player.IsSuper ) {
+                    StringBuilder sb = new StringBuilder();
+                   
                     player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2}",
-                                            visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString() );
+                                            visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString());
 
                 } else {
                     if( offset >= visiblePlayers.Length ) {

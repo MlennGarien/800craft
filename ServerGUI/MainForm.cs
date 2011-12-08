@@ -24,6 +24,8 @@ namespace fCraft.ServerGUI {
         }
 
 
+
+
         void StartUp( object sender, EventArgs a ) {
             Thread startUpThread = new Thread(new ThreadStart(delegate
             {
@@ -37,10 +39,10 @@ namespace fCraft.ServerGUI {
                 try
                 {
 #endif
-                    SetConsoleText("fCraft " + Updater.CurrentRelease.VersionString + " - starting...");
+                    SetConsoleText("800Craft " + Updater.CurrentRelease.VersionString + " - starting...");
                     Server.InitLibrary(Environment.GetCommandLineArgs());
                     Server.InitServer();
-                    SetConsoleText("fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString());
+                    SetConsoleText("800Craft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString());
 
                     Application.DoEvents();
                     //StartServer();
@@ -64,6 +66,8 @@ namespace fCraft.ServerGUI {
             }));
             startUpThread.Start();
         }
+
+
 
         public void StartServer() {
             Thread startServerThread = new Thread(new ThreadStart(delegate
@@ -176,6 +180,8 @@ namespace fCraft.ServerGUI {
                 uriDisplay.Enabled = value;
             }
         }
+
+
 
         public void OnLogged( object sender, LogEventArgs e ) {
             if( !e.WriteToConsole ) return;

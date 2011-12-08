@@ -22,6 +22,9 @@ namespace fCraft {
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
             rawMessage = rawMessage.Replace("$motd", ConfigKey.MOTD.GetString());
+            //rawMessage = rawMessage.Replace("$time", DateTime.Now.TimeOfDay.ToString()); //used to test env realistic
+
+            
             /*StringBuilder sb = new StringBuilder(rawMessage);
             byte[] stored = new byte[1];
 
@@ -83,15 +86,29 @@ namespace fCraft {
                     }
                 }
 
+                if (player.IsStaticStaff)
+                {
+                    recepientList = Server.Players.Can(Permission.ReadStaffChat)
+                                                  .NotIgnoring(player)
+                                                  .Union(player);
+                    rawMessage = rawMessage.Replace(rawMessage, "&P(staff)" + player.ClassyName + "&P: " + rawMessage);
+
+                }
+
                 // Swear filter
                 if (!player.Can(Permission.Swear))
                 {
                     rawMessage = ProfanityFilter.Parse(rawMessage);
                 }
-                
+
                 string formattedMessage = String.Format("{0}&F: {1}",
                                                          player.ClassyName,
                                                          rawMessage);
+
+                if (player.IsStaticStaff)
+                {
+                    formattedMessage = String.Format("{0}", rawMessage);
+                }
 
                 var e = new ChatSendingEventArgs(player,
                                                   rawMessage,
@@ -130,18 +147,18 @@ namespace fCraft {
             Logger.Log(LogType.GlobalChat, "(Admin){0}: {1}", player.Name, rawMessage);
             return true;
         }
-
-        public static bool SendEngineer(Player player, string rawMessage)
+       
+        public static bool SendCustom(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
-            var recepientList = Server.Players.Can(Permission.ReadEngineerChat)
+            var recepientList = Server.Players.Can(Permission.ReadCustomChat)
                                               .NotIgnoring(player);
 
-            string formattedMessage = String.Format("&e(Engineer){0}&b: {1}",
+            string formattedMessage = String.Format(Color.Custom+"({2}){0}&b: {1}",
                                                      player.ClassyName,
-                                                     rawMessage);
+                                                     rawMessage, ConfigKey.CustomChatChannel.GetString());
 
             var e = new ChatSendingEventArgs(player,
                                               rawMessage,
@@ -151,7 +168,7 @@ namespace fCraft {
 
             if (!SendInternal(e)) return false;
 
-            Logger.Log(LogType.GlobalChat, "(Engineer){0}: {1}", player.Name, rawMessage);
+            Logger.Log(LogType.GlobalChat, "({2}){0}: {1}", player.Name, rawMessage, ConfigKey.CustomChatChannel.GetString());
             return true;
         }
 
@@ -276,8 +293,7 @@ namespace fCraft {
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendStaff( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
+            
             var recepientList = Server.Players.Can( Permission.ReadStaffChat )
                                               .NotIgnoring( player )
                                               .Union( player );

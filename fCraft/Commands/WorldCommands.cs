@@ -59,7 +59,9 @@ namespace fCraft
             CommandManager.RegisterCommand(CdGuestwipe);
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
+            CommandManager.RegisterCommand(CdWorldSearch);
         }
+
     #region portals
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor
@@ -68,8 +70,8 @@ namespace fCraft
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.UsePortal },
             IsConsoleSafe = false,
-            Usage = "/portal [create|remove|info|list|enable|disable]",
-            Help = "Controls portals, options are: create, remove, list, info, disable, enable\n&S" +
+            Usage = "/portal [create | remove | info | list | enable | disable ]",
+            Help = "Controls portals, options are: create, remove, list, info, enable, disable\n&S" +
                    "See &H/Help portal <option>&S for details about each option.",
             HelpSections = new Dictionary<string,string>() {
                 { "create",     "&H/portal create Guest\n&S" +
@@ -379,13 +381,46 @@ namespace fCraft
         }
 #endregion
 
+        static readonly CommandDescriptor CdWorldSearch = new CommandDescriptor
+        {
+            Name = "Worldsearch",
+            Aliases = new[] { "ws" },
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
+            Usage = "/Worldsearch WorldName",
+            Handler = WorldSearchHandler
+        };
+
+        static void WorldSearchHandler(Player player, Command cmd)
+        {
+            string worldName = cmd.Next();
+            if (worldName == null)
+            {
+                CdWorldSearch.PrintUsage(player);
+                return;
+            }
+
+            else
+            {
+                World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
+                if(world == null) return;
+                if(!world.IsLoaded || world.IsLoaded)
+                    player.Message("Worlds found: ");
+                    player.Message("{0}", world.ClassyName);
+                return;
+            }
+        }
+
+        
+
         static readonly CommandDescriptor CdRankHide = new CommandDescriptor
         {
             Name = "Rankhide",
             Aliases = new[] { "rhide" },
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.OwnerStuff },
+            Permissions = new[] { Permission.HideRanks },
             Usage = "/rhide rankname",
             Handler = RankHideHandler
         };
@@ -434,94 +469,115 @@ namespace fCraft
         {
 
             string Choice = cmd.Next();
-             switch (Choice)
+
+            switch (Choice)
             {
-                 default:
-                CdRealm.PrintUsage(player);
-                break;
+                default:
+                    CdRealm.PrintUsage(player);
+                    break;
 
                 case "review":
-                    Server.Players.Message("{0} &Cwould like you to review their realm", player.ClassyName);
+
+                    if (player.World.Name == player.Name)
+                    {
+                        Server.Players.Message("{0} &Cwould like you to review their realm", player.ClassyName);
+                        return;
+                    }
+
+                    else
+                        player.Message("You are not in your Realm");
+
                     break;
 
                 case "like":
-                    
-                        Choice = player.World.Name;
-                        World world = WorldManager.FindWorldOrPrintMatches(player, Choice);
-                        if (world == null) player.Message("You need to enter a realm name");
 
+                    Choice = player.World.Name;
+                    World world = WorldManager.FindWorldOrPrintMatches(player, Choice);
+                    if (world == null) player.Message("You need to enter a realm name");
+
+                    if (world.IsRealm)
+                    {
                         Server.Players.Message("{0}&S likes realm {1}.",
-                                                player.ClassyName, world.ClassyName);
-                        break;
-                    
+                                               player.ClassyName, world.ClassyName);
+                        return;
+                    }
+                    else player.Message("You are not in a Realm");
+
+                    break;
+
                 case "flush":
 
                     WorldFlushHandler(player, new Command("/wflush " + player.Name));
                     break;
 
                 case "create":
-                    
-            string create = cmd.Next();
 
-                        if (create == null)
-                        {
-                            player.Message("Realm create. Use /realm create [ThemeType]" +
-                                " Theme types include | flat | hills | hell | island | swamp | desert | arctic | forest | ");
-                        }
+                    string create = cmd.Next();
+                    if (player.World.Name == player.Name)
+                    {
+                        player.Message("You cannot create a new Realm when you are inside your Realm");
+                        return;
+                    }
 
-                        if (create == "flat")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "grass", "flat");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
+                    if (create == null)
+                    {
+                        player.Message("Realm create. Use /realm create [ThemeType]" +
+                            " Theme types include | flat | hills | hell | island | swamp | desert | arctic | forest | ");
+                    }
 
-                        if (create == "hills")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "grass", "hills");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
+                    if (create == "flat")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "grass", "flat");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
 
-                        if (create == "island")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "desert", "island");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
+                    if (create == "hills")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "grass", "hills");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
 
-                        if (create == "hell")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "hell", "streams");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
+                    if (create == "island")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "desert", "island");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
 
-                        if (create == "swamp")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "swamp", "river");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
+                    if (create == "hell")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "hell", "streams");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
 
-                        if (create == "desert")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "desert", "flat");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
+                    if (create == "swamp")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "swamp", "river");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
 
-                        if (create == "arctic")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "arctic", "ice");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
+                    if (create == "desert")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "desert", "flat");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
 
-                        if (create == "forest")
-                        {
-                            RealmHandler.RealmCreate(player, cmd, "forest", "hills");
-                            player.Message("You have created a Realm. Activate it with /realm activate");
-                        }
-                        break;
+                    if (create == "arctic")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "arctic", "ice");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "forest")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "forest", "hills");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    break;
 
                 case "home":
                     JoinHandler(player, new Command("/join " + player.Name));
                     break;
-
 
                 case "help":
 
@@ -530,8 +586,7 @@ namespace fCraft
                     "If there are any Bugs, report them to Jonty800@gmail.com.");
                     break;
 
-                
-                    case "activate":
+                case "activate":
                     {
                         if (player.World.Name == player.Name)
                         {
@@ -540,11 +595,12 @@ namespace fCraft
                         }
                         RealmHandler.RealmLoad(player, cmd, player.Name + ".fcm", player.Name);
                         RealmHandler.RealmBuild(player, cmd, player.Name, RankManager.HighestRank.Name, "+" + player.Name);
+                        WorldManager.SaveWorldList();
                         break;
                     }
-                
+
                 case "spawn":
-                    
+
                     if (player.World.Name == player.Name)
                     {
                         SetSpawnHandler(player, new Command("/setspawn"));
@@ -555,7 +611,7 @@ namespace fCraft
                         player.Message("You can only change the Spawn on your own realm");
                         return;
                     }
-                    
+
                 case "invite":
 
                     string invite = cmd.Next();
@@ -587,12 +643,13 @@ namespace fCraft
                         targetInvite.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
                         return;
                     }
+
                     else
                     {
                         JoinHandler(targetInvite, new Command("/join " + player.Name));
                         return;
                     }
-                    
+
 
                 case "join":
 
@@ -602,6 +659,7 @@ namespace fCraft
                         player.Message("Derp. Invalid Realm.");
                         return;
                     }
+
                     else
                     {
                         Player target = Server.FindPlayerOrPrintMatches(player, Choice, false, true);
@@ -618,15 +676,14 @@ namespace fCraft
                         player.Message("Allows a player to build in your world. useage: /realm allow playername.");
                         return;
                     }
-                    PlayerInfo targetAllow = PlayerDB.FindPlayerInfoOrPrintMatches(player, toAllow);
 
+                    PlayerInfo targetAllow = PlayerDB.FindPlayerInfoOrPrintMatches(player, toAllow);
 
                     if (targetAllow == null)
                     {
                         player.Message("Please enter the name of the player you want to allow to build in your Realm.");
                         return;
                     }
-
 
                     if (Player.IsInValidName(targetAllow.Name))
                     {
@@ -646,6 +703,7 @@ namespace fCraft
                     break;
 
                 case "unallow":
+
                     string Unallow = cmd.Next();
 
                     if (Unallow == null)
@@ -661,7 +719,6 @@ namespace fCraft
                         player.Message("Please enter the name of the player you want to stop building in your Realm.");
                         return;
                     }
-
 
                     if (Player.IsInValidName(targetUnallow.Name))
                     {
@@ -681,79 +738,77 @@ namespace fCraft
                     break;
 
                 case "ban":
-                   
-                        string Ban = cmd.Next();
 
-                        if (Ban == null)
-                        {
-                            player.Message("Bans a player from accessing your Realm. useage: /realm ban playername.");
-                            return;
-                        }
-                        Player targetBan = Server.FindPlayerOrPrintMatches(player, Ban, false, true);
+                    string Ban = cmd.Next();
 
-
-                        if (targetBan == null)
-                        {
-                            player.Message("Please enter the name of the player you want to ban from your Realm.");
-                            return;
-                        }
+                    if (Ban == null)
+                    {
+                        player.Message("Bans a player from accessing your Realm. useage: /realm ban playername.");
+                        return;
+                    }
+                    Player targetBan = Server.FindPlayerOrPrintMatches(player, Ban, false, true);
 
 
+                    if (targetBan == null)
+                    {
+                        player.Message("Please enter the name of the player you want to ban from your Realm.");
+                        return;
+                    }
+
+                    if (Player.IsInValidName(targetBan.Name))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+
+                    else
+                    {
+                        RealmHandler.RealmAccess(player, cmd, player.Name, "-" + targetBan.Name);
                         if (Player.IsInValidName(targetBan.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
                             return;
                         }
+                    }
 
-                        else
-                        {
-                            RealmHandler.RealmAccess(player, cmd, player.Name, "-" + targetBan.Name);
-                            if (Player.IsInValidName(targetBan.Name))
-                            {
-                                player.Message("Player not found. Please specify valid name.");
-                                return;
-                            }
-                        }
-                    
                     break;
 
                 case "unban":
-                    
-                        string UnBan = cmd.Next();
 
-                        if (UnBan == null)
-                        {
-                            player.Message("Unbans a player from your Realm. useage: /realm unban playername.");
-                            return;
-                        }
-                        PlayerInfo targetUnBan = PlayerDB.FindPlayerInfoOrPrintMatches(player, UnBan);
+                    string UnBan = cmd.Next();
 
+                    if (UnBan == null)
+                    {
+                        player.Message("Unbans a player from your Realm. useage: /realm unban playername.");
+                        return;
+                    }
+                    PlayerInfo targetUnBan = PlayerDB.FindPlayerInfoOrPrintMatches(player, UnBan);
 
-                        if (targetUnBan == null)
-                        {
-                            player.Message("Please enter the name of the player you want to unban from your Realm.");
-                            return;
-                        }
+                    if (targetUnBan == null)
+                    {
+                        player.Message("Please enter the name of the player you want to unban from your Realm.");
+                        return;
+                    }
 
+                    if (Player.IsInValidName(targetUnBan.Name))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
 
+                    else
+                    {
+                        RealmHandler.RealmAccess(player, cmd, player.Name, "+" + targetUnBan.Name);
                         if (Player.IsInValidName(targetUnBan.Name))
                         {
                             player.Message("Player not found. Please specify valid name.");
                             return;
                         }
-
-                        else
-                        {
-                            RealmHandler.RealmAccess(player, cmd, player.Name, "+" + targetUnBan.Name);
-                            if (Player.IsInValidName(targetUnBan.Name))
-                            {
-                                player.Message("Player not found. Please specify valid name.");
-                                return;
-                            }
-                            break;
-                        }
+                        break;
                     }
             }
+        }
+            
         
 
         static readonly CommandDescriptor CdGuestwipe = new CommandDescriptor
@@ -1229,6 +1284,10 @@ namespace fCraft
             HelpSections = new Dictionary<string, string>{
                 { "normal",     "&H/Env <WorldName> normal\n&S" +
                                 "Resets all environment settings to their defaults for the given world." },
+               { "terrain",     "&H/Env terrain terrainType. Leave blank for a list\n&S" +
+                                "Changes the blockset for the world you are currently in." },
+               { "realistic",     "&H/Env realistic. Toggles realistic mode on or off\n&S" +
+                                "Changes the environment according to the server time for the world you are in" },
                 { "clouds",     "&H/Env <WorldName> clouds <Color>\n&S" +
                                 "Sets color of the clouds. Use \"normal\" instead of color to reset." },
                 { "fog",        "&H/Env <WorldName> fog <Color>\n&S" +
@@ -1244,7 +1303,7 @@ namespace fCraft
                                 "Changes the type of block that's visible beyond the map boundaries. "+
                                 "Use \"normal\" instead of a number to reset to default (water)." }
             },
-            Usage = "/Env <WorldName> <Variable>",
+            Usage = "/Env <WorldName> <Variable> or /env terrain | realistic",
             IsConsoleSafe = true,
             Handler = EnvHandler
         };
@@ -1263,7 +1322,7 @@ namespace fCraft
                 {
                     world.RealisticEnv = true;
                     World RWorld = player.World;
-                    Scheduler.NewTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(59));
+                    Scheduler.NewTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(120));
                     player.Message("Realistic Environment has been turned ON for world {0}", RWorld.ClassyName);
                     return;
                 }
@@ -1300,6 +1359,8 @@ namespace fCraft
                     WorldManager.SaveWorldList();
                     return;
                 }
+
+
 
                 if (option == "highres")
                 {
@@ -1598,8 +1659,22 @@ namespace fCraft
                 int clouds;
                 int fog;
                 DateTime now = DateTime.Now;
+                var SunriseStart = new TimeSpan(6, 30, 0);
+                var SunriseEnd = new TimeSpan(7, 29, 59);
+                var MorningStart = new TimeSpan(7, 30, 0);
+                var MorningEnd = new TimeSpan(11, 59, 59);
+                var NormalStart = new TimeSpan(12, 0, 0);
+                var NormalEnd = new TimeSpan(16, 59, 59);
+                var EveningStart = new TimeSpan(17, 0, 0);
+                var EveningEnd = new TimeSpan(18, 59, 59);
+                var SunsetStart = new TimeSpan(19, 0, 0);
+                var SunsetEnd = new TimeSpan(19, 29, 59);
+                var NightaStart = new TimeSpan(19, 30, 0);
+                var NightaEnd = new TimeSpan(1, 0, 1);
+                var NightbStart = new TimeSpan(1, 0, 2);
+                var NightbEnd = new TimeSpan(6, 29, 59);
 
-                if (now.ToString("t") == "06:30") //sunrise
+                if (now.TimeOfDay > SunriseStart && now.TimeOfDay < SunriseEnd ) //sunrise
                 {
                     sky = ParseHexColor("ffff33");
                     clouds = ParseHexColor("ff0033");
@@ -1610,7 +1685,7 @@ namespace fCraft
                     world.EdgeBlock = Block.Water;
                 }
 
-                if (now.ToString("t") == "07:30") //end of sunrise
+                if (now.TimeOfDay > MorningStart && now.TimeOfDay < MorningEnd) //end of sunrise
                 {
                     sky = -1;
                     clouds = ParseHexColor("ff0033");
@@ -1618,9 +1693,10 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
+                    world.EdgeBlock = Block.Water;
                 }
 
-                if (now.ToString("t") == "12:00") //env normal
+                if (now.TimeOfDay > NormalStart && now.TimeOfDay < NormalEnd)//env normal
                 {
                     sky = -1;
                     clouds = -1;
@@ -1628,9 +1704,10 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
+                    world.EdgeBlock = Block.Water;
                 }
 
-                if (now.ToString("t") == "17:00") //evening
+                if (now.TimeOfDay > EveningStart && now.TimeOfDay < EveningEnd) //evening
                 {
                     sky = ParseHexColor("99cccc");
                     clouds = -1;
@@ -1638,9 +1715,10 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
+                    world.EdgeBlock = Block.Water;
                 }
 
-                if (now.ToString("t") == "19:00") //sunset
+                if (now.TimeOfDay > SunsetStart && now.TimeOfDay < SunsetEnd) //sunset
                 {
                     sky = ParseHexColor("9999cc");
                     clouds = ParseHexColor("000033");
@@ -1648,9 +1726,10 @@ namespace fCraft
                     world.SkyColor = sky;
                     world.CloudColor = clouds;
                     world.FogColor = fog;
+                    world.EdgeBlock = Block.Water;
                 }
 
-                if (now.ToString("t") == "19:30") //end of sunset
+                if (now.TimeOfDay > NightaStart && now.TimeOfDay < NightaEnd) //end of sunset
                 {
                     sky = ParseHexColor("003366");
                     clouds = ParseHexColor("000033");
@@ -1661,7 +1740,7 @@ namespace fCraft
                     world.EdgeBlock = Block.Black;
                 }
 
-                if (now.ToString("t") == "00:30") //black
+                if (now.TimeOfDay > NightbStart && now.TimeOfDay < NightbEnd) //black
                 {
                     sky = ParseHexColor("000000");
                     clouds = ParseHexColor("000033");
@@ -2891,8 +2970,10 @@ namespace fCraft
             }
             if (world.RealisticEnv)
                 player.Message("  Realistic ENV is enabled on this world");
+            WorldManager.SaveWorldList();
             if (!world.RealisticEnv)
                 player.Message("  Realistic ENV is disabled on this world");
+            WorldManager.SaveWorldList();
 
         }
 

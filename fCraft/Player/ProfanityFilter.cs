@@ -33,13 +33,13 @@ namespace fCraft
             if (!File.Exists("SwearWords.txt"))
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("# This file contains a list of bad words to remove via the profanity filter");
-                sb.AppendLine("# Each bad word should be on a new line all by itself");
+                sb.AppendLine("# This file should be filled with each word you want the profanity filter to change to asterixis");
+                sb.AppendLine("# Each word should be on a new line all by itself");
                 File.WriteAllText("SwearWords.txt", sb.ToString());
             }
 
-            var tempSwearWords = File.ReadAllLines("SwearWords.txt").Where(s => s.StartsWith("#") == false || s.Trim().Equals(String.Empty));
-            SwearWords = from s in tempSwearWords where !s.StartsWith("#") select Reduce(s.ToLower());
+            var tempSwearWords = File.ReadAllLines("SwearWords.txt").Where(line => line.StartsWith("#") == false || line.Trim().Equals(String.Empty));
+            SwearWords = from sw in tempSwearWords where !sw.StartsWith("#") select Reduce(sw.ToLower());
         }
 
         public static string Parse(string text)
@@ -79,17 +79,17 @@ namespace fCraft
             
             for (int i = 0; i < reducedWords.Length; i++)
             {
-                bool badwordfound = false;
-                foreach (string badword in SwearWords)
+                bool swearwordfound = false;
+                foreach (string swearword in SwearWords)
                 {
-                    if (reducedWords[i].Contains(badword))
+                    if (reducedWords[i].Contains(swearword))
                     {
-                        badwordfound = true;
+                        swearwordfound = true;
                         break;
                     }
                 }
 
-                if (badwordfound)
+                if (swearwordfound)
                 {
                    
                     result.Add(new String('*', originalWords[i].Length));

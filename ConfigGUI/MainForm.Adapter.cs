@@ -155,10 +155,13 @@ namespace fCraft.ConfigGUI {
             xRankColorsInWorldNames.Checked = ConfigKey.RankColorsInWorldNames.Enabled();
             xShowJoinedWorldMessages.Checked = ConfigKey.ShowJoinedWorldMessages.Enabled();
             xShowConnectionMessages.Checked = ConfigKey.ShowConnectionMessages.Enabled();
-
+            tChatChannel.Text = ConfigKey.CustomChatChannel.GetString();
             colorSys = Color.ParseToIndex( ConfigKey.SystemMessageColor.GetString() );
             ApplyColor( bColorSys, colorSys );
             Color.Sys = Color.Parse( colorSys );
+            colorCustom = Color.ParseToIndex(ConfigKey.CustomMessageColor.GetString());
+            ApplyColor(bColorCustom, colorCustom);
+            Color.Custom = Color.Parse(colorCustom);
 
             colorHelp = Color.ParseToIndex( ConfigKey.HelpColor.GetString() );
             ApplyColor( bColorHelp, colorHelp );
@@ -473,6 +476,7 @@ namespace fCraft.ConfigGUI {
 
             // Chat
             ConfigKey.SystemMessageColor.TrySetValue( Color.GetName( colorSys ) );
+            ConfigKey.CustomMessageColor.TrySetValue(Color.GetName(colorCustom));
             ConfigKey.HelpColor.TrySetValue( Color.GetName( colorHelp ) );
             ConfigKey.SayColor.TrySetValue( Color.GetName( colorSay ) );
             ConfigKey.AnnouncementColor.TrySetValue( Color.GetName( colorAnnouncement ) );
@@ -484,6 +488,7 @@ namespace fCraft.ConfigGUI {
             ConfigKey.RankColorsInChat.TrySetValue( xRankColorsInChat.Checked );
             ConfigKey.RankPrefixesInChat.TrySetValue( xRankPrefixesInChat.Checked );
             ConfigKey.RankPrefixesInList.TrySetValue( xRankPrefixesInList.Checked );
+            ConfigKey.CustomChatChannel.TrySetValue(tChatChannel.Text);
 
 
             // Worlds

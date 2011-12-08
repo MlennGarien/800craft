@@ -90,6 +90,11 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
+<<<<<<< HEAD
+=======
+            CommandManager.RegisterCommand(CdFly);
+           
+>>>>>>> 610cc77085fb4b63549aabe2ab69a0e2b54cf11c
             //CommandManager.RegisterCommand( CdTree );
         }
 
@@ -112,6 +117,11 @@ namespace fCraft {
             {
                 fCraft.Utils.FlyHandler.GetInstance().StopFlying(player);
                 player.Message("You are no longer flying.");
+            }
+            if (player.IsUsingWoM)
+            {
+                player.Message("You cannot use /fly when using WOM");
+                return;
             }
             else
             {
@@ -148,6 +158,8 @@ namespace fCraft {
             {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
                 UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
+                if (!Player.IsValidName(ban))
+                    CdBanx.PrintUsage(player);
                 
                 PlayerInfo targets = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
                 if (targets == null) return;
@@ -1634,7 +1646,7 @@ namespace fCraft {
             Name = "Mark",
             Aliases = new[] { "m" },
             Category = CommandCategory.Building,
-            Usage = "/Mark&S or &H/Mark X Y H",
+            Usage = "/Mark&S or &H/Mark X Y Z",
             Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
                    "If three numbers are given, those coordinates are used instead.",
             Handler = MarkHandler

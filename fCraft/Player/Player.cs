@@ -129,6 +129,8 @@ namespace fCraft {
             }
         }
 
+        
+
         /// <summary> Name formatted for display in chat. </summary>
         [NotNull]
         public string ClassyName {
@@ -144,7 +146,7 @@ namespace fCraft {
         public MetadataCollection<object> Metadata { get; private set; }
 
         #endregion
-        
+        public string elol = "lol";
         public bool IsAway;
         public bool IsFlying = false;
         public ConcurrentDictionary<String, Vector3I> FlyCache;
@@ -158,6 +160,7 @@ namespace fCraft {
         public readonly object FlyLock = new object();
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
+        public bool IsStaticStaff;
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.

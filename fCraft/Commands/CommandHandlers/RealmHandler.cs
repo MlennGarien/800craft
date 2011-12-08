@@ -47,6 +47,7 @@ namespace fCraft
                 try
                 {
                     map = MapUtility.Load(fullFileName);
+
                 }
                 catch (Exception ex)
                 {
@@ -54,10 +55,13 @@ namespace fCraft
                     return;
                 }
                 World world = player.World;
-
+                world.IsRealm = true;
+                world.IsHidden = false;
                 // Loading to current world
                 world.MapChangedBy = player.Name;
                 world.ChangeMap(map);
+                world.IsRealm = true;
+                world.IsHidden = false;
 
                 world.Players.Message(player, "{0}&S loaded a new map for this world.",
                                               player.ClassyName);
@@ -68,6 +72,8 @@ namespace fCraft
                             player.Name, world.Name, fileName);
                 world.IsRealm = true;
                 world.IsHidden = false;
+                WorldManager.SaveWorldList();
+                
 
             }
             else
@@ -113,6 +119,9 @@ namespace fCraft
                         {
                             player.Confirm(cmd, "About to replace map for {0}&S with \"{1}\".",
                                                        world.ClassyName, fileName);
+                            world.IsRealm = true;
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
                             return;
                         }
 
@@ -134,6 +143,9 @@ namespace fCraft
                         {
                             world.MapChangedBy = player.Name;
                             world.ChangeMap(map);
+                            world.IsRealm = true;
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
                         }
                         catch (WorldOpException ex)
                         {
@@ -162,6 +174,9 @@ namespace fCraft
                         { // and is different from sourceFile
                             player.Confirm(cmd, "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
                                                        Path.GetFileName(targetFullFileName), Path.GetFileName(fullFileName));
+                            world.IsRealm = true;
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
                             return;
                         }
 
@@ -169,6 +184,9 @@ namespace fCraft
                         try
                         {
                             map = MapUtility.Load(fullFileName);
+                            world.IsRealm = true;
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
                         }
                         catch (Exception ex)
                         {
@@ -181,6 +199,9 @@ namespace fCraft
                         try
                         {
                             newWorld = WorldManager.AddWorld(player, worldName, map, false);
+                            world.IsRealm = true;
+                            world.IsHidden = false;
+                            WorldManager.SaveWorldList();
                         }
                         catch (WorldOpException ex)
                         {

@@ -17,6 +17,10 @@ namespace fCraft {
         [CanBeNull]
         public World World { get; set; }
 
+        public List<Player> Dummys = new List<Player>();
+        public int DummyCount;
+        public int DummyCounter;
+
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
         public readonly int Width;
 
@@ -788,9 +792,9 @@ namespace fCraft {
 
             // add WoM file hashes for edge textures
             BlockEdgeTextures[Block.Aqua] = "246870d16093ff02738b3d42084c6597c02fad36";
-            BlockEdgeTextures[Block.Black] = "06f5ba518c5f943f14adf09cc257674e43d8133c";
+            BlockEdgeTextures[Block.Black] = "48dcdd9b63fe5ce1129baea990189653dc833d69";
             BlockEdgeTextures[Block.Blue] = "eea1b7e0a62d90b5b681f142bd2f483a671ba160";
-            BlockEdgeTextures[Block.Brick] = "b4a23c66dc4ba488a97becd62f2bae8d61eb8ad2";
+            BlockEdgeTextures[Block.Brick] = "34f5e5b7c21bee2383ee5840480dc3b46e8794cd";
             BlockEdgeTextures[Block.Coal] = "1f9eb8aff893a43860fcd1f9c1e7ef84e0bfd77b";
             BlockEdgeTextures[Block.Cobblestone] = "b4d9c39d00102f1b3b67c9e885b62cb8e27efd03";
             BlockEdgeTextures[Block.Cyan] = "2532a657b5525ad10a0ccab78bd4343d44a0bfb7";
@@ -821,7 +825,7 @@ namespace fCraft {
             BlockEdgeTextures[Block.Teal] = "9cbd25d433c533207b9946a0228ddd9aef7b17e5";
             BlockEdgeTextures[Block.TNT] = "7314851e18cdfe9dd1513f9eab86901221421239";
             BlockEdgeTextures[Block.Violet] = "a171372d9fca63df911485602a5120fd5422f2b9";
-            BlockEdgeTextures[Block.White] = "2d9077489d1d86217c89685b12c5a206b23b976f";
+            BlockEdgeTextures[Block.White] = "d7d91aef7f07a0e0dbafca3b6387619098916953";
             BlockEdgeTextures[Block.Wood] = "af65cd0d0756d357a1abd5390b8de2e5ad1f29af";
             BlockEdgeTextures[Block.Yellow] = "eff6823a987deb65ad21020a3151bb809d3d062c";
         }

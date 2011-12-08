@@ -123,8 +123,12 @@
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Player\ProfanityFilter.cs" />
     <Compile Include="Player\SecurityController.cs" />
+<<<<<<< HEAD
     <Compile Include="Plugin\PluginFunctions.cs" />
     <Compile Include="Plugin\PluginManager.cs" />
+=======
+    <Compile Include="Portals\DoorTest.cs" />
+>>>>>>> 610cc77085fb4b63549aabe2ab69a0e2b54cf11c
     <Compile Include="Portals\Portal.cs" />
     <Compile Include="Portals\PortalDB.cs" />
     <Compile Include="Portals\PortalException.cs" />
