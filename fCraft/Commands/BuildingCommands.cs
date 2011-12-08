@@ -90,8 +90,6 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
-            //CommandManager.RegisterCommand(CdFly);
-           
             //CommandManager.RegisterCommand( CdTree );
         }
 
@@ -1578,7 +1576,6 @@ namespace fCraft {
 
 
         #region Tree
-        /*
         static readonly CommandDescriptor CdTree = new CommandDescriptor {
             Name = "Tree",
             Category = CommandCategory.Building,
@@ -1625,16 +1622,9 @@ namespace fCraft {
         static void TreeCallback( Player player, Vector3I[] marks, object tag ) {
             ForesterArgs args = (ForesterArgs)tag;
             int blocksPlaced = 0, blocksDenied = 0;
-            bool cannotUndo = false;
-            args.BlockPlacing +=
-                ( sender, e ) =>
-                DrawOneBlock( player, (byte)e.Block, e.Coordinate.X, e.Coordinate.Y, e.Coordinate.Z,
-                              BlockChangeContext.Drawn,
-                              ref blocksPlaced, ref blocksDenied, ref cannotUndo );
             Forester.Plant( args, marks[0] );
-            DrawingFinished( player, "planted", blocksPlaced, blocksDenied );
+            DrawingFinished( player, "planted", blocksPlaced, blocksDenied);
         }
-        */
         #endregion
 
 
