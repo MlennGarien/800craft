@@ -7,12 +7,16 @@ using System.Net.Cache;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
+using System.Runtime.Serialization.Json;
+using ServiceStack.Text;
 
 namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
         static readonly Uri MinecraftNetUri;
         static readonly Uri WoMDirectUri;
+        public static List<string> HbData = new List<string>();
+
 
         /// <summary> Delay between sending heartbeats. Default: 25s </summary>
         public static TimeSpan Delay { get; set; }
@@ -61,21 +65,47 @@ namespace fCraft {
                     ConfigKey.ServerName.GetString(),
                     ConfigKey.IsPublic.GetString()
                 };
+
+
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );
                 Paths.MoveOrReplace( tempFile, Paths.HeartbeatDataFileName );
             }
         }
 
+        public static void HbSave()
+        {//port=25565&max=32&name=My%20Server&public=True&version=7&salt=wo6kVAHjxoJcInKx&users=0
+            HbData.Add("port=" + Server.Port.ToString()+"&max=" + ConfigKey.MaxPlayers.GetString()+"&name=" + ConfigKey.ServerName.GetString()+
+                "&public=True"+"&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString());
+            //HbData.Add("&port="+Server.Port.ToString());
+            //HbData.Add("&users="+Server.CountPlayers(false).ToString());
+            //HbData.Add("&max="+ConfigKey.MaxPlayers.GetString());
+            //HbData.Add("&name="+ConfigKey.ServerName.GetString());
+            //HbData.Add("&public=True");
+
+            using (StreamWriter fs = new StreamWriter(Paths.HbDataFileName, false))
+            {
+                foreach (string s in HbData)
+                {
+                    fs.WriteLine(JsonSerializer.SerializeToString(s));
+                }
+
+                fs.Flush();
+                fs.Close();
+            }
+        }
 
         static void SendMinecraftNetBeat() {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
             if( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
                 return;
             }
-            HttpWebRequest request = CreateRequest( data.CreateUri() );
-            var state = new HeartbeatRequestState( request, data, true );
-            request.BeginGetResponse( ResponseCallback, state );
+            
+                HttpWebRequest request = CreateRequest(data.CreateUri());
+                var state = new HeartbeatRequestState(request, data, true);
+                request.BeginGetResponse(ResponseCallback, state);
+            
+            
         }
 
 
@@ -150,9 +180,9 @@ namespace fCraft {
                 } else {
                     Logger.Log( LogType.Error, "Heartbeat: {0}", ex );
                 }
-            }
+            } HbSave();
         }
-
+        
 
         #region Events
 

@@ -91,6 +91,7 @@ namespace fCraft {
         public const string PlayerDBFileName = "PlayerDB.txt";
 
         public const string PortalDBFileName = "PortalDB.txt";
+        public const string HbDataFileName = "HeartbeatSaver.txt";
 
         public const string IPBanListFileName = "ipbans.txt";
 
