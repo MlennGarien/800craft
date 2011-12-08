@@ -595,6 +595,7 @@ namespace fCraft
                         }
                         RealmHandler.RealmLoad(player, cmd, player.Name + ".fcm", player.Name);
                         RealmHandler.RealmBuild(player, cmd, player.Name, RankManager.HighestRank.Name, "+" + player.Name);
+                        WorldManager.SaveWorldList();
                         break;
                     }
 

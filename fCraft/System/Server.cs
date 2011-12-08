@@ -447,7 +447,7 @@ namespace fCraft {
             RaiseEvent( Started );
             PortalHandler.GetInstance();
             PortalDB.Load();
-            Physics.Physics.Load();
+            //Physics.Physics.Load();
 
             if (ConfigKey.MineQuery.Enabled())
             {
