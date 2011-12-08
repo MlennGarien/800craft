@@ -27,6 +27,8 @@ namespace fCraft {
         [CanBeNull]
         public string DisplayedName;
 
+        public bool changedName = false;
+
         /// <summary> Player's unique numeric ID. Issued on first join. </summary>
         public int ID;
 

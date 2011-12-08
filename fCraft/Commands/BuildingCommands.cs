@@ -155,6 +155,8 @@ namespace fCraft {
             {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
                 UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
+                if (!Player.IsValidName(ban))
+                    CdBanx.PrintUsage(player);
                 
                 PlayerInfo targets = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
                 if (targets == null) return;

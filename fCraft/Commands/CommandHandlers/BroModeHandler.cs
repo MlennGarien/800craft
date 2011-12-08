@@ -16,6 +16,8 @@ namespace fCraft.Utils
         private BroMode()
         {
             // Empty, singleton
+            // single
+            // single like glennmr?
         }
 
         public static BroMode GetInstance()
@@ -160,57 +162,75 @@ namespace fCraft.Utils
 
         public void RegisterPlayer(Player player)
         {
-            try
+            if (!player.Info.IsWarned)
             {
-                if (namesRegistered < broNames.Count)
+                if (!player.Info.IsMuted)
                 {
-                    Random randomizer = new Random();
-                    int index = randomizer.Next(0, broNames.Count);
-                    int attempts = 0;
-                    Player output = null;
-                    bool found = false;
-                    player.Info.oldname = player.Info.ClassyName;
-                    while (!found)
+                    if (!player.Info.IsFrozen)
                     {
-                        registeredBroNames.TryGetValue(index, out output);
-
-                        if (output == null)
+                        try
                         {
-                            found = true;
-                            break;
+                            if (namesRegistered < broNames.Count)
+                            {
+                                Random randomizer = new Random();
+                                int index = randomizer.Next(0, broNames.Count);
+                                int attempts = 0;
+                                Player output = null;
+                                bool found = false;
+
+                                if (player.Info.DisplayedName == null)
+                                {
+                                    player.Info.changedName = false; //fix for rank problems during
+                                }
+
+                                else
+                                    player.Info.oldname = player.Info.DisplayedName;
+                                player.Info.changedName = true; //if name is changed, true
+
+                                while (!found)
+                                {
+                                    registeredBroNames.TryGetValue(index, out output);
+
+                                    if (output == null)
+                                    {
+                                        found = true;
+                                        break;
+                                    }
+
+                                    attempts++;
+                                    index = randomizer.Next(0, broNames.Count);
+                                    output = null;
+
+                                    if (attempts > 2000)
+                                    {
+                                        // Not good :D
+                                        break;
+                                    }
+                                }
+
+                                if (found)
+                                {
+                                    player.Message("Giving you name: " + broNames[index]);
+                                    player.Info.DisplayedName = Color.ReplacePercentCodes(player.Info.Rank.Color + player.Info.Rank.Prefix + broNames[index]);
+                                    namesRegistered++;
+                                    registeredBroNames[index] = player;
+                                }
+                                else
+                                {
+                                    player.Message("Could not find a name for you.");
+                                }
+                            }
+                            else
+                            {
+                                player.Message("All bro names have been assigned.");
+                            }
                         }
-
-                        attempts++;
-                        index = randomizer.Next(0, broNames.Count);
-                        output = null;
-
-                        if (attempts > 2000)
+                        catch (Exception ex)
                         {
-                            // Not good :D
-                            break;
+                            Logger.Log(LogType.Error, "BroMode.RegisterPlayer: " + ex);
                         }
-                    }
-
-                    if (found)
-                    {
-                        player.Message("Giving you name: " + broNames[index]);
-                        player.Info.DisplayedName = Color.ReplacePercentCodes(player.Info.Rank.Color + player.Info.Rank.Prefix + broNames[index]);
-                        namesRegistered++;
-                        registeredBroNames[index] = player;
-                    }
-                    else
-                    {
-                        player.Message("Could not find a name for you.");
                     }
                 }
-                else
-                {
-                    player.Message("All bro names have been assigned.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.Error, "BroMode.RegisterPlayer: " + ex);
             }
         }
 
@@ -225,7 +245,16 @@ namespace fCraft.Utils
                         Logger.Log(LogType.SystemActivity, "Unregistering bro name '" + broNames[i] + "' for player '" + p.Name + "'");
                         registeredBroNames.Remove(i);
                         namesRegistered--;
-                        p.Info.DisplayedName = p.Info.oldname;
+                        if (!p.Info.changedName)
+                        {
+                            p.Info.DisplayedName = null;
+                        }
+
+                        if (p.Info.changedName)
+                        {
+                            p.Info.DisplayedName = p.Info.oldname;
+                            p.Info.oldname = null; //clears oldname if its ever removed in setinfo
+                        }
                     }
                 }
             }
