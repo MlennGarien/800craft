@@ -80,7 +80,7 @@ namespace fCraft {
             Permissions = new[] { Permission.MakeDummys },
             Help = "Makes a dummy player.",
             NotRepeatable = false,
-            Usage = "/dummy create | remove | list [name]",
+            Usage = "/dummy create | undo | list ",
             Handler = DummyHandler
         };
 
@@ -121,6 +121,8 @@ namespace fCraft {
                         world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos)); //makes the dummy
                         world.Map.Dummys.Add(dummy); //adds the dummy to a list
                         world.Map.DummyCounter++; //counts how many dummys are on each world
+
+                        //used for reloading dummies.
                         dummy.Info.DummyID = dummy.Info.ID;
                         dummy.Info.DummyName = name;
                         dummy.Info.DummyPos = pos;

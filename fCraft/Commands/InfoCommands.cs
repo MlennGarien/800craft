@@ -572,9 +572,9 @@ namespace fCraft {
                 player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
                                 totalTime.TotalHours,
                                 totalTime.TotalMinutes );
-                float blocks = ((info.BlocksBuilt + info.BlocksDrawn) - info.BlocksDeleted);
+                float blocks = ((info.BlocksBuilt + info.BlocksDrawn) - info.BlocksDeleted); 
                 if (blocks < 0)
-                    player.Message(" &CWARNING! {0}&S has deleted more than built!", info.ClassyName);
+                    player.Message(" &CWARNING! {0}&S has deleted more than built!", info.ClassyName);//<---- GlennMR on Au70 Galaxy
 
                 else return;
             }
@@ -1165,8 +1165,10 @@ namespace fCraft {
                     player.Message( "There are no players {0}", qualifier );
 
                 } else if( visiblePlayers.Length <= PlayersPerPage || player.IsSuper ) {
-                    player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2} &S{3},",
-                                            visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString(), visiblePlayers.JoinToString().Remove(0, 6));
+                    StringBuilder sb = new StringBuilder();
+                   
+                    player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2}",
+                                            visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString());
 
                 } else {
                     if( offset >= visiblePlayers.Length ) {

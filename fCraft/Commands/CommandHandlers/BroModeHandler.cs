@@ -254,6 +254,7 @@ namespace fCraft.Utils
                         {
                             p.Info.DisplayedName = p.Info.oldname;
                             p.Info.oldname = null; //clears oldname if its ever removed in setinfo
+                            p.Info.changedName = false;
                         }
                     }
                 }
