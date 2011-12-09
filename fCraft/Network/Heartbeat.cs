@@ -73,27 +73,7 @@ namespace fCraft {
             }
         }
 
-        public static void HbSave()
-        {//port=25565&max=32&name=My%20Server&public=True&version=7&salt=wo6kVAHjxoJcInKx&users=0
-            HbData.Add("port=" + Server.Port.ToString()+"&max=" + ConfigKey.MaxPlayers.GetString()+"&name=" + ConfigKey.ServerName.GetString()+
-                "&public=True"+"&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString());
-            //HbData.Add("&port="+Server.Port.ToString());
-            //HbData.Add("&users="+Server.CountPlayers(false).ToString());
-            //HbData.Add("&max="+ConfigKey.MaxPlayers.GetString());
-            //HbData.Add("&name="+ConfigKey.ServerName.GetString());
-            //HbData.Add("&public=True");
-
-            using (StreamWriter fs = new StreamWriter(Paths.HbDataFileName, false))
-            {
-                foreach (string s in HbData)
-                {
-                    fs.WriteLine(JsonSerializer.SerializeToString(s));
-                }
-
-                fs.Flush();
-                fs.Close();
-            }
-        }
+            
 
         static void SendMinecraftNetBeat() {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
@@ -180,7 +160,7 @@ namespace fCraft {
                 } else {
                     Logger.Log( LogType.Error, "Heartbeat: {0}", ex );
                 }
-            } HbSave();
+            } 
         }
         
 

@@ -91,15 +91,6 @@ namespace fCraft {
 
             switch (option)
             {
-                /*case "test":
-
-                    string test = cmd.Next();
-                    string Newname = cmd.Next();
-                    Player e = new Player(test);
-                    Newname = Color.ReplacePercentCodes(Newname);
-                    e.Info.Name = Newname;
-                    break;
-                 */
                 case "create":
 
                     string name = cmd.Next();

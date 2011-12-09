@@ -38,7 +38,7 @@ namespace fCraft
             functions = new PluginFunctions();
 
             // Register motherfucking functions
-            lua.RegisterFunction("GlennSays", functions, functions.GetType().GetMethod("GlennSays"));
+            //lua.RegisterFunction("GlennSays", functions, functions.GetType().GetMethod("GlennSays"));
 
             if (!Directory.Exists("plugins"))
             {
