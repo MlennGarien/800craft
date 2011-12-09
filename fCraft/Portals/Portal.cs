@@ -160,7 +160,7 @@ namespace fCraft.Portals
                 if (world.Portals.Count > 0)
                 {
                     bool found = false;
-                    int portalID = 1;
+                    
 
                     while (!found)
                     {
@@ -168,7 +168,7 @@ namespace fCraft.Portals
 
                         foreach (Portal portal in world.Portals)
                         {
-                            if (portal.Name.Equals("portal" + portalID))
+                            if (portal.Name.Equals("portal" + world.portalID))
                             {
                                 taken = true;
                                 break;
@@ -181,15 +181,15 @@ namespace fCraft.Portals
                         }
                         else
                         {
-                            portalID++;
+                            world.portalID++;
                         }
                     }
 
-                    return "Portal" + portalID;
+                    return "portal" + world.portalID;
                 }
             }
 
-            return "Portal1";
+            return "portal1";
         }
 
         public static bool DoesNameExist(World world, String name)

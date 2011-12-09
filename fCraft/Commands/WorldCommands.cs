@@ -2986,7 +2986,7 @@ namespace fCraft
             Name = "WLoad",
             Aliases = new[] { "wadd" },
             Category = CommandCategory.World,
-            IsConsoleSafe = true,
+            IsConsoleSafe = false,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WLoad FileName [WorldName [BuildRank [AccessRank]]]",
             Help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +

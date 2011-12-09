@@ -33,6 +33,7 @@ namespace fCraft
         
 
         public ArrayList Portals;
+        public int portalID = 1;
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
