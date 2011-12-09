@@ -343,7 +343,7 @@ namespace fCraft {
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
 
-            //PluginManager.GetInstance();<----caused crashes
+            PluginManager.GetInstance();
 
             // open the port
             Port = ConfigKey.Port.GetInt();

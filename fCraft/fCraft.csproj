@@ -87,7 +87,8 @@
     <Reference Include="lua51">
       <HintPath>..\lua51.dll</HintPath>
     </Reference>
-    <Reference Include="LuaInterface">
+    <Reference Include="LuaInterface, Version=2.0.0.25532, Culture=neutral, PublicKeyToken=1e1fb15b02227b8a, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\LuaInterface.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.Text">
@@ -178,7 +179,6 @@
     <Compile Include="Player\PlayerDB.cs" />
     <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config" />
     <Compile Include="Utils\Trie.cs" />
     <Compile Include="Player\Position.cs" />
     <Compile Include="World\Block.cs" />

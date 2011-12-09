@@ -5,6 +5,7 @@ using System.Text;
 
 namespace fCraft
 {
+    
     class PluginFunctions
     {
         public void GlennSays(string what)
