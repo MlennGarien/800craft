@@ -80,7 +80,7 @@ namespace fCraft.Utils
                     "Paul Bro Bryant",
                     "Pablo Picassbro",
                     "Broto Baggins",
-                    "Diegbro Velázqeuz",
+                    "Diegbro Velazqeuz",
                     "Larry",
                     "Bromar Sharif",
                     "Willem Dabroe",

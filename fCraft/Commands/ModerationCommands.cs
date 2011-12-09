@@ -91,9 +91,19 @@ namespace fCraft {
 
             switch (option)
             {
+                /*case "test":
+
+                    string test = cmd.Next();
+                    string Newname = cmd.Next();
+                    Player e = new Player(test);
+                    Newname = Color.ReplacePercentCodes(Newname);
+                    e.Info.Name = Newname;
+                    break;
+                 */
                 case "create":
 
                     string name = cmd.Next();
+
                     if (name == null)
                     {
                         CdDummy.PrintUsage(player);
@@ -106,11 +116,11 @@ namespace fCraft {
                         return;
                     }
 
-                    if (!Player.IsValidName(name))
+                    /*if (!Player.IsValidName(name))
                     {
                         player.Message("Invalid name format.");
                         return;
-                    }
+                    }*/
 
                     try
                     {
@@ -118,6 +128,7 @@ namespace fCraft {
                         Position pos = player.Position;
                         world.Map.DummyCount++;
                         dummy.Info.ID = world.Map.DummyCount;
+                        name = Color.ReplacePercentCodes(name);
                         world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos)); //makes the dummy
                         world.Map.Dummys.Add(dummy); //adds the dummy to a list
                         world.Map.DummyCounter++; //counts how many dummys are on each world

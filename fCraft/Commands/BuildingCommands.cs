@@ -90,11 +90,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
-<<<<<<< HEAD
-=======
             CommandManager.RegisterCommand(CdFly);
-           
->>>>>>> 610cc77085fb4b63549aabe2ab69a0e2b54cf11c
             //CommandManager.RegisterCommand( CdTree );
         }
 
