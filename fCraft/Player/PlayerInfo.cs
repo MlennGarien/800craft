@@ -17,6 +17,8 @@ namespace fCraft {
         public string DummyName;
         public Position DummyPos;
 
+        //Zombie
+        public string OriginalName;
 
         /// <summary> Player's Minecraft account name. </summary>
         [NotNull]
