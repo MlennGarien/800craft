@@ -19,6 +19,8 @@ namespace fCraft {
 
         //Zombie
         public string OriginalName;
+        public bool ArrivedLate = false;
+        public bool IsZombie = false;
 
         /// <summary> Player's Minecraft account name. </summary>
         [NotNull]
