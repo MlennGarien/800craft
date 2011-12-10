@@ -104,9 +104,33 @@ namespace fCraft.Portals
                                         e.Player.StandingInPortal = true;
                                         Portal portal = PortalHandler.GetInstance().GetPortal(e.Player);
 
-                                        // Teleport player
-                                        e.Player.JoinWorldNow(WorldManager.FindWorldExact(portal.World), true, WorldChangeReason.Portal);
-                                        e.Player.Message("You used portal: " + portal.Name);
+                                        World world = WorldManager.Worlds[0];
+                                        // Teleport player, portal protection
+                                        switch( world.AccessSecurity.CheckDetailed( e.Player.Info ) ) {
+                                        case SecurityCheckResult.Allowed:
+                                        case SecurityCheckResult.WhiteListed:
+                                            if( world.IsFull ) {
+                                                e.Player.Message( "Cannot join {0}&S: world is full.", world.ClassyName );
+                                                return;
+                                            }
+                                            e.Player.StopSpectating();
+                                            if( !e.Player.JoinWorldNow( world, true, WorldChangeReason.ManualJoin ) ) {
+                                                e.Player.Message( "ERROR: Failed to join world. See log for details." );
+                                            }
+                                            break;
+                                        case SecurityCheckResult.BlackListed:
+                                            e.Player.Message( "Cannot join world {0}&S: you are blacklisted.",
+                                        world.ClassyName );
+                                            break;
+                                        case SecurityCheckResult.RankTooLow:
+                                            e.Player.Message( "Cannot join world {0}&S: must be {1}+",
+                                                         world.ClassyName, world.AccessSecurity.MinRank.ClassyName );
+                                            break;
+                                        default: e.Player.JoinWorldNow(WorldManager.FindWorldExact(portal.World), true, WorldChangeReason.Portal);
+                                            e.Player.Message("You used portal: " + portal.Name);
+                                            break;
+                                        }
+                                       
                                     }
                                     else
                                     {
