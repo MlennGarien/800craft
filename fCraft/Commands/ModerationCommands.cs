@@ -1764,6 +1764,7 @@ namespace fCraft {
             if( target.World == world ) {
                 // teleport within the same world
                 target.TeleportTo( toPlayer.Position );
+                target.Message("&8You were summoned by {0}", player.ClassyName);
 
             } else {
                 if( world.AccessSecurity.CheckDetailed( target.Info ) == SecurityCheckResult.RankTooLow &&
@@ -1776,6 +1777,7 @@ namespace fCraft {
                 }
                 // teleport to a different world
                 BringPlayerToWorld( player, target, world, true, true );
+                target.Message("&8You were summoned by {0}", player.ClassyName);
             }
         }
 

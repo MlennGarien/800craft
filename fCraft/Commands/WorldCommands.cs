@@ -389,6 +389,7 @@ namespace fCraft
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Chat },
             Usage = "/Worldsearch WorldName",
+            Help = "An easy way to search through a big list of worlds",
             Handler = WorldSearchHandler
         };
 
@@ -397,17 +398,23 @@ namespace fCraft
             string worldName = cmd.Next();
             if (worldName == null)
             {
+                
+            }
+
+            if (worldName.Length < 2)
+            {
                 CdWorldSearch.PrintUsage(player);
                 return;
             }
 
             else
             {
-                World world = WorldManager.FindWorldOrPrintMatches(player, worldName);
-                if(world == null) return;
-                if(!world.IsLoaded || world.IsLoaded)
-                    player.Message("Worlds found: ");
-                    player.Message("{0}", world.ClassyName);
+                player.Message("Worlds found: ");
+                foreach (World w in WorldManager.Worlds)
+                {
+                    if (w.Name.Contains(worldName))
+                        player.Message("{0} ", w.ClassyName);
+                }
                 return;
             }
         }
