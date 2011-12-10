@@ -63,7 +63,7 @@ namespace fCraft
             }
 
             //adds players to the lists for just under 30 seconds
-            Scheduler.NewTask(t => InWorldCheck(player, world)).RunForever(TimeSpan.FromMilliseconds(5000));
+            Scheduler.NewTask(t => InWorldCheck(player, world)).RunForever(TimeSpan.FromMilliseconds(4999));
         }
 
         public static void EndGame(Player player, World world)
@@ -105,6 +105,8 @@ namespace fCraft
                     p.Info.OriginalName = p.Info.Name;
                     InGame.Add(p); //saves the players who need to be reverted
                     //do displayedNames need to be stored?
+                    if (p.IsUsingWoM)
+                        p.Kick("WOM is not allowed on Zombie games", LeaveReason.Kick);
                 }
             }
             if (TooLate)
@@ -119,6 +121,8 @@ namespace fCraft
                         player.Info.Name = "_Infected_";
                         player.Message("You joined too late and spawned as a Zombie");
                         p.Info.IsZombie = true;
+                        if (p.IsUsingWoM)
+                            p.Kick("WOM is not allowed on Zombie games", LeaveReason.Kick);
                     }
                 }
             }
