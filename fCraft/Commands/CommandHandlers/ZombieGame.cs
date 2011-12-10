@@ -28,6 +28,7 @@ namespace fCraft
             {
                 instance = new ZombieGame();
                 Player.Moving += new EventHandler<Events.PlayerMovingEventArgs>(ZombieCheck);
+                Player.Disconnected += new EventHandler<Events.PlayerDisconnectedEventArgs>(Player_Disconnected);
             }
 
             return instance;
@@ -56,6 +57,7 @@ namespace fCraft
                 OriginalNames.Add(p.Info.Name); //saves the name
                 p.Info.OriginalName = p.Info.Name;
                 InGame.Add(p); //saves the players who need to be reverted
+                //do displayedNames need to be stored?
             }
         }
 
@@ -83,6 +85,32 @@ namespace fCraft
 
         }
 
+        static void Player_Disconnected(object sender, Events.PlayerDisconnectedEventArgs e)
+        {
+            if (GameOn)
+            {
+                ZombieGame.GetInstance().UnregisterPlayer(e.Player);
+            }
+        }
+
+        public void UnregisterPlayer(Player p)
+        {
+            try
+            {
+                if (p.Info.Name.Contains("_Infected_"))
+                {
+                    p.Info.Name = p.Info.OriginalName;
+                    InGame.Remove(p);
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "ZombieGame: Player left: " + ex);
+            }
+        }
+
         static void ZombieCheck(object sender, Events.PlayerMovingEventArgs e)//turns players into zombies. Maybe.
         {
             if (GameOn)
@@ -97,6 +125,7 @@ namespace fCraft
                         if (e.Player.Position == p.Position && !e.Player.Info.Name.Contains("_Infected_"))
                         {
                             e.Player.Info.Name = "&c_Infected_";
+                            //add p infected e here
                         }
                     }
                 }
