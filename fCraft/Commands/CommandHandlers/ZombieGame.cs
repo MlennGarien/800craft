@@ -1,5 +1,10 @@
 ﻿//Zombie game for 800Craft, Copyright Jon Baker 2011. V1.0 10/12/2011
 
+
+//playerName doesnt work, instead build something that removes the players entity and replaces it with an Infected entity
+//remove all that list shit, it wont be needed anymore since nothing needs to be reverted.
+//my code sucks.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +18,7 @@ namespace fCraft
     {
         public static bool GameOn = false;
         public static bool TooLate = false;
-        public static List<Player> InGame = new List<Player>();
+        public static List<Player> InGame = new List<Player>(); //list of all players in game, updated every 5 seconds
         public static List<string> OriginalNames = new List<string>(); //for loading names if a server crash happens
 
         private static ZombieGame instance;
@@ -55,14 +60,13 @@ namespace fCraft
                 player.Message("A Zombie game has been started on {0}", world.ClassyName);
                 Server.Players.Message("{0} started a Zombie Game on {1}", player.ClassyName, world.ClassyName);
                 world.Players.Message("A Zombie will be picked at random in 30 seconds");
-                //timer to choose a random zombie from InGame
-                //Scheduler.NewTask(t => ).RunOnce(TimeSpan.FromSeconds(30));
                 Scheduler.NewTask(t => TooLate = true).RunOnce(TimeSpan.FromSeconds(30));
-                //message "ruuuuun" its begun
+                Scheduler.NewTask(t => world.Players.Message("An infection has started.... RUN!!!")).RunOnce(TimeSpan.FromSeconds(30));
+                Scheduler.NewTask(t => RandomPicker(player, world)).RunOnce(TimeSpan.FromSeconds(40));
                 return;
             }
 
-            //adds players to the lists for just under 30 seconds
+            //adds players to the lists during gametime, also used to change back zombies who left the world
             Scheduler.NewTask(t => InWorldCheck(player, world)).RunForever(TimeSpan.FromMilliseconds(4999));
         }
 
@@ -93,6 +97,15 @@ namespace fCraft
                 
             }
 
+        }
+
+        public static void RandomPicker(Player player, World world)
+        {
+            InGame.Count();
+            Player zombie = new Player(InGame.Count.ToString());
+            zombie.Info.Name = "_Infected_";
+            world.Players.Message("{0} is the first to be infected... run away!", zombie.Info.OriginalName);
+            
         }
 
         public static void InWorldCheck(Player player, World world)
@@ -151,7 +164,7 @@ namespace fCraft
             }
             catch (Exception ex)
             {
-                Logger.Log(LogType.Error, "ZombieGame: Player left: " + ex);
+                Logger.Log(LogType.Error, "ZombieGame: " + ex);
             }
         }
 
