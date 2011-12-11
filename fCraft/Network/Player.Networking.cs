@@ -1232,7 +1232,7 @@ namespace fCraft {
         }
 
 
-        void UpdateVisibleEntities() {
+        public void UpdateVisibleEntities() {
             if( World == null ) PlayerOpException.ThrowNoWorld( this );
             if( spectatedPlayer != null ) {
                 if( !spectatedPlayer.IsOnline || !CanSee( spectatedPlayer ) ) {
@@ -1431,7 +1431,7 @@ namespace fCraft {
         }
 
 
-        sealed class VisibleEntity {
+        public sealed class VisibleEntity {
             public static readonly Position HiddenPosition = new Position( 0, 0, short.MinValue );
 
             public VisibleEntity( Position newPos, sbyte newId, Rank newRank ) {

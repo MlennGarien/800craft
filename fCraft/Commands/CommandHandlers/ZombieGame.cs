@@ -5,6 +5,8 @@
 //remove all that list shit, it wont be needed anymore since nothing needs to be reverted.
 //my code sucks.
 
+//check out player.AddEntity and stuff
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,8 +89,11 @@ namespace fCraft
                 {
                     if (p.Info.Name.Contains("_Infected_"))
                     {
-                        p.Info.Name = p.Info.OriginalName;
-                        p.Message("Changing your name back to {0}", p.Info.OriginalName);
+                        InGame.Remove(p);
+                        Player.VisibleEntity entity = new Player.VisibleEntity(p.Position, (sbyte)p.Info.ID, null);//zombie changer?
+                        p.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
+                        p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, player.Info.Rank.Color+player.Name, p.Position));
+                        entity.LastKnownPosition = p.Position;
                         p.Info.IsZombie = false;
                     }
                 }
@@ -114,12 +119,7 @@ namespace fCraft
             {
                 foreach (Player p in world.Players) //saves each players original name into a list
                 {
-                    OriginalNames.Add(p.Info.Name); //saves the name
-                    p.Info.OriginalName = p.Info.Name;
-                    InGame.Add(p); //saves the players who need to be reverted
-                    //do displayedNames need to be stored?
-                    if (p.IsUsingWoM)
-                        p.Kick("WOM is not allowed on Zombie games", LeaveReason.Kick);
+                    InGame.Add(p);
                 }
             }
             if (TooLate)
@@ -128,14 +128,16 @@ namespace fCraft
                 {
                     if (p.Info.ArrivedLate && !p.Info.IsZombie)
                     {
-                        OriginalNames.Add(player.Info.Name); //saves the name
-                        player.Info.OriginalName = player.Info.Name;
-                        InGame.Add(player); //saves the players who need to be reverted
-                        player.Info.Name = "_Infected_";
+                        InGame.Add(player); //adds player to InGame
+
+                        Player.VisibleEntity entity = new Player.VisibleEntity(p.Position, (sbyte)p.Info.ID, null);//zombie changer?
+                        p.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
+                        p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", p.Position));
+                        entity.LastKnownPosition = p.Position;
+                        p.Info.IsZombie = true;
+
                         player.Message("You joined too late and spawned as a Zombie");
                         p.Info.IsZombie = true;
-                        if (p.IsUsingWoM)
-                            p.Kick("WOM is not allowed on Zombie games", LeaveReason.Kick);
                     }
                 }
             }
@@ -153,14 +155,11 @@ namespace fCraft
         {
             try
             {
-                if (p.Info.Name.Contains("_Infected_"))
+                if (p.Info.IsZombie)
                 {
-                    p.Info.Name = p.Info.OriginalName;
                     InGame.Remove(p);
                     p.Info.IsZombie = false;
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -181,10 +180,16 @@ namespace fCraft
                     {
                         if (e.Player.Position == p.Position && !e.Player.Info.Name.Contains("_Infected_"))
                         {
-                            e.Player.Info.Name = "&c_Infected_";
+                            Player.VisibleEntity entity = new Player.VisibleEntity(e.Player.Position, (sbyte)e.Player.Info.ID, null);//zombie changer?
+                            e.Player.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
+                            e.Player.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", e.Player.Position));
+                            entity.LastKnownPosition = e.Player.Position;
                             e.Player.Info.IsZombie = true;
                             //p.World.Message("{0} &cInfected {1}", p.ClassyName, e.Player.ClassyName);
                         }
+
+                        if (e.Player.IsUsingWoM)
+                            e.Player.Kick("WOM is not allowed on Zombie games", LeaveReason.Kick);
                     }
                 }
             }

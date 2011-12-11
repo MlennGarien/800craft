@@ -97,9 +97,11 @@ namespace fCraft
             {
                 string a = cmd.Next();
                 Player p = Server.FindPlayerOrPrintMatches(player, a, true, true);
-                p.Info.OriginalName = p.Info.Name;
-                p.Info.Name = "_Infected_";
-                player.Message("Done");
+                Player.VisibleEntity entity = new Player.VisibleEntity(p.Position, (sbyte)p.Info.ID, null);//zombie changer?
+                p.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
+                p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", p.Position));
+                entity.LastKnownPosition = p.Position;
+                p.Info.IsZombie = true;
                 return;
             }
 
