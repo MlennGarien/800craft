@@ -101,6 +101,7 @@ namespace fCraft
                 p.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
                 p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", p.Position));
                 entity.LastKnownPosition = p.Position;
+                p.UpdateVisibleEntities();
                 p.Info.IsZombie = true;
                 return;
             }

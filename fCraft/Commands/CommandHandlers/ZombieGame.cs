@@ -1,11 +1,6 @@
 ﻿//Zombie game for 800Craft, Copyright Jon Baker 2011. V1.0 10/12/2011
 
-
-//playerName doesnt work, instead build something that removes the players entity and replaces it with an Infected entity
-//remove all that list shit, it wont be needed anymore since nothing needs to be reverted.
 //my code sucks.
-
-//check out player.AddEntity and stuff
 
 using System;
 using System.Collections.Generic;
@@ -21,8 +16,6 @@ namespace fCraft
         public static bool GameOn = false;
         public static bool TooLate = false;
         public static List<Player> InGame = new List<Player>(); //list of all players in game, updated every 5 seconds
-        public static List<string> OriginalNames = new List<string>(); //for loading names if a server crash happens
-
         private static ZombieGame instance;
 
         private ZombieGame()
@@ -41,7 +34,6 @@ namespace fCraft
 
             return instance;
         }
-
 
         public static void startGame(Player player, World world)
         {
@@ -67,7 +59,6 @@ namespace fCraft
                 Scheduler.NewTask(t => RandomPicker(player, world)).RunOnce(TimeSpan.FromSeconds(40));
                 return;
             }
-
             //adds players to the lists during gametime, also used to change back zombies who left the world
             Scheduler.NewTask(t => InWorldCheck(player, world)).RunForever(TimeSpan.FromMilliseconds(4999));
         }
@@ -87,13 +78,14 @@ namespace fCraft
                 //change all players back
                 foreach (Player p in Server.Players)
                 {
-                    if (p.Info.Name.Contains("_Infected_"))
+                    if (p.Info.IsZombie)
                     {
                         InGame.Remove(p);
                         Player.VisibleEntity entity = new Player.VisibleEntity(p.Position, (sbyte)p.Info.ID, null);//zombie changer?
                         p.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
                         p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, player.Info.Rank.Color+player.Name, p.Position));
                         entity.LastKnownPosition = p.Position;
+                        p.UpdateVisibleEntities();
                         p.Info.IsZombie = false;
                     }
                 }
@@ -110,7 +102,6 @@ namespace fCraft
             Player zombie = new Player(InGame.Count.ToString());
             zombie.Info.Name = "_Infected_";
             world.Players.Message("{0} is the first to be infected... run away!", zombie.Info.OriginalName);
-            
         }
 
         public static void InWorldCheck(Player player, World world)
@@ -122,6 +113,7 @@ namespace fCraft
                     InGame.Add(p);
                 }
             }
+
             if (TooLate)
             {
                 foreach (Player p in world.Players)
@@ -135,9 +127,8 @@ namespace fCraft
                         p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", p.Position));
                         entity.LastKnownPosition = p.Position;
                         p.Info.IsZombie = true;
-
+                        p.UpdateVisibleEntities();
                         player.Message("You joined too late and spawned as a Zombie");
-                        p.Info.IsZombie = true;
                     }
                 }
             }
@@ -161,6 +152,7 @@ namespace fCraft
                     p.Info.IsZombie = false;
                 }
             }
+
             catch (Exception ex)
             {
                 Logger.Log(LogType.Error, "ZombieGame: " + ex);
@@ -178,12 +170,13 @@ namespace fCraft
 
                     if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
                     {
-                        if (e.Player.Position == p.Position && !e.Player.Info.Name.Contains("_Infected_"))
+                        if (e.Player.Position == p.Position && !e.Player.Info.IsZombie)
                         {
                             Player.VisibleEntity entity = new Player.VisibleEntity(e.Player.Position, (sbyte)e.Player.Info.ID, null);//zombie changer?
                             e.Player.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
                             e.Player.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", e.Player.Position));
                             entity.LastKnownPosition = e.Player.Position;
+                            e.Player.UpdateVisibleEntities();
                             e.Player.Info.IsZombie = true;
                             //p.World.Message("{0} &cInfected {1}", p.ClassyName, e.Player.ClassyName);
                         }
