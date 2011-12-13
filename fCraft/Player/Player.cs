@@ -157,6 +157,7 @@ namespace fCraft {
         public bool BuildingPortal = true;
         public DateTime LastUsedPortal;
         public DateTime LastWarnedPortal;
+        public DateTime LastUsedDoor;
         public readonly object FlyLock = new object();
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
@@ -982,6 +983,11 @@ namespace fCraft {
                     RevertBlockNow( coord );
                     break;
 
+                case CanPlaceResult.Door:
+                    Message("&WYou are not allowed to build inside doors.");
+                    RevertBlockNow(coord);
+                    break;
+
                 case CanPlaceResult.RankDenied:
                     Message( "&WYour rank is not allowed to build." );
                     RevertBlockNow( coord );
@@ -1151,6 +1157,7 @@ namespace fCraft {
                 goto eventCheck;
             }
 
+
             // check special blocktypes
             if( newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) {
                 result = CanPlaceResult.BlocktypeDenied;
@@ -1174,7 +1181,9 @@ namespace fCraft {
             if( zoneCheckResult == PermissionOverride.Allow ) {
                 result = CanPlaceResult.Allowed;
                 goto eventCheck;
-            } else if( zoneCheckResult == PermissionOverride.Deny ) {
+            } 
+            
+            else if( zoneCheckResult == PermissionOverride.Deny ) {
                 result = CanPlaceResult.ZoneDenied;
                 goto eventCheck;
             }

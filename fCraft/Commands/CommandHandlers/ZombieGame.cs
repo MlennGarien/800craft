@@ -45,10 +45,11 @@ namespace fCraft
 
             if (!GameOn)
             {
-                if (InGame.Count > 2){
+                if (InGame.Count > 2)
+                {
                     player.Message("A game cannot start unless more than 2 people are in your world");
-                return;
-            }
+                    return;
+                }
 
                 GameOn = true;
                 player.Message("A Zombie game has been started on {0}", world.ClassyName);
@@ -57,10 +58,10 @@ namespace fCraft
                 Scheduler.NewTask(t => TooLate = true).RunOnce(TimeSpan.FromSeconds(30));
                 Scheduler.NewTask(t => world.Players.Message("An infection has started.... RUN!!!")).RunOnce(TimeSpan.FromSeconds(30));
                 Scheduler.NewTask(t => RandomPicker(player, world)).RunOnce(TimeSpan.FromSeconds(40));
+                Scheduler.NewTask(t => InWorldCheck(player, world)).RunForever(TimeSpan.FromMilliseconds(4999));
                 return;
             }
-            //adds players to the lists during gametime, also used to change back zombies who left the world
-            Scheduler.NewTask(t => InWorldCheck(player, world)).RunForever(TimeSpan.FromMilliseconds(4999));
+            
         }
 
         public static void EndGame(Player player, World world)
@@ -82,9 +83,7 @@ namespace fCraft
                     {
                         InGame.Remove(p);
                         Player.VisibleEntity entity = new Player.VisibleEntity(p.Position, (sbyte)p.Info.ID, null);//zombie changer?
-                        p.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
-                        p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, player.Info.Rank.Color+player.Name, p.Position));
-                        entity.LastKnownPosition = p.Position;
+                        entity.IsZombie = true;
                         p.UpdateVisibleEntities();
                         p.Info.IsZombie = false;
                     }
@@ -123,11 +122,9 @@ namespace fCraft
                         InGame.Add(player); //adds player to InGame
 
                         Player.VisibleEntity entity = new Player.VisibleEntity(p.Position, (sbyte)p.Info.ID, null);//zombie changer?
-                        p.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
-                        p.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", p.Position));
-                        entity.LastKnownPosition = p.Position;
-                        p.Info.IsZombie = true;
+                        entity.IsZombie = true;
                         p.UpdateVisibleEntities();
+                        p.Info.IsZombie = true;
                         player.Message("You joined too late and spawned as a Zombie");
                     }
                 }
@@ -173,10 +170,9 @@ namespace fCraft
                         if (e.Player.Position == p.Position && !e.Player.Info.IsZombie)
                         {
                             Player.VisibleEntity entity = new Player.VisibleEntity(e.Player.Position, (sbyte)e.Player.Info.ID, null);//zombie changer?
-                            e.Player.World.Players.Send(PacketWriter.MakeRemoveEntity(entity.Id));
-                            e.Player.World.Players.Send(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", e.Player.Position));
-                            entity.LastKnownPosition = e.Player.Position;
-                            e.Player.UpdateVisibleEntities();
+                            
+                            entity.IsZombie = true;
+                            p.UpdateVisibleEntities();
                             e.Player.Info.IsZombie = true;
                             //p.World.Message("{0} &cInfected {1}", p.ClassyName, e.Player.ClassyName);
                         }

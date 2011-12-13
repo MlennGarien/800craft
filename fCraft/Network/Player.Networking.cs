@@ -1285,7 +1285,15 @@ namespace fCraft {
                         ReAddEntity( entity, otherPlayer, otherPos );
                         entity.LastKnownRank = otherPlayer.Info.Rank;
 
-                    } else if( entity.Hidden ) {
+                    }
+
+                    if (entity.IsZombie == true)
+                    {
+                        ZombieEntity(entity, otherPlayer, otherPos);
+                        entity.LastKnownRank = otherPlayer.Info.Rank;
+
+                    }
+                    else if( entity.Hidden ) {
                         if( distance < entityShowingThreshold ) {
                             ShowEntity( entity, otherPos );
                         }
@@ -1328,7 +1336,7 @@ namespace fCraft {
         void AddEntity( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( freePlayerIDs.Count > 0 ) {
-                var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
+                var pos = new VisibleEntity(newPos, freePlayerIDs.Pop(), player.Info.Rank);
                 entities.Add( player, pos );
                 SendNow( PacketWriter.MakeAddEntity( pos.Id, player.ListName, newPos ) );
             }
@@ -1356,6 +1364,15 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
             SendNow( PacketWriter.MakeAddEntity( entity.Id, player.ListName, newPos ) );
+            entity.LastKnownPosition = newPos;
+        }
+
+        void ZombieEntity([NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos)
+        {
+            if (entity == null) throw new ArgumentNullException("entity");
+            if (player == null) throw new ArgumentNullException("player");
+            SendNow(PacketWriter.MakeRemoveEntity(entity.Id));
+            SendNow(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", newPos));
             entity.LastKnownPosition = newPos;
         }
 
@@ -1434,14 +1451,15 @@ namespace fCraft {
         public sealed class VisibleEntity {
             public static readonly Position HiddenPosition = new Position( 0, 0, short.MinValue );
 
-            public VisibleEntity( Position newPos, sbyte newId, Rank newRank ) {
+            public VisibleEntity( Position newPos, sbyte newId, Rank newRank) {
+                
                 Id = newId;
                 LastKnownPosition = newPos;
                 MarkedForRetention = true;
                 Hidden = true;
                 LastKnownRank = newRank;
             }
-
+            public bool IsZombie = false;
             public readonly sbyte Id;
             public Position LastKnownPosition;
             public Rank LastKnownRank;

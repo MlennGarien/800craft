@@ -11,6 +11,8 @@ namespace fCraft {
         [NotNull]
         public BoundingBox Bounds { get; private set; }
 
+        public bool DoorClicked { get; set; }
+
         /// <summary> Zone build permission controller. </summary>
         [NotNull]
         public readonly SecurityController Controller = new SecurityController();
