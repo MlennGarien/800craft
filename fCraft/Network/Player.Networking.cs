@@ -1219,7 +1219,7 @@ namespace fCraft {
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
 
 
-        void ResetVisibleEntities() {
+        public void ResetVisibleEntities() {
             foreach( var pos in entities.Values ) {
                 SendNow( PacketWriter.MakeRemoveEntity( pos.Id ) );
             }

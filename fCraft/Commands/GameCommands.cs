@@ -38,7 +38,7 @@ static class GameCommands
         {
             ZombieGame.WorldName = player.World;
             startGame(player, ZombieGame.WorldName);
-            
+
             return;
         }
         if (Option == null)
@@ -52,8 +52,8 @@ static class GameCommands
             string a = cmd.Next();
             Player p = Server.FindPlayerOrPrintMatches(player, a, true, true);
             p.Info.Name = "_Infected_";
-            p.World.UpdatePlayerList();
-            p.UpdateVisibleEntities();
+            //p.World.UpdatePlayerList();
+            p.ResetVisibleEntities();
             p.Info.IsZombie = true;
             return;
         }
@@ -126,26 +126,34 @@ static class GameCommands
             ZombieGame.TooLate = false;
 
             //change all players back
-            foreach (Player p in ZombieGame.WorldName.Players)
+            foreach (Player p in Server.Players)
             {
-                try
+                if (p.Info.Name == "_Infected_")
                 {
-                    p.Info.Name = p.Info.OriginalName;
-                    p.Info.ArrivedLate = false;
-                    world.UpdatePlayerList();
-                    p.UpdateVisibleEntities();
-                    p.Message("Changing you back to human {0}", p.Info.OriginalName);
-                    p.Info.IsZombie = false;
-                    ZombieGame.InGame.Remove(p);
-                }
-
-                catch (Exception ex)
-                {
-                    Logger.Log(LogType.Error, "" + ex);
+                    try
+                    {
+                        p.Info.Name = p.Info.OriginalName;
+                        p.Info.ArrivedLate = false;
+                        // world.UpdatePlayerList();
+                        p.ResetVisibleEntities();
+                        p.Info.IsZombie = false;
+                        ZombieGame.Zombies.Remove(p);
+                        p.Info.DisplayedName = p.Info.Dname;
+                        p.Message("Changing you back to human {0}", p.Info.Name);
+                        ZombieGame.FinalName = null;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(LogType.Error, "ZombieGame Ending: " + ex);
+                    }
+                    foreach (Player H in ZombieGame.Humans)
+                    {
+                        ZombieGame.Humans.Remove(p);
+                    }
                 }
             }
+            //end everything here
         }
-        //end everything here
     }
 
 
@@ -153,18 +161,21 @@ static class GameCommands
     {
         Random rand = new Random();
 
-        int min = 1, max = world.Players.Count(), num;
-        num = rand.Next(min, max + 1);
-        Player toZombie = world.Players[num];
+        int min = 1, max = ZombieGame.Humans.Count(), num;
+        num = rand.Next(min, max);
+        Player toZombie = ZombieGame.Humans[num];
         try
         {
-            if (toZombie != null && toZombie.Info.Name.StartsWith("&F"))
+            if (toZombie != null && !toZombie.Info.Name.Contains("_Infected_"))
             {
                 toZombie.Info.Name = "_Infected_";
-                toZombie.World.UpdatePlayerList();
-                toZombie.UpdateVisibleEntities();
+                toZombie.Info.DisplayedName = "&c" + toZombie.Info.OriginalName;
+                //toZombie.World.UpdatePlayerList();
+                toZombie.ResetVisibleEntities();
                 toZombie.Info.IsZombie = true;
                 world.Players.Message(Color.Red + toZombie.Info.OriginalName + " is first Zombie!!");
+                ZombieGame.Humans.Remove(toZombie);
+                ZombieGame.Zombies.Add(toZombie);
 
             }
         }
@@ -182,17 +193,16 @@ static class GameCommands
             {
                 if (ZombieGame.GameOn)
                 {
-                    foreach (Player p in world.Players) //saves each players original name into a list
+                    foreach (Player p in ZombieGame.WorldName.Players) //saves each players original name into a list
                     {
                         if (p.Info.Name != "_Infected_")
                         {
                             if (p.World.Name == ZombieGame.WorldName.Name)
                             {
-                                if (!p.Info.Name.StartsWith("&F"))
+                                if (!ZombieGame.Humans.Contains(p))
                                 {
                                     p.Info.OriginalName = p.Info.Name;
-                                    p.Info.Name = "&F" + player.Info.Name;
-                                    ZombieGame.InGame.Add(p);
+                                    ZombieGame.Humans.Add(p);
                                 }
                                 //list of original names in case of server crash / powercut goes here. JSON.
                             }
@@ -201,46 +211,61 @@ static class GameCommands
                 }
             }
 
+            if (ZombieGame.Humans.Count == 1)
+            {
+                foreach (Player S in ZombieGame.Humans)
+                    ZombieGame.FinalName = S.Info.OriginalName;
+            }
+
+            if (ZombieGame.Humans.Count == 0)
+                ZombieGame.WorldName.Players.Message("The game is over!\nThe last survivor was {0}", ZombieGame.FinalName);
+                EndGame(player, ZombieGame.WorldName);
+
             if (ZombieGame.TooLate || !ZombieGame.TooLate)
             {
-                foreach (Player Q in ZombieGame.InGame)
+                foreach (Player Q in ZombieGame.Zombies)
                 {
                     if (Q.World.Name != ZombieGame.WorldName.Name)
                     {
                         Q.Info.Name = Q.Info.OriginalName;
+                        Q.Info.DisplayedName = Q.Info.Dname;
                         Q.Info.ArrivedLate = false;
-                        Q.World.UpdatePlayerList();
-                        Q.UpdateVisibleEntities();
+                        //Q.World.UpdatePlayerList();
+                        Q.ResetVisibleEntities();
                         Q.Message("Changing you back to human {0}", Q.Info.OriginalName);
                         Q.Info.IsZombie = false;
-                        ZombieGame.InGame.Remove(Q);
+                        ZombieGame.Humans.Remove(Q);
+                        ZombieGame.Zombies.Remove(Q);
+                    }
+                }
+                foreach (Player H in ZombieGame.Humans)
+                {
+                    if (H.World.Name != ZombieGame.WorldName.Name)
+                    {
+                        ZombieGame.Humans.Remove(H);
                     }
                 }
             }
 
             if (ZombieGame.TooLate)
             {
-                foreach (Player p in world.Players)
+                foreach (Player p in Server.Players)
                 {
-                    if (p.World.Name == ZombieGame.WorldName.Name)
+                    if (p.World == ZombieGame.WorldName && !ZombieGame.Humans.Contains(p))
                     {
-                        if (!p.Info.Name.StartsWith("&F"))
-                        {
-                            p.Info.ArrivedLate = true;
-                        }
+                        p.Info.ArrivedLate = true;
 
                         if (p.Info.ArrivedLate && !p.Info.IsZombie)
                         {
-                            //adds player to InGame
-                            if (p.Info.Name != "_Infected_")
-                            {
-                                p.Info.OriginalName = p.Info.Name;
-                                ZombieGame.InGame.Add(player);
-                            }
+                            p.Info.OriginalName = p.Info.Name;
+
                             p.Info.Name = "_Infected_";
-                            p.World.UpdatePlayerList();
-                            p.UpdateVisibleEntities();
+                            p.Info.DisplayedName = "&C" + p.Info.OriginalName;
+                            //p.World.UpdatePlayerList();
+                            p.ResetVisibleEntities();
                             p.Info.IsZombie = true;
+                            ZombieGame.Humans.Remove(p);
+                            ZombieGame.Zombies.Add(p);
                             p.Message("You joined too late and spawned as a Zombie");
                         }
                     }
@@ -248,7 +273,10 @@ static class GameCommands
             }
         }
     }
+            
+        
     
+
 
     static void Player_Disconnected(object sender, PlayerDisconnectedEventArgs e)
     {
@@ -259,17 +287,14 @@ static class GameCommands
                 if (e.Player.Info.IsZombie && e.Player.Info.Name == "_Infected_")
                 {
                     e.Player.Info.Name = e.Player.Info.OriginalName;
-                    ZombieGame.InGame.Remove(e.Player);
+                    e.Player.Info.DisplayedName = e.Player.Info.Dname;
+                    ZombieGame.Zombies.Remove(e.Player);
                     e.Player.Info.IsZombie = false;
                 }
 
-                if (!e.Player.Info.IsZombie && e.Player.Info.Name.StartsWith("&F"))
-                {
-                    e.Player.Info.Name = e.Player.Info.OriginalName;
-                    ZombieGame.InGame.Remove(e.Player);
-                    e.Player.Info.IsZombie = false;
-                }
-                Logger.Log(LogType.Warning, "ZombieGame: Player {0} left, reverting name back.", e.Player.Info.OriginalName);
+                
+                Server.UnregisterPlayer(e.Player);
+                Logger.Log(LogType.SystemActivity, "ZombieGame: Player {0} left, reverting name back.", e.Player.Info.OriginalName);
             }
 
             catch (Exception ex)
@@ -280,32 +305,7 @@ static class GameCommands
     }
 
 
-    /*public static void UnregisterPlayer(Player p)
-    {
-        try
-        {
-            if (p.Info.IsZombie && p.Info.Name == "_Infected_")
-            {
-                p.Info.Name = p.Info.OriginalName;
-                ZombieGame.InGame.Remove(p);
-                p.Info.IsZombie = false;
-            }
-
-            if (!p.Info.IsZombie && p.Info.Name.StartsWith("&F"))
-            {
-                p.Info.Name = p.Info.OriginalName;
-                ZombieGame.InGame.Remove(p);
-                p.Info.IsZombie = false;
-            }
-        }
-
-        catch (Exception ex)
-        {
-            Logger.Log(LogType.Error, "ZombieGame: " + ex);
-        }
-    }*/
-
-    static void ZombieCheck(object sender, PlayerMovingEventArgs e) //changes to zombies... maybe
+    /*static void ZombieCheck(object sender, PlayerMovingEventArgs e) //changes to zombies... maybe
     {
         if (e.Player.World.ZombieGame && ZombieGame.TooLate)
         {
@@ -319,8 +319,9 @@ static class GameCommands
                         if (e.Player != Human && Human != null && !Human.Info.IsZombie)
                         {
                             Position p2 = Human.Position;
+                            Position d = e.Player.Position;
 
-                            if (e.Player.Position == p2)
+                            if (d.X * d.X + d.Y * d.Y <= 1296 && Math.Abs(d.Z) <= 52)
                             {
                                 if (Human.Info.Name.StartsWith("&F") && !Human.Info.IsZombie)
                                 {
@@ -338,45 +339,52 @@ static class GameCommands
             }
         }
     }
-}
+}*/
 
-    /*static void ZombieCheck(object sender, PlayerMovingEventArgs e)//turns players into zombies. Maybe.
+    static void ZombieCheck(object sender, PlayerMovingEventArgs e)//turns players into zombies. Maybe.
     {
-        if (ZombieGame.GameOn)
+        if (ZombieGame.TooLate)
         {
-            foreach (Player p in e.Player.World.Players)
+            for (int j = 1; j < ZombieGame.Humans.Count; j++)
             {
-                Player zombie = new Player(e.Player.Info.Name);
-                zombie.Info.Name = "_Infected_";
-                Player human = new Player(e.Player.Info.Name);
+                Player Human = ZombieGame.Humans[j];
 
-                try
+                if (e.Player != Human && Human != null && !Human.Info.IsZombie)
                 {
-                    Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-                    Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
-
-                    if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
+                    foreach (Player p in ZombieGame.Humans)
                     {
-                        if (human.Position == zombie.Position && !human.Info.IsZombie && human.Info.Name != "_Infected_")
+                        try
                         {
-                            e.Player.Info.Name = "_Infected_";
-                            e.Player.World.UpdatePlayerList();
-                            e.Player.UpdateVisibleEntities();
-                            e.Player.World.Players.Message("{0} &cInfected {1}", p.ClassyName, e.Player.ClassyName);
-                        }
+                            Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                            Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
-                        if (e.Player.IsUsingWoM)
-                            e.Player.Kick("WOM is not allowed on Zombie games", LeaveReason.Kick);
+                            if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
+                            {
+                                if (Human.Position == e.Player.Position && !Human.Info.IsZombie && Human.Info.Name != "_Infected_")
+                                {
+                                    Human.Info.DisplayedName = "&C" + Human.Info.OriginalName;
+                                    Human.Info.Name = "_Infected_";
+                                    //e.Player.World.UpdatePlayerList();
+                                    e.Player.ResetVisibleEntities();
+                                    e.Player.World.Players.Message("{0} &cInfected {1}", e.Player.ClassyName, Human.Info.OriginalName);
+                                    ZombieGame.Humans.Remove(Human);
+                                    ZombieGame.Zombies.Add(Human);
+                                }
+
+                                if (e.Player.IsUsingWoM)
+                                    e.Player.Kick("WOM is not allowed on Zombie games", LeaveReason.Kick);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log(LogType.Error, "ZombieGame: problem with tracking zombies: " + ex);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Log(LogType.Error, "ZombieGame problem with tracking zombies: " + ex);
                 }
             }
         }
     }
-}*/
+}
 
 
     
