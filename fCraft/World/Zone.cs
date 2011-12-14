@@ -11,7 +11,7 @@ namespace fCraft {
         [NotNull]
         public BoundingBox Bounds { get; private set; }
 
-        public bool DoorClicked { get; set; }
+        public DateTime LastUsedDoor;
 
         /// <summary> Zone build permission controller. </summary>
         [NotNull]

@@ -157,7 +157,6 @@ namespace fCraft {
         public bool BuildingPortal = true;
         public DateTime LastUsedPortal;
         public DateTime LastWarnedPortal;
-        public DateTime LastUsedDoor;
         public readonly object FlyLock = new object();
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;

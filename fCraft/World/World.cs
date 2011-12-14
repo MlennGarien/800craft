@@ -29,6 +29,8 @@ namespace fCraft
 
         public bool RealisticEnv { get; set; }
 
+        public bool ZombieGame = false;
+
 
         
 

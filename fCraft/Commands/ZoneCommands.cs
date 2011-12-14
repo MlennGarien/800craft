@@ -113,16 +113,16 @@ namespace fCraft {
         {
 
             Zone[] allowed, denied;
-            if (e.Player.WorldMap.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied)) {
-                foreach (Zone zone in allowed) {
+            if (e.Player.WorldMap.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
+            {
+                foreach (Zone zone in allowed)
+                {
                     if (zone.Name.EndsWith("door"))
                     {
                         openDoor(zone, e.Player);
                     }
                 }
             }
-
-
         }
 
         static void Player_ClickInDoor(object sender, Events.PlayerPlacedBlockEventArgs e)
@@ -135,13 +135,15 @@ namespace fCraft {
                     foreach (Zone zone in allowed)
                     {
                         if (zone.Name.EndsWith("door"))
+                        {
 
-                            if (e.Player.LastUsedDoor != null && (DateTime.Now - e.Player.LastUsedDoor).TotalMilliseconds > 50 && (DateTime.Now - e.Player.LastUsedDoor).TotalMilliseconds < 1500)
+                            if (zone.LastUsedDoor != null && (DateTime.Now - zone.LastUsedDoor).TotalMilliseconds > 50 && (DateTime.Now - zone.LastUsedDoor).TotalMilliseconds < 1500)
                             {
                                 BlockUpdate update = new BlockUpdate(null, e.Coords, e.OldBlock);
                                 e.Player.World.Map.QueueUpdate(update);
                                 e.Player.Message("You cannot click a door that fast");
                             }
+                        }
                     }
                 }
             }
@@ -153,14 +155,15 @@ namespace fCraft {
 
         static void openDoor(Zone zone, Player player)
         {
-                int sx = zone.Bounds.XMin;
-                int ex = zone.Bounds.XMax;
-                int sy = zone.Bounds.YMin;
-                int ey = zone.Bounds.YMax;
-                int sz = zone.Bounds.ZMin;
-                int ez = zone.Bounds.ZMax;
-                if (player.LastUsedDoor == null || (DateTime.Now - player.LastUsedDoor).TotalMilliseconds > 1500)
-                {
+            int sx = zone.Bounds.XMin;
+            int ex = zone.Bounds.XMax;
+            int sy = zone.Bounds.YMin;
+            int ey = zone.Bounds.YMax;
+            int sz = zone.Bounds.ZMin;
+            int ez = zone.Bounds.ZMax;
+
+            if (zone.LastUsedDoor == null || (DateTime.Now - zone.LastUsedDoor).TotalMilliseconds > 1500)
+            {
                 BoundingBox bounds = zone.Bounds;
                 Block[] buffer = new Block[bounds.Volume];
 
@@ -172,11 +175,10 @@ namespace fCraft {
                     {
                         for (int z = sz; z <= ez; z++)
                         {
-
                             buffer[counter] = player.WorldMap.GetBlock(x, y, z);
                             player.WorldMap.QueueUpdate(new BlockUpdate(null, new Vector3I(x, y, z), Block.Air));
                             counter++;
-                            player.LastUsedDoor = DateTime.Now;
+                            zone.LastUsedDoor = DateTime.Now;
                         }
                     }
                 }
@@ -233,9 +235,9 @@ namespace fCraft {
                 return;
             }
 
-            if (givenZoneName.Contains("door"))
+            if (givenZoneName.EndsWith("door"))
             {
-                player.Message("&SA Zone name cannot contain 'door'");
+                player.Message("&SA Zone name cannot end with 'door'");
                 return;
             }
 

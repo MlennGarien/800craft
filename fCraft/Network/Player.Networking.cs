@@ -1287,12 +1287,7 @@ namespace fCraft {
 
                     }
 
-                    if (entity.IsZombie == true)
-                    {
-                        ZombieEntity(entity, otherPlayer, otherPos);
-                        entity.LastKnownRank = otherPlayer.Info.Rank;
-
-                    }
+                    
                     else if( entity.Hidden ) {
                         if( distance < entityShowingThreshold ) {
                             ShowEntity( entity, otherPos );
@@ -1459,7 +1454,6 @@ namespace fCraft {
                 Hidden = true;
                 LastKnownRank = newRank;
             }
-            public bool IsZombie = false;
             public readonly sbyte Id;
             public Position LastKnownPosition;
             public Rank LastKnownRank;

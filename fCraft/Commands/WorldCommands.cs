@@ -60,61 +60,9 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
-            CommandManager.RegisterCommand(CdZombieGame);
         }
 
-        static readonly CommandDescriptor CdZombieGame = new CommandDescriptor
-        {
-            Name = "Zombiegame",
-            Category = CommandCategory.World,
-            Permissions = new Permission[] { Permission.Chat },
-            IsConsoleSafe = false,
-            Usage = "/Zombiegame start | end",
-            Help = "No one can help you.",
-            Handler = ZGame
-        };
-
-        public static void ZGame(Player player, Command cmd)
-        {
-            string Option = cmd.Next();
-
-            if (Option.Contains("start"))
-            {
-                ZombieGame.startGame(player, player.World);
-                foreach (Player p in ZombieGame.InGame)
-                {
-                    ZombieGame.GetInstance();
-                }
-                return;
-            }
-            if (Option == null)
-            {
-                CdZombieGame.PrintUsage(player);
-                return;
-            }
-
-            if (Option == "infect")
-            {
-                string a = cmd.Next();
-                Player p = Server.FindPlayerOrPrintMatches(player, a, true, true);
-                Player.VisibleEntity entity = new Player.VisibleEntity(p.Position, (sbyte)p.Info.ID, null);//zombie changer?
-                entity.IsZombie = true;
-                p.UpdateVisibleEntities();
-                p.Info.IsZombie = true;
-                return;
-            }
-
-            else if (Option.Contains("end"))
-            {
-                ZombieGame.EndGame(player, player.World);
-                return;
-            }
-
-            else
-            {
-                player.Message("Invalid option"); return;
-            }
-        }
+        
 
     #region portals
 
