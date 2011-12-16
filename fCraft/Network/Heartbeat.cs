@@ -40,6 +40,7 @@ namespace fCraft {
 
         internal static void Start() {
             Scheduler.NewBackgroundTask( Beat ).RunForever( Delay );
+            HbSave();
         }
 
 
@@ -64,7 +65,6 @@ namespace fCraft {
                     ConfigKey.ServerName.GetString(),
                     ConfigKey.IsPublic.GetString()
                 };
-               
 
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );
@@ -74,27 +74,15 @@ namespace fCraft {
 
         public static void HbSave()
         {
-
-            HbData.Add("port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" + Uri.EscapeDataString( ConfigKey.ServerName.GetString() )  +
-
+            File.Delete(Paths.HbDataFileName);
+            HbData.Add("port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" + 
+                Uri.EscapeDataString(ConfigKey.ServerName.GetString())+
                 "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString());
 
-            using (StreamWriter fs = new StreamWriter(Paths.HbDataFileName, true))
-            {
-
-                foreach (string s in HbData)
-                {
-
-                    fs.WriteLine(s);
-
-                }
-                fs.Flush();
-
-                fs.Close();
-
-            }
-
+            const string SaverFile = Paths.HbDataFileName;
+                File.WriteAllLines( SaverFile, HbData, Encoding.ASCII );
         }
+
         static void SendMinecraftNetBeat() {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
             if( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
@@ -104,8 +92,6 @@ namespace fCraft {
                 HttpWebRequest request = CreateRequest(data.CreateUri());
                 var state = new HeartbeatRequestState(request, data, true);
                 request.BeginGetResponse(ResponseCallback, state);
-            
-            
         }
 
 
@@ -147,7 +133,6 @@ namespace fCraft {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         // ReSharper restore AssignNullToNotNullAttribute
                         responseText = responseReader.ReadToEnd();
-                        HbSave();
                     }
                     RaiseHeartbeatSentEvent( state.Data, response, responseText );
                 }
