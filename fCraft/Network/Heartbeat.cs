@@ -15,11 +15,10 @@ namespace fCraft {
     public static class Heartbeat {
         static readonly Uri MinecraftNetUri;
         static readonly Uri WoMDirectUri;
-        public static List<string> HbData = new List<string>();
-
-
         /// <summary> Delay between sending heartbeats. Default: 25s </summary>
         public static TimeSpan Delay { get; set; }
+
+        public static List<string> HbData = new List<string>();
 
         /// <summary> Request timeout for heartbeats. Default: 10s </summary>
         public static TimeSpan Timeout { get; set; }
@@ -65,7 +64,7 @@ namespace fCraft {
                     ConfigKey.ServerName.GetString(),
                     ConfigKey.IsPublic.GetString()
                 };
-
+               
 
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );
@@ -73,8 +72,29 @@ namespace fCraft {
             }
         }
 
-            
+        public static void HbSave()
+        {
 
+            HbData.Add("port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" + Uri.EscapeDataString( ConfigKey.ServerName.GetString() )  +
+
+                "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString());
+
+            using (StreamWriter fs = new StreamWriter(Paths.HbDataFileName, true))
+            {
+
+                foreach (string s in HbData)
+                {
+
+                    fs.WriteLine(s);
+
+                }
+                fs.Flush();
+
+                fs.Close();
+
+            }
+
+        }
         static void SendMinecraftNetBeat() {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
             if( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
@@ -127,6 +147,7 @@ namespace fCraft {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         // ReSharper restore AssignNullToNotNullAttribute
                         responseText = responseReader.ReadToEnd();
+                        HbSave();
                     }
                     RaiseHeartbeatSentEvent( state.Data, response, responseText );
                 }
@@ -159,7 +180,7 @@ namespace fCraft {
                                 ex.Message );
                 } else {
                     Logger.Log( LogType.Error, "Heartbeat: {0}", ex );
-                }
+                } 
             } 
         }
         
@@ -232,6 +253,8 @@ namespace fCraft {
             HeartbeatUri = heartbeatUri;
         }
 
+             
+
         [NotNull]
         public Uri HeartbeatUri { get; private set; }
         public string Salt { get; set; }
@@ -264,6 +287,7 @@ namespace fCraft {
             return ub.Uri;
             
         }
+
     }
 }
 

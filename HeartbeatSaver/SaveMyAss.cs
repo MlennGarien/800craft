@@ -23,8 +23,7 @@ namespace HeartbeatSender
     {
 
         public static bool ShowIntro = true;
-
-
+        public static String line;
 
         static void Main()
         {
@@ -36,7 +35,6 @@ namespace HeartbeatSender
                 Console.WriteLine(" This program is designed to send a\n    Heartbeat to minecraft.net      \n");
                 Console.WriteLine("************************************\n");
                 Console.ResetColor();
-                //Console.WriteLine("\nSending Information... Name: {0}, Port: {1}\n\n", Name, Port);
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 ShowIntro = false;
@@ -64,66 +62,61 @@ namespace HeartbeatSender
                         }
 
                         // this is what we are sending
-                        using (StreamReader fs = new StreamReader(Paths.HbDataFileName))
+                        if (File.Exists(Paths.HbDataFileName))
                         {
-                            String line;
-                            while ((line = fs.ReadToEnd()) != null)
-                            {
-                                string data = (string)JsonSerializer.DeserializeFromString(line, typeof(string));
-                                StringBuilder sb = new StringBuilder();
-                                sb.AppendFormat(data);
+                                //Pass the file path and file name to the StreamReader constructor
+                                StreamReader file = new StreamReader(Paths.HbDataFileName);
+
+                                //Read the first line of text
+                                HeartbeatSender.line = file.ReadLine();
+
+                                //close the file
+                                file.Close();
+
                                 int count = 1;
-                                string post_data = sb.ToString();
-                                Console.WriteLine("Sending Heartbeat... Count: " + count + "\n");
-                                Console.WriteLine("Sending " + post_data + "\n");
-                                count++;
-                                // this is where we will send it
-                                string uri = "http://www.minecraft.net/heartbeat.jsp";
-
-                                // create a request
-                                HttpWebRequest request = (HttpWebRequest)
-                                WebRequest.Create(uri); request.KeepAlive = true;
-                                request.ProtocolVersion = HttpVersion.Version10;
-                                request.Method = "POST";
-
-                                // turn request string into a byte stream
-                                byte[] postBytes = Encoding.ASCII.GetBytes(post_data);
-
-                                request.ContentType = "application/x-www-form-urlencoded";
-                                request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
-                                request.ContentLength = postBytes.Length;
-                                request.Timeout = 15000;
-                                Stream requestStream = request.GetRequestStream();
-
-                                // send it
-                                requestStream.Write(postBytes, 0, postBytes.Length);
-                                requestStream.Flush();
-                                requestStream.Close();
-
-                                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                                try
+                                do
                                 {
-                                    Console.WriteLine(new StreamReader(response.GetResponseStream()).ReadToEnd());
-                                    Console.WriteLine(response.StatusCode + "\n");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("" + ex);
-                                }
+                                    string post_data = line;
+                                    Console.WriteLine("Sending Heartbeat... Count: " + count + "\n");
+                                    // this is where we will send it
+                                    string uri = "http://www.minecraft.net/heartbeat.jsp";
 
-                                Thread.Sleep(5000);
-                                count++;
-                                Console.ResetColor();
-                                Main();
-                            }
+                                    // create a request
+                                    HttpWebRequest request = (HttpWebRequest)
+                                    WebRequest.Create(uri); request.KeepAlive = true;
+                                    request.ProtocolVersion = HttpVersion.Version10;
+                                    request.Method = "POST";
+
+                                    // turn request string into a byte stream
+                                    byte[] postBytes = Encoding.ASCII.GetBytes(post_data);
+
+                                    request.ContentType = "application/x-www-form-urlencoded";
+                                    request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+                                    request.ContentLength = postBytes.Length;
+                                    request.Timeout = 15000;
+                                    Stream requestStream = request.GetRequestStream();
+
+                                    // send it
+                                    requestStream.Write(postBytes, 0, postBytes.Length);
+                                    requestStream.Flush();
+                                    requestStream.Close();
+                                    try
+                                    {
+                                        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                                        Console.WriteLine(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                                        Console.WriteLine(response.StatusCode + "\n");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("" + ex);
+                                    }
+
+                                    Thread.Sleep(5000);
+                                    count++;
+                                }
+                                while (count >= 0);
                         }
                     }
-
-
-
-
-
-
                     finally
                     {
                         mutex.ReleaseMutex();

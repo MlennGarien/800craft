@@ -44,6 +44,7 @@ namespace fCraft {
         public static string Question;
         public static string VoteKickReason;
         public static string TargetName;
+        public static string ToPossess;
 
         public static bool profanityFilter = true;
 

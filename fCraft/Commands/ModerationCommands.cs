@@ -277,6 +277,7 @@ namespace fCraft {
             {
                 Position P = target.Position;
                 player.TeleportTo(P);
+                Server.TargetName = target.Name;
                 Possess(target, cmd, name);
                 player.Message("Now possessing " + name);
                 return;
@@ -287,6 +288,37 @@ namespace fCraft {
                 player.Message("You can only Possess players ranked {0}&S or lower",
                                 player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+            }
+        }
+
+        static void Possess(Player player, Command cmd, string toPossess)
+        {
+            string targetName = Server.ToPossess;
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
+            if (targetName == null)
+            {
+                PlayerInfo lastSpec = target.LastSpectatedPlayer;
+                if (lastSpec != null)
+                {
+                    Player spec = target.SpectatedPlayer;
+                    if (spec != null)
+                        player.Message("Now possessing {0}", target.ClassyName);
+
+                }
+                else
+                {
+                    CdPossess.PrintUsage(player);
+                }
+                return;
+            }
+
+
+            if (target == null) return;
+
+            if (target == player)
+            {
+                player.Message("You cannot Possess yourself.");
+                return;
             }
         }
 
@@ -761,36 +793,7 @@ namespace fCraft {
 
         #region Custom Functions
 
-        static void Possess(Player player, Command cmd, string toPossess)
-        {
-            string targetName = cmd.Next();
-            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
-            if (targetName == null)
-            {
-                PlayerInfo lastSpec = target.LastSpectatedPlayer;
-                if (lastSpec != null)
-                {
-                    Player spec = target.SpectatedPlayer;
-                    if (spec != null)
-                        player.Message("Now possessing {0}", target.ClassyName);
-                    
-                }
-                else
-                {
-                    CdPossess.PrintUsage(player);
-                }
-                return;
-            }
-
-            
-            if (target == null) return;
-
-            if (target == player)
-            {
-                player.Message("You cannot Possess yourself.");
-                return;
-            }
-        }
+        
 
         
         static void TPHandler2(Player player, Command cmd)
