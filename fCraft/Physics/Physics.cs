@@ -54,14 +54,29 @@ namespace fCraft.Physics
             {
                 foreach (World world in WorldManager.Worlds)
                 {
-                    if (world.Map != null)
+                    if (world.Map != null && world.IsLoaded)
                     {
                         for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
                         {
+                            if (world.Map == null)
+                            {
+                                break;
+                            }
+
                             for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
                             {
+                                if (world.Map == null)
+                                {
+                                    break;
+                                }
+
                                 for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
                                 {
+                                    if (world.Map == null)
+                                    {
+                                        break;
+                                    }
+
                                     if (world.Map.GetBlock(new Vector3I(x, y, z)) == Block.Dirt)
                                     {
                                         if (CanPutGrassOn(new Vector3I(x, y, z), world))
