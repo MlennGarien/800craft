@@ -44,4 +44,4 @@ There are 2 ways you can use this:
 This is a unique Server Software feature that is only found in 800Craft.
 
 ## Release
-We are expecting to release the software on the 16th of December and any further updates from us will be recieved automatically
+It is now the 16th of December and the first version of 800Craft has been released. You can download it here: https://github.com/GlennMR/800craft/downloads
