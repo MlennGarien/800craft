@@ -46,6 +46,8 @@ namespace fCraft
         Possess,
         /// <summary> Ability to manually disconnect other players. </summary>
         Gtfo,
+        /// <summary> Ability to Ragequit from the server. </summary>
+        RageQuit,
         /// <summary> Ability to tempban. </summary>
         TempBan,
         /// <summary> Ability to warn other players. </summary>
@@ -153,10 +155,12 @@ namespace fCraft
         /// <summary> Ability to high five someone. </summary>
         HighFive,
         /// <summary> Ability to chat in capital letters. </summary>
-        ChatCaps,
+        ChatWithCaps,
         /// <summary> Ability to swear. </summary>
         Swear,
         /// <summary> Ability to Make votes in /vote </summary>
-        MakeVotes
+        MakeVotes,
+        /// <summary> Ability to start VoteKicks in /vote kick</summary>
+        MakeVoteKicks
     }
 }

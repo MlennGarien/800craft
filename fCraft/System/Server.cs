@@ -35,11 +35,16 @@ namespace fCraft {
         internal const int MaxSessionPacketsPerTick = 128, // used when there are no players in a world
                            MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
         internal static float TicksPerSecond;
+
+        //vote
         public static bool VoteIsOn;
         public static float VoteYes = 0;
         public static float VoteNo = 0;
         public static List<Player> Voted = new List<Player>();
         public static string Question;
+        public static string VoteKickReason;
+        public static string TargetName;
+
         public static bool profanityFilter = true;
 
 
@@ -1019,17 +1024,28 @@ namespace fCraft {
         }
 
 
-        public static string MakePlayerConnectedMessage( [NotNull] Player player, bool firstTime, [NotNull] World world ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( world == null ) throw new ArgumentNullException( "world" );
-            if( firstTime ) {
-                return String.Format( "&SPlayer {0}&S connected, joined {1}",
+        public static string MakePlayerConnectedMessage(Player player, bool firstTime, World world)
+        {
+            if (player == null) throw new ArgumentNullException("player");
+            if (world == null) throw new ArgumentNullException("world");
+            bool canGetGeo = true;
+            if (GeoIP.GetGeoLocationByIP(player.IP.ToString()) == "") canGetGeo = false;
+            string whereFrom = canGetGeo ? "&Sfrom:&c " + GeoIP.GetGeoLocationByIP(player.IP.ToString()) : "";
+            if (firstTime)
+            {
+                return String.Format("&S{0} ({1}&S) connected, joined {2} {3}",
                                       player.ClassyName,
-                                      world.ClassyName );
-            } else {
-                return String.Format( "&SPlayer {0}&S connected again, joined {1}",
+                                      player.Info.Rank.ClassyName,
+                                      world.ClassyName,
+                                      whereFrom);
+            }
+            else
+            {
+                return String.Format("&S{0} ({1}&S) connected again, joined {2} {3}",
                                       player.ClassyName,
-                                      world.ClassyName );
+                                      player.Info.Rank.ClassyName,
+                                      world.ClassyName,
+                                      whereFrom);
             }
         }
 

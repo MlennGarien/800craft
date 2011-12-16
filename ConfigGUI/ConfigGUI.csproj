@@ -12,7 +12,7 @@
     <AssemblyName>ConfigGUI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ApplicationIcon>fcraft_config.ico</ApplicationIcon>
+    <ApplicationIcon>ConfigGUI4.ico</ApplicationIcon>
     <StartupObject>fCraft.ConfigGUI.Program</StartupObject>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileUpgradeFlags>
@@ -121,6 +121,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ChatBackground.png" />
+    <Content Include="ConfigCLI.ico" />
+    <Content Include="ConfigGUI.ico" />
+    <Content Include="ConfigGUI2.ico" />
+    <Content Include="ConfigGUI4.ico" />
     <Content Include="fcraft_config.ico" />
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,7 @@ namespace fCraft
         public static List<Player> Humans = new List<Player>();
         public static List<Player> Zombies = new List<Player>();
         public static World WorldName; //name of the zombie game world
+        public static int HumanCount = 0;
     }
 
 }

@@ -467,18 +467,16 @@ namespace fCraft
             Category = CommandCategory.World,
             Permissions = new[] { Permission.Realm },
             IsConsoleSafe = false,
-            Usage = "/realm &A| Help | Join | Like | Home | Flush | Spawn " +
-            "| Review | Create | Allow | Unallow | Ban | Unban | Activate |",
-            Help = "/realm &A| Help | Join | Like | Home | Flush | Spawn " +
-            "| Review | Create | Allow | Unallow | Ban | Unban | Activate |",
+            Usage = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
+            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Invite",
+            Help = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
+            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Invite",
             Handler = Realm,
         };
 
         internal static void Realm(Player player, Command cmd)
         {
-
             string Choice = cmd.Next();
-
             switch (Choice)
             {
                 default:
@@ -599,11 +597,12 @@ namespace fCraft
                     {
                         if (player.World.Name == player.Name)
                         {
-                            player.Message("You cannot use /realm activate when you are in your realm");
+                            player.Message("You cannot use /Realm activate when you are in your Realm");
                             return;
                         }
                         RealmHandler.RealmLoad(player, cmd, player.Name + ".fcm", player.Name);
-                        RealmHandler.RealmBuild(player, cmd, player.Name, RankManager.HighestRank.Name, "+" + player.Name);
+                        RealmHandler.RealmBuild(player, cmd, player.Name, RankManager.HighestRank.Name, null);
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "+" + player.Name, null);
                         WorldManager.SaveWorldList();
                         break;
                     }
@@ -624,22 +623,21 @@ namespace fCraft
                 case "invite":
 
                     string invite = cmd.Next();
+                    string JoinName = player.Name;
 
                     if (invite == null)
                     {
-                        player.Message("Invite a player to see your Realm. useage: /realm invite playername.");
+                        player.Message("Invite a player to see your Realm. Useage: /Realm invite playername.");
                         return;
                     }
 
                     Player targetInvite = Server.FindPlayerOrPrintMatches(player, invite, false, true);
-
 
                     if (targetInvite == null)
                     {
                         player.Message("Please enter the name of the player you want to invite into your Realm.");
                         return;
                     }
-
 
                     if (Player.IsInValidName(targetInvite.Name))
                     {
@@ -655,10 +653,9 @@ namespace fCraft
 
                     else
                     {
-                        JoinHandler(targetInvite, new Command("/join " + player.Name));
+                        JoinHandler(targetInvite, new Command("/join " + JoinName));
                         return;
                     }
-
 
                 case "join":
 
@@ -752,7 +749,7 @@ namespace fCraft
 
                     if (Ban == null)
                     {
-                        player.Message("Bans a player from accessing your Realm. useage: /realm ban playername.");
+                        player.Message("Bans a player from accessing your Realm. Useage: /Realm ban playername.");
                         return;
                     }
                     Player targetBan = Server.FindPlayerOrPrintMatches(player, Ban, false, true);
@@ -788,7 +785,7 @@ namespace fCraft
 
                     if (UnBan == null)
                     {
-                        player.Message("Unbans a player from your Realm. useage: /realm unban playername.");
+                        player.Message("Unbans a player from your Realm. Useage: /Realm unban playername.");
                         return;
                     }
                     PlayerInfo targetUnBan = PlayerDB.FindPlayerInfoOrPrintMatches(player, UnBan);
@@ -817,8 +814,6 @@ namespace fCraft
                     }
             }
         }
-            
-        
 
         static readonly CommandDescriptor CdGuestwipe = new CommandDescriptor
         {
@@ -1355,7 +1350,6 @@ namespace fCraft
                 {
                     world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
@@ -1364,76 +1358,70 @@ namespace fCraft
                 {
                     world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
-
-
 
                 if (option == "highres")
                 {
                     world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-                if (option == "tron")
-                {
-                    world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
 
+                if (option == "tron")
+                {
+                    world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
+                    player.Message("Terrain Changed! Rejoin world to see changes");
+                    WorldManager.SaveWorldList();
+                    return;
+                }
 
                 if (option == "8bit")
                 {
                     world.Terrain = "5a3fb1994e2ae526815ceaaca3a4dac0051aa890";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
+
                 if (option == "mario")
                 {
                     world.Terrain = "e98a37ddccbc6144306bd08f41248324965c4e5a";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
+
                 if (option == "fall")
                 {
                     world.Terrain = "b7c6dcb7a858639077f95ef94e8e2d51bedc3307";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
+
                 if (option == "indev")
                 {
                     world.Terrain = "73d1ef4441725bdcc9ac3616205faa3dff46e12a";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
+
                 if (option == "messa")
                 {
                     world.Terrain = "db0feeac8702704a3146a71365622db55fb5a4c4";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
+
                 if (option == "portal")
                 {
                     world.Terrain = "d4b455134394763296994d0c819b0ac0ea338457";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
@@ -1442,7 +1430,6 @@ namespace fCraft
                 {
                     world.Terrain = "3d22ed0ab311e003ed4e3ba17c3cf455019e7f35";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
@@ -1450,7 +1437,6 @@ namespace fCraft
                 {
                     world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
                     player.Message("Terrain Changed! Rejoin world to see changes");
-                    
                     WorldManager.SaveWorldList();
                     return;
                 }
@@ -1692,6 +1678,8 @@ namespace fCraft
                     world.CloudColor = clouds;
                     world.FogColor = fog;
                     world.EdgeBlock = Block.Water;
+                    WorldManager.SaveWorldList();
+                    return;
                 }
 
                 if (now.TimeOfDay > MorningStart && now.TimeOfDay < MorningEnd) //end of sunrise
@@ -1703,6 +1691,8 @@ namespace fCraft
                     world.CloudColor = clouds;
                     world.FogColor = fog;
                     world.EdgeBlock = Block.Water;
+                    WorldManager.SaveWorldList();
+                    return;
                 }
 
                 if (now.TimeOfDay > NormalStart && now.TimeOfDay < NormalEnd)//env normal
@@ -1714,6 +1704,8 @@ namespace fCraft
                     world.CloudColor = clouds;
                     world.FogColor = fog;
                     world.EdgeBlock = Block.Water;
+                    WorldManager.SaveWorldList();
+                    return;
                 }
 
                 if (now.TimeOfDay > EveningStart && now.TimeOfDay < EveningEnd) //evening
@@ -1725,6 +1717,8 @@ namespace fCraft
                     world.CloudColor = clouds;
                     world.FogColor = fog;
                     world.EdgeBlock = Block.Water;
+                    WorldManager.SaveWorldList();
+                    return;
                 }
 
                 if (now.TimeOfDay > SunsetStart && now.TimeOfDay < SunsetEnd) //sunset
@@ -1736,6 +1730,8 @@ namespace fCraft
                     world.CloudColor = clouds;
                     world.FogColor = fog;
                     world.EdgeBlock = Block.Water;
+                    WorldManager.SaveWorldList();
+                    return;
                 }
 
                 if (now.TimeOfDay > NightaStart && now.TimeOfDay < NightaEnd) //end of sunset
@@ -1747,6 +1743,8 @@ namespace fCraft
                     world.CloudColor = clouds;
                     world.FogColor = fog;
                     world.EdgeBlock = Block.Black;
+                    WorldManager.SaveWorldList();
+                    return;
                 }
 
                 if (now.TimeOfDay > NightbStart && now.TimeOfDay < NightbEnd) //black
@@ -1758,6 +1756,7 @@ namespace fCraft
                     world.CloudColor = clouds;
                     world.FogColor = fog;
                     world.EdgeBlock = Block.Obsidian;
+                    WorldManager.SaveWorldList();
                 }
             }
             else return;

@@ -14,9 +14,9 @@ static class GameCommands
 
     internal static void Init()
     {
-        CommandManager.RegisterCommand(CdZombieGame);
-        Player.Moving += new EventHandler<PlayerMovingEventArgs>(ZombieCheck);
-        Player.Disconnected += new EventHandler<PlayerDisconnectedEventArgs>(Player_Disconnected);
+         //CommandManager.RegisterCommand(CdZombieGame);
+        //Player.Moving += new EventHandler<PlayerMovingEventArgs>(ZombieCheck);
+        //Player.Disconnected += new EventHandler<PlayerDisconnectedEventArgs>(Player_Disconnected);
     }
 
     static readonly CommandDescriptor CdZombieGame = new CommandDescriptor
@@ -55,6 +55,7 @@ static class GameCommands
             //p.World.UpdatePlayerList();
             p.ResetVisibleEntities();
             p.Info.IsZombie = true;
+            ZombieGame.HumanCount--;
             return;
         }
 
@@ -141,6 +142,7 @@ static class GameCommands
                         p.Info.DisplayedName = p.Info.Dname;
                         p.Message("Changing you back to human {0}", p.Info.Name);
                         ZombieGame.FinalName = null;
+                        ZombieGame.HumanCount = 0;
                     }
                     catch (Exception ex)
                     {
@@ -176,6 +178,7 @@ static class GameCommands
                 world.Players.Message(Color.Red + toZombie.Info.OriginalName + " is first Zombie!!");
                 ZombieGame.Humans.Remove(toZombie);
                 ZombieGame.Zombies.Add(toZombie);
+                ZombieGame.HumanCount--;
 
             }
         }
@@ -203,6 +206,7 @@ static class GameCommands
                                 {
                                     p.Info.OriginalName = p.Info.Name;
                                     ZombieGame.Humans.Add(p);
+                                    ZombieGame.HumanCount++;
                                 }
                                 //list of original names in case of server crash / powercut goes here. JSON.
                             }
@@ -211,15 +215,18 @@ static class GameCommands
                 }
             }
 
-            if (ZombieGame.Humans.Count == 1)
+            if (ZombieGame.HumanCount == 1)
             {
                 foreach (Player S in ZombieGame.Humans)
                     ZombieGame.FinalName = S.Info.OriginalName;
             }
 
-            if (ZombieGame.Humans.Count == 0)
+            if (ZombieGame.HumanCount == 0)
+            {
                 ZombieGame.WorldName.Players.Message("The game is over!\nThe last survivor was {0}", ZombieGame.FinalName);
                 EndGame(player, ZombieGame.WorldName);
+                return;
+            }
 
             if (ZombieGame.TooLate || !ZombieGame.TooLate)
             {
@@ -236,6 +243,7 @@ static class GameCommands
                         Q.Info.IsZombie = false;
                         ZombieGame.Humans.Remove(Q);
                         ZombieGame.Zombies.Remove(Q);
+                        ZombieGame.HumanCount--;
                     }
                 }
                 foreach (Player H in ZombieGame.Humans)
@@ -267,6 +275,7 @@ static class GameCommands
                             ZombieGame.Humans.Remove(p);
                             ZombieGame.Zombies.Add(p);
                             p.Message("You joined too late and spawned as a Zombie");
+                            ZombieGame.HumanCount--;
                         }
                     }
                 }
@@ -369,6 +378,8 @@ static class GameCommands
                                     e.Player.World.Players.Message("{0} &cInfected {1}", e.Player.ClassyName, Human.Info.OriginalName);
                                     ZombieGame.Humans.Remove(Human);
                                     ZombieGame.Zombies.Add(Human);
+                                    ZombieGame.HumanCount--;
+
                                 }
 
                                 if (e.Player.IsUsingWoM)

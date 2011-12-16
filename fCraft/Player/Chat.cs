@@ -22,7 +22,7 @@ namespace fCraft {
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
             rawMessage = rawMessage.Replace("$motd", ConfigKey.MOTD.GetString());
-            //rawMessage = rawMessage.Replace("$time", DateTime.Now.TimeOfDay.ToString()); //used to test env realistic
+            rawMessage = rawMessage.Replace("$time", DateTime.Now.ToString()); //used to test env realistic
 
             
             /*StringBuilder sb = new StringBuilder(rawMessage);
@@ -69,7 +69,7 @@ namespace fCraft {
                 var recepientList = Server.Players.NotIgnoring(player);
 
                 // Check caps
-                if (!player.Can(Permission.ChatCaps))
+                if (!player.Can(Permission.ChatWithCaps))
                 {
                     int caps = 0;
                     for (int i = 0; i < rawMessage.Length; i++)

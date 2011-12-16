@@ -107,19 +107,13 @@ namespace fCraft {
                         return;
                     }
 
-                    /*if (!Player.IsValidName(name))
-                    {
-                        player.Message("Invalid name format.");
-                        return;
-                    }*/
-
                     try
                     {
                         Player dummy = new Player(name);
                         Position pos = player.Position;
                         world.Map.DummyCount++;
                         dummy.Info.ID = world.Map.DummyCount;
-                        name = Color.ReplacePercentCodes(name);
+                        name = Color.ReplacePercentCodes(name); //classynames
                         world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos)); //makes the dummy
                         world.Map.Dummys.Add(dummy); //adds the dummy to a list
                         world.Map.DummyCounter++; //counts how many dummys are on each world
@@ -139,7 +133,7 @@ namespace fCraft {
                 case "undo":
                     string name2 = cmd.Next();
 
-                    if (name2 == null) //if user didnt enter an int
+                    if (name2 == null)
                     {
 
                         if (world.Map.DummyCount == 0) //stops user from deleting dummys that doent exist
@@ -149,8 +143,8 @@ namespace fCraft {
                         }
 
                         player.World.Players.Send(PacketWriter.MakeRemoveEntity(world.Map.DummyCount)); //removes the dummy from the world
-
                         player.World.Map.DummyCount--;
+
                         List<Player> toRemove = new List<Player>();
                         foreach (Player d in world.Map.Dummys)
                         {
@@ -176,10 +170,10 @@ namespace fCraft {
                         player.Message("Dummys available on world {0}: ", world.ClassyName);
                         foreach (Player d in world.Map.Dummys)
                         {
-                            player.Message("Name: {0}&S  ID: {1}", d.ClassyName, d.Info.ID);
+                            player.Message("Name: {0}&S ID: {1}", d.ClassyName, d.Info.ID);
                         }
                     }
-                    else player.Message("There are no dummys on world {0}", world.ClassyName);
+                    else player.Message("There are no Dummys on world {0}", world.ClassyName);
                     break;
 
                 default: CdDummy.PrintUsage(player); break;
@@ -215,6 +209,13 @@ namespace fCraft {
                 player.Message("You suicidal bro?");
                 return;
             }
+
+            if ((DateTime.Now - player.Info.LastUsedKill).TotalSeconds < 20)
+            {
+                player.Message("&CYou can only kill once every 20 seconds. Slow down.");
+                return;
+            }
+
             if (target == null)
             {
                 player.Message("You need to enter a player name to Kill");
@@ -227,6 +228,7 @@ namespace fCraft {
                 {
                     target.TeleportTo(player.World.Map.Spawn);
                     Server.Players.Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
+                    player.Info.LastUsedKill = DateTime.Now;
                     return;
                 }
                 else
@@ -248,6 +250,7 @@ namespace fCraft {
             Usage = "/possess playername",
             Handler = PossessHandler
         };
+
         internal static void PossessHandler(Player player, Command cmd)
         {
             string name = cmd.Next();
@@ -278,6 +281,7 @@ namespace fCraft {
                 player.Message("Now possessing " + name);
                 return;
             }
+
             else
             {
                 player.Message("You can only Possess players ranked {0}&S or lower",
@@ -306,7 +310,6 @@ namespace fCraft {
                 player.Message("Please enter a name");
                 return;
             }
-
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
@@ -340,8 +343,6 @@ namespace fCraft {
             }
         }
 
-
-
         static readonly CommandDescriptor CdSlap = new CommandDescriptor
         {
             Name = "Slap",
@@ -356,48 +357,47 @@ namespace fCraft {
 
         static void Slap(Player player, Command cmd)
         {
+
+            string name = cmd.Next();
+
+            if (name == null)
             {
-                string name = cmd.Next();
-                if (name == null)
-                {
-                    player.Message("Please enter a name");
-                    return;
-                }
+                player.Message("Please enter a name");
+                return;
+            }
 
-                Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-                if (target == null) return;
+            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
 
-                if (target == player)
-                {
-                    player.Message("&sYou can't slap yourself.... What's wrong with you???");
-                    return;
-                }
+            if (target == null) return;
 
-                if (player.Can(Permission.Slap, target.Info.Rank))
-                {
-                    if (target.Can(Permission.Teleport))
-                    {
-                        Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax)*32);
-                        Server.Players.Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
-                        target.TeleportTo(slap);
-                        return;
-                    }
-                    else
-                    {
-                        player.Message("&sStop trying to Slap Guests you big bully!");
-                        return;
-                    }
-                }
+            if (target == player)
+            {
+                player.Message("&sYou can't slap yourself.... What's wrong with you???");
+                return;
+            }
 
-                {
-                    player.Message("&sYou can only Slap players ranked {0}&S or lower",
-                                    player.Info.Rank.GetLimit(Permission.Slap).ClassyName);
-                    player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 20)
+            {
+                player.Message("&CYou can only use /Slap once every 20 seconds. Slow down.");
+                return;
+            }
 
-                }
+            if (player.Can(Permission.Slap, target.Info.Rank))
+            {
+                Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
+                Server.Players.Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
+                target.TeleportTo(slap);
+                player.Info.LastUsedSlap = DateTime.Now;
+                return;
+            }
+
+            else
+            {
+                player.Message("&sYou can only Slap players ranked {0}&S or lower",
+                               player.Info.Rank.GetLimit(Permission.Slap).ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
-
 
         static readonly CommandDescriptor CdTPZone = new CommandDescriptor
         {
@@ -422,16 +422,13 @@ namespace fCraft {
 
             else
             {
-
                 Zone zone = player.World.Map.Zones.Find(zoneName);
-
                 if (zone == null)
                 {
                     player.MessageNoZone(zoneName);
                     return;
                 }
                 TPHandler2(player, new Command("/tp " + ((zone.Bounds.XMin + zone.Bounds.XMax) / 2) + " " + ((zone.Bounds.YMin + zone.Bounds.YMax) / 2) + " " + (((zone.Bounds.ZMin + zone.Bounds.ZMax) / 2) + 2)));
-
             }
         }
 
@@ -471,7 +468,6 @@ namespace fCraft {
                 return;
             }
 
-
             // find the target
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
 
@@ -505,16 +501,13 @@ namespace fCraft {
                 try
                 {
                     Player targetPlayer = targets.PlayerObject;
-                    targets.Ban(player, "You were Banned for " + timeString + " Seconds", true, true);
-
+                    targets.Ban(player, "You were Banned for " + timeString, true, true);
                 }
                 catch (PlayerOpException ex)
                 {
                     player.Message(ex.MessageColored);
 
                 }
-
-
                 Scheduler.NewTask(t => target.Info.Unban(player, "Tempban Expired", true, true)).RunOnce(duration);
                 Server.Message(target,
                                 "&SPlayer {0}&S was Banned by {1}&S for {2}",
@@ -522,6 +515,7 @@ namespace fCraft {
                 Logger.Log(LogType.UserActivity, "Player {0} was Banned by {1} for {2}",
                             target.Name, player.Name, duration.ToMiniString());
             }
+
             else
             {
                 player.Message("Player {0}&S is already Banned by {1}&S for {2:0} more.",
@@ -530,8 +524,6 @@ namespace fCraft {
                                 target.Info.MutedUntil.Subtract(DateTime.UtcNow).ToMiniString());
             }
         }
-
-
 
         static readonly CommandDescriptor CdBasscannon = new CommandDescriptor
         {
@@ -542,7 +534,7 @@ namespace fCraft {
             IsHidden = false,
             Permissions = new[] { Permission.Basscannon },
             Usage = "Let the Basscannon 'Kick' it!",
-            Help = "undoes a players actions upto 50000 blocks",
+            Help = "A classy way to kick players from the server",
             Handler = Basscannon
         };
 
@@ -566,7 +558,7 @@ namespace fCraft {
 
             if (ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty(reason))
             {
-                player.Message("&WPlease specify a reason: &Z/basscannon PlayerName Reason");
+                player.Message("&WPlease specify a reason: &Z/Basscannon PlayerName Reason");
                 // freeze the target player to prevent further damage
                 return;
             }
@@ -591,20 +583,17 @@ namespace fCraft {
                             Server.Message("&9{0}", line);
                         }
                     }
-
                 }
                 catch (PlayerOpException ex)
                 {
                     player.Message(ex.MessageColored);
                     if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
-
                         return;
                 }
-
             }
             else
             {
-                player.Message("You can only use /basscannon on players ranked {0}&S or lower",
+                player.Message("You can only use /Basscannon on players ranked {0}&S or lower",
                                 player.Info.Rank.GetLimit(Permission.Ban).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
@@ -617,10 +606,11 @@ namespace fCraft {
             IsConsoleSafe = true,
             NotRepeatable = true,
             Permissions = new[] { Permission.Warn },
-            Help = "Warns a player and puts a black star next to their name for 20 minutes. During them 20 minutes, if they are warned again, they will get kicked.",
-            Usage = "/warn playername",
+            Help = "Warns a player and puts a black star next to their name for 20 minutes. During the 20 minutes, if they are warned again, they will get kicked.",
+            Usage = "/Warn playername",
             Handler = Warn
         };
+
         internal static void Warn(Player player, Command cmd)
         {
             string name = cmd.Next();
@@ -654,28 +644,22 @@ namespace fCraft {
                     {
                         Player targetPlayer = target;
                         target.Kick(player, "Auto Kick (2 warnings or more)", LeaveReason.Kick, true, true, true);
-
-
                     }
                     catch (PlayerOpException ex)
                     {
                         player.Message(ex.MessageColored);
                         if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
-
                             return;
                     }
                 }
-
             }
             else
             {
                 player.Message("You can only warn players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.Ban).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Warn).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
-
-
 
         static readonly CommandDescriptor CdUnWarn = new CommandDescriptor
         {
@@ -751,28 +735,25 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
 
-            if (player.Can(Permission.Gtfo))
+            if (player.Can(Permission.Gtfo, target.Info.Rank))
             {
-
                 try
                 {
                     Player targetPlayer = target;
-                    target.Kick(player, "Manually disconnected by "+player.Name, LeaveReason.Kick, true, true, false);
-
-
+                    target.Kick(player, "Manually disconnected by "+player.Name, LeaveReason.Kick, false, true, false);
+                    Server.Players.Message("{0} &Swas manually disconnected by {1}", target.ClassyName, player.ClassyName);
                 }
                 catch (PlayerOpException ex)
                 {
                     player.Message(ex.MessageColored);
                     if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
-
                         return;
                 }
             }
             else
             {
                 player.Message("You can only Disconnect players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Gtfo).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }
@@ -1334,7 +1315,7 @@ namespace fCraft {
             Handler = RankHandler
         };
 
-        static void RankHandler( Player player, Command cmd ) {
+        public static void RankHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             string newRankName = cmd.Next();
 
@@ -2059,6 +2040,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdMute = new CommandDescriptor {
             Name = "Mute",
+            Aliases = new[] { "stfu" },
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },

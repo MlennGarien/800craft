@@ -1,4 +1,6 @@
-﻿using System;
+﻿//HeartBeatSaver v1.0, 15/12/2011 - Jon Baker
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

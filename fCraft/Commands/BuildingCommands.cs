@@ -113,6 +113,7 @@ namespace fCraft {
             {
                 fCraft.Utils.FlyHandler.GetInstance().StopFlying(player);
                 player.Message("You are no longer flying.");
+                return;
             }
             if (player.IsUsingWoM)
             {
@@ -130,13 +131,12 @@ namespace fCraft {
         static readonly CommandDescriptor CdBanx = new CommandDescriptor
         {
             Name = "Banx",
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Moderation,
             IsConsoleSafe = false,
-
             IsHidden = false,
             Permissions = new[] { Permission.Ban },
-            Usage = "/banx playername",
-            Help = "Bans and undoes a players actions upto 50000 blocks",
+            Usage = "/Banx playerName",
+            Help = "Bans and undoes a players actions up to 50000 blocks",
             Handler = BanXHandler
         };
 
@@ -149,33 +149,42 @@ namespace fCraft {
                 player.Message("Please enter a player name to Banx");
             }
 
-
             else
             {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
                 UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
                 if (!Player.IsValidName(ban))
                     CdBanx.PrintUsage(player);
-                
+
                 PlayerInfo targets = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
                 if (targets == null) return;
                 string reason = cmd.NextAll();
+
+                if (reason == null) reason = "Grief (BanX)";
+
                 try
                 {
-                    Player targetPlayer = targets.PlayerObject;
-                    targets.Ban(player, "Grief (BanX)", true, true);
-                    
+                    targets.Ban(player, reason, true, true);
+                    if (player.Can(Permission.Demote, targets.Rank))
+                    {
+                        ModerationCommands.RankHandler(player, new Command("/rank " + targets.Name + " " + RankManager.LowestRank.Name + " " + reason));
+                        return;
+                    }
+                    else
+                    {
+                        player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
+                    }
                 }
                 catch (PlayerOpException ex)
                 {
                     player.Message(ex.MessageColored);
                     if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
                     {
-                        
-                    }
-                } player.Message("&SConfirm the undo with &A/ok");
-            }
 
+                    }
+                }
+                player.Message("&SConfirm the undo with &A/ok");
+            }
         }
 
         static void UndoPlayerHandler2(Player player, Command cmd)
@@ -184,14 +193,14 @@ namespace fCraft {
 
             if (!BlockDB.IsEnabledGlobally)
             {
-                player.Message("&WBlockDB is disabled on this server.");
+                player.Message("&WBlockDB is disabled on this server.\nThe undo of the player's blocks failed.");
                 return;
             }
 
             World world = player.World;
             if (!world.BlockDB.IsEnabled)
             {
-                player.Message("&WBlockDB is disabled in this world.");
+                player.Message("&WBlockDB is disabled in this world.\nThe undo of the player's blocks failed.");
                 return;
             }
 

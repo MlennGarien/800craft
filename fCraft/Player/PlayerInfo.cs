@@ -22,6 +22,10 @@ namespace fCraft {
         public string Dname;
         public bool ArrivedLate = false;
         public bool IsZombie = false;
+
+        //slap, kill
+        public DateTime LastUsedSlap;
+        public DateTime LastUsedKill;
         
 
         /// <summary> Player's Minecraft account name. </summary>
@@ -164,6 +168,7 @@ namespace fCraft {
                 throw new ArgumentException("Tempban duration must be longer than 0", "timespan");
             }
             DateTime newBannedUntil = DateTime.UtcNow.Add(timespan);
+
             if (newBannedUntil > BannedUntil)
             {
                 BannedUntil = newBannedUntil;
