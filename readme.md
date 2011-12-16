@@ -5,29 +5,34 @@ The software is currently under development, you can find a release from 27/10/2
 
 On top of all the amazing features fCraft already has, we have implemented:
 
-* Custom kick and ban commands such as: /basscanon, /gtfo, /tempban, /banx, /warn
-* Custom chat commands such as: /high5, /away, /poke, /troll, /review
+* Custom kick and ban commands such as: /Basscanon, /Gtfo, /Tempban, /Banx, /Warn
+* Custom chat commands such as: /High5, /Away, /Poke, /Troll, /Review
 * As well as the addition of Admin Chat, you also get the option to create your own chat channel
-* Fun commands such as: /slap, /kill, /possess
+* Fun commands such as: /Slap, /Kill, /Possess
 * Additional building commands
-* Fly around the server with /fly
-* Voting with /vote
-* Set your rank requirements with /requirements (/reqs)
-* Change your server's blocks with /env terrain
-* Let your server's environment change according to the local time with /env realistic
-* Wipe your guest world easily with /guestwipe
-* Bots
+* Fly around the server with /Fly
+* Voting with /Vote
+* Make a server-wide vote for if a player should be kicked with /Vote kick
+* Set your rank requirements with /Requirements (/Reqs)
+* Change your server's blocks with /Env terrain
+* Let your server's environment change according to the local time with /Env realistic
+* Wipe your guest world easily with /Guestwipe
+* Create dummy skins on a given world
+* Minecraft making you mad? /Ragequit
 * Doors
 * Portals
 * Realms (Personal worlds for players)
-* Hide ranks with /rhide
-* Teleport to zones with /tpzone
-* Control your Realm with /realm create activate kick ban unban like invite join flush
-* Fun modes like: /bromode
+* Hide ranks with /Rhide
+* Teleport to zones with /Tpzone
+* Control your Realm with /Realm create activate kick ban unban like invite join flush
+* Fun modes like: /Bromode
 * Flying
 * Anti-Caps detector
 * Profanity detector
-* Physics
+* Grass Physics (More physics coming soon)
+
+* Lua plugin support
+* Customize your server by writing your own .NET DLL's and using them to modify existing functions or add features.
 
 ## HeartbeatSaver
 
