@@ -348,7 +348,7 @@ namespace fCraft {
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
 
-            //PluginManager.GetInstance();<----caused crashes
+            PluginManager.GetInstance();
 
             // open the port
             Port = ConfigKey.Port.GetInt();
@@ -454,7 +454,7 @@ namespace fCraft {
             RaiseEvent( Started );
             PortalHandler.GetInstance();
             PortalDB.Load();
-            //Physics.Physics.Load();
+            Physics.Physics.Load();
 
             if (ConfigKey.MineQuery.Enabled())
             {

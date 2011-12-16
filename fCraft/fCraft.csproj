@@ -84,13 +84,6 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="lua51">
-      <HintPath>..\lua51.dll</HintPath>
-    </Reference>
-    <Reference Include="LuaInterface, Version=2.0.0.25532, Culture=neutral, PublicKeyToken=1e1fb15b02227b8a, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\LuaInterface.dll</HintPath>
-    </Reference>
     <Reference Include="ServiceStack.Text">
       <HintPath>.\ServiceStack.Text.dll</HintPath>
     </Reference>
@@ -126,9 +119,8 @@
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Player\ProfanityFilter.cs" />
     <Compile Include="Player\SecurityController.cs" />
-    <Compile Include="Plugin\PluginFunctions.cs" />
+    <Compile Include="Plugin\Plugin.cs" />
     <Compile Include="Plugin\PluginManager.cs" />
-    <Compile Include="Portals\DoorTest.cs" />
     <Compile Include="Portals\Portal.cs" />
     <Compile Include="Portals\PortalDB.cs" />
     <Compile Include="Portals\PortalException.cs" />

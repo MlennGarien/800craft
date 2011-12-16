@@ -136,19 +136,22 @@ namespace fCraft.Physics
 
         public static bool CanPutGrassOn(Vector3I block, World world)
         {
-            if (world.Map.InBounds(block.X, block.Y, block.Z + 1))
+            if (world.Map != null)
             {
-                if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z + 1)) == Block.Air)
+                if (world.Map.InBounds(block.X, block.Y, block.Z))
                 {
-                    for (int z = block.Z + 1; z < world.Map.Bounds.ZMax; z++)
+                    if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) == Block.Dirt)
                     {
-                        if (world.Map.GetBlock(new Vector3I(block.X, block.Y, z + 1)) != Block.Air)
+                        for (int z = block.Z; z < world.Map.Bounds.ZMax; z++)
                         {
-                            return false;
+                            if (world.Map.GetBlock(new Vector3I(block.X, block.Y, z + 1)) != Block.Air)
+                            {
+                                return false;
+                            }
                         }
-                    }
 
-                    return true;
+                        return true;
+                    }
                 }
             }
 
