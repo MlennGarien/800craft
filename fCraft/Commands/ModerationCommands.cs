@@ -62,8 +62,8 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBasscannon);
             CommandManager.RegisterCommand(CdKill);
             CommandManager.RegisterCommand(CdTempBan);
-            CommandManager.RegisterCommand(CdPossess);
-            CommandManager.RegisterCommand(CdUnPossess);
+            //CommandManager.RegisterCommand(CdPossess);
+            //CommandManager.RegisterCommand(CdUnPossess);
             CommandManager.RegisterCommand(CdWarn);
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(cdDisconnect);
@@ -254,40 +254,48 @@ namespace fCraft {
         internal static void PossessHandler(Player player, Command cmd)
         {
             string name = cmd.Next();
-
             if (name == null)
             {
                 CdPossess.PrintUsage(player);
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-
-            if (target == null) {
+            if (!Player.IsValidName(name))
                 return;
-            }
-
-            if (target == player)
-            {
-                player.Message("You can't possess yourself.");
-                return;
-            }
-
-            if (player.Can(Permission.Possess, target.Info.Rank))
-            {
-                Position P = target.Position;
-                player.TeleportTo(P);
-                Server.TargetName = target.Name;
-                Possess(target, cmd, name);
-                player.Message("Now possessing " + name);
-                return;
-            }
 
             else
             {
-                player.Message("You can only Possess players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
-                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+
+                Player target = Server.FindPlayerOrPrintMatches(player, name, true, true);
+
+                if (target == null)
+                {
+                    return;
+                }
+
+                /*if (target == player)
+                {
+                    player.Message("You can't possess yourself.");
+                    return;
+                }*/
+
+                if (player.Can(Permission.Possess, target.Info.Rank))
+                {
+                    Position P = target.Position;
+                    player.TeleportTo(P);
+                    Server.TargetName = target.Name;
+                    Possess(player, cmd, target.Name);
+                    player.Message("Now possessing " + target.Name);
+                    return;
+                }
+
+
+                else
+                {
+                    player.Message("You can only Possess players ranked {0}&S or lower",
+                                    player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
+                    player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+                }
             }
         }
 
@@ -300,10 +308,9 @@ namespace fCraft {
                 PlayerInfo lastSpec = target.LastSpectatedPlayer;
                 if (lastSpec != null)
                 {
-                    Player spec = target.SpectatedPlayer;
+                    Player spec = player.SpectatedPlayer;
                     if (spec != null)
                         player.Message("Now possessing {0}", target.ClassyName);
-
                 }
                 else
                 {
@@ -312,14 +319,13 @@ namespace fCraft {
                 return;
             }
 
-
             if (target == null) return;
 
-            if (target == player)
+           /*if (target == player)
             {
                 player.Message("You cannot Possess yourself.");
                 return;
-            }
+            }*/
         }
 
 
@@ -344,6 +350,10 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+
+            if (!Player.IsValidName(name))
+                return;
+
             if (target == null) return;
 
             if (target == player)
@@ -355,7 +365,7 @@ namespace fCraft {
             if (player.Can(Permission.Possess, target.Info.Rank))
             {
 
-               UnPossess(target, new Command("/unfollow " + player.Name));
+                UnPossess(target, new Command("/unfollow " + player.Name));
                 player.Message("Stopped possessing " + target.Name);
                 return;
             }
@@ -533,7 +543,7 @@ namespace fCraft {
                 try
                 {
                     Player targetPlayer = targets.PlayerObject;
-                    targets.Ban(player, "You were Banned for " + timeString, true, true);
+                    targets.Ban(player, "You were Banned for " + timeString, false, true);
                 }
                 catch (PlayerOpException ex)
                 {

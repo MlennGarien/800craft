@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using JetBrains.Annotations;
+using System.Diagnostics;
 
 namespace fCraft {
     /// <summary> A general-purpose task scheduler. </summary>
@@ -218,6 +219,14 @@ namespace fCraft {
 #if DEBUG_SCHEDULER
             Logger.Log( LogType.Debug, "Scheduler: BeginShutdown..." );
 #endif
+            if (!Server.IsRestarting)
+            {
+                //start the heartbeat saver
+                Process HeartbeatSaver = new Process();
+                Server.Message("&WStarting the HeartBeat Saver");
+                HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
+                HeartbeatSaver.Start();
+            }
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {
                     task.Stop();

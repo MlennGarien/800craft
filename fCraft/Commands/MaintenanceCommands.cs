@@ -1090,6 +1090,7 @@ namespace fCraft {
             }
 
             Server.Message( "&WServer restarting in {0}", delayTime.ToMiniString() );
+            Server.IsRestarting = true;
 
             if( String.IsNullOrEmpty( reason ) ) {
                 Logger.Log( LogType.UserActivity,

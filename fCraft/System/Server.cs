@@ -46,6 +46,9 @@ namespace fCraft {
         public static string TargetName;
         public static string ToPossess;
 
+        public static bool IsRestarting = false;
+        public static bool HSaverOn = false;
+
         public static bool profanityFilter = true;
 
 
@@ -393,6 +396,7 @@ namespace fCraft {
             Logger.Log( LogType.SystemActivity,
                         "Main world: {0}; default rank: {1}",
                         WorldManager.MainWorld.Name, RankManager.DefaultRank.Name );
+            
 
             // Check for incoming connections (every 250ms)
             checkConnectionsTask = Scheduler.NewTask( CheckConnections ).RunForever( CheckConnectionsInterval );
@@ -442,6 +446,12 @@ namespace fCraft {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
                 Shutdown( new ShutdownParams( ShutdownReason.Restarting, restartIn, true, true ), false );
                 ChatTimer.Start( restartIn, "Automatic Server Restart", Player.Console.Name );
+            }
+
+            if (HSaverOn == true)
+            {
+                Logger.Log(LogType.SystemActivity,
+                            "You may now close your Heartbeat Saver");
             }
 
             if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();

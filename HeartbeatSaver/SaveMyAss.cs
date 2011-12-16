@@ -17,9 +17,9 @@ using System.Runtime.Serialization.Json;
 using ServiceStack.Text;
 
 
-namespace HeartbeatSender
+namespace HeartbeatSaver
 {
-    class HeartbeatSender
+    public class HeartbeatSender
     {
 
         public static bool ShowIntro = true;
@@ -78,6 +78,7 @@ namespace HeartbeatSender
                                 {
                                     string post_data = line;
                                     Console.WriteLine("Sending Heartbeat... Count: " + count + "\n");
+                                    Server.HSaverOn = true;
                                     // this is where we will send it
                                     string uri = "http://www.minecraft.net/heartbeat.jsp";
 

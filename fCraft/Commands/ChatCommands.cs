@@ -48,11 +48,13 @@ namespace fCraft
         static void RageHandler(Player player, Command cmd)
         {
             string reason = cmd.NextAll();
-            player.Kick(Player.Console, reason, LeaveReason.Kick, false, true, false);
+            player.Kick(Player.Console, reason, LeaveReason.ClientQuit, false, false, false);
 
-            if (reason == null)
+            if (reason.Length < 1)
             {
                 Server.Players.Message("{0} &ERagequitted from the server", player.ClassyName);
+                Logger.Log(LogType.SystemActivity, "{0} Ragequit",
+                        player.Name);
                 return;
             }
 
@@ -60,10 +62,11 @@ namespace fCraft
             {
                 Server.Players.Message("{0} &ERagequitted from the server: {1}",
                                 player.ClassyName, reason);
+                Logger.Log(LogType.SystemActivity, "{0} Ragequit: {1}",
+                        player.Name, reason);
             }
 
-            Logger.Log(LogType.SystemActivity, "{0} &ERagequit: {1}",
-                        player.ClassyName, reason);
+            
 
         }
 
