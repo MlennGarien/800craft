@@ -48,10 +48,15 @@ namespace fCraft
         static void RageHandler(Player player, Command cmd)
         {
             string reason = cmd.NextAll();
+            if (reason.Length < 1){
+                reason = "RageQuit";
+            }
+
             player.Kick(Player.Console, reason, LeaveReason.ClientQuit, false, false, false);
 
             if (reason.Length < 1)
             {
+                
                 Server.Players.Message("{0} &ERagequitted from the server", player.ClassyName);
                 Logger.Log(LogType.SystemActivity, "{0} Ragequit",
                         player.Name);
@@ -132,7 +137,7 @@ namespace fCraft
            Permissions = new[] { Permission.Chat },
            IsConsoleSafe = false,
            NotRepeatable = true,
-           Usage = "/Vote | Ask | Kick | Yes | No |",
+           Usage = "/Vote | Ask | Kick | Yes | No | Abort",
            Help = "Creates a server-wide vote.",
            Handler = VoteHandler
        };
@@ -146,6 +151,37 @@ namespace fCraft
                 CdVote.PrintUsage(player);
                 return;
             }
+
+            if (option == "abort" || option == "stop")
+            {
+
+                if (!Server.VoteIsOn)
+                {
+                    player.Message("No vote is currently running");
+                    return;
+                }
+
+                else
+                {
+                    if (player.Can(Permission.MakeVotes))
+                    {
+                        Server.VoteAbort = true;
+                        Server.VoteYes = 0;
+                        Server.VoteNo = 0;
+                        Server.VoteIsOn = false;
+
+                        foreach (Player V in Server.Voted)
+                        {
+                            V.Info.HasVoted = false;
+                        }
+
+                        Server.Players.Message("{0} &Saborted the vote.", player.ClassyName);
+                    }
+                    else player.Message("You do not have Permission to abort votes");
+                }
+            }
+
+
 
             if (option == "yes")
             {
@@ -297,36 +333,44 @@ namespace fCraft
 
         public static void VoteCheck(Player player)
         {
-            Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName,
-                                               Server.Question, Server.VoteYes,
-                                               Server.VoteNo);
-            Server.VoteYes = 0;
-            Server.VoteNo = 0;
-            Server.VoteIsOn = false;
-
-            foreach (Player V in Server.Voted)
+            if (!Server.VoteAbort)
             {
-                V.Info.HasVoted = false;
+                Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName,
+                                                   Server.Question, Server.VoteYes,
+                                                   Server.VoteNo);
+                Server.VoteYes = 0;
+                Server.VoteNo = 0;
+                Server.VoteIsOn = false;
+
+                foreach (Player V in Server.Voted)
+                {
+                    V.Info.HasVoted = false;
+                }
             }
         }
 
+
+
         public static void VoteKickCheck(Player player)
         {
-            Server.Players.Message("{0}&S wanted to get {1} kicked. Reason: {2} \n&SResults are in! Yes: &A{3} &SNo: &C{4}", player.ClassyName,
-                                   Server.TargetName, Server.VoteKickReason, Server.VoteYes, Server.VoteNo);
-
-            Player target = Server.FindPlayerOrPrintMatches(Player.Console, Server.TargetName, true, true);
-            if (Server.VoteYes > Server.VoteNo)
-                Scheduler.NewTask( t => target.Kick(Player.Console, "VoteKick by: "+player.Name+" - "+Server.VoteKickReason, LeaveReason.Kick, true, true, false)).RunOnce(TimeSpan.FromSeconds(3));
-            else Server.Players.Message("{0} &Sdid not get kicked from the server", target.ClassyName);
-                
-            Server.VoteYes = 0;
-            Server.VoteNo = 0;
-            Server.VoteIsOn = false;
-
-            foreach (Player V in Server.Voted)
+            if (!Server.VoteAbort)
             {
-                V.Info.HasVoted = false;
+                Server.Players.Message("{0}&S wanted to get {1} kicked. Reason: {2} \n&SResults are in! Yes: &A{3} &SNo: &C{4}", player.ClassyName,
+                                       Server.TargetName, Server.VoteKickReason, Server.VoteYes, Server.VoteNo);
+
+                Player target = Server.FindPlayerOrPrintMatches(Player.Console, Server.TargetName, true, true);
+                if (Server.VoteYes > Server.VoteNo)
+                    Scheduler.NewTask(t => target.Kick(Player.Console, "VoteKick by: " + player.Name + " - " + Server.VoteKickReason, LeaveReason.Kick, true, true, false)).RunOnce(TimeSpan.FromSeconds(3));
+                else Server.Players.Message("{0} &Sdid not get kicked from the server", target.ClassyName);
+
+                Server.VoteYes = 0;
+                Server.VoteNo = 0;
+                Server.VoteIsOn = false;
+
+                foreach (Player V in Server.Voted)
+                {
+                    V.Info.HasVoted = false;
+                }
             }
         }
 

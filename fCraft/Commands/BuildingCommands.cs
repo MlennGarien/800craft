@@ -160,7 +160,7 @@ namespace fCraft {
                 if (targets == null) return;
                 string reason = cmd.NextAll();
 
-                if (reason == null) reason = "Grief (BanX)";
+                if (reason.Length < 1) reason = "Grief (BanX)";
 
                 try
                 {

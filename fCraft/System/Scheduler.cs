@@ -221,12 +221,21 @@ namespace fCraft {
 #endif
             if (!Server.IsRestarting)
             {
-                //start the heartbeat saver
-                Process HeartbeatSaver = new Process();
-                Server.Message("&WStarting the HeartBeat Saver");
-                HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
-                HeartbeatSaver.Start();
+                try
+                {
+                    //start the heartbeat saver
+                    Process HeartbeatSaver = new Process();
+                    Logger.Log(LogType.SystemActivity, "Starting the HeartBeat Saver");
+                    HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
+                    HeartbeatSaver.Start();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(LogType.Error, "HeartBeatSaver: " + ex);
+                }
             }
+            else 
+                Logger.Log(LogType.SystemActivity, "HeartBeat Saver was not launched");
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {
                     task.Stop();

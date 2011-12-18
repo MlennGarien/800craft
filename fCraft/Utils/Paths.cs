@@ -112,7 +112,7 @@ namespace fCraft {
         public const string AutoRankFileName = "autorank.xml";
 
         public const string BlockDBDirectory = "blockdb";
-        public const string ReqDirectory = "req";
+        public const string ReqDirectory = "requirements";
         public const string ReqFileName = "requirements.txt";
         public const string BasscannonFileName = "basscannon.txt";
 

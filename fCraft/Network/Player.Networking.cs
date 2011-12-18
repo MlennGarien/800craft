@@ -932,9 +932,9 @@ namespace fCraft {
             
             ResetVisibleEntities();
 
-            if(oldWorld != null) 
-            DummyEvent(this.World); //super coding going on right here
-
+            if(oldWorld != null)
+              DummyEvent(this.World); //super coding going on right here
+                
 
             ClearLowPriotityOutputQueue();
 
@@ -1080,11 +1080,29 @@ namespace fCraft {
         #endregion
         public void DummyEvent(World world)
         {
-            foreach (Player d in world.Map.Dummys)
+            if (world.Map.Dummys.Count > 0)
             {
-                Send(PacketWriter.MakeRemoveEntity(d.Info.DummyID));
-                //dummy in TAB fix for new worlds
+                foreach (Player d in world.Map.Dummys)
+                {
+                    if (world.Players.Length > 0)
+                    {
+                        if (world.Map.DummyCount > 0)
+                        {
+                            try
+                            {
+                                Send(PacketWriter.MakeRemoveEntity(d.Info.DummyID));
+                            }
+
+                            //dummy in TAB fix for new worlds
+                            catch (Exception ex)
+                            {
+                                Logger.Log(LogType.Warning, "DummyLoader: " + ex);
+                            }
+                        }
+                    }
+                }
             }
+            else return;
         }
 
         #region Sending

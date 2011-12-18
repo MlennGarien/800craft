@@ -104,7 +104,7 @@ namespace fCraft.Portals
                                         e.Player.StandingInPortal = true;
                                         Portal portal = PortalHandler.GetInstance().GetPortal(e.Player);
 
-                                        World world = WorldManager.Worlds[0];
+                                        World world = new World(portal.World);
                                         // Teleport player, portal protection
                                         switch( world.AccessSecurity.CheckDetailed( e.Player.Info ) ) {
                                         case SecurityCheckResult.Allowed:
@@ -120,7 +120,7 @@ namespace fCraft.Portals
                                             break;
                                         case SecurityCheckResult.BlackListed:
                                             e.Player.Message( "Cannot join world {0}&S: you are blacklisted.",
-                                        world.ClassyName );
+                                                world.ClassyName );
                                             break;
                                         case SecurityCheckResult.RankTooLow:
                                             e.Player.Message( "Cannot join world {0}&S: must be {1}+",

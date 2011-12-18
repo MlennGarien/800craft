@@ -43,6 +43,7 @@ namespace fCraft {
         public static List<Player> Voted = new List<Player>();
         public static string Question;
         public static string VoteKickReason;
+        public static bool VoteAbort = false;
         public static string TargetName;
         public static string ToPossess;
 
@@ -465,7 +466,7 @@ namespace fCraft {
             RaiseEvent( Started );
             PortalHandler.GetInstance();
             PortalDB.Load();
-            Physics.Physics.Load();
+           // Physics.Physics.Load();
 
             if (ConfigKey.MineQuery.Enabled())
             {
@@ -1044,17 +1045,25 @@ namespace fCraft {
             string whereFrom = canGetGeo ? "&Sfrom:&c " + GeoIP.GetGeoLocationByIP(player.IP.ToString()) : "";
             if (firstTime)
             {
-                return String.Format("&S{0} ({1}&S) connected, joined {2} {3}",
+                return String.Format("&S{0} &Sconnected, joined {1} {2}",
                                       player.ClassyName,
-                                      player.Info.Rank.ClassyName,
                                       world.ClassyName,
                                       whereFrom);
             }
+            
+               if(!firstTime && player.Info.DisplayedName != null)
+            {
+                return String.Format("&S{0} &S({1}&S) connected again, joined {2} {3}",
+                                      player.ClassyName,
+                                      player.Name,
+                                      world.ClassyName,
+                                      whereFrom);
+            }
+            
             else
             {
-                return String.Format("&S{0} ({1}&S) connected again, joined {2} {3}",
+                return String.Format("&S{0} &Sconnected again, joined {1} {2}",
                                       player.ClassyName,
-                                      player.Info.Rank.ClassyName,
                                       world.ClassyName,
                                       whereFrom);
             }
