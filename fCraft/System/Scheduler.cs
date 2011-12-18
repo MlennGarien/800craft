@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using JetBrains.Annotations;
 using System.Diagnostics;
-
+using System.IO;
 namespace fCraft {
     /// <summary> A general-purpose task scheduler. </summary>
     public static class Scheduler {
@@ -223,6 +223,12 @@ namespace fCraft {
             {
                 try
                 {
+                    if (!File.Exists("heartbeatsaver.exe"))
+                    {
+                        Logger.Log(LogType.Warning, "heartbeatsaver.exe does not exist and failed to launch");
+                        return;
+                    }
+
                     //start the heartbeat saver
                     Process HeartbeatSaver = new Process();
                     Logger.Log(LogType.SystemActivity, "Starting the HeartBeat Saver");
@@ -236,6 +242,7 @@ namespace fCraft {
             }
             else 
                 Logger.Log(LogType.SystemActivity, "HeartBeat Saver was not launched");
+
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {
                     task.Stop();
