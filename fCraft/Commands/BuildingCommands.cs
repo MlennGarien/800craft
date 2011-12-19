@@ -158,7 +158,7 @@ namespace fCraft {
                     CdBanx.PrintUsage(player);
 
                 PlayerInfo targets = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
-                if (targets == null) return;
+                if (targets == null || target == null) return;
                 string reason = cmd.NextAll();
 
                 if (reason.Length < 1) reason = "Grief (BanX)";
