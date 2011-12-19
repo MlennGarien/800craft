@@ -170,7 +170,7 @@ namespace fCraft {
 #if !DEBUG
                                         } catch( Exception ex ) {
                                             Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
-                                                                      "fCraft",
+                                                                      "800Craft",
                                                                       ex,
                                                                       false );
                                         }
@@ -297,7 +297,7 @@ namespace fCraft {
 #if !DEBUG
                                 } catch( Exception ex ) {
                                     Logger.LogAndReportCrash( "Error while parsing PlayerInfo record",
-                                                              "fCraft",
+                                                              "800Craft",
                                                               ex,
                                                               false );
                                 }
@@ -408,6 +408,8 @@ namespace fCraft {
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
                                 "PlayerDB.Save: An error occured while trying to save PlayerDB: {0}", ex );
+                    try { File.Delete(tempFileName); }
+                    catch { }
                 }
             }
         }

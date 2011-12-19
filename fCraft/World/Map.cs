@@ -49,20 +49,6 @@ namespace fCraft {
             }
         }
 
-        Position jail;
-        public Position Jail
-        {
-            get
-            {
-                return jail;
-            }
-            set
-            {
-               jail = value;
-               HasChangedSinceSave = true;
-            }
-        }
-
 
         /// <summary> Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
@@ -81,6 +67,7 @@ namespace fCraft {
         // used by IsoCat and MapGenerator
         public short[,] Shadows;
 
+        public bool IsBeingLoaded = false;
 
         // FCMv3 additions
         public DateTime DateModified { get; set; }
@@ -151,40 +138,50 @@ namespace fCraft {
             string tempFileName = fileName + ".temp";
 
             // save to a temporary file
-            try {
+            try
+            {
                 HasChangedSinceSave = false;
-                if( !MapUtility.TrySave( this, tempFileName, SaveFormat ) ) {
+                if (!MapUtility.TrySave(this, tempFileName, MapFormat.FCMv3))
+                {
                     HasChangedSinceSave = true;
                 }
 
-            } catch( IOException ex ) {
+            }
+            catch (IOException ex)
+            {
                 HasChangedSinceSave = true;
-                Logger.Log( LogType.Error,
-                            "Map.Save: Unable to open file \"{0}\" for writing: {1}",
-                            tempFileName, ex );
-                if( File.Exists( tempFileName ) )
-                    File.Delete( tempFileName );
+                Logger.Log(LogType.Error, "Map.Save: Unable to open file \"{0}\" for writing: {1}", 
+                               tempFileName, ex.Message);
+                try { File.Delete(tempFileName); }
+                catch { }
                 return false;
             }
 
-            // move newly-written file into its permanent destination
-            try {
-                Paths.MoveOrReplace( tempFileName, fileName );
-                Logger.Log( LogType.SystemActivity,
-                            "Saved map to {0}", fileName );
+            try
+            {
+                Paths.MoveOrReplace(tempFileName, fileName);
+                Logger.Log(LogType.SystemActivity, "Saved map successfully to {0}", 
+                            fileName);
                 HasChangedSinceBackup = true;
 
-            } catch( Exception ex ) {
+            }
+            catch (Exception ex)
+            {
                 HasChangedSinceSave = true;
-                Logger.Log( LogType.Error,
-                            "Error trying to replace file \"{0}\": {1}",
-                            fileName, ex );
-                if( File.Exists( tempFileName ) )
-                    File.Delete( tempFileName );
+                Logger.Log(LogType.Error, "Error trying to replace file \"{0}\": {1}", 
+                            fileName, ex);
+                try
+                {
+                    Paths.MoveOrReplace(tempFileName, fileName);
+                    Logger.Log(LogType.SystemActivity, "Saved map successfully to {0}",
+                                fileName);
+                    HasChangedSinceBackup = true;
+                }
+                catch { }
                 return false;
+            
             }
             return true;
-            // ReSharper restore EmptyGeneralCatchClause
         }
 
         #endregion

@@ -60,8 +60,86 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
+            Player.JoinedWorld += DummyCheck;
         }
 
+        public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
+        {
+
+            if (e.NewWorld.IsRealm && e.OldWorld == e.NewWorld)
+            {
+                if (e.NewWorld.Map.DummyCount > 0)
+                {
+                    foreach (Player d in e.NewWorld.Map.Dummys)
+                    {
+                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                    }
+                }
+
+            }
+            else if (e.NewWorld.IsRealm)
+            {
+                if (e.NewWorld.Map.DummyCount > 0)
+                {
+                    foreach (Player d in e.NewWorld.Map.Dummys)
+                    {
+                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+
+                    }
+                }
+            }
+
+
+            if (!e.NewWorld.IsRealm && e.OldWorld == e.NewWorld)
+            {
+               
+                if (e.NewWorld.Map.DummyCount > 0)
+                {
+                    foreach (Player d in e.NewWorld.Map.Dummys)
+                    {
+                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                    }
+                }
+            }
+            else if (!e.NewWorld.IsRealm)
+            {
+               
+                if (e.NewWorld.Map.DummyCount > 0)
+                {
+                    foreach (Player d in e.NewWorld.Map.Dummys)
+                    {
+                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                    }
+                }
+            }
+
+            if (e.OldWorld != null)
+            {
+                if (e.OldWorld.Name != e.NewWorld.Name)
+                {
+                    if (e.OldWorld.Map.DummyCount > 0)
+                    {
+                        foreach (Player d in e.OldWorld.Map.Dummys)
+                        {
+                            if (d == null)
+                                return;
+
+                            try
+                            {
+                                e.Player.Send(PacketWriter.MakeRemoveEntity(d.Info.DummyID));
+                            }
+                            //dummy in TAB fix for new worlds
+                            catch (Exception ex)
+                            {
+                                Logger.Log(LogType.Warning, "DummyLoader: " + ex);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+        
         
 
     #region portals
@@ -1326,7 +1404,7 @@ namespace fCraft
                 {
                     world.RealisticEnv = true;
                     World RWorld = player.World;
-                    Scheduler.NewTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(120));
+                    Scheduler.NewBackgroundTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(120));
                     player.Message("Realistic Environment has been turned ON for world {0}", RWorld.ClassyName);
                     return;
                 }
@@ -2222,7 +2300,7 @@ namespace fCraft
                     case 'p':
                         listName = "populated worlds";
                         extraParam = "populated ";
-                        worlds = WorldManager.Worlds.Where( w => w.IsLoaded ).ToArray();
+                        worlds = WorldManager.Worlds.Where( w => w.Players.Length > 0 ).ToArray();
                         break;
                     case 'r':
                         listName = "Available Realms";
@@ -3035,9 +3113,11 @@ namespace fCraft
                     player.Confirm( cmd, "About to replace THIS MAP with \"{0}\".", fileName );
                     return;
                 }
+                
                 Map map;
-                try {
+                try{
                     map = MapUtility.Load( fullFileName );
+                    
                 } catch( Exception ex ) {
                     player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                     return;
@@ -3107,6 +3187,7 @@ namespace fCraft
                         Map map;
                         try {
                             map = MapUtility.Load( fullFileName );
+                            
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                             return;

@@ -135,7 +135,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             IsHidden = false,
             Permissions = new[] { Permission.Ban },
-            Usage = "/Banx playerName",
+            Usage = "/Banx playerName reason",
             Help = "Bans and undoes a players actions up to 50000 blocks",
             Handler = BanXHandler
         };
@@ -147,6 +147,7 @@ namespace fCraft {
             if (ban == null)
             {
                 player.Message("Please enter a player name to Banx");
+                return;
             }
 
             else
@@ -167,7 +168,7 @@ namespace fCraft {
                     targets.Ban(player, reason, true, true);
                     if (player.Can(Permission.Demote, targets.Rank))
                     {
-                        ModerationCommands.RankHandler(player, new Command("/rank " + targets.Name + " " + RankManager.LowestRank.Name + " " + reason));
+                        ModerationCommands.RankHandler(player, new Command("/rank " + targets.Name + " " + RankManager.LowestRank.Name + " " + "BanX: "+reason));
                         return;
                     }
                     else
@@ -254,17 +255,16 @@ namespace fCraft {
                                     changes.Length, target.ClassyName, span.ToMiniString());
                     return;
                 }
-
             }
             else
             {
-                CdUndoPlayer.PrintUsage(player);
+                CdBanx.PrintUsage(player);
                 return;
             }
 
             if (changes.Length == 0)
             {
-                player.Message("UndoPlayer: Found nothing to undo.");
+                player.Message("BanX: Found nothing to undo.");
                 return;
             }
 

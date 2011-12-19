@@ -173,6 +173,7 @@ namespace fCraft
                         foreach (Player V in Server.Voted)
                         {
                             V.Info.HasVoted = false;
+                            V.Message("Your vote was cancelled");
                         }
 
                         Server.Players.Message("{0} &Saborted the vote.", player.ClassyName);
@@ -201,7 +202,7 @@ namespace fCraft
                     Server.Voted.Add(player);
                     Server.VoteYes++;
                     player.Info.HasVoted = true;
-                    player.Message("You have voted for 'Yes'");
+                    player.Message("&8You have voted for 'Yes'");
                     return;
                 }
             }
@@ -210,26 +211,7 @@ namespace fCraft
             {
                 string ToKick = cmd.Next();
                 string reason = cmd.NextAll();
-
-                if (ToKick == null)
-                {
-                    player.Message("You need to enter a player's name");
-                    return;
-                }
-
                 Player target = Server.FindPlayerOrPrintMatches(player, ToKick, false, true);
-
-                if (target == player)
-                {
-                    player.Message("You cannot VoteKick yourself, lol");
-                    return;
-                }
-
-                if (!Player.IsValidName(ToKick))
-                {
-                    player.Message("Invalid name");
-                    return;
-                }
 
                 if (player.Can(Permission.MakeVoteKicks))
                 {
@@ -239,11 +221,33 @@ namespace fCraft
                         player.Message("A vote has already started. Each vote lasts 1 minute.");
                         return;
                     }
+
                     if (!Server.VoteIsOn)
                     {
                         if (reason.Length < 3)
                         {
                             player.Message("Invalid reason");
+                            return;
+                        }
+
+                        if (ToKick == null)
+                        {
+                            CdVote.PrintUsage(player);
+                            return;
+                        }
+
+                        if (target == null)
+                            return;
+
+                        /*if (target == player)
+                        {
+                            player.Message("You cannot VoteKick yourself, lol");
+                            return;
+                        }*/
+
+                        if (!Player.IsValidName(ToKick))
+                        {
+                            player.Message("Invalid name");
                             return;
                         }
 
@@ -359,9 +363,13 @@ namespace fCraft
                                        Server.TargetName, Server.VoteKickReason, Server.VoteYes, Server.VoteNo);
 
                 Player target = Server.FindPlayerOrPrintMatches(Player.Console, Server.TargetName, true, true);
-                if (Server.VoteYes > Server.VoteNo)
-                    Scheduler.NewTask(t => target.Kick(Player.Console, "VoteKick by: " + player.Name + " - " + Server.VoteKickReason, LeaveReason.Kick, true, true, false)).RunOnce(TimeSpan.FromSeconds(3));
-                else Server.Players.Message("{0} &Sdid not get kicked from the server", target.ClassyName);
+
+                if (Server.VoteYes > Server.VoteNo){
+                    Scheduler.NewTask(t => target.Kick(Player.Console, "VoteKick by: " + player.Name + " - " + Server.VoteKickReason, LeaveReason.Kick, false, true, false)).RunOnce(TimeSpan.FromSeconds(3));
+                    Server.Players.Message("{0}&S was kicked from the server", target.ClassyName);
+                }
+                else
+                    Server.Players.Message("{0} &Sdid not get kicked from the server", target.ClassyName);
 
                 Server.VoteYes = 0;
                 Server.VoteNo = 0;
@@ -417,7 +425,7 @@ namespace fCraft
             Permissions = new[] { Permission.Troll },
             IsConsoleSafe = true,
             NotRepeatable = false,
-            Usage = "/troll Player type Message",
+            Usage = "/troll option player Message",
             Help = "Does a little somthin'-somethin'.",
             Handler = TrollHandler
         };
@@ -434,18 +442,25 @@ namespace fCraft
 
                     Player target = Server.FindPlayerOrPrintMatches(player, pName, true, true);
 
-                    if (Player.IsInValidName(pName))
+                    if (target == null)
+                    {
+                        player.Message("Please enter a valid name.");
+                        return;
+                    }
+
+                    if (Player.IsInValidName(pName) || pName == null)
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
                     }
 
-                    if (msg.Length == 0)
+
+                    if (msg.Length < 1)
                     {
                         player.Message("Error: Please enter a message for {0}.", target.ClassyName);
                         return;
-
                     }
+
                     else
                     {
 
@@ -463,13 +478,18 @@ namespace fCraft
                     string msgAc = cmd.NextAll().Trim();
 
                     Player target2 = Server.FindPlayerOrPrintMatches(player, aName, true, true);
-                    if (Player.IsInValidName(aName))
+                    if (target2 == null)
+                    {
+                        player.Message("Please enter a valid name.");
+                        return;
+                    }
+                    if (Player.IsInValidName(aName) || aName == null)
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
                     }
 
-                    if (msgAc.Length == 0)
+                    if (msgAc.Length < 1)
                     {
                         player.Message("Error: Please enter a message for {0}.", target2.ClassyName);
                         return;
@@ -480,39 +500,32 @@ namespace fCraft
                         Chat.SendAdmin(target2, msgAc);
                     }
                     break;
-                case "dance":
-                    {
-                        string playername = cmd.Next();
-                        Player dancer = Server.FindPlayerOrPrintMatches(player, playername, true, true);
-                        if (playername == null)
-                            return;
-
-                        else
-                        {
-                            //dancer.SendNow(PacketWriter.MakeMoveRotate(dancer.Position);
-                        }
-                    }
-                    break;
+                
                 case "st":
                 case "staff":
                     string SName = cmd.Next();
                     string msgSc = cmd.NextAll().Trim();
 
-                    if (Player.IsInValidName(SName))
+                    if (Player.IsInValidName(SName) || msgSc == null)
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
                     }
                     Player target4 = Server.FindPlayerOrPrintMatches(player, SName, true, true);
 
-                    if (msgSc.Length == 0)
+                    if (target4 == null)
+                    {
+                        player.Message("Please enter a valid name.");
+                        return;
+                    }
+                    if (msgSc.Length < 1)
                     {
                         player.Message("Error: Please enter a message for {0}.", target4.ClassyName);
                         return;
                     }
                     else
                     {
-                        Server.Players.Message("&P(staff){0}&P: {1}", target4.ClassyName, msgSc);
+                        Chat.SendStaff(target4, msgSc);
                     }
                     break;
                 case "i":
@@ -527,7 +540,7 @@ namespace fCraft
                         return;
                     }
 
-                    if (Player.IsInValidName(name))
+                    if (Player.IsInValidName(name) || name == null)
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
@@ -576,11 +589,16 @@ namespace fCraft
                     else
                     {
                         Player target6 = Server.FindPlayerOrPrintMatches(player, elol, true, true);
+                        if (target6 == null)
+                        {
+                            player.Message("Please enter a valid name.");
+                            return;
+                        }
                         Server.Players.Message("&SPlayer {0}&S left the server.", target6.ClassyName);
 
                     }
                     break;
-                default: player.Message("Invlaid option. Please choose st, ac, en, pm, message or leave");
+                default: player.Message("Invalid option. Please choose st, ac, pm, message or leave");
                     break;
             }
         }
@@ -601,7 +619,6 @@ namespace fCraft
 
         internal static void Away(Player player, Command cmd)
         {
-
             if (player.Info.IsMuted)
             {
                 player.MessageMuted();
@@ -612,7 +629,6 @@ namespace fCraft
             {
                 string msg = cmd.NextAll().Trim();
 
-
                 if (msg.Length > 0)
                 {
                     Server.Message("{0}&S &eIs Away &9({1})",
@@ -621,7 +637,6 @@ namespace fCraft
                     return;
                 }
 
-
                 else
                 {
                     player.IsAway = true;
@@ -629,10 +644,6 @@ namespace fCraft
                 }
             }
         }
-
-
-
-
 
         static readonly CommandDescriptor cdHigh5 = new CommandDescriptor
         {
@@ -694,7 +705,6 @@ namespace fCraft
             Handler = PokeHandler
         };
 
-
         internal static void PokeHandler(Player player, Command cmd)
         {
             string targetName = cmd.Next();
@@ -707,12 +717,12 @@ namespace fCraft
 
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
 
-
             if (target == null)
             {
                 player.Message("Please enter the name of the player you want to poke.");
                 return;
             }
+
             if (target == player)
             {
                 player.Message("You cannot poke yourself.");
@@ -758,9 +768,7 @@ namespace fCraft
             string msg = " Would like staff to check their build";
             string message = String.Format("{0}&6" + msg, player.ClassyName);
             recepientList.Message(message);
-
         }
-
 
         static readonly CommandDescriptor CdAdminChat = new CommandDescriptor
         {
@@ -944,8 +952,6 @@ namespace fCraft
                 {
                     player.MessageNow("You are already ignoring {0}", targetInfo.ClassyName);
                 }
-
-
             }
             else
             {

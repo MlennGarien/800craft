@@ -889,82 +889,102 @@ namespace fCraft {
         }
 
 
-        internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
-            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
-                throw new ArgumentOutOfRangeException( "reason" );
+        internal bool JoinWorldNow([NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason)
+        {
+            if (newWorld == null) throw new ArgumentNullException("newWorld");
+            if (!Enum.IsDefined(typeof(WorldChangeReason), reason))
+            {
+                throw new ArgumentOutOfRangeException("reason");
             }
-            if( Thread.CurrentThread != ioThread ) {
-                throw new InvalidOperationException( "Player.JoinWorldNow may only be called from player's own thread. " +
-                                                     "Use Player.JoinWorld instead." );
+            if (Thread.CurrentThread != ioThread)
+            {
+                throw new InvalidOperationException("Player.JoinWorldNow may only be called from player's own thread. " +
+                                                     "Use Player.JoinWorld instead.");
             }
-            
+
             string textLine1 = ConfigKey.ServerName.GetString();
             string textLine2;
 
-            if( IsUsingWoM && ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
-                if( IP.Equals( IPAddress.Loopback ) ) {
+            if (IsUsingWoM && ConfigKey.WoMEnableEnvExtensions.Enabled())
+            {
+                if (IP.Equals(IPAddress.Loopback))
+                {
                     textLine2 = "cfg=localhost:" + Server.Port + "/" + newWorld.Name;
-                } else {
+                }
+                else
+                {
                     textLine2 = "cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + newWorld.Name;
                 }
-            } else {
+            }
+            else
+            {
                 textLine2 = "Loading world " + newWorld.ClassyName;
             }
 
-            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
-                Logger.Log( LogType.Warning,
+            if (RaisePlayerJoiningWorldEvent(this, newWorld, reason, textLine1, textLine2))
+            {
+                Logger.Log(LogType.Warning,
                             "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.",
-                            Name, newWorld.Name );
+                            Name, newWorld.Name);
                 return false;
             }
 
             World oldWorld = World;
 
             // remove player from the old world
-            if( oldWorld != null && oldWorld != newWorld ) {
-                if( !oldWorld.ReleasePlayer( this ) ) {
-                    Logger.Log( LogType.Error,
+            if (oldWorld != null && oldWorld != newWorld)
+            {
+                if (!oldWorld.ReleasePlayer(this))
+                {
+                    Logger.Log(LogType.Error,
                                 "Player.JoinWorldNow: Player asked to be released from its world, " +
-                                "but the world did not contain the player." );
+                                "but the world did not contain the player.");
                 }
             }
-            
+
             ResetVisibleEntities();
 
-            if(oldWorld != null)
-              DummyEvent(this.World); //super coding going on right here
-                
+           // if (oldWorld != null)
+               // DummyEvent(this.World); //super coding going on right here
+
 
             ClearLowPriotityOutputQueue();
 
             Map map;
 
             // try to join the new world
-            if( oldWorld != newWorld ) {
-                
+            if (oldWorld != newWorld)
+            {
+
                 bool announce = (oldWorld != null) && (oldWorld.Name != newWorld.Name);
-                map = newWorld.AcceptPlayer( this, announce );
-                
-                
-                if( map == null ) {
+                map = newWorld.AcceptPlayer(this, announce);
+
+
+                if (map == null)
+                {
                     return false;
                 }
-            } else {
+            }
+            else
+            {
                 map = newWorld.LoadMap();
             }
             World = newWorld;
 
             // Set spawn point
-            if( doUseWorldSpawn ) {
+            if (doUseWorldSpawn)
+            {
                 Position = map.Spawn;
-            } else {
+            }
+            else
+            {
                 Position = postJoinPosition;
             }
 
             // Start sending over the level copy
-            if( oldWorld != null ) {
-                SendNow( PacketWriter.MakeHandshake( this, textLine1, textLine2 ) );
+            if (oldWorld != null)
+            {
+                SendNow(PacketWriter.MakeHandshake(this, textLine1, textLine2));
             }
 
             writer.WriteMapBegin();
@@ -978,30 +998,36 @@ namespace fCraft {
             byte[] buffer = new byte[1024];
             int mapBytesSent = 0;
             byte[] blockData;
-            using( MemoryStream mapStream = new MemoryStream() ) {
-                map.GetCompressedCopy( mapStream, true );
+            using (MemoryStream mapStream = new MemoryStream())
+            {
+                map.GetCompressedCopy(mapStream, true);
                 blockData = mapStream.ToArray();
             }
-            Logger.Log( LogType.Debug,
+            Logger.Log(LogType.Debug,
                         "Player.JoinWorldNow: Sending compressed map ({0} bytes) to {1}.",
-                        blockData.Length, Name );
+                        blockData.Length, Name);
 
             // Transfer the map copy
-            while( mapBytesSent < blockData.Length ) {
+            while (mapBytesSent < blockData.Length)
+            {
                 int chunkSize = blockData.Length - mapBytesSent;
-                if( chunkSize > 1024 ) {
+                if (chunkSize > 1024)
+                {
                     chunkSize = 1024;
-                } else {
+                }
+                else
+                {
                     // CRC fix for ManicDigger
-                    for( int i = 0; i < buffer.Length; i++ ) {
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
                         buffer[i] = 0;
                     }
                 }
-                Array.Copy( blockData, mapBytesSent, buffer, 0, chunkSize );
+                Array.Copy(blockData, mapBytesSent, buffer, 0, chunkSize);
                 byte progress = (byte)(100 * mapBytesSent / blockData.Length);
 
                 // write in chunks of 1024 bytes or less
-                writer.WriteMapChunk( buffer, chunkSize, progress );
+                writer.WriteMapChunk(buffer, chunkSize, progress);
                 BytesSent += 1028;
                 mapBytesSent += chunkSize;
             }
@@ -1010,101 +1036,49 @@ namespace fCraft {
             client.NoDelay = ConfigKey.LowLatencyMode.Enabled();
 
             // Done sending over level copy
-            writer.WriteMapEnd( map );
+            writer.WriteMapEnd(map);
             BytesSent += 7;
 
             // Sets player's spawn point to map spawn
-            writer.WriteAddEntity( 255, this, map.Spawn );
+            writer.WriteAddEntity(255, this, map.Spawn);
             BytesSent += 74;
 
             // Teleport player to the target location
             // This allows preserving spawn rotation/look, and allows
             // teleporting player to a specific location (e.g. /TP or /Bring)
-            writer.WriteTeleport( 255, Position );
+            writer.WriteTeleport(255, Position);
             BytesSent += 10;
 
             if (World.IsRealm && oldWorld == newWorld)
             {
                 Message("Rejoined Realm {0}", newWorld.ClassyName);
-                if (World.Map.DummyCount > 0)
-                {
-                    foreach (Player d in World.Map.Dummys)
-                    {
-                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-                    }
-                }
-                
             }
-            else if(World.IsRealm)
+            else if (World.IsRealm)
             {
                 Message("Joined Realm {0}", newWorld.ClassyName);
-                if (World.Map.DummyCount > 0)
-                {
-                    foreach (Player d in World.Map.Dummys)
-                    {
-                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-
-                    }
-                }
             }
 
 
-            if( !World.IsRealm && oldWorld == newWorld ) {
-                Message( "Rejoined world {0}", newWorld.ClassyName );
-                if (World.Map.DummyCount > 0)
-                {
-                    foreach (Player d in World.Map.Dummys)
-                    {
-                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-                    }
-                }
-            } else if(!World.IsRealm) {
-                Message( "Joined world {0}", newWorld.ClassyName );
-                if (World.Map.DummyCount > 0)
-                {
-                    foreach (Player d in World.Map.Dummys)
-                    {
-                        this.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-                    }
-                }
+            if (!World.IsRealm && oldWorld == newWorld)
+            {
+                Message("Rejoined world {0}", newWorld.ClassyName);
+            }
+            else if (!World.IsRealm)
+            {
+                Message("Joined world {0}", newWorld.ClassyName);
             }
 
-            RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
+            RaisePlayerJoinedWorldEvent(this, oldWorld, reason);
 
             // Done.
             Server.RequestGC();
 
             return true;
         }
+        
 
         #endregion
-        public void DummyEvent(World world)
-        {
-            if (world.Map.Dummys.Count > 0)
-            {
-                foreach (Player d in world.Map.Dummys)
-                {
-                    if (world.Players.Length > 0)
-                    {
-                        if (world.Map.DummyCount > 0)
-                        {
-                            try
-                            {
-                                Send(PacketWriter.MakeRemoveEntity(d.Info.DummyID));
-                            }
-
-                            //dummy in TAB fix for new worlds
-                            catch (Exception ex)
-                            {
-                                Logger.Log(LogType.Warning, "DummyLoader: " + ex);
-                            }
-                        }
-                    }
-                }
-            }
-            else return;
-        }
-
+       
         #region Sending
 
         /// <summary> Send packet to player (not thread safe, sync, immediate).
