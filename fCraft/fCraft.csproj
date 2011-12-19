@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CommandHandlers\BroModeHandler.cs" />
+    <Compile Include="Commands\CommandHandlers\DummyAI.cs" />
     <Compile Include="Commands\CommandHandlers\FlyHandler.cs" />
     <Compile Include="Commands\CommandHandlers\RealmHandler.cs" />
     <Compile Include="Commands\CommandHandlers\ZombieGame.cs" />

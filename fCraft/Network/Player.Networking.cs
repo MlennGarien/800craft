@@ -1354,16 +1354,6 @@ namespace fCraft {
             entity.LastKnownPosition = newPos;
         }
 
-        void ZombieEntity([NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos)
-        {
-            if (entity == null) throw new ArgumentNullException("entity");
-            if (player == null) throw new ArgumentNullException("player");
-            SendNow(PacketWriter.MakeRemoveEntity(entity.Id));
-            SendNow(PacketWriter.MakeAddEntity(entity.Id, "_Infected_", newPos));
-            entity.LastKnownPosition = newPos;
-        }
-
-
         void RemoveEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
@@ -1372,7 +1362,7 @@ namespace fCraft {
         }
 
 
-        void MoveEntity( [NotNull] VisibleEntity entity, Position newPos ) {
+       public void MoveEntity( [NotNull] VisibleEntity entity, Position newPos ) {
             if( entity == null ) throw new ArgumentNullException( "entity" );
             Position oldPos = entity.LastKnownPosition;
 

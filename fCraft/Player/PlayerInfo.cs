@@ -16,6 +16,9 @@ namespace fCraft {
         public int DummyID;
         public string DummyName;
         public Position DummyPos;
+        public bool IsFollowing = false;
+        public string followingID;
+        public int followingCount = 0;
 
         //Zombie
         public string OriginalName;

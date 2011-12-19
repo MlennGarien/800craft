@@ -68,6 +68,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(cdDisconnect);
             CommandManager.RegisterCommand(CdDummy);
+            Player.Moving += DummyAI.DummyFollowing;
         }
         
         #region custom
@@ -75,12 +76,13 @@ namespace fCraft {
         static readonly CommandDescriptor CdDummy = new CommandDescriptor
         {
             Name = "Dummy",
+            Aliases = new[] { "makedummys", "makedummy" },
             Category = CommandCategory.Moderation,
             IsConsoleSafe = false,
             Permissions = new[] { Permission.MakeDummys },
             Help = "Makes a dummy player.",
             NotRepeatable = false,
-            Usage = "/dummy create | undo | list ",
+            Usage = "/dummy Create | Undo | List | Bring",
             Handler = DummyHandler
         };
 
@@ -122,6 +124,7 @@ namespace fCraft {
                         dummy.Info.DummyID = dummy.Info.ID;
                         dummy.Info.DummyName = name;
                         dummy.Info.DummyPos = pos;
+                        player.Message("&8Created dummy {0} &8with ID &A{1}", dummy.Info.DummyName, dummy.Info.ID);
                     }
 
                     catch (Exception ex)
@@ -130,15 +133,105 @@ namespace fCraft {
                     }
                     break;
 
-                case "undo":
-                    string name2 = cmd.Next();
+                case "bring":
+                case "summon":
+                case "teleport":
+                case "tp":
+                    string ID = cmd.Next();
 
-                    if (name2 == null)
+                    if(ID != null)
+
+                        foreach (Player T in world.Map.Dummys)
+                        {
+                            double Num;
+                            bool isNum = double.TryParse(ID, out Num);
+                            if (isNum)
+                            {
+                                int ID2 = Convert.ToInt16(ID);
+                                int count = 0;
+                                if (T.Info.DummyID == ID2)
+                                {
+                                    world.Players.Send(PacketWriter.MakeRemoveEntity(ID2));
+                                    world.Players.Send(PacketWriter.MakeAddEntity(ID2, T.Name, player.Position));
+                                    T.Info.DummyPos = player.Position;
+                                    player.Message("&8Dummy was teleported to you");
+                                    count++;
+                                }
+                            }
+                        }
+
+                    break;
+
+                case "follow":
+                    string eNum = cmd.Next();
+
+                    if(eNum != null)
+
+                        foreach (Player T in world.Map.Dummys)
+                        {
+                            double Num;
+                            bool isNum = double.TryParse(eNum, out Num);
+                            if (isNum)
+                            {
+                                int eNum2 = Convert.ToInt16(eNum);
+                                int count = 0;
+                                
+                                if (T.Info.DummyID == eNum2)
+                                {
+                                    if (T.Info.IsFollowing)
+                                    {
+                                        player.Message("This dummy is already following a player");
+                                        return;
+                                    }
+
+                                    if (player.Info.followingID != null)
+                                    {
+                                        player.Message("You already have a dummy following you");
+                                        return;
+                                    }
+                                    T.Info.IsFollowing = true;
+                                    player.Info.followingID = T.Info.DummyID.ToString();
+                                    player.Message("&8Chosen dummy is now following you");
+                                    count++;
+                                }
+                            }
+                        }
+
+                    break;
+
+                case "unfollow":
+                    string eNumb = cmd.Next();
+
+                    if (eNumb != null)
+
+                        foreach (Player T in world.Map.Dummys)
+                        {
+                            double Num;
+                            bool isNum = double.TryParse(eNumb, out Num);
+                            if (isNum)
+                            {
+                                int eNumb2 = Convert.ToInt16(eNumb);
+                                if (eNumb2.ToString() == player.Info.followingID)
+                                {
+                                    T.Info.IsFollowing = false;
+                                    player.Info.IsFollowing = false;
+                                    player.Info.followingID = null;
+                                    player.Message("&8The dummy has stopped following you");
+                                }
+                            }
+                        }
+
+                    break;
+
+                case "undo":
+                    string Uname = cmd.Next();
+
+                    if (Uname == null)
                     {
 
                         if (world.Map.DummyCount == 0) //stops user from deleting dummys that doent exist
                         {
-                            player.Message("All dummys have been removed on this world");
+                            player.Message("The dummy list on this world is empty");
                             return;
                         }
 
@@ -155,7 +248,9 @@ namespace fCraft {
                         foreach (Player r in toRemove)
                         {
                             world.Map.Dummys.Remove(r); //removes the dummy from the list of dummys
-                            player.Message("Dummy {0}&S has been removed", r.ClassyName);
+                            string Dname = r.ClassyName;
+                            Dname = Color.ReplacePercentCodes(Dname);
+                            player.Message("Dummy {0}&S has been removed", Dname);
                         }
                     }
                     else CdDummy.PrintUsage(player);
@@ -170,7 +265,9 @@ namespace fCraft {
                         player.Message("Dummys available on world {0}: ", world.ClassyName);
                         foreach (Player d in world.Map.Dummys)
                         {
-                            player.Message("Name: {0}&S ID: {1}", d.ClassyName, d.Info.ID);
+                            string Dname = d.ClassyName;
+                            Dname = Color.ReplacePercentCodes(Dname);
+                            player.Message("Name: {0}&S ID: {1}", Dname, d.Info.ID);
                         }
                     }
                     else player.Message("There are no Dummys on world {0}", world.ClassyName);

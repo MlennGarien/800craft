@@ -124,7 +124,7 @@ namespace fCraft
                 // Check if the player actually moved and not just rotated
                 if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
                 {
-                    Server.Players.Message("{0} &EIs No Longer Away", e.Player.ClassyName);
+                    Server.Players.Message("{0} &Eis no longer away", e.Player.ClassyName);
                     e.Player.IsAway = false;
                 }
             }
@@ -182,8 +182,6 @@ namespace fCraft
                 }
             }
 
-
-
             if (option == "yes")
             {
                 if (!Server.VoteIsOn)
@@ -239,11 +237,11 @@ namespace fCraft
                         if (target == null)
                             return;
 
-                        /*if (target == player)
+                        if (target == player)
                         {
                             player.Message("You cannot VoteKick yourself, lol");
                             return;
-                        }*/
+                        }
 
                         if (!Player.IsValidName(ToKick))
                         {
@@ -631,7 +629,7 @@ namespace fCraft
 
                 if (msg.Length > 0)
                 {
-                    Server.Message("{0}&S &eIs Away &9({1})",
+                    Server.Message("{0}&S &Eis away &9({1})",
                                       player.ClassyName, msg);
                     player.IsAway = true;
                     return;
@@ -640,7 +638,7 @@ namespace fCraft
                 else
                 {
                     player.IsAway = true;
-                    Server.Players.Message("&S{0} &eIs Away &9(Away From Keyboard)", player.ClassyName);
+                    Server.Players.Message("&S{0} &Eis away &9(Away From Keyboard)", player.ClassyName);
                 }
             }
         }
