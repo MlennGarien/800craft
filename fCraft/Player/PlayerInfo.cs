@@ -13,12 +13,15 @@ namespace fCraft {
     public sealed partial class PlayerInfo : IClassy {
         public const int MinFieldCount = 24;
 
+        //dummy
         public int DummyID;
         public string DummyName;
         public Position DummyPos;
         public bool IsFollowing = false;
         public string followingID;
         public int followingCount = 0;
+        public bool Static = true;
+
 
         //Zombie
         public string OriginalName;

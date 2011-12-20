@@ -69,6 +69,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(cdDisconnect);
             CommandManager.RegisterCommand(CdDummy);
             Player.Moving += DummyAI.DummyFollowing;
+            Player.Moving += DummyAI.DummyTurn;
             Player.Disconnected += DummyAI.Player_Disconnected;
         }
         
@@ -198,6 +199,7 @@ namespace fCraft {
                                     T.Info.IsFollowing = true;
                                     player.Info.IsFollowing = true;
                                     player.Info.followingID = T.Info.DummyID.ToString();
+                                    T.Info.Static = false;
                                     player.Message("&8Chosen dummy is now following you");
                                 }
                             }
@@ -222,6 +224,7 @@ namespace fCraft {
                                     T.Info.IsFollowing = false;
                                     player.Info.IsFollowing = false;
                                     player.Info.followingID = null;
+                                    T.Info.Static = true;
                                     player.Message("&8The dummy has stopped following you");
                                 }
                             }

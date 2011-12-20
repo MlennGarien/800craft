@@ -33,6 +33,27 @@ namespace fCraft
             }
         }
 
+        public static void DummyTurn(object sender, Events.PlayerMovingEventArgs e)
+        {
+            foreach (Player d in e.Player.World.Map.Dummys)
+            {
+                if (d.Info.Static)
+                {
+                    Packet packet = PacketWriter.MakeMoveRotate(d.Info.ID, new Position
+                    {
+                        X = d.Position.X,
+                        Y = d.Position.Y,
+                        Z = d.Position.Z,
+                        R = (byte)Math.Abs(e.Player.Position.L * 2),
+                        L = (byte)Math.Abs(e.Player.Position.L * 2)
+                    }); ;
+
+                    e.Player.World.Players.Send(packet);
+                }
+            }
+        }
+        
+
 
         public static void Player_Disconnected(object sender, Events.PlayerDisconnectedEventArgs e)
         {
@@ -40,7 +61,7 @@ namespace fCraft
             {
                 foreach (Player d in e.Player.World.Map.Dummys)
                 {
-                    if (d.Info.DummyID.ToString() == e.Player.Info.followingID)
+                    if (d.Info.DummyID.ToString() == e.Player.Info.followingID && !d.Info.Static)
                     {
                         if (d.Info.IsFollowing)
                         {
