@@ -7,7 +7,6 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.Threading;
-using fCraft;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -62,10 +61,10 @@ namespace HeartbeatSaver
                         }
 
                         // this is what we are sending
-                        if (File.Exists(Paths.HbDataFileName))
+                        if (File.Exists("HeartbeatSaver.txt"))
                         {
                                 //Pass the file path and file name to the StreamReader constructor
-                                StreamReader file = new StreamReader(Paths.HbDataFileName);
+                            StreamReader file = new StreamReader("HeartbeatSaver.txt");
 
                                 //Read the first line of text
                                 HeartbeatSender.line = file.ReadLine();
@@ -78,7 +77,6 @@ namespace HeartbeatSaver
                                 {
                                     string post_data = line;
                                     Console.WriteLine("Sending Heartbeat... Count: " + count + "\n");
-                                    Server.HSaverOn = true;
                                     // this is where we will send it
                                     string uri = "http://www.minecraft.net/heartbeat.jsp";
 
