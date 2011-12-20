@@ -91,8 +91,21 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
             CommandManager.RegisterCommand(CdFly);
+            CommandManager.RegisterCommand(CdPlace);
             //CommandManager.RegisterCommand( CdTree );
         }
+
+        static readonly CommandDescriptor CdPlace = new CommandDescriptor
+        {
+            Name = "Place",
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Place",
+            Help = "Places a block at your position.",
+            UsableByFrozenPlayers = false,
+            Handler = Place
+        };
 
         
         static readonly CommandDescriptor CdFly = new CommandDescriptor
@@ -106,6 +119,22 @@ namespace fCraft {
             UsableByFrozenPlayers = false,
             Handler = Fly
         };
+
+        static void Place(Player player, Command cmd)
+        {
+            try
+            {
+                if (player.LastUsedBlockType != Block.Undefined)
+                {
+                    Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, player.Position.Z / 32);
+                    BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
+                    player.World.Map.QueueUpdate(blockUpdate);
+                    player.Message("Block placed");
+                }
+                else player.Message("&WError: No last used block type was found");
+            }
+            catch { }
+        }
 
         static void Fly(Player player, Command cmd)
         {
@@ -316,7 +345,6 @@ namespace fCraft {
 
         static void WallsHandler(Player player, Command cmd)
         {
-           
             DrawOperationBegin(player, cmd, new WallsDrawOperation(player));
         }
         #region DrawOperations & Brushes

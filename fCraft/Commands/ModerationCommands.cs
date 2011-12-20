@@ -181,7 +181,6 @@ namespace fCraft {
                             if (isNum)
                             {
                                 int eNum2 = Convert.ToInt16(eNum);
-                                int count = 0;
                                 
                                 if (T.Info.DummyID == eNum2)
                                 {
@@ -191,15 +190,15 @@ namespace fCraft {
                                         return;
                                     }
 
-                                    if (player.Info.followingID != null)
+                                    if (player.Info.IsFollowing)
                                     {
                                         player.Message("You already have a dummy following you");
                                         return;
                                     }
                                     T.Info.IsFollowing = true;
+                                    player.Info.IsFollowing = true;
                                     player.Info.followingID = T.Info.DummyID.ToString();
                                     player.Message("&8Chosen dummy is now following you");
-                                    count++;
                                 }
                             }
                         }

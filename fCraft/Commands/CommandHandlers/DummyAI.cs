@@ -10,39 +10,29 @@ namespace fCraft
     {
         public static void DummyFollowing(object sender, Events.PlayerMovingEventArgs e)
         {
+            Vector3I oldPos = new Vector3I(e.OldPosition.X, e.OldPosition.Y, e.OldPosition.Z);
+            Vector3I newPos = new Vector3I(e.NewPosition.X, e.NewPosition.Y, e.NewPosition.Z);
+
             foreach (Player d in e.Player.World.Map.Dummys)
             {
                 if (d.Info.IsFollowing && d.Info.ID.ToString() == e.Player.Info.followingID)
                 {
-                    Vector3I oldPos = new Vector3I(e.OldPosition.X, e.OldPosition.Y, e.OldPosition.Z);
-                    Vector3I newPos = new Vector3I(e.NewPosition.X, e.NewPosition.Y, e.NewPosition.Z);
 
-                    if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
+                    Packet packet = PacketWriter.MakeMoveRotate(d.Info.ID, new Position
                     {
-                        Position delta = new Position
-                        {
-                            X = (short)(newPos.X - oldPos.X),
-                            Y = (short)(newPos.Y - oldPos.Y),
-                            Z = (short)(newPos.Z - oldPos.Z),
-                            R = (byte)Math.Abs(e.Player.Position.R),
-                            L = (byte)Math.Abs(e.Player.Position.L)
-                        };
+                        X = (short)(newPos.X - oldPos.X),
+                        Y = (short)(newPos.Y - oldPos.Y),
+                        Z = (short)(newPos.Z - oldPos.Z),
+                        R = (byte)Math.Abs(e.Player.Position.R),
+                        L = (byte)Math.Abs(e.Player.Position.L)
+                    }); ;
 
-                        Packet packet = PacketWriter.MakeMoveRotate(d.Info.ID, new Position
-                        {
-                            X = delta.X,
-                            Y = delta.Y,
-                            Z = delta.Z,
-                            R = delta.R,
-                            L = delta.L
-                        }); ;
-
-                        e.Player.World.Players.Send(packet);
-                        d.Info.DummyPos = d.Position;
-                    }
+                    e.Player.World.Players.Send(packet);
+                    d.Info.DummyPos = d.Position;
                 }
             }
         }
+
 
         public static void Player_Disconnected(object sender, Events.PlayerDisconnectedEventArgs e)
         {
@@ -50,7 +40,7 @@ namespace fCraft
             {
                 foreach (Player d in e.Player.World.Map.Dummys)
                 {
-                    if (d.Info.ID.ToString() == e.Player.Info.followingID)
+                    if (d.Info.DummyID.ToString() == e.Player.Info.followingID)
                     {
                         if (d.Info.IsFollowing)
                         {
