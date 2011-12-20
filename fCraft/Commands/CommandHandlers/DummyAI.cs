@@ -8,7 +8,6 @@ namespace fCraft
 {
     public class DummyAI
     {
-
         public static void DummyFollowing(object sender, Events.PlayerMovingEventArgs e)
         {
             foreach (Player d in e.Player.World.Map.Dummys)
@@ -18,7 +17,7 @@ namespace fCraft
                     Vector3I oldPos = new Vector3I(e.OldPosition.X, e.OldPosition.Y, e.OldPosition.Z);
                     Vector3I newPos = new Vector3I(e.NewPosition.X, e.NewPosition.Y, e.NewPosition.Z);
 
-                    if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z) )
+                    if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
                     {
                         Position delta = new Position
                         {
@@ -45,5 +44,22 @@ namespace fCraft
             }
         }
 
+        public static void Player_Disconnected(object sender, Events.PlayerDisconnectedEventArgs e)
+        {
+            if (e.Player.Info.IsFollowing)
+            {
+                foreach (Player d in e.Player.World.Map.Dummys)
+                {
+                    if (d.Info.ID.ToString() == e.Player.Info.followingID)
+                    {
+                        if (d.Info.IsFollowing)
+                        {
+                            d.Info.IsFollowing = false;
+                            Logger.Log(LogType.SystemActivity, "Dummy '{0}' stopped following {1} (Disconnected)", d.Info.DummyName, e.Player.Name);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -69,6 +69,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(cdDisconnect);
             CommandManager.RegisterCommand(CdDummy);
             Player.Moving += DummyAI.DummyFollowing;
+            Player.Disconnected += DummyAI.Player_Disconnected;
         }
         
         #region custom
@@ -109,6 +110,11 @@ namespace fCraft {
                         return;
                     }
 
+                    if (player.World.Name != WorldManager.MainWorld.Name)
+                    {
+                        player.Message("Dummys can only be made on the main world");
+                        return;
+                    }
                     try
                     {
                         Player dummy = new Player(name);
@@ -124,7 +130,8 @@ namespace fCraft {
                         dummy.Info.DummyID = dummy.Info.ID;
                         dummy.Info.DummyName = name;
                         dummy.Info.DummyPos = pos;
-                        player.Message("&8Created dummy {0} &8with ID &A{1}", dummy.Info.DummyName, dummy.Info.ID);
+                        player.Message("&8Created dummy &C{0} &8with ID &A{1}", dummy.Info.DummyName, dummy.Info.ID);
+                        
                     }
 
                     catch (Exception ex)

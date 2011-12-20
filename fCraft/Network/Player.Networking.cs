@@ -944,10 +944,6 @@ namespace fCraft {
 
             ResetVisibleEntities();
 
-           // if (oldWorld != null)
-               // DummyEvent(this.World); //super coding going on right here
-
-
             ClearLowPriotityOutputQueue();
 
             Map map;

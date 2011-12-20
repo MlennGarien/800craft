@@ -62,85 +62,35 @@ namespace fCraft
             CommandManager.RegisterCommand(CdWorldSearch);
             Player.JoinedWorld += DummyCheck;
         }
-
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
         {
-
-            if (e.NewWorld.IsRealm && e.OldWorld == e.NewWorld)
-            {
-                if (e.NewWorld.Map.DummyCount > 0)
-                {
-                    foreach (Player d in e.NewWorld.Map.Dummys)
-                    {
-                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-                    }
-                }
-
-            }
-            else if (e.NewWorld.IsRealm)
-            {
-                if (e.NewWorld.Map.DummyCount > 0)
-                {
-                    foreach (Player d in e.NewWorld.Map.Dummys)
-                    {
-                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-
-                    }
-                }
-            }
-
-
-            if (!e.NewWorld.IsRealm && e.OldWorld == e.NewWorld)
-            {
-               
-                if (e.NewWorld.Map.DummyCount > 0)
-                {
-                    foreach (Player d in e.NewWorld.Map.Dummys)
-                    {
-                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-                    }
-                }
-            }
-            else if (!e.NewWorld.IsRealm)
-            {
-               
-                if (e.NewWorld.Map.DummyCount > 0)
-                {
-                    foreach (Player d in e.NewWorld.Map.Dummys)
-                    {
-                        e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
-                    }
-                }
-            }
-
             if (e.OldWorld != null)
             {
-                if (e.OldWorld.Name != e.NewWorld.Name)
+                if (e.NewWorld.Name == WorldManager.MainWorld.Name)
                 {
-                    if (e.OldWorld.Map.DummyCount > 0)
+                    if (e.NewWorld.Map.Dummys.Count > 0)
                     {
-                        foreach (Player d in e.OldWorld.Map.Dummys)
+                        foreach (Player d in e.NewWorld.Map.Dummys)
                         {
-                            if (d == null)
-                                return;
-
-                            try
-                            {
-                                e.Player.Send(PacketWriter.MakeRemoveEntity(d.Info.DummyID));
-                            }
-                            //dummy in TAB fix for new worlds
-                            catch (Exception ex)
-                            {
-                                Logger.Log(LogType.Warning, "DummyLoader: " + ex);
-                            }
+                            e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
                         }
                     }
                 }
             }
+
+            if (e.NewWorld.Name != WorldManager.MainWorld.Name)
+            {
+                if (WorldManager.MainWorld.Map.Dummys.Count > 0)
+                {
+                    foreach (Player d in WorldManager.MainWorld.Map.Dummys)
+                    {
+                        e.Player.Send(PacketWriter.MakeRemoveEntity(d.Info.DummyID));
+                    }
+                }
+            }
         }
-    
-        
-        
+            
+            
 
     #region portals
 
@@ -476,9 +426,9 @@ namespace fCraft
         static void WorldSearchHandler(Player player, Command cmd)
         {
             string worldName = cmd.Next();
-            if (worldName == null)
-            {
-                
+            if (worldName == null){
+                CdWorldSearch.PrintUsage(player);
+                    return;
             }
 
             if (worldName.Length < 2)
@@ -3186,6 +3136,7 @@ namespace fCraft
 
                         Map map;
                         try {
+                            world.Map.DummyCount = 0;
                             map = MapUtility.Load( fullFileName );
                             
                         } catch( Exception ex ) {

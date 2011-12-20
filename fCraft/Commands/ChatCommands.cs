@@ -209,6 +209,13 @@ namespace fCraft
             {
                 string ToKick = cmd.Next();
                 string reason = cmd.NextAll();
+
+                if (ToKick == null)
+                {
+                    CdVote.PrintUsage(player);
+                    return;
+                }
+
                 Player target = Server.FindPlayerOrPrintMatches(player, ToKick, false, true);
 
                 if (player.Can(Permission.MakeVoteKicks))
@@ -225,12 +232,6 @@ namespace fCraft
                         if (reason.Length < 3)
                         {
                             player.Message("Invalid reason");
-                            return;
-                        }
-
-                        if (ToKick == null)
-                        {
-                            CdVote.PrintUsage(player);
                             return;
                         }
 
