@@ -36,16 +36,67 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCommands );
 
             CommandManager.RegisterCommand( CdColors );
-
-            //CommandManager.RegisterCommand(cdFly);
             CommandManager.RegisterCommand(CdReqs);
+            CommandManager.RegisterCommand(CdList);
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
 #endif
         }
 
-       
+        static readonly CommandDescriptor CdList = new CommandDescriptor
+        {
+            Name = "List",
+            Category = CommandCategory.Info,
+            IsConsoleSafe = false,
+            UsableByFrozenPlayers = true,
+            Help = "Shows a list of requirements needed to advance to the next rank.",
+            Usage = "/List Staff | Displayednames",
+            Handler = ListHandler
+        };
+
+        internal static void ListHandler(Player player, Command cmd)
+        {
+            string Option = cmd.Next();
+            switch (Option)
+            {
+                case "staff":
+                case "st":
+                    {
+                        String Names = "";
+
+                        foreach (PlayerInfo P in PlayerDB.PlayerInfoList)
+                        {
+                            if (P.Rank.Can(Permission.ReadStaffChat))
+                            {
+                                Names = Names + P.Rank.Color + P.Name + " ";
+                            }
+
+                        }
+                        player.Message("{0} ", Names);
+                        break;
+                    }
+                case "displayednames":
+                case "displayedname":
+                case "dn":
+                    {
+                        String Names = "";
+
+                        foreach (PlayerInfo P in PlayerDB.PlayerInfoList)
+                        {
+                            if (P.DisplayedName != null)
+                            {
+                                Names = Names + P.DisplayedName+ " &7(" + P.Name + ") ";
+                            }
+                        }
+                        player.Message("{0} ", Names);
+                        break;
+                    }
+                default: CdList.PrintUsage(player); break;
+            }
+        }
+        
+
         static readonly CommandDescriptor CdReqs = new CommandDescriptor
         {
             Name = "Requirements",

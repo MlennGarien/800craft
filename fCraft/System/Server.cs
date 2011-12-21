@@ -301,7 +301,7 @@ namespace fCraft {
 
             // prepare the list of commands
             CommandManager.Init();
-            ProfanityFilter.Init();
+            //Filter.LoadSwearWords();
 
             // prepare the brushes
             BrushManager.Init();
@@ -353,7 +353,7 @@ namespace fCraft {
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
 
-            PluginManager.GetInstance();
+           PluginManager.GetInstance();
 
             // open the port
             Port = ConfigKey.Port.GetInt();

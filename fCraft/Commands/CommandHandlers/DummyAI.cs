@@ -37,18 +37,21 @@ namespace fCraft
         {
             foreach (Player d in e.Player.World.Map.Dummys)
             {
-                if (d.Info.Static)
+                foreach (Player P in e.Player.World.Players)
                 {
-                    Packet packet = PacketWriter.MakeMoveRotate(d.Info.ID, new Position
+                    if (d.Info.Static)
                     {
-                        X = d.Position.X,
-                        Y = d.Position.Y,
-                        Z = d.Position.Z,
-                        R = (byte)Math.Abs(e.Player.Position.L * 2),
-                        L = (byte)Math.Abs(e.Player.Position.L * 2)
-                    }); ;
+                        Packet packet = PacketWriter.MakeMoveRotate(d.Info.ID, new Position
+                        {
+                            X = d.Position.X,
+                            Y = d.Position.Y,
+                            Z = d.Position.Z,
+                            R = (byte)Math.Abs(P.Position.L * 2),
+                            L = (byte)Math.Abs(P.Position.L * 2)
+                        }); ;
 
-                    e.Player.World.Players.Send(packet);
+                        P.Send(packet);
+                    }
                 }
             }
         }

@@ -119,7 +119,6 @@
     <Compile Include="Network\Player.Networking.cs" />
     <Compile Include="Physics\GrassUpdate.cs" />
     <Compile Include="Physics\Physics.cs" />
-    <Compile Include="Player\ProfanityFilter.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Plugin\Plugin.cs" />
     <Compile Include="Plugin\PluginManager.cs" />
