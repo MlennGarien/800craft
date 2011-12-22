@@ -58,7 +58,7 @@ namespace fCraft
 
             else
             {
-                player.Info.LeaveMsg = player.Info.LeaveMsg + ": &C" + Msg;
+                player.Info.LeaveMsg = "left the server: &C" + Msg;
                 player.Message("Your quit message is now set to: {0}", Msg);
             }
         }
