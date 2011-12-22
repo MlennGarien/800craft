@@ -625,7 +625,7 @@ namespace fCraft {
                                 totalTime.TotalMinutes );
                 float blocks = ((info.BlocksBuilt + info.BlocksDrawn) - info.BlocksDeleted); 
                 if (blocks < 0)
-                    player.Message(" &CWARNING! {0}&S has deleted more than built!", info.ClassyName);//<---- GlennMR on Au70 Galaxy
+                    player.Message("  &CWARNING! {0}&S has deleted more than built!", info.ClassyName);//<---- GlennMR on Au70 Galaxy
 
                 else return;
             }

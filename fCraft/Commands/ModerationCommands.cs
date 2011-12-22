@@ -78,13 +78,13 @@ namespace fCraft {
         static readonly CommandDescriptor CdDummy = new CommandDescriptor
         {
             Name = "Dummy",
-            Aliases = new[] { "makedummys", "makedummy" },
+            Aliases = new[] { "makedummys", "makedummy", "bot" },
             Category = CommandCategory.Moderation,
             IsConsoleSafe = false,
             Permissions = new[] { Permission.MakeDummys },
             Help = "Makes a dummy player.",
             NotRepeatable = false,
-            Usage = "/dummy Create | Undo | List | Bring",
+            Usage = "/dummy Create | Undo | List | Bring | Follow",
             Handler = DummyHandler
         };
 
@@ -107,13 +107,13 @@ namespace fCraft {
                    
                     if (name.Length < 2)
                     {
-                        player.Message("The name you have chosen is too small");
+                        player.Message("&WThe name you have chosen is too small");
                         return;
                     }
 
                     if (player.World.Name != WorldManager.MainWorld.Name)
                     {
-                        player.Message("Dummys can only be made on the main world");
+                        player.Message("&WDummys can only be made on the main world");
                         return;
                     }
                     try
@@ -131,7 +131,7 @@ namespace fCraft {
                         dummy.Info.DummyID = dummy.Info.ID;
                         dummy.Info.DummyName = name;
                         dummy.Info.DummyPos = pos;
-                        player.Message("&8Created dummy &C{0} &8with ID &A{1}", dummy.Info.DummyName, dummy.Info.ID);
+                        player.Message("&8Created dummy &F{0} &8with ID &A{1}", dummy.Info.DummyName, dummy.Info.ID);
                         
                     }
 
@@ -174,7 +174,6 @@ namespace fCraft {
                     string eNum = cmd.Next();
 
                     if(eNum != null)
-
                         foreach (Player T in world.Map.Dummys)
                         {
                             double Num;
@@ -182,7 +181,6 @@ namespace fCraft {
                             if (isNum)
                             {
                                 int eNum2 = Convert.ToInt16(eNum);
-                                
                                 if (T.Info.DummyID == eNum2)
                                 {
                                     if (T.Info.IsFollowing)
@@ -200,7 +198,7 @@ namespace fCraft {
                                     player.Info.IsFollowing = true;
                                     player.Info.followingID = T.Info.DummyID.ToString();
                                     T.Info.Static = false;
-                                    player.Message("&8Chosen dummy is now following you");
+                                    player.Message("&8Dummy {0}&8 is now following you", T.Info.ClassyName);
                                 }
                             }
                         }
@@ -211,7 +209,6 @@ namespace fCraft {
                     string eNumb = cmd.Next();
 
                     if (eNumb != null)
-
                         foreach (Player T in world.Map.Dummys)
                         {
                             double Num;
@@ -219,13 +216,22 @@ namespace fCraft {
                             if (isNum)
                             {
                                 int eNumb2 = Convert.ToInt16(eNumb);
-                                if (eNumb2.ToString() == player.Info.followingID)
+                                if (T.Info.DummyID == eNumb2)
                                 {
-                                    T.Info.IsFollowing = false;
-                                    player.Info.IsFollowing = false;
-                                    player.Info.followingID = null;
-                                    T.Info.Static = true;
-                                    player.Message("&8The dummy has stopped following you");
+                                    if (player.Info.followingID != T.Info.DummyID.ToString())
+                                    {
+                                        player.Message("This dummy is not following you");
+                                        return;
+                                    }
+
+                                    if (player.Info.followingID == T.Info.DummyID.ToString())
+                                    {
+                                        T.Info.IsFollowing = false;
+                                        player.Info.IsFollowing = false;
+                                        T.Info.Static = true;
+                                        player.Info.followingID = null;
+                                        player.Message("&8The dummy stopped following you");
+                                    }
                                 }
                             }
                         }
@@ -246,6 +252,7 @@ namespace fCraft {
 
                         player.World.Players.Send(PacketWriter.MakeRemoveEntity(world.Map.DummyCount)); //removes the dummy from the world
                         player.World.Map.DummyCount--;
+                        player.Info.IsFollowing = false;
 
                         List<Player> toRemove = new List<Player>();
                         foreach (Player d in world.Map.Dummys)

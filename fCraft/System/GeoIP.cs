@@ -1,63 +1,78 @@
 ﻿using System;
+using System.Linq;
+using System.Xml.Linq;
+using System.Collections.Generic;
 using System.Net;
-using System.Xml;
-using System.Data;
 
-namespace fCraft
+public class LocationInfo
 {
-    public static class GeoIP
+    public string CountryName { get; set; }
+    public string CountryCode { get; set; }
+    public string Name { get; set; }
+}
+
+public class GeoLocation
+{
+    private static Dictionary<string, LocationInfo> cachedIps =
+        new Dictionary<string, LocationInfo>();
+
+    public static LocationInfo GetLocationInfo(string ipParam)
     {
+        LocationInfo result = null;
+        IPAddress i = Dns.GetHostEntry(ipParam).AddressList[0];
+        string ip = i.ToString();
 
-        public static string GetGeoLocationByIP(string strIPAddress)
+        if (!cachedIps.ContainsKey(ip))
         {
+            string r;
+            using (WebClient webClient = new WebClient())
+            {
+                r = webClient.DownloadString(
+                    String.Format("http://api.hostip.info/?ip={0}&position=true", ip));
+            }
 
-            //Create a WebRequest
-            WebRequest rssReq = WebRequest.Create("http://freegeoip.appspot.com/xml/" + strIPAddress);
-
-            //Create a Proxy
-            WebProxy px = new WebProxy("http://freegeoip.appspot.com/xml/" + strIPAddress, true);
-
-            //Assign the proxy to the WebRequest
-            rssReq.Proxy = px;
-
-            //Set the timeout in Seconds for the WebRequest
-            rssReq.Timeout = 2000;
+            XDocument xmlResponse = XDocument.Parse(r);
 
             try
             {
-
-                //Get the WebResponse
-
-                WebResponse rep = rssReq.GetResponse();
-
-                //Read the Response in a XMLTextReader
-
-                XmlTextReader xtr = new XmlTextReader(rep.GetResponseStream());
-
-                //Create a new DataSet
-
-                DataSet ds = new DataSet();
-
-                ds.ReadXml(xtr);
-                DataTable dt = ds.Tables[0];
-
-                if (dt != null && dt.Rows.Count > 0)
+                foreach (XElement element in xmlResponse.Root.Nodes())
                 {
-                    if (dt.Rows[0]["Status"].ToString().Equals("true", StringComparison.CurrentCultureIgnoreCase))
+                    if (element.Name.LocalName == "featureMember")
                     {
-                        if (strIPAddress != "127.0.0.1" && !strIPAddress.StartsWith("192.168."))
-                            return dt.Rows[0]["CountryName"].ToString();
-                        else
-                            return "LocalHost";
+                        //element Hostip is the first element in featureMember  
+                        XElement hostIpNode = (XElement)element.Nodes().First();
+
+                        result = new LocationInfo();
+
+                        //loop thru the elements in Hostip  
+                        foreach (XElement node in hostIpNode.Elements())
+                        {
+                            if (node.Name.LocalName == "name")
+                                result.Name = node.Value;
+
+                            if (node.Name.LocalName == "countryName")
+                                result.CountryName = node.Value;
+
+                            if (node.Name.LocalName == "countryAbbrev")
+                                result.CountryCode = node.Value;
+                        }
                     }
                 }
-                return "";
             }
-            catch
+            catch (NullReferenceException)
             {
-                return "";
+                //Looks like we didn't get what we expected.  
+            }
+
+            if (result != null)
+            {
+                cachedIps.Add(ip, result);
             }
         }
+        else
+        {
+            result = cachedIps[ip];
+        }
+        return result;
     }
 }
-

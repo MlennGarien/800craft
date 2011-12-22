@@ -57,7 +57,7 @@ namespace fCraft
             if (reason.Length < 1)
             {
                 
-                Server.Players.Message("{0} &ERagequitted from the server", player.ClassyName);
+                Server.Players.Message("{0} &CRagequitted from the server", player.ClassyName);
                 Logger.Log(LogType.SystemActivity, "{0} Ragequit",
                         player.Name);
                 return;
@@ -65,14 +65,11 @@ namespace fCraft
 
             else
             {
-                Server.Players.Message("{0} &ERagequitted from the server: {1}",
+                Server.Players.Message("{0} &CRagequitted from the server: {1}",
                                 player.ClassyName, reason);
                 Logger.Log(LogType.SystemActivity, "{0} Ragequit: {1}",
                         player.Name, reason);
             }
-
-            
-
         }
 
         static readonly CommandDescriptor CdBroMode = new CommandDescriptor
@@ -91,25 +88,22 @@ namespace fCraft
         {
             if (!fCraft.Utils.BroMode.Active)
             {
-               Server.Players.Message("{0}&S turned Bro mode on.", player.ClassyName);
-                
                 foreach (Player p in Server.Players)
                 {
                     fCraft.Utils.BroMode.GetInstance().RegisterPlayer(p);
                 }
-
+                Server.Players.Message("{0}&S turned Bro mode on.", player.ClassyName);
                 fCraft.Utils.BroMode.Active = true;
             }
             else
             {
-                Server.Players.Message("{0}&S turned Bro Mode off.", player.Name);
-
                 foreach (Player p in Server.Players)
                 {
                     fCraft.Utils.BroMode.GetInstance().UnregisterPlayer(p);
                 }
 
                 fCraft.Utils.BroMode.Active = false;
+                Server.Players.Message("{0}&S turned Bro Mode off.", player.Name);
             }
         }
 

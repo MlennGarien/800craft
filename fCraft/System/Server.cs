@@ -1041,18 +1041,20 @@ namespace fCraft {
             if (player == null) throw new ArgumentNullException("player");
             if (world == null) throw new ArgumentNullException("world");
             bool canGetGeo = true;
-            if (GeoIP.GetGeoLocationByIP(player.IP.ToString()) == "") canGetGeo = false;
-            string whereFrom = canGetGeo ? "&Sfrom:&c " + GeoIP.GetGeoLocationByIP(player.IP.ToString()) : "";
+            if (GeoLocation.GetLocationInfo(player.IP.ToString()) == null) canGetGeo = false;
+            string whereFrom = canGetGeo ? "&Sfrom:&c " + GeoLocation.GetLocationInfo(player.IP.ToString()).CountryName : "";
             if (firstTime)
             {
                 return String.Format("&S{0} &Sconnected, joined {1} {2}",
                                       player.ClassyName,
                                       world.ClassyName,
                                       whereFrom);
+                
             }
             
-               if(!firstTime && player.Info.DisplayedName != null)
-            {
+            //use this if you want to show original names for people with displayednames
+               if(!firstTime && player.Info.DisplayedName != null){
+
                 return String.Format("&S{0} &S({1}&S) connected again, joined {2} {3}",
                                       player.ClassyName,
                                       player.Name,

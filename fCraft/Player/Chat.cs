@@ -18,8 +18,6 @@ namespace fCraft {
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendGlobal([NotNull] Player player, [NotNull] string rawMessage)
         {
-                
-            
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
 
@@ -83,7 +81,7 @@ namespace fCraft {
                     const RegexOptions Options = RegexOptions.IgnoreCase;
 
                     var badWords = File.ReadAllLines("SwearWords.txt").Where(line => line.StartsWith("#") == false || line.Trim().Equals(String.Empty)); ;
-
+                    
                     IEnumerable<Regex> badWordMatchers = badWords.
                         Select(x => new Regex(string.Format(PatternTemplate, x), Options));
 
