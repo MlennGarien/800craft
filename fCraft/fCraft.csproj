@@ -127,7 +127,6 @@
     <Compile Include="Portals\PortalException.cs" />
     <Compile Include="Portals\PortalHandler.cs" />
     <Compile Include="Portals\PortalRange.cs" />
-    <Compile Include="System\GeoIP.cs" />
     <Compile Include="Utils\MineQuery.cs" />
     <Compile Include="Utils\MineQueryResponce.cs" />
     <Compile Include="Utils\Paths.cs" />

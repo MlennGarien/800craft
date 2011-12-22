@@ -72,7 +72,21 @@ namespace fCraft
                     {
                         foreach (Player d in e.NewWorld.Map.Dummys)
                         {
-                            e.Player.Send(PacketWriter.MakeAddEntity(d.Info.DummyID, d.Info.DummyName, d.Info.DummyPos));
+                            e.Player.Send(PacketWriter.MakeAddEntity(d.Info.ID, d.Info.DummyName, d.Info.DummyPos));
+                        }
+                    }
+                }
+            }
+
+            if (e.OldWorld == null)
+            {
+                if (e.NewWorld.Name == WorldManager.MainWorld.Name)
+                {
+                    if (e.NewWorld.Map.Dummys.Count > 0)
+                    {
+                        foreach (Player d in e.NewWorld.Map.Dummys)
+                        {
+                            e.Player.Send(PacketWriter.MakeAddEntity(d.Info.ID, d.Info.DummyName, d.Info.DummyPos));
                         }
                     }
                 }

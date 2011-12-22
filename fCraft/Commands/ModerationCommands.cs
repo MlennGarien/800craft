@@ -531,9 +531,9 @@ namespace fCraft {
                 return;
             }
 
-            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 20)
+            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 10)
             {
-                player.Message("&CYou can only use /Slap once every 20 seconds. Slow down.");
+                player.Message("&CYou can only use /Slap once every 10 seconds. Slow down.");
                 return;
             }
 

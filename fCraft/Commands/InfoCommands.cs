@@ -73,6 +73,7 @@ namespace fCraft {
                             }
 
                         }
+                        player.Message("Showing all staff players: ");
                         player.Message("{0} ", Names);
                         break;
                     }
@@ -89,13 +90,13 @@ namespace fCraft {
                                 Names = Names + P.DisplayedName+ " &7(" + P.Name + ") ";
                             }
                         }
+                        player.Message("Showing players with DisplayedNames: ");
                         player.Message("{0} ", Names);
                         break;
                     }
                 default: CdList.PrintUsage(player); break;
             }
         }
-        
 
         static readonly CommandDescriptor CdReqs = new CommandDescriptor
         {

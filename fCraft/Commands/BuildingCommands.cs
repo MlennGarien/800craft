@@ -175,29 +175,32 @@ namespace fCraft {
 
             if (ban == null)
             {
-                player.Message("Please enter a player name to Banx");
+                player.Message("&WError: Enter a player name to BanX");
+                return;
+            }
+
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
+            if (target == null) return;
+            if (!Player.IsValidName(ban))
+            {
+                CdBanx.PrintUsage(player);
                 return;
             }
 
             else
             {
-                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
+                
                 UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
-                if (!Player.IsValidName(ban))
-                    CdBanx.PrintUsage(player);
-
-                PlayerInfo targets = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
-                if (targets == null || target == null) return;
                 string reason = cmd.NextAll();
 
                 if (reason.Length < 1) reason = "Grief (BanX)";
 
                 try
                 {
-                    targets.Ban(player, reason, true, true);
-                    if (player.Can(Permission.Demote, targets.Rank))
+                    target.Ban(player, reason, true, true);
+                    if (player.Can(Permission.Demote, target.Rank))
                     {
-                        ModerationCommands.RankHandler(player, new Command("/rank " + targets.Name + " " + RankManager.LowestRank.Name + " " + "BanX: "+reason));
+                        ModerationCommands.RankHandler(player, new Command("/rank " + target.Name + " " + RankManager.LowestRank.Name + " " + "BanX: " + reason));
                         return;
                     }
                     else
@@ -258,7 +261,6 @@ namespace fCraft {
             BlockDBEntry[] changes;
             if (Int32.TryParse(range, out count))
             {
-
                 player.Message("Searching for last {0} changes made by {1}&s...",
                                 count, target.ClassyName);
 

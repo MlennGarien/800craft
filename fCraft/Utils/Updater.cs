@@ -16,7 +16,7 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            101,
+            103,
             169, //number of commits
             new DateTime( 2011, 11, 11, 21, 0, 0, DateTimeKind.Utc ),
             "", "",

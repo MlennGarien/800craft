@@ -1040,37 +1040,30 @@ namespace fCraft {
         {
             if (player == null) throw new ArgumentNullException("player");
             if (world == null) throw new ArgumentNullException("world");
-            bool canGetGeo = true;
-            if (GeoLocation.GetLocationInfo(player.IP.ToString()) == null) canGetGeo = false;
-            string whereFrom = canGetGeo ? "&Sfrom:&c " + GeoLocation.GetLocationInfo(player.IP.ToString()).CountryName : "";
+
             if (firstTime)
             {
-                return String.Format("&S{0} &Sconnected, joined {1} {2}",
+                return String.Format("&S{0} &Sconnected, joined {1}",
                                       player.ClassyName,
-                                      world.ClassyName,
-                                      whereFrom);
-                
+                                      world.ClassyName);
             }
             
             //use this if you want to show original names for people with displayednames
                if(!firstTime && player.Info.DisplayedName != null){
 
-                return String.Format("&S{0} &S({1}&S) connected again, joined {2} {3}",
+                return String.Format("&S{0} &S({1}&S) connected again, joined {2}",
                                       player.ClassyName,
                                       player.Name,
-                                      world.ClassyName,
-                                      whereFrom);
+                                      world.ClassyName);
             }
             
             else
             {
-                return String.Format("&S{0} &Sconnected again, joined {1} {2}",
+                return String.Format("&S{0} &Sconnected again, joined {1}",
                                       player.ClassyName,
-                                      world.ClassyName,
-                                      whereFrom);
+                                      world.ClassyName);
             }
         }
-
 
         // Removes player from the list, and announced them leaving
         public static void UnregisterPlayer( [NotNull] Player player ) {
