@@ -31,6 +31,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdBroMode);
             CommandManager.RegisterCommand(CdRageQuit);
             CommandManager.RegisterCommand(CdQuit);
+
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
 

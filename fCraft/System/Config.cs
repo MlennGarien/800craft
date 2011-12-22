@@ -150,7 +150,8 @@ namespace fCraft {
      * 
      * 151 - r1169 - Added MaxUndoStates key
      *               Added fillLimit rank attribute.
-     * 
+     *               
+     * 152 - 800Craft stuff
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -159,9 +160,9 @@ namespace fCraft {
         /// <summary>  Supported version of the Minecraft classic protocol. </summary>
         public const int ProtocolVersion = 7;
 
-        /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
+        /// <summary> Latest version of config.xml available at the time of building this copy of 800Craft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 151;
+        public const int CurrentVersion = 152;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -316,7 +317,7 @@ namespace fCraft {
                         fromFile = true;
                     }
                 } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Config failed to load", "fCraft", ex, true );
+                    Logger.LogAndReportCrash( "Config failed to load", "800Craft", ex, true );
                     return false;
                 }
             } else {
@@ -339,7 +340,7 @@ namespace fCraft {
                                     "Please run ConfigGUI to make sure that everything is in order." );
                     } else if( version != CurrentVersion ) {
                         Logger.Log( LogType.Warning,
-                                    "Config.Load: Your config.xml was made for a different version of fCraft. " +
+                                    "Config.Load: Your config.xml was made for a different version of 800Craft. " +
                                     "Some obsolete settings might be ignored, and some recently-added settings will be set to defaults. " +
                                     "It is recommended that you run ConfigGUI to make sure that everything is in order." );
                     }
