@@ -76,7 +76,11 @@ namespace fCraft {
                         sb.AppendLine("piss");
                         File.WriteAllText("SwearWords.txt", sb.ToString());
                     }
-                    const string CensoredText = "&CBlock&F";
+                    string CensoredText = ConfigKey.SwearReplace.GetString();
+                    if (ConfigKey.SwearReplace.GetString() == null)
+                    {
+                        CensoredText = "&CBlock";
+                    }
                     const string PatternTemplate = @"\b({0})(s?)\b";
                     const RegexOptions Options = RegexOptions.IgnoreCase;
 

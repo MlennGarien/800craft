@@ -108,7 +108,6 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -304,6 +303,9 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
+            this.SwearBox = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -394,6 +396,8 @@
             // tabGeneral
             // 
             this.tabGeneral.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabGeneral.Controls.Add(this.label3);
+            this.tabGeneral.Controls.Add(this.SwearBox);
             this.tabGeneral.Controls.Add(this.Button1);
             this.tabGeneral.Controls.Add(this.groupBox1);
             this.tabGeneral.Controls.Add(this.gUpdaterSettings);
@@ -1286,13 +1290,6 @@
             this.xRankColorsInChat.TabIndex = 0;
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 284);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 213);
-            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -3578,6 +3575,34 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point(7, 284);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 213);
+            this.chatPreview.TabIndex = 2;
+            // 
+            // SwearBox
+            // 
+            this.SwearBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.SwearBox.HideSelection = false;
+            this.SwearBox.Location = new System.Drawing.Point(347, 395);
+            this.SwearBox.MaxLength = 64;
+            this.SwearBox.Name = "SwearBox";
+            this.SwearBox.Size = new System.Drawing.Size(125, 21);
+            this.SwearBox.TabIndex = 19;
+            this.SwearBox.TextChanged += new System.EventHandler(this.SwearBox_TextChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(134, 398);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(207, 15);
+            this.label3.TabIndex = 20;
+            this.label3.Text = "Word for swears to be replaced with: ";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3597,6 +3622,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ConfigUI_FormClosing);
             this.tabs.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
+            this.tabGeneral.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMineQueryPort)).EndInit();
@@ -3959,6 +3985,8 @@
         private System.Windows.Forms.Label ChatColorLabel;
         private System.Windows.Forms.Label CustomChatLabel;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox SwearBox;
        // private System.Windows.Forms.Button Button1;
     }
 }

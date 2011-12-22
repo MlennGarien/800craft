@@ -13,6 +13,11 @@ official server list (if server is public).",
             MinLength = 1, MaxLength = 64 )]
         ServerName,
 
+        [StringKey(ConfigSection.General, "&Cblock",
+@"The word that each swear word will be replaced with (for each rank who does not have permission to swear).",
+            MinLength = 2, MaxLength = 10)]
+       SwearReplace,
+
         [BoolKey(ConfigSection.General, false, "Defines wether MineQuery should be used.")]
         MineQuery,
 

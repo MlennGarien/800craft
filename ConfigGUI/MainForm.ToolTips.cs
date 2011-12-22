@@ -52,7 +52,7 @@ Announcements are shown to all players, one line at a time, in random order.";
 
             toolTip.SetToolTip( nAnnouncements, ConfigKey.AnnouncementInterval.GetDescription() );
             toolTip.SetToolTip( lAnnouncementsUnits, ConfigKey.AnnouncementInterval.GetDescription() );
-
+            toolTip.SetToolTip(SwearBox, ConfigKey.SwearReplace.GetDescription());
             toolTip.SetToolTip( bAnnouncements,
 @"Edit the list of announcements (announcements.txt).
 One line is shown at a time, in random order.

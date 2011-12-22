@@ -1663,5 +1663,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         }
 
+        private void SwearBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }
