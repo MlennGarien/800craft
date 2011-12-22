@@ -51,8 +51,7 @@ namespace fCraft {
         public static bool HSaverOn = false;
 
         public static bool profanityFilter = true;
-
-
+        
         // networking
         static TcpListener listener;
         public static IPAddress InternalIP { get; private set; }
@@ -1074,10 +1073,11 @@ namespace fCraft {
                 player.Info.ProcessLogout( player );
 
                 Logger.Log( LogType.UserActivity,
-                            "{0} left the server.", player.Name );
+                            "{0} left the server.", player.Name);
                 if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
-                                                      player.ClassyName );
+                    Players.CanSee( player ).Message( "&SPlayer {0}&S {1}.",
+                                                      player.ClassyName, player.Info.LeaveMsg );
+                    player.Info.LeaveMsg = "left the server";
                 }
 
                 if( player.World != null ) {

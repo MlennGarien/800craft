@@ -21,7 +21,7 @@ namespace fCraft {
         public string followingID;
         public int followingCount = 0;
         public bool Static = true;
-
+        public string LeaveMsg = "left the server";
 
         //Zombie
         public string OriginalName;

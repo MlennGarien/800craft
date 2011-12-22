@@ -323,9 +323,9 @@ namespace fCraft {
                 return;
             }
 
-            if ((DateTime.Now - player.Info.LastUsedKill).TotalSeconds < 20)
+            if ((DateTime.Now - player.Info.LastUsedKill).TotalSeconds < 10)
             {
-                player.Message("&CYou can only kill once every 20 seconds. Slow down.");
+                player.Message("&CYou can only kill once every 10 seconds. Slow down.");
                 return;
             }
 

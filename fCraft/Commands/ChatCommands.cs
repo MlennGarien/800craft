@@ -30,7 +30,37 @@ namespace fCraft
             CommandManager.RegisterCommand(CdVote);
             CommandManager.RegisterCommand(CdBroMode);
             CommandManager.RegisterCommand(CdRageQuit);
+            CommandManager.RegisterCommand(CdQuit);
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
+        }
+
+        static readonly CommandDescriptor CdQuit = new CommandDescriptor
+        {
+            Name = "Quitmsg",
+            Aliases = new[] { "quit", "quitmessage" },
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = false,
+            Permissions = new[] { Permission.Chat },
+            Usage = "/Quitmsg [message]",
+            Help = "Adds a farewell message which is displayed when you leave the server.",
+            Handler = QuitHandler
+        };
+
+        static void QuitHandler(Player player, Command cmd)
+        {
+            string Msg = cmd.NextAll();
+
+            if (Msg.Length < 1)
+            {
+                CdQuit.PrintUsage(player);
+                return;
+            }
+
+            else
+            {
+                player.Info.LeaveMsg = player.Info.LeaveMsg + ": &C" + Msg;
+                player.Message("Your quit message is now set to: {0}", Msg);
+            }
         }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor

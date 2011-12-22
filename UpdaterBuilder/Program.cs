@@ -6,7 +6,6 @@ namespace fCraft.UpdateBuilder {
 
         static readonly string[] FileList = {
             "ConfigGUI.exe",
-            "Heartbeatsaver.exe",
             "fCraft.dll",
             "ConfigCLI.exe",
             "fCraftGUI.dll",

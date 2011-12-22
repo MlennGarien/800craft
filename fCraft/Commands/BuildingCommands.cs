@@ -98,7 +98,8 @@ namespace fCraft {
         static readonly CommandDescriptor CdPlace = new CommandDescriptor
         {
             Name = "Place",
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Build },
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Place",
@@ -107,7 +108,29 @@ namespace fCraft {
             Handler = Place
         };
 
-        
+        static void Place(Player player, Command cmd)
+        {
+            try
+            {
+                if (player.LastUsedBlockType != Block.Undefined)
+                {
+                    Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, player.Position.Z / 32);
+
+                    if (player.CanPlace(player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual) != CanPlaceResult.Allowed)
+                    {
+                        player.Message("&WYou are not allowed to build here");
+                        return;
+                    }
+
+                    BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
+                    player.World.Map.QueueUpdate(blockUpdate);
+                    player.Message("Block placed");
+                }
+
+                else player.Message("&WError: No last used blocktype was found");
+            }
+            catch { }
+        }
         static readonly CommandDescriptor CdFly = new CommandDescriptor
         {
             Name = "Fly",
@@ -119,22 +142,6 @@ namespace fCraft {
             UsableByFrozenPlayers = false,
             Handler = Fly
         };
-
-        static void Place(Player player, Command cmd)
-        {
-            try
-            {
-                if (player.LastUsedBlockType != Block.Undefined)
-                {
-                    Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, player.Position.Z / 32);
-                    BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
-                    player.World.Map.QueueUpdate(blockUpdate);
-                    player.Message("Block placed");
-                }
-                else player.Message("&WError: No last used block type was found");
-            }
-            catch { }
-        }
 
         static void Fly(Player player, Command cmd)
         {
@@ -189,11 +196,12 @@ namespace fCraft {
 
             else
             {
-                
                 UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
+
                 string reason = cmd.NextAll();
 
-                if (reason.Length < 1) reason = "Grief (BanX)";
+                if (reason.Length < 1) 
+                    reason = "Grief (BanX)";
 
                 try
                 {
