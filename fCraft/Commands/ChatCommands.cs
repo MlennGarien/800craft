@@ -179,32 +179,28 @@ namespace fCraft
 
             if (option == "abort" || option == "stop")
             {
-
                 if (!Server.VoteIsOn)
                 {
                     player.Message("No vote is currently running");
                     return;
                 }
 
-                else
+                if (!player.Can(Permission.MakeVotes))
                 {
-                    if (player.Can(Permission.MakeVotes))
-                    {
-                        Server.VoteAbort = true;
-                        Server.VoteYes = 0;
-                        Server.VoteNo = 0;
-                        Server.VoteIsOn = false;
-
-                        foreach (Player V in Server.Voted)
-                        {
-                            V.Info.HasVoted = false;
-                            V.Message("Your vote was cancelled");
-                        }
-
-                        Server.Players.Message("{0} &Saborted the vote.", player.ClassyName);
-                    }
-                    else player.Message("You do not have Permission to abort votes");
+                    player.Message("You do not have Permission to abort votes");
+                    return;
                 }
+                Server.VoteYes = 0;
+                Server.VoteNo = 0;
+                Server.VoteIsOn = false;
+
+                foreach (Player V in Server.Voted)
+                {
+                    V.Info.HasVoted = false;
+                    V.Message("Your vote was cancelled");
+                }
+
+                Server.Players.Message("{0} &Saborted the vote.", player.ClassyName);
             }
 
             if (option == "yes")
@@ -220,14 +216,10 @@ namespace fCraft
                     player.Message("You have already voted");
                     return;
                 }
-                else
-                {
-                    Server.Voted.Add(player);
-                    Server.VoteYes++;
-                    player.Info.HasVoted = true;
-                    player.Message("&8You have voted for 'Yes'");
-                    return;
-                }
+                Server.Voted.Add(player);
+                Server.VoteYes++;
+                player.Info.HasVoted = true;
+                player.Message("&8You have voted for 'Yes'");
             }
 
             if (option == "kick")
@@ -243,55 +235,47 @@ namespace fCraft
 
                 Player target = Server.FindPlayerOrPrintMatches(player, ToKick, false, true);
 
-                if (player.Can(Permission.MakeVoteKicks))
+                if (!player.Can(Permission.MakeVoteKicks))
                 {
-
-                    if (Server.VoteIsOn)
-                    {
-                        player.Message("A vote has already started. Each vote lasts 1 minute.");
-                        return;
-                    }
-
-                    if (!Server.VoteIsOn)
-                    {
-                        if (reason.Length < 3)
-                        {
-                            player.Message("Invalid reason");
-                            return;
-                        }
-
-                        if (target == null)
-                            return;
-
-                        if (target == player)
-                        {
-                            player.Message("You cannot VoteKick yourself, lol");
-                            return;
-                        }
-
-                        if (!Player.IsValidName(ToKick))
-                        {
-                            player.Message("Invalid name");
-                            return;
-                        }
-
-                        else
-                        {
-                            Server.Players.Message("{0}&S started a VoteKick for player: {1}", player.ClassyName, target.ClassyName);
-                            Server.Players.Message("&WReason: {0}", reason);
-                            Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
-                            Server.VoteIsOn = true;
-                            Logger.Log(LogType.SystemActivity, "{0} started a votekick on player {1} reason: {2}", player.Name, target.Name, reason);
-                            Scheduler.NewTask(t => VoteKickCheck(player)).RunOnce(TimeSpan.FromSeconds(60));
-                            Server.VoteKickReason = reason;
-                            Server.TargetName = target.Name;
-                        }
-                    }
-                }
-                else
                     player.Message("You do not have permissions to start a VoteKick");
-                return;
+                    return;
+                }
+
+                if (Server.VoteIsOn)
+                {
+                    player.Message("A vote has already started. Each vote lasts 1 minute.");
+                    return;
+                }
+                if (reason.Length < 3)
+                {
+                    player.Message("Invalid reason");
+                    return;
+                }
+
+                if (target == null)
+                    return;
+
+                /*if (target == player)
+                {
+                    player.Message("You cannot VoteKick yourself, lol");
+                    return;
+                }*/
+
+                if (!Player.IsValidName(ToKick))
+                {
+                    player.Message("Invalid name");
+                    return;
+                }
+                Server.Players.Message("{0}&S started a VoteKick for player: {1}", player.ClassyName, target.ClassyName);
+                Server.Players.Message("&WReason: {0}", reason);
+                Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
+                Server.VoteIsOn = true;
+                Logger.Log(LogType.SystemActivity, "{0} started a votekick on player {1} reason: {2}", player.Name, target.Name, reason);
+                Scheduler.NewTask(t => VoteKickCheck(player)).RunOnce(TimeSpan.FromSeconds(60));
+                Server.VoteKickReason = reason;
+                Server.TargetName = target.Name;
             }
+        
 
             if (option == "no")
             {
@@ -306,66 +290,47 @@ namespace fCraft
                     player.Message("You have already voted");
                     return;
                 }
-
-                else
-                {
-                    Server.VoteNo++;
-                    Server.Voted.Add(player);
-                    player.Info.HasVoted = true;
-                    player.Message("You have voted for 'No'");
-                    return;
-                }
+                Server.VoteNo++;
+                Server.Voted.Add(player);
+                player.Info.HasVoted = true;
+                player.Message("You have voted for 'No'");
             }
+            
 
             if (option == "ask")
             {
-                if (player.Can(Permission.MakeVotes))
+                string question = cmd.NextAll();
+
+                if (!player.Can(Permission.MakeVotes))
                 {
-                    string question = cmd.NextAll();
-
-                    if (Server.VoteIsOn)
-                    {
-                        player.Message("A vote has already started. Each vote lasts 1 minute.");
-                        return;
-                    }
-                    if (!Server.VoteIsOn)
-                    {
-                        if (question.Length < 5)
-                        {
-                            player.Message("Invalid question");
-                            return;
-                        }
-
-                        else
-                        {
-                            Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question);
-                            Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
-                            Server.VoteIsOn = true;
-                            Scheduler.NewTask(t => VoteCheck(player)).RunOnce(TimeSpan.FromSeconds(60));
-                            Server.Question = question;
-                        }
-
-
-                    }
-                    else
-                        player.Message("You do not have permissions to ask a question");
+                    player.Message("You do not have permissions to ask a question");
                     return;
                 }
+                if (Server.VoteIsOn)
+                {
+                    player.Message("A vote has already started. Each vote lasts 1 minute.");
+                    return;
+                }
+                if (question.Length < 5)
+                {
+                    player.Message("Invalid question");
+                    return;
+                }
+                Server.Players.Message("{0}&S Asked: {1}", player.ClassyName, question);
+                Server.Players.Message("&9Vote now! &S/Vote &AYes &Sor /Vote &CNo");
+                Server.VoteIsOn = true;
+                Scheduler.NewTask(t => VoteCheck(player)).RunOnce(TimeSpan.FromSeconds(60));
+                Server.Question = question;
             }
-            else
-            {
-                CdVote.PrintUsage(player);
-                return;
-            }
+            else CdVote.PrintUsage(player);
         }
 
-        public static void VoteCheck(Player player)
+        static void VoteCheck(Player player)
         {
-            if (!Server.VoteAbort)
+            if (Server.VoteIsOn)
             {
                 Server.Players.Message("{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", player.ClassyName,
-                                                   Server.Question, Server.VoteYes,
-                                                   Server.VoteNo);
+                                       Server.Question, Server.VoteYes, Server.VoteNo);
                 Server.VoteYes = 0;
                 Server.VoteNo = 0;
                 Server.VoteIsOn = false;
@@ -377,11 +342,9 @@ namespace fCraft
             }
         }
 
-
-
-        public static void VoteKickCheck(Player player)
+        static void VoteKickCheck(Player player)
         {
-            if (!Server.VoteAbort)
+            if (Server.VoteIsOn)
             {
                 Server.Players.Message("{0}&S wanted to get {1} kicked. Reason: {2} \n&SResults are in! Yes: &A{3} &SNo: &C{4}", player.ClassyName,
                                        Server.TargetName, Server.VoteKickReason, Server.VoteYes, Server.VoteNo);

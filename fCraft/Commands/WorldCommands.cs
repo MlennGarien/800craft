@@ -1324,16 +1324,16 @@ namespace fCraft
             Category = CommandCategory.World,
             Permissions = new[] { Permission.ManageWorlds },
             Help = "Prints or changes the environmental variables for a given world. " +
-                   "Variables are: clouds, fog, sky, level, edge. " +
+                   "Variables are: clouds, fog, sky, level, edge, terrain, realistic " +
                    "See &H/Help env <Variable>&S for details about each variable. " +
                    "Type &H/Env <WorldName> normal&S to reset everything for a world.",
             HelpSections = new Dictionary<string, string>{
                 { "normal",     "&H/Env <WorldName> normal\n&S" +
                                 "Resets all environment settings to their defaults for the given world." },
                { "terrain",     "&H/Env terrain terrainType. Leave blank for a list\n&S" +
-                                "Changes the blockset for the world you are currently in." },
+                                "Changes the blockset for a given world ." },
                { "realistic",     "&H/Env realistic. Toggles realistic mode on or off\n&S" +
-                                "Changes the environment according to the server time for the world you are in" },
+                                "Changes the environment according to the server time for a chosen world" },
                 { "clouds",     "&H/Env <WorldName> clouds <Color>\n&S" +
                                 "Sets color of the clouds. Use \"normal\" instead of color to reset." },
                 { "fog",        "&H/Env <WorldName> fog <Color>\n&S" +
@@ -1349,7 +1349,7 @@ namespace fCraft
                                 "Changes the type of block that's visible beyond the map boundaries. "+
                                 "Use \"normal\" instead of a number to reset to default (water)." }
             },
-            Usage = "/Env <WorldName> <Variable> or /env terrain | realistic",
+            Usage = "/Env <WorldName> <Variable>",
             IsConsoleSafe = true,
             Handler = EnvHandler
         };
@@ -1361,133 +1361,6 @@ namespace fCraft
             }
             string worldName = cmd.Next();
             World world;
-            if (worldName == "realistic")
-            {
-                world = player.World;
-                if (!world.RealisticEnv)
-                {
-                    world.RealisticEnv = true;
-                    World RWorld = player.World;
-                    Scheduler.NewBackgroundTask(t => TimeCheck(RWorld, player)).RunForever(TimeSpan.FromSeconds(120));
-                    player.Message("Realistic Environment has been turned ON for world {0}", RWorld.ClassyName);
-                    return;
-                }
-
-                if (world.RealisticEnv)
-                {
-                    world.RealisticEnv = false;
-                    player.Message("Realistic Environment has been turned OFF for world {0}", player.World.ClassyName);
-                    return;
-                }
-            }
-            if (worldName == "terrain")
-            {
-                string option = cmd.Next();
-                if (option == null)
-                    player.Message("&A/terrain Normal | fall | winter | tron | mario | highres | 8bit | simple |" +
-                    " indev | messa | portal | zelda ");
-
-                world = player.World;
-                if (option == "normal")
-                {
-                    world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "simple")
-                {
-                    world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "highres")
-                {
-                    world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "tron")
-                {
-                    world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "8bit")
-                {
-                    world.Terrain = "5a3fb1994e2ae526815ceaaca3a4dac0051aa890";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "mario")
-                {
-                    world.Terrain = "e98a37ddccbc6144306bd08f41248324965c4e5a";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "fall")
-                {
-                    world.Terrain = "b7c6dcb7a858639077f95ef94e8e2d51bedc3307";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "indev")
-                {
-                    world.Terrain = "73d1ef4441725bdcc9ac3616205faa3dff46e12a";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "messa")
-                {
-                    world.Terrain = "db0feeac8702704a3146a71365622db55fb5a4c4";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "portal")
-                {
-                    world.Terrain = "d4b455134394763296994d0c819b0ac0ea338457";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                if (option == "winter")
-                {
-                    world.Terrain = "3d22ed0ab311e003ed4e3ba17c3cf455019e7f35";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-                if (option == "zelda")
-                {
-                    world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
-                    player.Message("Terrain Changed! Rejoin world to see changes");
-                    WorldManager.SaveWorldList();
-                    return;
-                }
-
-                else
-                    player.Message("Error: you need to type a Terrain type");
-                return;
-            }
-
             if( worldName == null ) {
                 world = player.World;
                 if( world == null ) {
@@ -1498,25 +1371,116 @@ namespace fCraft
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
             }
-
-        
-
             string variable = cmd.Next();
-            string valueText = cmd.Next();
-            if( variable == null ) {
-                player.Message( "Environment settings for world {0}&S:", world.ClassyName );
-                player.Message( "  Cloud: {0}   Fog: {1}   Sky: {2}",
-                                world.CloudColor == -1 ? "normal" : '#' + world.CloudColor.ToString( "X6" ),
-                                world.FogColor == -1 ? "normal" : '#' + world.FogColor.ToString( "X6" ),
-                                world.SkyColor == -1 ? "normal" : '#' + world.SkyColor.ToString( "X6" ) );
-                player.Message( "  Edge level: {0}  Edge texture: {1}",
+
+            if (variable == null)
+            {
+                player.Message("Environment settings for world {0}&S:", world.ClassyName);
+                player.Message("  Cloud: {0}   Fog: {1}   Sky: {2}",
+                                world.CloudColor == -1 ? "normal" : '#' + world.CloudColor.ToString("X6"),
+                                world.FogColor == -1 ? "normal" : '#' + world.FogColor.ToString("X6"),
+                                world.SkyColor == -1 ? "normal" : '#' + world.SkyColor.ToString("X6"));
+                player.Message("  Edge level: {0}  Edge texture: {1}",
                                 world.EdgeLevel == -1 ? "normal" : world.EdgeLevel + " blocks",
-                                world.EdgeBlock );
-                if( !player.IsUsingWoM ) {
-                    player.Message( "  You need WoM client to see the changes." );
+                                world.EdgeBlock);
+                if (!player.IsUsingWoM)
+                {
+                    player.Message("  You need WoM client to see the changes.");
                 }
                 return;
             }
+
+            if (variable.ToLower() == "terrain")
+            {
+                string option = cmd.Next();
+                switch (option)
+                {
+                    case "normal":
+                        world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "simple":
+                        world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "highres":
+                        world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "tron":
+                        world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "8bit":
+                        world.Terrain = "5a3fb1994e2ae526815ceaaca3a4dac0051aa890";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "mario":
+                        world.Terrain = "e98a37ddccbc6144306bd08f41248324965c4e5a";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "fall":
+                        world.Terrain = "b7c6dcb7a858639077f95ef94e8e2d51bedc3307";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "indev":
+                        world.Terrain = "73d1ef4441725bdcc9ac3616205faa3dff46e12a";
+                        player.Message("Terrain Changed Rejoin world to see changes");
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "messa":
+                        world.Terrain = "db0feeac8702704a3146a71365622db55fb5a4c4";
+                        player.Message("Terrain Changed Rejoin world to see changes");
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "portal":
+                        world.Terrain = "d4b455134394763296994d0c819b0ac0ea338457";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "winter":
+                        world.Terrain = "3d22ed0ab311e003ed4e3ba17c3cf455019e7f35";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "zelda":
+                        world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    default: player.Message("&A/terrain Normal | fall | winter | tron | mario | highres | 8bit | simple |" +
+                             " indev | messa | portal | zelda ");
+                        break;
+                }
+                return;
+            }
+            
+            if (variable.ToLower() == "realistic")
+            {
+                if (!world.RealisticEnv)
+                {
+                    world.RealisticEnv = true;
+                    Scheduler.NewBackgroundTask(t => TimeCheck(world, player)).RunForever(TimeSpan.FromSeconds(120));
+                    player.Message("Realistic Environment has been turned ON for world {0}", world.ClassyName);
+                    return;
+                }
+
+                if (world.RealisticEnv)
+                {
+                    world.RealisticEnv = false;
+                    player.Message("Realistic Environment has been turned OFF for world {0}", player.World.ClassyName);
+                    return;
+                }
+            }
+            
+            string valueText = cmd.Next();
 
             if( variable.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
                 if( cmd.IsConfirmed ) {
@@ -2259,12 +2223,12 @@ namespace fCraft
                     case 'h':
                         listName = "hidden worlds";
                         extraParam = "hidden ";
-                        worlds = WorldManager.Worlds.Where( w => !player.CanSee( w) ).ToArray();
+                        worlds = WorldManager.Worlds.Where( w => !player.CanSee(w)).ToArray();
                         break;
                     case 'p':
                         listName = "populated worlds";
                         extraParam = "populated ";
-                        worlds = WorldManager.Worlds.Where( w => w.Players.Length > 0 ).ToArray();
+                        worlds = WorldManager.Worlds.Where(w => w.Players.Any(player.CanSee)).ToArray();
                         break;
                     case 'r':
                         listName = "Available Realms";

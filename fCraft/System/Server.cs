@@ -43,7 +43,6 @@ namespace fCraft {
         public static List<Player> Voted = new List<Player>();
         public static string Question;
         public static string VoteKickReason;
-        public static bool VoteAbort = false;
         public static string TargetName;
         public static string ToPossess;
 

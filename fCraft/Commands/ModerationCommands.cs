@@ -595,8 +595,8 @@ namespace fCraft {
             IsConsoleSafe = true,
             Aliases = new[] { "tban" },
             Permissions = new[] { Permission.TempBan },
-            Help = "Bans a player for a selected amount of time in seconds. 60 seconds = 1 minute. 1200 seconds = 1 hour",
-            Usage = "/tempban Player Seconds",
+            Help = "Bans a player for a selected amount of time. Example: 10s | 10 m | 10h ",
+            Usage = "/Tempban Player Seconds",
             Handler = Tempban
         };
 
