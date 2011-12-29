@@ -48,7 +48,7 @@ namespace fCraft {
         {
             Name = "List",
             Category = CommandCategory.Info,
-            IsConsoleSafe = false,
+            IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Help = "Shows a list of requirements needed to advance to the next rank.",
             Usage = "/List Staff | Displayednames",
@@ -62,42 +62,30 @@ namespace fCraft {
             {
                 case "staff":
                 case "st":
+                    var StaffNames = PlayerDB.PlayerInfoList
+                                         .Where(r => r.Rank.Can(Permission.ReadStaffChat));
+                    if (StaffNames.Count() > 0)
                     {
-                        String Names = "";
-
-                        foreach (PlayerInfo P in PlayerDB.PlayerInfoList)
-                        {
-                            if (P.Rank.Can(Permission.ReadStaffChat))
-                            {
-                                Names = Names + P.Rank.Color + P.Name + " ";
-                            }
-
-                        }
-                        player.Message("Showing all staff players: ");
-                        player.Message("{0} ", Names);
-                        break;
+                        player.Message("Listing all Staff: {0}",
+                                        StaffNames.JoinToString(r => String.Format("{0}&S", r.ClassyName)));
                     }
+                    else player.Message("No staff were found in the Player Database");
+                    break;
+
                 case "displayednames":
                 case "displayedname":
                 case "dn":
+                    var DisplayedNames = PlayerDB.PlayerInfoList
+                                             .Where(r => r.DisplayedName != null);
+                    if (DisplayedNames.Count() > 0)
                     {
-                        String Names = "";
-
-                        foreach (PlayerInfo P in PlayerDB.PlayerInfoList)
-                        {
-                            if (P.DisplayedName != null)
-                            {
-                                Names = Names + P.DisplayedName+ " &7(" + P.Name + ") ";
-                            }
-                        }
-                        player.Message("Showing players with DisplayedNames: ");
-                        player.Message("{0} ", Names);
-                        break;
+                        player.Message("Listing all DisplayedNames: {0}",
+                                        DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
                     }
-                default: CdList.PrintUsage(player); break;
+                    else player.Message("No players with DisplayedNames were found in the Player Database");
+                    break;
             }
         }
-
         static readonly CommandDescriptor CdReqs = new CommandDescriptor
         {
             Name = "Requirements",

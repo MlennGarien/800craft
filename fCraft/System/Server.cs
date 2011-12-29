@@ -297,9 +297,10 @@ namespace fCraft {
             PlayerDB.Load();
             IPBanList.Load();
 
+            PluginManager.GetInstance();
+
             // prepare the list of commands
             CommandManager.Init();
-            //Filter.LoadSwearWords();
 
             // prepare the brushes
             BrushManager.Init();
@@ -350,8 +351,6 @@ namespace fCraft {
             // try to load the world list
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
-
-           PluginManager.GetInstance();
 
             // open the port
             Port = ConfigKey.Port.GetInt();
