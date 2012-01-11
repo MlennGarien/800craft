@@ -7,7 +7,6 @@ using System.Net.Cache;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
-using System.Runtime.Serialization.Json;
 using ServiceStack.Text;
 
 namespace fCraft {

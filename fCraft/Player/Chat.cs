@@ -11,6 +11,8 @@ using System.IO;
 namespace fCraft {
     /// <summary> Helper class for handling player-generated chat. </summary>
     public static class Chat {
+        public static List<string> Swears = new List<string>();
+        public static IEnumerable<Regex> badWordMatchers;
         static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
         /// <summary> Sends a global (white) chat. </summary>
         /// <param name="player"> Player writing the message. </param>
@@ -53,6 +55,7 @@ namespace fCraft {
 
                 }
 
+
                 // Swear filter
                 if (!player.Can(Permission.Swear))
                 {
@@ -64,6 +67,8 @@ namespace fCraft {
                         sb.AppendLine("fuck");
                         sb.AppendLine("fucking");
                         sb.AppendLine("fucked");
+                        sb.AppendLine("dick");
+                        sb.AppendLine("bitch");
                         sb.AppendLine("shit");
                         sb.AppendLine("shitting");
                         sb.AppendLine("shithead");
@@ -72,22 +77,29 @@ namespace fCraft {
                         sb.AppendLine("wanker");
                         sb.AppendLine("wank");
                         sb.AppendLine("wanking");
-                        sb.AppendLine("dick");
                         sb.AppendLine("piss");
                         File.WriteAllText("SwearWords.txt", sb.ToString());
                     }
                     string CensoredText = ConfigKey.SwearReplace.GetString()+"&F";
+
                     if (ConfigKey.SwearReplace.GetString() == null)
                     {
                         CensoredText = "&CBlock&F";
                     }
+
                     const string PatternTemplate = @"\b({0})(s?)\b";
                     const RegexOptions Options = RegexOptions.IgnoreCase;
 
-                    var badWords = File.ReadAllLines("SwearWords.txt").Where(line => line.StartsWith("#") == false || line.Trim().Equals(String.Empty)); ;
-                    
-                    IEnumerable<Regex> badWordMatchers = badWords.
-                        Select(x => new Regex(string.Format(PatternTemplate, x), Options));
+                    if (Swears.Count == 0)
+                    {
+                        Swears.AddRange(File.ReadAllLines("SwearWords.txt").Where(line => line.StartsWith("#") == false || line.Trim().Equals(String.Empty)));
+                    }
+
+                    if (badWordMatchers == null)
+                    {
+                        badWordMatchers = Swears.
+                            Select(x => new Regex(string.Format(PatternTemplate, x), Options));
+                    }
 
                     string output = badWordMatchers.
                        Aggregate(rawMessage, (current, matcher) => matcher.Replace(current, CensoredText));
@@ -97,11 +109,6 @@ namespace fCraft {
                 string formattedMessage = String.Format("{0}&F: {1}",
                                                          player.ClassyName,
                                                          rawMessage);
-
-                if (player.IsStaticStaff)
-                {
-                    formattedMessage = String.Format("{0}", rawMessage);
-                }
 
                 var e = new ChatSendingEventArgs(player,
                                                   rawMessage,

@@ -3114,9 +3114,7 @@ namespace fCraft
 
                         Map map;
                         try {
-                            world.Map.DummyCount = 0;
                             map = MapUtility.Load( fullFileName );
-                            
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                             return;
@@ -3124,7 +3122,7 @@ namespace fCraft
 
                         try {
                             world.MapChangedBy = player.Name;
-                            world.ChangeMap( map );
+                            world.ChangeMap(map);
                         } catch( WorldOpException ex ) {
                             Logger.Log( LogType.Error,
                                         "Could not complete WorldLoad operation: {0}", ex.Message );

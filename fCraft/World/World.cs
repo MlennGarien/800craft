@@ -224,11 +224,13 @@ namespace fCraft
                     Terrain = Terrain,
                     SkyColor = SkyColor,
                     EdgeLevel = EdgeLevel,
+                    RealisticEnv = RealisticEnv,
                     EdgeBlock = EdgeBlock
                 };
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
                 newWorld.NeverUnload = neverUnload;
+                
                 WorldManager.ReplaceWorld(this, newWorld);
                 lock (BlockDB.SyncRoot)
                 {
@@ -372,7 +374,7 @@ namespace fCraft
                 if (!IsRealm && announce && ConfigKey.ShowJoinedWorldMessages.Enabled())
                 {
                     Server.Players.CanSee(player)
-                                  .Message("&SPlayer {0}&S joined World {1}",
+                                  .Message("&SPlayer {0}&S joined world {1}",
                                             player.ClassyName, ClassyName);
                     
                 }
@@ -382,9 +384,8 @@ namespace fCraft
                 if (IsRealm && announce && ConfigKey.ShowJoinedWorldMessages.Enabled())
                 {
                     Server.Players.CanSee(player)
-                                  .Message("&SPlayer {0}&S joined Realm {1}",
+                                  .Message("&SPlayer {0}&S joined realm {1}",
                                             player.ClassyName, ClassyName);
-                    
                 }
 
                 if (IsRealm)
@@ -410,8 +411,6 @@ namespace fCraft
                 {
                     player.Message("&8Reminder: You are still hidden.");
                 }
-
-                
 
                 return Map;
             }

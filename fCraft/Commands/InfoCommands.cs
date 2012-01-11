@@ -63,12 +63,10 @@ namespace fCraft {
                 case "staff":
                 case "st":
                     var StaffNames = PlayerDB.PlayerInfoList
-                                         .Where(r => r.Rank.Can(Permission.ReadStaffChat));
+                                         .Where(r => r.Rank.Can(Permission.ReadStaffChat) && r.Rank.Can(Permission.Ban));
                     if (StaffNames.Count() > 0)
-                    {
                         player.Message("Listing all Staff: {0}",
                                         StaffNames.JoinToString(r => String.Format("{0}&S", r.ClassyName)));
-                    }
                     else player.Message("No staff were found in the Player Database");
                     break;
 
@@ -78,14 +76,13 @@ namespace fCraft {
                     var DisplayedNames = PlayerDB.PlayerInfoList
                                              .Where(r => r.DisplayedName != null);
                     if (DisplayedNames.Count() > 0)
-                    {
                         player.Message("Listing all DisplayedNames: {0}",
                                         DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
-                    }
                     else player.Message("No players with DisplayedNames were found in the Player Database");
                     break;
             }
         }
+
         static readonly CommandDescriptor CdReqs = new CommandDescriptor
         {
             Name = "Requirements",
@@ -101,11 +98,9 @@ namespace fCraft {
         {
             string sectionName = cmd.Next();
 
-            // if no section name is given
             if (sectionName == null)
             {
                 FileInfo reqFile = new FileInfo(Paths.ReqFileName);
-                // print a list of available sections
                 string[] sections = GetReqSectionList();
                 if (sections != null)
                 {
@@ -114,7 +109,6 @@ namespace fCraft {
                 return;
             }
 
-            // if a section name is given, but no section files exist
             if (!Directory.Exists(Paths.ReqPath))
             {
                 player.Message("There are no requirement sections defined.");
@@ -134,16 +128,12 @@ namespace fCraft {
                 {
                     if (sectionFullName.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
                     {
-                        // if there is an exact match, break out of the loop early
                         reqFileName = sectionFiles[i];
                         break;
-
                     }
                     else if (reqFileName == null)
                     {
-                        // if there is a partial match, keep going to check for multiple matches
                         reqFileName = sectionFiles[i];
-
                     }
                     else
                     {
@@ -177,7 +167,6 @@ namespace fCraft {
             }
         }
 
-
         [CanBeNull]
         static string[] GetReqSectionList()
         {
@@ -194,7 +183,6 @@ namespace fCraft {
             }
             return null;
         }
-
 
         static void PrintReqFile(Player player, FileSystemInfo reqFile)
         {

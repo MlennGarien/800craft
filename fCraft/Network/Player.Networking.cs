@@ -1047,11 +1047,11 @@ namespace fCraft {
 
             if (World.IsRealm && oldWorld == newWorld)
             {
-                Message("Rejoined Realm {0}", newWorld.ClassyName);
+                Message("Rejoined realm {0}", newWorld.ClassyName);
             }
             else if (World.IsRealm)
             {
-                Message("Joined Realm {0}", newWorld.ClassyName);
+                Message("Joined realm {0}", newWorld.ClassyName);
             }
 
 

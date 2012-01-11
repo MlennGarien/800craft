@@ -427,15 +427,18 @@ namespace fCraft
                     string pName = cmd.Next();
                     string msg = cmd.NextAll().Trim();
 
-                    Player target = Server.FindPlayerOrPrintMatches(player, pName, true, true);
-
-                    if (target == null)
+                    if (pName == null)
                     {
-                        player.Message("Please enter a valid name.");
+                        player.Message("Player not found. Please specify valid name.");
                         return;
                     }
 
-                    if (Player.IsInValidName(pName) || pName == null)
+                    Player target = Server.FindPlayerOrPrintMatches(player, pName, true, true);
+
+                    if (target == null)
+                        return;
+
+                    if (!Player.IsValidName(pName))
                     {
                         player.Message("Player not found. Please specify valid name.");
                         return;
@@ -698,7 +701,6 @@ namespace fCraft
             if (targetName == null)
             {
                 CdPoke.PrintUsage(player);
-
                 return;
             }
 
@@ -765,7 +767,7 @@ namespace fCraft
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             NotRepeatable = true,
-            Usage = "/adminchat Message",
+            Usage = "/Adminchat Message",
             Help = "Broadcasts your message to admins/owners on the server.",
             Handler = AdminChat
         };
