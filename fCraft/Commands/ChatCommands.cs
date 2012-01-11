@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010, 2011, 2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,12 +105,12 @@ namespace fCraft
 
         static readonly CommandDescriptor CdBroMode = new CommandDescriptor
         {
-            Name = "bromode",
+            Name = "Bromode",
             Aliases = new string[] { "bm" },
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.BroMode },
             IsConsoleSafe = true,
-            Usage = "/bromode",
+            Usage = "/Bromode",
             Help = "Toggles bromode.",
             Handler = BroMode
         };
@@ -123,8 +123,8 @@ namespace fCraft
                 {
                     fCraft.Utils.BroMode.GetInstance().RegisterPlayer(p);
                 }
-                Server.Players.Message("{0}&S turned Bro mode on.", player.ClassyName);
                 fCraft.Utils.BroMode.Active = true;
+                Server.Players.Message("{0}&S turned Bro mode on.", player.Info.Rank.Color + player.Name);
             }
             else
             {
@@ -134,7 +134,7 @@ namespace fCraft
                 }
 
                 fCraft.Utils.BroMode.Active = false;
-                Server.Players.Message("{0}&S turned Bro Mode off.", player.Name);
+                Server.Players.Message("{0}&S turned Bro Mode off.", player.Info.Rank.Color + player.Name);
             }
         }
 
@@ -255,11 +255,11 @@ namespace fCraft
                 if (target == null)
                     return;
 
-                /*if (target == player)
+                if (target == player)
                 {
                     player.Message("You cannot VoteKick yourself, lol");
                     return;
-                }*/
+                }
 
                 if (!Player.IsValidName(ToKick))
                 {
@@ -275,7 +275,6 @@ namespace fCraft
                 Server.VoteKickReason = reason;
                 Server.TargetName = target.Name;
             }
-        
 
             if (option == "no")
             {
@@ -295,7 +294,6 @@ namespace fCraft
                 player.Info.HasVoted = true;
                 player.Message("You have voted for 'No'");
             }
-            
 
             if (option == "ask")
             {
@@ -389,7 +387,6 @@ namespace fCraft
                 return;
             }
 
-
             if (player.DetectChatSpam()) return;
 
             string message = cmd.NextAll().Trim();
@@ -444,7 +441,6 @@ namespace fCraft
                         return;
                     }
 
-
                     if (msg.Length < 1)
                     {
                         player.Message("Error: Please enter a message for {0}.", target.ClassyName);
@@ -453,14 +449,11 @@ namespace fCraft
 
                     else
                     {
-
                         if (player.Can(Permission.UseColorCodes) && msg.Contains("%"))
                         {
                             msg = Color.ReplacePercentCodes(msg);
                         }
                         Server.Players.Message("&Pfrom {0}: {1}", target.Name, msg);
-
-
                     }
                     break;
                 case "ac":
@@ -483,7 +476,6 @@ namespace fCraft
                     {
                         player.Message("Error: Please enter a message for {0}.", target2.ClassyName);
                         return;
-
                     }
                     else
                     {
@@ -547,15 +539,12 @@ namespace fCraft
                             return;
                         }
 
-
-
                         if (msg2.Length > 0)
                         {
                             Server.Message("{0}&S&F: {1}",
                                               target5.ClassyName, msg2);
                             return;
                         }
-
 
                         else
                         {

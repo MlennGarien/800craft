@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010, 2011, 2012 Matvei Stefarov <me@matvei.org>
 using System.Diagnostics;
 
 namespace fCraft {

@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010, 2011, 2012 Matvei Stefarov <me@matvei.org>
 namespace fCraft {
     /// <summary> Structure representing a pending update to the map's block array.
     /// Contains information about the block coordinates, type, and change's origin. </summary>

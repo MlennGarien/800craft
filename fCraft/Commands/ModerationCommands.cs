@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010, 2011, 2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1306,7 +1306,8 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor CdBanEx = new CommandDescriptor {
+        static readonly CommandDescriptor CdBanEx = new CommandDescriptor
+        {
             Name = "BanEx",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -1317,44 +1318,56 @@ namespace fCraft {
             Handler = BanExHandler
         };
 
-        static void BanExHandler( Player player, Command cmd ) {
+        static void BanExHandler(Player player, Command cmd)
+        {
             string playerName = cmd.Next();
-            if( playerName == null || playerName.Length < 2 || (playerName[0] != '-' && playerName[0] != '+') ) {
-                CdBanEx.PrintUsage( player );
+            if (playerName == null || playerName.Length < 2 || (playerName[0] != '-' && playerName[0] != '+'))
+            {
+                CdBanEx.PrintUsage(player);
                 return;
             }
             bool addExemption = (playerName[0] == '+');
-            string targetName = playerName.Substring( 1 );
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
-            if( target == null ) return;
+            string targetName = playerName.Substring(1);
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetName);
+            if (target == null) return;
 
-            switch( target.BanStatus ) {
+            switch (target.BanStatus)
+            {
                 case BanStatus.Banned:
-                    if( addExemption ) {
-                        player.Message( "Player {0}&S is currently banned. Unban before adding an exemption.",
-                                        target.ClassyName );
-                    } else {
-                        player.Message( "Player {0}&S is already banned. There is no exemption to remove.",
-                                        target.ClassyName );
+                    if (addExemption)
+                    {
+                        player.Message("Player {0}&S is currently banned. Unban before adding an exemption.",
+                                        target.ClassyName);
+                    }
+                    else
+                    {
+                        player.Message("Player {0}&S is already banned. There is no exemption to remove.",
+                                        target.ClassyName);
                     }
                     break;
                 case BanStatus.IPBanExempt:
-                    if( addExemption ) {
-                        player.Message( "IP-Ban exemption already exists for player {0}", target.ClassyName );
-                    } else {
-                        player.Message( "IP-Ban exemption removed for player {0}",
-                                        target.ClassyName );
+                    if (addExemption)
+                    {
+                        player.Message("IP-Ban exemption already exists for player {0}", target.ClassyName);
+                    }
+                    else
+                    {
+                        player.Message("IP-Ban exemption removed for player {0}",
+                                        target.ClassyName);
                         target.BanStatus = BanStatus.NotBanned;
                     }
                     break;
                 case BanStatus.NotBanned:
-                    if( addExemption ) {
-                        player.Message( "IP-Ban exemption added for player {0}",
-                                        target.ClassyName );
+                    if (addExemption)
+                    {
+                        player.Message("IP-Ban exemption added for player {0}",
+                                        target.ClassyName);
                         target.BanStatus = BanStatus.IPBanExempt;
-                    } else {
-                        player.Message( "No IP-Ban exemption exists for player {0}",
-                                        target.ClassyName );
+                    }
+                    else
+                    {
+                        player.Message("No IP-Ban exemption exists for player {0}",
+                                        target.ClassyName);
                     }
                     break;
             }

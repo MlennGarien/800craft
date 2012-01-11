@@ -1,4 +1,4 @@
-﻿// Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009, 2010, 2011, 2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,7 +80,7 @@ namespace fCraft {
                         sb.AppendLine("piss");
                         File.WriteAllText("SwearWords.txt", sb.ToString());
                     }
-                    string CensoredText = ConfigKey.SwearReplace.GetString()+"&F";
+                    string CensoredText = Color.ReplacePercentCodes(ConfigKey.SwearReplace.GetString())+"&F";
 
                     if (ConfigKey.SwearReplace.GetString() == null)
                     {
