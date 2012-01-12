@@ -22,7 +22,6 @@ namespace fCraft {
             ZoneCommands.Init();
             MaintenanceCommands.Init();
             ChatCommands.Init();
-            GameCommands.Init();
             Logger.Log( LogType.Debug,
                         "CommandManager: {0} commands registered ({1} hidden, {2} aliases)",
                         Commands.Count,

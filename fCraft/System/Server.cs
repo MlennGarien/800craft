@@ -297,10 +297,10 @@ namespace fCraft {
             PlayerDB.Load();
             IPBanList.Load();
 
-            PluginManager.GetInstance();
-
             // prepare the list of commands
             CommandManager.Init();
+
+            PluginManager.GetInstance();
 
             // prepare the brushes
             BrushManager.Init();
