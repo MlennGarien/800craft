@@ -438,7 +438,7 @@ with IRC bots falling behind on messages.",
 
         [BoolKey( ConfigSection.Advanced, true,
 @"Crash reports are created when serious unexpected errors occur.
-Being able to receive crash reports helps identify bugs and improve fCraft!
+Being able to receive crash reports helps identify bugs and improve 800Craft!
 The report consists of the error information, OS and runtime versions,
 a copy of config.xml, and last 25 lines of the log file.
 Reports are confidential and are not displayed publicly." )]
@@ -474,7 +474,7 @@ You may use this option to disable the relative updates." )]
         NoPartialPositionUpdates,
 
         [EnumKey( ConfigSection.Advanced, ProcessPriorityClass.Normal,
-@"It is recommended to leave fCraft at default priority.
+@"It is recommended to leave 800Craft at default priority.
 Setting this below ""Normal"" may starve fCraft of resources.
 Setting this above ""Normal"" may slow down other software on your machine." )]
         ProcessPriority,
@@ -540,7 +540,7 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
 @"If the machine has more than one available IP address (for example
 if you have more than one NIC) you can use this setting to make
-fCraft bind to the same IP every time." )]
+800Craft bind to the same IP every time." )]
         IP,
 
         [EnumKey( ConfigSection.Advanced, fCraft.BandwidthUseMode.Normal,

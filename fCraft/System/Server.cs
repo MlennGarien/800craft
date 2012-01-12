@@ -43,6 +43,7 @@ namespace fCraft {
         public static List<Player> Voted = new List<Player>();
         public static string Question;
         public static string VoteKickReason;
+        public static string VoteAskStarter;
         public static string TargetName;
         public static string ToPossess;
 
@@ -463,7 +464,7 @@ namespace fCraft {
             RaiseEvent( Started );
             PortalHandler.GetInstance();
             PortalDB.Load();
-           // Physics.Physics.Load();
+           //Physics.Physics.Load();
 
             if (ConfigKey.MineQuery.Enabled())
             {

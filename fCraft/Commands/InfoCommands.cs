@@ -58,28 +58,56 @@ namespace fCraft {
         internal static void ListHandler(Player player, Command cmd)
         {
             string Option = cmd.Next();
-            switch (Option)
-            {
-                case "staff":
-                case "st":
-                    var StaffNames = PlayerDB.PlayerInfoList
-                                         .Where(r => r.Rank.Can(Permission.ReadStaffChat) && r.Rank.Can(Permission.Ban));
-                    if (StaffNames.Count() > 0)
-                        player.Message("Listing all Staff: {0}",
-                                        StaffNames.JoinToString(r => String.Format("{0}&S", r.ClassyName)));
-                    else player.Message("No staff were found in the Player Database");
-                    break;
 
-                case "displayednames":
-                case "displayedname":
-                case "dn":
-                    var DisplayedNames = PlayerDB.PlayerInfoList
-                                             .Where(r => r.DisplayedName != null);
-                    if (DisplayedNames.Count() > 0)
-                        player.Message("Listing all DisplayedNames: {0}",
-                                        DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
-                    else player.Message("No players with DisplayedNames were found in the Player Database");
-                    break;
+            if (Option == null)
+            {
+                CdList.PrintUsage(player);
+                return;
+            }
+            if (Option.ToLower() == "staff")
+            {
+                var StaffNames = PlayerDB.PlayerInfoList
+                                     .Where(r => r.Rank.Can(Permission.ReadStaffChat) && 
+                                         r.Rank.Can(Permission.Ban) && 
+                                         r.Rank.Can(Permission.Promote))
+                                         .ToArray();
+
+                if (StaffNames.Length <= PlayersPerPage)
+                {
+                    player.MessageManyMatches("staff", StaffNames);
+                }
+
+                else
+                {
+                    int offset;
+
+                    if (!cmd.NextInt(out offset)) offset = 0;
+
+                    if (offset >= StaffNames.Length)
+                        offset = Math.Max(0, StaffNames.Length - PlayersPerPage);
+
+                    PlayerInfo[] StaffPart = StaffNames.Skip(offset).Take(PlayersPerPage).ToArray();
+                    player.MessageManyMatches("staff", StaffPart);
+
+                    if (offset + StaffPart.Length < StaffNames.Length)
+                        player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                        offset + 1, offset + StaffPart.Length, StaffNames.Length,
+                                        "staff", offset + StaffPart.Length);
+                    else
+                        player.Message("Showing matches {0}-{1} (out of {2}).",
+                                        offset + 1, offset + StaffPart.Length, StaffNames.Length);
+                }
+            }
+
+            if (Option.ToLower() == "displayednames" || Option.ToLower() == "displayedname" || Option.ToLower() == "dn")
+            {
+
+                var DisplayedNames = PlayerDB.PlayerInfoList
+                                         .Where(r => r.DisplayedName != null).ToArray();
+                if (DisplayedNames.Count() > 0)
+                    player.Message("Listing all DisplayedNames: {0}",
+                                    DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
+                else player.Message("No players with DisplayedNames were found in the Player Database");
             }
         }
 
