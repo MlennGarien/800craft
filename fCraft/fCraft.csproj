@@ -107,6 +107,7 @@
     <Compile Include="Commands\CommandHandlers\RealmHandler.cs" />
     <Compile Include="Commands\Games\GameEvents.cs" />
     <Compile Include="Commands\Games\GameManager.cs" />
+    <Compile Include="Commands\Games\TFMinecraftHandler.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />

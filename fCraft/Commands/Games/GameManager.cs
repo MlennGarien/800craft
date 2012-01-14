@@ -9,10 +9,8 @@ namespace fCraft
     {
         public static World GameWorld = null;
         public static bool GameIsOn = false;
-        public static Position Red1Pos;
-        public static Vector3I[] Red1 = null;
-        public static Vector3I[] Red2 = null;
-        public static Vector3I[] Red3 = null;
+        public static List<Player> RedTeam = new List<Player>();
+        public static List<Player> BlueTeam = new List<Player>();
         //more shit
     }
 }

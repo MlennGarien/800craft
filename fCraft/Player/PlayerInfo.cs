@@ -23,11 +23,9 @@ namespace fCraft {
         public bool Static = true;
         public string LeaveMsg = "left the server";
 
-        //Zombie
-        public string OriginalName;
-        public string Dname;
+        //Games
         public bool ArrivedLate = false;
-        public bool IsZombie = false;
+        public bool InGame = false;
 
         //slap, kill
         public DateTime LastUsedSlap;

@@ -7,6 +7,47 @@ namespace fCraft
 {
     public static class TFMinecraftHandler
     {
+
+        public static void Start(Player player, World world)
+        {
+            GameManager.GameWorld = world;
+            Scheduler.NewTask(t => GameEvents.GameChecker(world)).RunForever(TimeSpan.FromSeconds(1));
+            Server.Players.Message("Game started eloloedjfhfjf");
+            GameManager.GameIsOn = true;
+        }
+
+        public static void Stop(Player player, World world)
+        {
+            Server.Players.Message("Game Ended eloloedjfhfjf");
+            GameManager.GameIsOn = false;
+            GameManager.GameWorld = null;
+            foreach (Player R in GameManager.RedTeam)
+            {
+                GameManager.RedTeam.Remove(R);
+                R.Info.InGame = false;
+                R.Message("Removing you from game");
+            }
+            foreach (Player B in GameManager.BlueTeam)
+            {
+                GameManager.BlueTeam.Remove(B);
+                B.Info.InGame = false;
+                B.Message("Removing you from game");
+            }
+            GameEvents.Red1Click = 0;
+            GameEvents.BlueCapturedClick = 0;
+            GameEvents.Red2Click = 0;
+            GameEvents.BlueCapturedClick2 = 0;
+            GameEvents.Red3Click = 0;
+            GameEvents.BlueCapturedClick3 = 0;
+            GameEvents.Blue1Click = 0;
+            GameEvents.RedCapturedClick = 0;
+            GameEvents.Blue2Click = 0;
+            GameEvents.RedCapturedClick2 = 0;
+            GameEvents.Blue3Click = 0;
+            GameEvents.RedCapturedClick3 = 0;
+            world.Players.Message("{0} ended the game", player.ClassyName);
+        }
+
        public static void BaseAdd(Player player, Vector3I[] marks, object tag)
         {
             int sx = Math.Min(marks[0].X, marks[1].X);
@@ -25,29 +66,34 @@ namespace fCraft
                                                         Base.Bounds.Dimensions.Y,
                                                         Base.Bounds.Dimensions.Z);
            //setting up game tasks
-           if(!player.WorldMap.Zones.Contains("redbase2")){
+           if(player.WorldMap.Zones.FindExact("redbase2") == null){
            RedBase2(player);
                return;
            }
-           if(!player.WorldMap.Zones.Contains("redbase3")){
+           if (player.WorldMap.Zones.FindExact("redbase3") == null){
            RedBase3(player);
                return;
            }
-           if(!player.WorldMap.Zones.Contains("bluebase1")){
+           if(player.WorldMap.Zones.FindExact("bluebase1") == null){
            BlueBase1(player);
                return;
            }
-           if (!player.WorldMap.Zones.Contains("bluebase2")){
+           if (player.WorldMap.Zones.FindExact("bluebase2") == null){
                BlueBase2(player);
                return;
            }
-           if(!player.WorldMap.Zones.Contains("bluebase3")){
-           BlueBase3(player);
+           if (player.WorldMap.Zones.FindExact("bluebase3") == null){
+               BlueBase3(player);
                return;
-           } 
+           }
+
+           else
+           {
+               Start(player, player.World);
+           }
         }
 
-       static void RedBase2(Player player)
+       public static void RedBase2(Player player)
        {
            Zone BaseRed2 = new Zone();
            BaseRed2.Name = "redbase2";
@@ -55,7 +101,7 @@ namespace fCraft
            player.Message("Red Base 2: Place 2 blocks to cuboid a Red base");
        }
 
-       static void RedBase3(Player player)
+       public static void RedBase3(Player player)
        {
            Zone BaseRed3 = new Zone();
            BaseRed3.Name = "redbase3";
@@ -63,7 +109,7 @@ namespace fCraft
            player.Message("Red Base 3: Place 2 blocks to cuboid a Red base");
        }
 
-       static void BlueBase1(Player player)
+      public static void BlueBase1(Player player)
        {
            Zone BaseBlue1 = new Zone();
            BaseBlue1.Name = "bluebase1";
@@ -71,7 +117,7 @@ namespace fCraft
            player.Message("Blue Base 1: Place 2 blocks to cuboid a Blue base");
        }
 
-       static void BlueBase2(Player player)
+       public static void BlueBase2(Player player)
        {
            Zone BaseBlue2 = new Zone();
            BaseBlue2.Name = "bluebase2";
@@ -79,10 +125,10 @@ namespace fCraft
            player.Message("Blue Base 2: Place 2 blocks to cuboid a Blue base");
        }
 
-       static void BlueBase3(Player player)
+       public static void BlueBase3(Player player)
        {
            Zone BaseBlue3 = new Zone();
-           BaseBlue3.Name = "redbase3";
+           BaseBlue3.Name = "bluebase3";
            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue3, WorldCommands.CdBase.Permissions);
            player.Message("Blue Base 3: Place 2 blocks to cuboid a Blue base");
        }
