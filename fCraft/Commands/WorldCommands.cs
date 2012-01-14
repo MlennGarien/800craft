@@ -122,6 +122,14 @@ namespace fCraft
         {
             string option = cmd.Next();
             string mode = cmd.Next();
+            if (option == "stop")
+            {
+                if (mode == "tf2" || mode == "tfminecraft")
+                {
+                    TFMinecraftHandler.Stop(player);
+                    return;
+                }
+            }
             if (option == "start")
             {
                 if (mode == "tf2" || mode == "tfminecraft")
@@ -165,6 +173,7 @@ namespace fCraft
                     }
                     else TFMinecraftHandler.Start(player, player.World);
                 }
+                
                 else player.Message("Invalid Option");
             }
         }

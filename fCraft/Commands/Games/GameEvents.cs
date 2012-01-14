@@ -28,68 +28,67 @@ namespace fCraft
 
         public static void GameChecker(World world)
         {
-            if (GameManager.GameIsOn)
+            if (!GameManager.IsStopping)
             {
-                if (world.Map.Zones.FindExact("redbase1") == null &&  world.Map.Zones.FindExact("redbase2") == null &&
-                    world.Map.Zones.FindExact("redbase3") == null && world.Map.Zones.FindExact("redcaptured1") == null &&
-                    world.Map.Zones.FindExact("redcaptured2") == null && world.Map.Zones.FindExact("redcaptured3") == null)
+                if (GameManager.GameIsOn)
                 {
-                    world.Players.Message("The &CRed Team &Sloses. The &9Blue Team &S has captured all the Red bases");
-                    TFMinecraftHandler.Stop(Player.Console, world);
-                    return;
-                }
-                if (world.Map.Zones.FindExact("bluebase1") == null && world.Map.Zones.FindExact("bluebase2") == null &&
-                    world.Map.Zones.FindExact("bluebase3") == null && world.Map.Zones.FindExact("bluecaptured1") == null &&
-                    world.Map.Zones.FindExact("bluecaptured2") == null && world.Map.Zones.FindExact("bluecaptured3") == null)
-                {
-                    world.Players.Message("The &9Blue Team &Sloses. The &CRed Team &S has captured all the Blue bases");
-                    TFMinecraftHandler.Stop(Player.Console, world);
-                    return;
-                }
-
-                foreach (Player p in Server.Players)
-                {
-                    if (p.World == GameManager.GameWorld)
+                    if (GameManager.BlueBaseCount == 6)
                     {
-                        if (!p.Info.InGame)
-                        {
-                            if (GameManager.BlueTeam.Count == 0 && GameManager.RedTeam.Count == 0)
-                            {
-                                GameManager.BlueTeam.Add(p);
-                                p.Message("Adding you to the &9Blue &Steam!");
-                                p.Info.InGame = true;
-                            }
-                            else if (GameManager.BlueTeam.Count > GameManager.RedTeam.Count)
-                            {
-                                GameManager.RedTeam.Add(p);
-                                p.Message("Adding you to the &CRed &Steam!");
-                                p.Info.InGame = true;
-                            }
-                            else
-                            {
-                                GameManager.BlueTeam.Add(p);
-                                p.Message("Adding you to the &9Blue &Steam!");
-                                p.Info.InGame = true;
-                            }
-                        }
+                        TFMinecraftHandler.Stop(Player.Console);
+                        world.Players.Message("&SThe &CRed Team &Sloses. The &9Blue Team &S has captured all the Red bases");
+                        return;
+                    }
+                    if (GameManager.RedBaseCount == 6)
+                    {
+                        TFMinecraftHandler.Stop(Player.Console);
+                        world.Players.Message("&SThe &9Blue Team &Sloses. The &CRed Team &S has captured all the Blue bases");
+                        return;
                     }
 
-                    else
+                    foreach (Player p in Server.Players)
                     {
-                        if (p.Info.InGame)
+                        if (p.World == GameManager.GameWorld)
                         {
-                            if (GameManager.BlueTeam.Contains(p))
+                            if (!p.Info.InGame)
                             {
-                                GameManager.BlueTeam.Remove(p);
-                                p.Message("You left the world, removing you from game.");
-                                p.Info.InGame = false;
+                                if (GameManager.BlueTeam.Count == 0 && GameManager.RedTeam.Count == 0)
+                                {
+                                    GameManager.BlueTeam.Add(p);
+                                    p.Message("Adding you to the &9Blue &Steam!");
+                                    p.Info.InGame = true;
+                                }
+                                else if (GameManager.BlueTeam.Count > GameManager.RedTeam.Count)
+                                {
+                                    GameManager.RedTeam.Add(p);
+                                    p.Message("Adding you to the &CRed &Steam!");
+                                    p.Info.InGame = true;
+                                }
+                                else
+                                {
+                                    GameManager.BlueTeam.Add(p);
+                                    p.Message("Adding you to the &9Blue &Steam!");
+                                    p.Info.InGame = true;
+                                }
                             }
+                        }
 
-                            if (GameManager.RedTeam.Contains(p))
+                        else
+                        {
+                            if (p.Info.InGame)
                             {
-                                GameManager.RedTeam.Remove(p);
-                                p.Message("You left the world, removing you from game.");
-                                p.Info.InGame = false;
+                                if (GameManager.BlueTeam.Contains(p))
+                                {
+                                    GameManager.BlueTeam.Remove(p);
+                                    p.Message("You left the world, removing you from game.");
+                                    p.Info.InGame = false;
+                                }
+
+                                if (GameManager.RedTeam.Contains(p))
+                                {
+                                    GameManager.RedTeam.Remove(p);
+                                    p.Message("You left the world, removing you from game.");
+                                    p.Info.InGame = false;
+                                }
                             }
                         }
                     }
@@ -133,6 +132,8 @@ namespace fCraft
                                         Red1Click = 0;
                                         zone.Name = "bluecaptured1";
                                         e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 1");
+                                        GameManager.BlueBaseCount++;
+                                        GameManager.RedBaseCount--;
                                     }
                                 }
 
@@ -159,6 +160,8 @@ namespace fCraft
                                         BlueCapturedClick = 0;
                                         zone.Name = "redbase1";
                                         e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 1");
+                                        GameManager.BlueBaseCount--;
+                                        GameManager.RedBaseCount++;
                                     }
                                 }
 
@@ -186,6 +189,8 @@ namespace fCraft
                                         Red2Click = 0;
                                         zone.Name = "bluecaptured2";
                                         e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 2");
+                                        GameManager.BlueBaseCount++;
+                                        GameManager.RedBaseCount--;
                                     }
                                 }
 
@@ -211,6 +216,8 @@ namespace fCraft
                                         BlueCapturedClick2 = 0;
                                         zone.Name = "redbase2";
                                         e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 2");
+                                        GameManager.BlueBaseCount--;
+                                        GameManager.RedBaseCount++;
                                     }
                                 }
 
@@ -237,6 +244,8 @@ namespace fCraft
                                         Red3Click = 0;
                                         zone.Name = "bluecaptured3";
                                         e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 3");
+                                        GameManager.BlueBaseCount++;
+                                        GameManager.RedBaseCount--;
                                     }
                                 }
 
@@ -263,6 +272,8 @@ namespace fCraft
                                         BlueCapturedClick3 = 0;
                                         zone.Name = "redbase3";
                                         e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 2");
+                                        GameManager.BlueBaseCount--;
+                                        GameManager.RedBaseCount++;
                                     }
                                 }
 
@@ -290,6 +301,8 @@ namespace fCraft
                                         Blue1Click = 0;
                                         zone.Name = "redcaptured1";
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 1");
+                                        GameManager.BlueBaseCount--;
+                                        GameManager.RedBaseCount++;
                                     }
                                 }
 
@@ -316,6 +329,8 @@ namespace fCraft
                                         RedCapturedClick = 0;
                                         zone.Name = "bluebase1";
                                         e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 1");
+                                        GameManager.BlueBaseCount++;
+                                        GameManager.RedBaseCount--;
                                     }
                                 }
 
@@ -343,6 +358,8 @@ namespace fCraft
                                         Blue2Click = 0;
                                         zone.Name = "redcaptured2";
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 2");
+                                        GameManager.BlueBaseCount--;
+                                        GameManager.RedBaseCount++;
                                     }
                                 }
 
@@ -368,6 +385,8 @@ namespace fCraft
                                         RedCapturedClick2 = 0;
                                         zone.Name = "bluebase2";
                                         e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 2");
+                                        GameManager.BlueBaseCount++;
+                                        GameManager.RedBaseCount--;
 
                                     }
                                 }
@@ -395,6 +414,8 @@ namespace fCraft
                                         Blue3Click = 0;
                                         zone.Name = "redcaptured3";
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 3");
+                                        GameManager.BlueBaseCount--;
+                                        GameManager.RedBaseCount++;
                                     }
                                 }
 
@@ -421,6 +442,8 @@ namespace fCraft
                                         RedCapturedClick3 = 0;
                                         zone.Name = "bluebase3";
                                         e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 3");
+                                        GameManager.BlueBaseCount++;
+                                        GameManager.RedBaseCount--;
                                     }
                                 }
 
