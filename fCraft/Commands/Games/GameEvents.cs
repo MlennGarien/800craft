@@ -26,6 +26,49 @@ namespace fCraft
         public static int Blue3Click = 0;
         public static int RedCapturedClick3 = 0;
 
+        public static void PlayerMoved(object sender, PlayerMovedEventArgs e)
+        {
+            if (e.Player.Info.InGame)
+            {
+                if (GameManager.BlueTeam.Count > 0)
+                {
+                    if (GameManager.GameIsOn)
+                    {
+                        foreach (Player B in GameManager.BlueTeam)
+                        {
+                            if (GameManager.BlueTeam.Contains(e.Player))
+                            {
+                                if (B.Position.ToVector3I() == e.Player.Position.ToVector3I())
+                                {
+                                    //kill b send to blue spawn
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (GameManager.RedTeam.Count > 0)
+            {
+                if (e.Player.Info.InGame)
+                {
+                    if (GameManager.GameIsOn)
+                    {
+                        foreach (Player R in GameManager.RedTeam)
+                        {
+                            if (GameManager.BlueTeam.Contains(e.Player))
+                            {
+                                if (R.Position.ToVector3I() == e.Player.Position.ToVector3I())
+                                {
+                                    //kill R send to red spawn
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public static void GameChecker(World world)
         {
             if (!GameManager.IsStopping)
@@ -35,14 +78,37 @@ namespace fCraft
                     if (GameManager.BlueBaseCount == 6)
                     {
                         TFMinecraftHandler.Stop(Player.Console);
-                        world.Players.Message("&SThe &CRed Team &Sloses. The &9Blue Team &S has captured all the Red bases");
+                        world.Players.Message("&SThe &CRed Team &Sloses. The &9Blue Team &Shave captured all the Red bases");
                         return;
                     }
                     if (GameManager.RedBaseCount == 6)
                     {
                         TFMinecraftHandler.Stop(Player.Console);
-                        world.Players.Message("&SThe &9Blue Team &Sloses. The &CRed Team &S has captured all the Blue bases");
+                        world.Players.Message("&SThe &9Blue Team &Sloses. The &CRed Team &Shave captured all the Blue bases");
                         return;
+                    }
+
+                    foreach (Player R in GameManager.RedTeam)
+                    {
+                        foreach (Player B in GameManager.BlueTeam)
+                        {
+                            if (B.Position.ToVector3I() == R.Position.ToVector3I())
+                            {
+                                Position Pos = new Position(
+                                    world.Map.Bounds.XMax, R.Position.Y, R.Position.Z);
+                                R.TeleportTo(Pos);
+
+                                //kill R
+                            }
+
+                            if (B.Position.ToVector3I() == R.Position.ToVector3I())
+                            {
+                                Position Pos2 = new Position(
+                                    world.Map.Bounds.XMax, B.Position.Y, B.Position.Z);
+                                B.TeleportTo(Pos2);
+                                //kill B
+                            }
+                        }
                     }
 
                     foreach (Player p in Server.Players)
@@ -110,6 +176,7 @@ namespace fCraft
 
         public static void PlayerClicked(object sender, PlayerClickedEventArgs e)
         {
+
             if (GameManager.GameIsOn)
             {
                 if (e.Player.World.Equals(GameManager.GameWorld))
@@ -257,7 +324,7 @@ namespace fCraft
                                         Red3Click--;
                                 }
                             }
-                            
+
 
                             if (zone.Name.EndsWith("bluecaptured3"))
                             {
@@ -461,7 +528,30 @@ namespace fCraft
                     }
                 }
             }
+
+            if (!GameManager.GameIsOn)
+            {
+                Zone[] allowed, denied;
+                if (e.Player.WorldMap.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
+                {
+                    foreach (Zone zone in allowed)
+                    {
+                        if (zone.Name.Contains("redbase"))
+                        {
+                            BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
+                            e.Player.World.Map.QueueUpdate(update);
+                        }
+
+                        if (zone.Name.Contains("bluebase"))
+                        {
+                            BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
+                            e.Player.World.Map.QueueUpdate(update);
+                        }
+                    }
+                }
+            }
         }
+
 
         static void CaptureBase(Zone zone, Player player)
         {

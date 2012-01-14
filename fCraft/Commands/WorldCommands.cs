@@ -64,6 +64,7 @@ namespace fCraft
             Player.JoinedWorld += DummyCheck;
             Player.Clicked += GameEvents.PlayerClicked;
             Player.Disconnected += GameEvents.PlayerDisconnected;
+            Player.Moved += GameEvents.PlayerMoved;
             
         }
         public static List<Zone> Bases = new List<Zone>();
@@ -112,9 +113,9 @@ namespace fCraft
         public static readonly CommandDescriptor CdBase = new CommandDescriptor
         {
             Name = "Game",
-            Category = CommandCategory.Zone,
+            Category = CommandCategory.World,
             Permissions = new[] { Permission.Build },
-            Help = "Creates door zone. Left click to open doors.",
+            Help = ".",
             Handler = Game
         };
 

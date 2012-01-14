@@ -7,7 +7,6 @@ namespace fCraft
 {
     public static class TFMinecraftHandler
     {
-
         public static void Start(Player player, World world)
         {
             GameManager.GameWorld = world;
@@ -46,7 +45,7 @@ namespace fCraft
                     int ez = z.Bounds.ZMax;
 
                     Block[] buffer = new Block[z.Bounds.Volume];
-                    if (z.Name.Contains("blue"))
+                    if (z.Name.Contains("bluebase")  || z.Name.Contains("bluecaptured"))
                     {
                         int counter = 0;
                         for (int x = sx; x <= ex; x++)
@@ -63,7 +62,7 @@ namespace fCraft
                         }
                     }
 
-                    if (z.Name.Contains("red"))
+                    if (z.Name.Contains("redbase")  || z.Name.Contains("redcaptured"))
                     {
                         int counter = 0;
                         for (int x = sx; x <= ex; x++)
@@ -145,6 +144,47 @@ namespace fCraft
             player.Message("Base created: {0}x{1}x{2}", Base.Bounds.Dimensions.X,
                                                         Base.Bounds.Dimensions.Y,
                                                         Base.Bounds.Dimensions.Z);
+            int ax = Base.Bounds.XMin;
+            int bx = Base.Bounds.XMax;
+            int ay = Base.Bounds.YMin;
+            int by = Base.Bounds.YMax;
+            int az = Base.Bounds.ZMin;
+            int bz = Base.Bounds.ZMax;
+
+            Block[] buffer = new Block[Base.Bounds.Volume];
+            if (Base.Name.Contains("bluebase") )
+            {
+                int counter = 0;
+                for (int x = ax; x <= bx; x++)
+                {
+                    for (int y = ay; y <= by; y++)
+                    {
+                        for (int zz = az; zz <= bz; zz++)
+                        {
+                            buffer[counter] = player.World.Map.GetBlock(x, y, zz);
+                            player.World.Map.QueueUpdate(new BlockUpdate(null, new Vector3I(x, y, zz), Block.Blue));
+                            counter++;
+                        }
+                    }
+                }
+            }
+
+            if (Base.Name.Contains("redbase"))
+            {
+                int counter = 0;
+                for (int x = ax; x <= bx; x++)
+                {
+                    for (int y = ay; y <= by; y++)
+                    {
+                        for (int zz = az; zz <= bz; zz++)
+                        {
+                            buffer[counter] = player.World.Map.GetBlock(x, y, zz);
+                            player.World.Map.QueueUpdate(new BlockUpdate(null, new Vector3I(x, y, zz), Block.Red));
+                            counter++;
+                        }
+                    }
+                }
+            }
            //setting up game tasks
            if(player.WorldMap.Zones.FindExact("redbase2") == null){
            RedBase2(player);
