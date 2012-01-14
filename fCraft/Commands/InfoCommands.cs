@@ -1167,86 +1167,103 @@ namespace fCraft {
 
         #region Players
 
-        static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
+        static readonly CommandDescriptor CdPlayers = new CommandDescriptor
+        {
             Name = "Players",
             Aliases = new[] { "who" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
-            Usage = "/Players [WorldName]",
+            Usage = "/Players [WorldName] [Offset]",
             Help = "Lists all players on the server (in all worlds). " +
                    "If a WorldName is given, only lists players on that one world.",
             Handler = PlayersHandler
         };
 
-        internal static void PlayersHandler( Player player, Command cmd ) {
+        internal static void PlayersHandler(Player player, Command cmd)
+        {
             string param = cmd.Next();
-            if( cmd.HasNext ) {
-                CdPlayers.PrintUsage( player );
-                return;
-            }
             Player[] players;
             string worldName = null;
             string qualifier;
             int offset = 0;
 
-            if( param == null || Int32.TryParse( param, out offset ) ) {
+            if (param == null || Int32.TryParse(param, out offset))
+            {
                 // No world name given; Start with a list of all players.
                 players = Server.Players;
                 qualifier = "online";
+                if (cmd.HasNext)
+                {
+                    CdPlayers.PrintUsage(player);
+                    return;
+                }
 
-            } else {
+            }
+            else
+            {
                 // Try to find the world
-                World world = WorldManager.FindWorldOrPrintMatches( player, param );
-                if( world == null ) return;
+                World world = WorldManager.FindWorldOrPrintMatches(player, param);
+                if (world == null) return;
 
-                worldName=param;
+                worldName = param;
                 // If found, grab its player list
                 players = world.Players;
-                qualifier = String.Format( "in world {0}&S", world.ClassyName );
+                qualifier = String.Format("in world {0}&S", world.ClassyName);
 
-                if( cmd.HasNext && !cmd.NextInt( out offset ) ) {
-                    CdPlayers.PrintUsage( player );
+                if (cmd.HasNext && !cmd.NextInt(out offset))
+                {
+                    CdPlayers.PrintUsage(player);
                     return;
                 }
             }
 
-            if( players.Length > 0 ) {
+            if (players.Length > 0)
+            {
                 // Filter out hidden players, and sort
-                Player[] visiblePlayers = players.Where( player.CanSee )
-                                                 .OrderBy( p => p, PlayerListSorter.Instance )
+                Player[] visiblePlayers = players.Where(player.CanSee)
+                                                 .OrderBy(p => p, PlayerListSorter.Instance)
                                                  .ToArray();
 
 
-                if( visiblePlayers.Length == 0 ) {
-                    player.Message( "There are no players {0}", qualifier );
+                if (visiblePlayers.Length == 0)
+                {
+                    player.Message("There are no players {0}", qualifier);
 
-                } else if( visiblePlayers.Length <= PlayersPerPage || player.IsSuper ) {
-                    StringBuilder sb = new StringBuilder();
-                   
-                    player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2}",
+                }
+                else if (visiblePlayers.Length <= PlayersPerPage || player.IsSuper)
+                {
+                    player.MessagePrefixed("&S  ", "&SThere are {0} players {1}: {2}",
                                             visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString());
 
-                } else {
-                    if( offset >= visiblePlayers.Length ) {
-                        offset = Math.Max( 0, visiblePlayers.Length - PlayersPerPage );
+                }
+                else
+                {
+                    if (offset >= visiblePlayers.Length)
+                    {
+                        offset = Math.Max(0, visiblePlayers.Length - PlayersPerPage);
                     }
-                    Player[] playersPart = visiblePlayers.Skip( offset ).Take( PlayersPerPage ).ToArray();
-                    player.MessagePrefixed( "&S   ", "&SPlayers {0}: {1}",
-                                            qualifier, playersPart.JoinToClassyString() );
+                    Player[] playersPart = visiblePlayers.Skip(offset).Take(PlayersPerPage).ToArray();
+                    player.MessagePrefixed("&S   ", "&SPlayers {0}: {1}",
+                                            qualifier, playersPart.JoinToClassyString());
 
-                    if( offset + playersPart.Length < visiblePlayers.Length ) {
-                        player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Players {3}{1}",
+                    if (offset + playersPart.Length < visiblePlayers.Length)
+                    {
+                        player.Message("Showing {0}-{1} (out of {2}). Next: &H/Players {3}{1}",
                                         offset + 1, offset + playersPart.Length,
                                         visiblePlayers.Length,
-                                        (worldName == null ? "" : worldName + " ") );
-                    } else {
-                        player.Message( "Showing players {0}-{1} (out of {2}).",
+                                        (worldName == null ? "" : worldName + " "));
+                    }
+                    else
+                    {
+                        player.Message("Showing players {0}-{1} (out of {2}).",
                                         offset + 1, offset + playersPart.Length,
-                                        visiblePlayers.Length );
+                                        visiblePlayers.Length);
                     }
                 }
-            } else {
-                player.Message( "There are no players {0}", qualifier );
+            }
+            else
+            {
+                player.Message("There are no players {0}", qualifier);
             }
         }
 

@@ -60,8 +60,12 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
+            CommandManager.RegisterCommand(CdBase);
             Player.JoinedWorld += DummyCheck;
+            Player.Clicked += GameEvents.PlayerClicked;
+            
         }
+        public static List<Zone> Bases = new List<Zone>();
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
         {
             if (e.OldWorld != null)
@@ -103,9 +107,36 @@ namespace fCraft
                 }
             }
         }
-            
-            
 
+        public static readonly CommandDescriptor CdBase = new CommandDescriptor
+        {
+            Name = "Game",
+            Category = CommandCategory.Zone,
+            Permissions = new[] { Permission.Build },
+            Help = "Creates door zone. Left click to open doors.",
+            Handler = Game
+        };
+
+        static void Game(Player player, Command cmd)
+        {
+            string option = cmd.Next();
+            string mode = cmd.Next();
+            if (option == "start")
+            {
+                if (mode == "tf2" || mode == "tfminecraft")
+                {
+                    //if gameMap.Zones.Contains all bases
+                    //startgame
+                    //return; (saves time)
+                    Zone BaseRed1 = new Zone();
+                    BaseRed1.Name = "redbase1";
+                    player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed1, CdBase.Permissions);
+                    player.Message("Red Base 1: Place 2 blocks to cuboid a Red base");
+                }
+            }
+            else player.Message("Invalid Option");
+        }
+        
     #region portals
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor
@@ -350,6 +381,72 @@ namespace fCraft
                 Logger.Log(LogType.Error, "WorldCommands.PortalH: " + ex);
             }
         }
+
+        static void BaseCreateCallBack(Player player, Vector3I[] marks, object tag)
+        {
+
+            DrawOperation op = (DrawOperation)tag;
+            if (!op.Prepare(marks)) return;
+            if (!player.CanDraw(op.BlocksTotalEstimate))
+            {
+                player.MessageNow("You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.Info.Rank.DrawLimit,
+                                   op.Bounds.Volume);
+                op.Cancel();
+                return;
+            }
+
+            int Xmin = Math.Min(marks[0].X, marks[1].X);
+            int Xmax = Math.Max(marks[0].X, marks[1].X);
+            int Ymin = Math.Min(marks[0].Y, marks[1].Y);
+            int Ymax = Math.Max(marks[0].Y, marks[1].Y);
+            int Zmin = Math.Min(marks[0].Z, marks[1].Z);
+            int Zmax = Math.Max(marks[0].Z, marks[1].Z);
+
+            for (int x = Xmin; x <= Xmax; x++)
+            {
+                for (int y = Ymin; y <= Ymax; y++)
+                {
+                    for (int z = Zmin; z <= Zmax; z++)
+                    {
+
+                    }
+                }
+            }
+
+            if (GameManager.Red1 == null)
+            {
+                GameManager.Red1 = marks;
+                GameManager.Red1Pos = new Position(Xmax, Ymax, Zmax);
+                op.AnnounceCompletion = false;
+                op.Context = BlockChangeContext.Drawn;
+                op.Begin();
+
+                player.Message("Successfully created Red Base 1.");
+                //basecreationcommand for loop
+            }
+            else if (GameManager.Red2 == null)
+            {
+                GameManager.Red2 = marks;
+                op.AnnounceCompletion = false;
+                op.Context = BlockChangeContext.Drawn;
+                op.Begin();
+
+                player.Message("Successfully created Red Base 2.");
+                //basecreationcommand for loop
+            }
+            else
+            {
+                GameManager.Red3 = marks;
+                op.AnnounceCompletion = false;
+                op.Context = BlockChangeContext.Drawn;
+                op.Begin();
+
+                player.Message("Successfully created Red Base 3.");
+                //done, start game
+            }
+        }
+    
 
 
         static void PortalCreateCallback(Player player, Vector3I[] marks, object tag)

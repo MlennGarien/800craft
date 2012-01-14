@@ -105,6 +105,8 @@
     <Compile Include="Commands\CommandHandlers\DummyAI.cs" />
     <Compile Include="Commands\CommandHandlers\FlyHandler.cs" />
     <Compile Include="Commands\CommandHandlers\RealmHandler.cs" />
+    <Compile Include="Commands\Games\GameEvents.cs" />
+    <Compile Include="Commands\Games\GameManager.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />

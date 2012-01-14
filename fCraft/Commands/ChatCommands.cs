@@ -741,12 +741,11 @@ namespace fCraft
             var recepientList = Server.Players.Can(Permission.ReadStaffChat)
                                               .NotIgnoring(player)
                                               .Union(player);
-            string msg = " Would like staff to check their build";
-            string message = String.Format("{0}&6" + msg, player.ClassyName);
+            string message = String.Format("{0}&6 would like staff to check their build", player.ClassyName);
             recepientList.Message(message);
             var RevieweeNames = Server.Players
                                          .CanBeSeen(player)
-                                         .Where(r => r.Can(Permission.Promote, player.Info.Rank);
+                                         .Where(r => r.Can(Permission.Promote, player.Info.Rank));
             if (RevieweeNames.Count() > 0)
             {
                 player.Message("&WOnline players who can review you: {0}", RevieweeNames.JoinToString(r => String.Format("{0}&S", r.ClassyName)));
