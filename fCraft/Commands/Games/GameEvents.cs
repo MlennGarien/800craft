@@ -26,6 +26,26 @@ namespace fCraft
         public static int Blue3Click = 0;
         public static int RedCapturedClick3 = 0;
 
+        public static void Shutdown(object sender, ShutdownEventArgs e)
+        {
+            foreach (World w in WorldManager.Worlds)
+            {
+                if (w.Map.Zones.FindExact("redcaptured1") != null)
+                    w.Map.Zones.FindExact("redcaptured1").Name = "bluebase1";
+                if (w.Map.Zones.FindExact("redcaptured2") != null)
+                    w.Map.Zones.FindExact("redcaptured2").Name = "bluebase2"; 
+                if (w.Map.Zones.FindExact("redcaptured3") != null)
+                    w.Map.Zones.FindExact("redcaptured3").Name = "bluebase3";
+
+                if (w.Map.Zones.FindExact("bluecaptured1") != null)
+                    w.Map.Zones.FindExact("bluecaptured1").Name = "redbase1";
+                if (w.Map.Zones.FindExact("bluecaptured2") != null)
+                    w.Map.Zones.FindExact("bluecaptured2").Name = "redbase2";
+                if (w.Map.Zones.FindExact("bluecaptured3") != null)
+                    w.Map.Zones.FindExact("bluecaptured3").Name = "redbase3";
+            }
+        }
+
         public static void PlayerMoved(object sender, PlayerMovedEventArgs e)
         {
             if (e.Player.Info.InGame)
@@ -67,116 +87,97 @@ namespace fCraft
                     }
                 }
             }
+            else return;
         }
 
         public static void GameChecker(World world)
         {
-            if (!GameManager.IsStopping)
+            if (GameManager.GameIsOn)
             {
-                if (GameManager.GameIsOn)
+                if (GameManager.BlueBaseCount == 6 && !GameManager.IsStopping)
                 {
-                    if (GameManager.BlueBaseCount == 6)
-                    {
-                        TFMinecraftHandler.Stop(Player.Console);
-                        world.Players.Message("&SThe &CRed Team &Sloses. The &9Blue Team &Shave captured all the Red bases");
-                        return;
-                    }
-                    if (GameManager.RedBaseCount == 6)
-                    {
-                        TFMinecraftHandler.Stop(Player.Console);
-                        world.Players.Message("&SThe &9Blue Team &Sloses. The &CRed Team &Shave captured all the Blue bases");
-                        return;
-                    }
+                    TFMinecraftHandler.Stop(Player.Console);
+                    world.Players.Message("&SThe &CRed Team &Sloses. The &9Blue Team &Shave captured all the Red bases");
+                    return;
+                }
+                if (GameManager.RedBaseCount == 6 && !GameManager.IsStopping)
+                {
+                    TFMinecraftHandler.Stop(Player.Console);
+                    world.Players.Message("&SThe &9Blue Team &Sloses. The &CRed Team &Shave captured all the Blue bases");
+                    return;
+                }
 
-                    foreach (Player R in GameManager.RedTeam)
+                foreach (Player p in Server.Players)
+                {
+                    if (p.World == GameManager.GameWorld)
                     {
-                        foreach (Player B in GameManager.BlueTeam)
+                        if (!p.Info.InGame)
                         {
-                            if (B.Position.ToVector3I() == R.Position.ToVector3I())
+                            if (GameManager.BlueTeam.Count == 0 && GameManager.RedTeam.Count == 0)
                             {
-                                Position Pos = new Position(
-                                    world.Map.Bounds.XMax, R.Position.Y, R.Position.Z);
-                                R.TeleportTo(Pos);
-
-                                //kill R
+                                GameManager.RedTeam.Add(p);
+                                p.Message("Adding you to the &CRed &Steam!");
+                                p.Info.InGame = true;
                             }
-
-                            if (B.Position.ToVector3I() == R.Position.ToVector3I())
+                            else if (GameManager.RedTeam.Count > GameManager.BlueTeam.Count)
                             {
-                                Position Pos2 = new Position(
-                                    world.Map.Bounds.XMax, B.Position.Y, B.Position.Z);
-                                B.TeleportTo(Pos2);
-                                //kill B
+                                GameManager.BlueTeam.Add(p);
+                                p.Message("Adding you to the &9Blue &Steam!");
+                                p.Info.InGame = true;
                             }
-                        }
-                    }
-
-                    foreach (Player p in Server.Players)
-                    {
-                        if (p.World == GameManager.GameWorld)
-                        {
-                            if (!p.Info.InGame)
+                            else
                             {
-                                if (GameManager.BlueTeam.Count == 0 && GameManager.RedTeam.Count == 0)
-                                {
-                                    GameManager.BlueTeam.Add(p);
-                                    p.Message("Adding you to the &9Blue &Steam!");
-                                    p.Info.InGame = true;
-                                }
-                                else if (GameManager.BlueTeam.Count > GameManager.RedTeam.Count)
-                                {
-                                    GameManager.RedTeam.Add(p);
-                                    p.Message("Adding you to the &CRed &Steam!");
-                                    p.Info.InGame = true;
-                                }
-                                else
-                                {
-                                    GameManager.BlueTeam.Add(p);
-                                    p.Message("Adding you to the &9Blue &Steam!");
-                                    p.Info.InGame = true;
-                                }
+                                GameManager.RedTeam.Add(p);
+                                p.Message("Adding you to the &9Blue &Steam!");
+                                p.Info.InGame = true;
                             }
                         }
+                    }
 
-                        else
+                    else
+                    {
+                        if (p.Info.InGame)
                         {
-                            if (p.Info.InGame)
+                            if (GameManager.BlueTeam.Contains(p))
                             {
-                                if (GameManager.BlueTeam.Contains(p))
-                                {
-                                    GameManager.BlueTeam.Remove(p);
-                                    p.Message("You left the world, removing you from game.");
-                                    p.Info.InGame = false;
-                                }
+                                GameManager.BlueTeam.Remove(p);
+                                p.Message("You left the world, removing you from game.");
+                                p.Info.InGame = false;
+                            }
 
-                                if (GameManager.RedTeam.Contains(p))
-                                {
-                                    GameManager.RedTeam.Remove(p);
-                                    p.Message("You left the world, removing you from game.");
-                                    p.Info.InGame = false;
-                                }
+                            if (GameManager.RedTeam.Contains(p))
+                            {
+                                GameManager.RedTeam.Remove(p);
+                                p.Message("You left the world, removing you from game.");
+                                p.Info.InGame = false;
                             }
                         }
                     }
                 }
             }
         }
+        
 
         public static void PlayerDisconnected(object sender, PlayerDisconnectedEventArgs e)
         {
             if (GameManager.GameIsOn)
             {
                 if (GameManager.BlueTeam.Contains(e.Player))
+                {
                     GameManager.BlueTeam.Remove(e.Player);
+                    e.Player.Info.InGame = false;
+                }
                 else if (GameManager.RedTeam.Contains(e.Player))
+                {
                     GameManager.RedTeam.Remove(e.Player);
+                    e.Player.Info.InGame = false;
+                }
                 else return;
             }
         }
 
         public static void PlayerClicked(object sender, PlayerClickedEventArgs e)
         {
-
             if (GameManager.GameIsOn)
             {
                 if (e.Player.World.Equals(GameManager.GameWorld))
@@ -202,15 +203,16 @@ namespace fCraft
                                         GameManager.BlueBaseCount++;
                                         GameManager.RedBaseCount--;
                                     }
+                                    return;
                                 }
 
-
-                                if (GameManager.RedTeam.Contains(e.Player))
+                                else if (GameManager.RedTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (Red1Click > 0)
                                         Red1Click--;
+                                    return;
                                 }
                             }
 
@@ -230,15 +232,17 @@ namespace fCraft
                                         GameManager.BlueBaseCount--;
                                         GameManager.RedBaseCount++;
                                     }
+                                    return;
                                 }
 
 
-                                if (GameManager.BlueTeam.Contains(e.Player))
+                                else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (BlueCapturedClick > 0)
                                         BlueCapturedClick--;
+                                    return;
                                 }
                             }
 
@@ -259,14 +263,16 @@ namespace fCraft
                                         GameManager.BlueBaseCount++;
                                         GameManager.RedBaseCount--;
                                     }
+                                    return;
                                 }
 
-                                if (GameManager.RedTeam.Contains(e.Player))
+                                else if (GameManager.RedTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (Red2Click > 0)
                                         Red2Click--;
+                                    return;
                                 }
                             }
 
@@ -286,14 +292,16 @@ namespace fCraft
                                         GameManager.BlueBaseCount--;
                                         GameManager.RedBaseCount++;
                                     }
+                                    return;
                                 }
 
-                                if (GameManager.BlueTeam.Contains(e.Player))
+                                else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (BlueCapturedClick2 > 0)
                                         BlueCapturedClick2--;
+                                    return;
                                 }
                             }
 
@@ -314,14 +322,16 @@ namespace fCraft
                                         GameManager.BlueBaseCount++;
                                         GameManager.RedBaseCount--;
                                     }
+                                    return;
                                 }
 
-                                if (GameManager.RedTeam.Contains(e.Player))
+                                else if (GameManager.RedTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (Red3Click > 0)
                                         Red3Click--;
+                                    return;
                                 }
                             }
 
@@ -342,14 +352,16 @@ namespace fCraft
                                         GameManager.BlueBaseCount--;
                                         GameManager.RedBaseCount++;
                                     }
+                                    return;
                                 }
 
-                                if (GameManager.BlueTeam.Contains(e.Player))
+                                else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (BlueCapturedClick3 > 0)
                                         BlueCapturedClick3--;
+                                    return;
                                 }
                             }
 
@@ -371,15 +383,17 @@ namespace fCraft
                                         GameManager.BlueBaseCount--;
                                         GameManager.RedBaseCount++;
                                     }
+                                    return;
                                 }
 
 
-                                if (GameManager.BlueTeam.Contains(e.Player))
+                                else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (Blue1Click > 0)
                                         Blue1Click--;
+                                    return;
                                 }
                             }
 
@@ -399,15 +413,16 @@ namespace fCraft
                                         GameManager.BlueBaseCount++;
                                         GameManager.RedBaseCount--;
                                     }
+                                    return;
                                 }
 
-
-                                if (GameManager.RedTeam.Contains(e.Player))
+                                else if (GameManager.RedTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (RedCapturedClick > 0)
                                         RedCapturedClick--;
+                                    return;
                                 }
                             }
 
@@ -427,15 +442,17 @@ namespace fCraft
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 2");
                                         GameManager.BlueBaseCount--;
                                         GameManager.RedBaseCount++;
-                                    }
+                                    } 
+                                    return;
                                 }
 
-                                if (GameManager.BlueTeam.Contains(e.Player))
+                                else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (Blue2Click > 0)
                                         Blue2Click--;
+                                    return;
                                 }
                             }
 
@@ -454,16 +471,17 @@ namespace fCraft
                                         e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 2");
                                         GameManager.BlueBaseCount++;
                                         GameManager.RedBaseCount--;
-
                                     }
+                                    return;
                                 }
 
-                                if (GameManager.RedTeam.Contains(e.Player))
+                                else if (GameManager.RedTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (RedCapturedClick2 > 0)
                                         RedCapturedClick2--;
+                                    return;
                                 }
                             }
 
@@ -484,17 +502,18 @@ namespace fCraft
                                         GameManager.BlueBaseCount--;
                                         GameManager.RedBaseCount++;
                                     }
+                                    return;
                                 }
 
-                                if (GameManager.BlueTeam.Contains(e.Player))
+                                else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (Blue3Click > 0)
                                         Blue3Click--;
+                                    return;
                                 }
                             }
-
 
                             if (zone.Name.EndsWith("redcaptured3"))
                             {
@@ -512,14 +531,16 @@ namespace fCraft
                                         GameManager.BlueBaseCount++;
                                         GameManager.RedBaseCount--;
                                     }
+                                    return;
                                 }
 
-                                if (GameManager.RedTeam.Contains(e.Player))
+                                else if (GameManager.RedTeam.Contains(e.Player))
                                 {
                                     BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
                                     e.Player.World.Map.QueueUpdate(update);
                                     if (RedCapturedClick3 > 0)
                                         RedCapturedClick3--;
+                                    return;
                                 }
                             }
 
@@ -540,12 +561,14 @@ namespace fCraft
                         {
                             BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
                             e.Player.World.Map.QueueUpdate(update);
+                            return;
                         }
 
-                        if (zone.Name.Contains("bluebase"))
+                        else if (zone.Name.Contains("bluebase"))
                         {
                             BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
                             e.Player.World.Map.QueueUpdate(update);
+                            return;
                         }
                     }
                 }

@@ -52,7 +52,6 @@ namespace fCraft {
                                                   .NotIgnoring(player)
                                                   .Union(player);
                     rawMessage = rawMessage.Replace(rawMessage, "&P(staff)" + player.ClassyName + "&P: " + rawMessage);
-
                 }
 
 
@@ -105,7 +104,8 @@ namespace fCraft {
                        Aggregate(rawMessage, (current, matcher) => matcher.Replace(current, CensoredText));
                     rawMessage = output;
                 }
-
+            if(rawMessage.Length > 1)
+                rawMessage = UppercaseFirst(rawMessage);
                 string formattedMessage = String.Format("{0}&F: {1}",
                                                          player.ClassyName,
                                                          rawMessage);
@@ -122,6 +122,17 @@ namespace fCraft {
                             "{0}: {1}", player.Name, rawMessage);
                 return true;
             }
+
+       public static string UppercaseFirst(string s) //used to make first char uppercase
+        {
+            // Check for empty string.
+            if (string.IsNullOrEmpty(s))
+            {
+                return string.Empty;
+            }
+            // Return char and concat substring.
+            return char.ToUpper(s[0]) + s.Substring(1);
+        }
         
 
         public static bool SendAdmin(Player player, string rawMessage)

@@ -490,9 +490,6 @@ namespace fCraft {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );
             if( IsShuttingDown ) return; // to avoid starting shutdown twice
             IsShuttingDown = true;
-            VoteIsOn = false;
-            VoteYes = 0;
-            VoteNo = 0;
 
 #if !DEBUG
             try {

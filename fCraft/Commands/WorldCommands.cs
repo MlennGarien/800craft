@@ -65,6 +65,7 @@ namespace fCraft
             Player.Clicked += GameEvents.PlayerClicked;
             Player.Disconnected += GameEvents.PlayerDisconnected;
             Player.Moved += GameEvents.PlayerMoved;
+            Server.ShutdownBegan += GameEvents.Shutdown;
             
         }
         public static List<Zone> Bases = new List<Zone>();

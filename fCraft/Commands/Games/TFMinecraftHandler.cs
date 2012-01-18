@@ -17,10 +17,21 @@ namespace fCraft
 
         public static void Stop(Player player)
         {
-            GameManager.IsStopping = true;
             World world = GameManager.GameWorld;
-            if (GameManager.GameIsOn)
+            
+            if (player.World != world && player.World != null)
             {
+                player.Message("A game is not running on your world");
+                return;
+            }
+            if (GameManager.GameIsOn)
+            { 
+                GameManager.GameIsOn = false;
+                Scheduler.NewTask(t => GameEvents.GameChecker(world)).IsStopped = true;
+                Scheduler.NewTask(t => GameEvents.GameChecker(world)).Stop().RunOnce(TimeSpan.FromSeconds(0));
+                Scheduler.UpdateCache();
+                GameManager.IsStopping = true;
+               
                 Server.Players.Message("Game Ended eloloedjfhfjf");
                 foreach (Zone z in world.Map.Zones)
                 {
@@ -79,32 +90,7 @@ namespace fCraft
                         }
                     }
                 }
-
-                if (GameManager.RedTeam.Count > 0)
-                {
-                    foreach (Player R in GameManager.RedTeam)
-                    {
-                        R.Info.InGame = false;
-                        R.Message("Removing you from game");
-                        GameManager.RedTeam.Remove(R);
-                    }
-                }
-                if (GameManager.RedTeam.Count > 0)
-                {
-                    foreach (Player B in GameManager.BlueTeam)
-                    {
-                        try
-                        {
-                            B.Info.InGame = false;
-                            B.Message("Removing you from game");
-                            GameManager.BlueTeam.Remove(B);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log(LogType.Error, "" + ex);
-                        }
-                    }
-                }
+                
                 GameEvents.Red1Click = 0;
                 GameEvents.BlueCapturedClick = 0;
                 GameEvents.Red2Click = 0;
@@ -117,17 +103,35 @@ namespace fCraft
                 GameEvents.RedCapturedClick2 = 0;
                 GameEvents.Blue3Click = 0;
                 GameEvents.RedCapturedClick3 = 0;
-                world.Players.Message("{0} ended the game", player.ClassyName);
+
                 GameManager.RedBaseCount = 3;
                 GameManager.BlueBaseCount = 3;
                 GameManager.GameWorld = null;
-                GameManager.GameIsOn = false;
                 GameManager.IsStopping = false;
+                world.Players.Message("{0} ended the game", player.ClassyName);
+
+                if (GameManager.RedTeam.Count > 0)
+                {
+                    foreach (Player R in GameManager.RedTeam)
+                    {
+                        R.Info.InGame = false;
+                        R.Message("Removing you from game");
+                    }
+                }
+                if (GameManager.BlueTeam.Count > 0)
+                {
+                    foreach (Player B in GameManager.BlueTeam)
+                    {
+                        B.Info.InGame = false;
+                        B.Message("Removing you from game");
+                    }
+                }
+                GameManager.RedTeam.Clear();
+                GameManager.BlueTeam.Clear();
             }
-            else player.Message("A game is not running on your world");
         }
 
-       public static void BaseAdd(Player player, Vector3I[] marks, object tag)
+        public static void BaseAdd(Player player, Vector3I[] marks, object tag)
         {
             int sx = Math.Min(marks[0].X, marks[1].X);
             int ex = Math.Max(marks[0].X, marks[1].X);
@@ -152,7 +156,7 @@ namespace fCraft
             int bz = Base.Bounds.ZMax;
 
             Block[] buffer = new Block[Base.Bounds.Volume];
-            if (Base.Name.Contains("bluebase") )
+            if (Base.Name.Contains("bluebase"))
             {
                 int counter = 0;
                 for (int x = ax; x <= bx; x++)
@@ -185,67 +189,33 @@ namespace fCraft
                     }
                 }
             }
-           //setting up game tasks
-           if(player.WorldMap.Zones.FindExact("redbase2") == null){
-           RedBase2(player);
-               return;
-           }
-           if (player.WorldMap.Zones.FindExact("redbase3") == null){
-           RedBase3(player);
-               return;
-           }
-           if(player.WorldMap.Zones.FindExact("bluebase1") == null){
-           BlueBase1(player);
-               return;
-           }
-           if (player.WorldMap.Zones.FindExact("bluebase2") == null){
-               BlueBase2(player);
-               return;
-           }
-           if (player.WorldMap.Zones.FindExact("bluebase3") == null){
-               BlueBase3(player);
-               return;
-           }
-
-           if (GameManager.BlueSpawn == null || GameManager.RedSpawn == null)
-           {
-               BlueSpawn(player);
-           }
-
-           else
-           {
-               Start(player, player.World);
-           }
-        }
-
-       public static void SpawnSet(Player player, Vector3I[] marks, object tag)
-       {
-            int x = marks[0].X;
-            int y = marks[0].Y;
-            int z = marks[0].Z + 1;
-
-            Position Spawn = new Position(x, y, z);
-            player.Message("Spawn set");
-            if (GameManager.RedSpawn == null)
+            //setting up game tasks
+            if (player.WorldMap.Zones.FindExact("redbase2") == null)
             {
-                RedSpawnSet(player);
+                RedBase2(player);
                 return;
             }
-       }
-
-       public static void BlueSpawn(Player player)
-       {
-          GameManager.BlueSpawn = new Position();
-          player.SelectionStart(1, TFMinecraftHandler.SpawnSet, GameManager.BlueSpawn, WorldCommands.CdBase.Permissions);
-           player.Message("Place a block where you would like the spawn to be set for the blue team");
-       }
-
-       public static void RedSpawnSet(Player player)
-       {
-           GameManager.BlueSpawn = new Position();
-           player.SelectionStart(1, TFMinecraftHandler.SpawnSet, GameManager.BlueSpawn, WorldCommands.CdBase.Permissions);
-           player.Message("Place a block where you would like the spawn to be set for the red team");
-       }
+            if (player.WorldMap.Zones.FindExact("redbase3") == null)
+            {
+                RedBase3(player);
+                return;
+            }
+            if (player.WorldMap.Zones.FindExact("bluebase1") == null)
+            {
+                BlueBase1(player);
+                return;
+            }
+            if (player.WorldMap.Zones.FindExact("bluebase2") == null)
+            {
+                BlueBase2(player);
+                return;
+            }
+            if (player.WorldMap.Zones.FindExact("bluebase3") == null)
+            {
+                BlueBase3(player);
+                return;
+            }
+        }
 
        public static void RedBase2(Player player)
        {
