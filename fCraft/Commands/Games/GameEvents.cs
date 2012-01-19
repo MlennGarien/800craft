@@ -28,22 +28,7 @@ namespace fCraft
 
         public static void Shutdown(object sender, ShutdownEventArgs e)
         {
-            foreach (World w in WorldManager.Worlds)
-            {
-                if (w.Map.Zones.FindExact("redcaptured1") != null)
-                    w.Map.Zones.FindExact("redcaptured1").Name = "bluebase1";
-                if (w.Map.Zones.FindExact("redcaptured2") != null)
-                    w.Map.Zones.FindExact("redcaptured2").Name = "bluebase2"; 
-                if (w.Map.Zones.FindExact("redcaptured3") != null)
-                    w.Map.Zones.FindExact("redcaptured3").Name = "bluebase3";
-
-                if (w.Map.Zones.FindExact("bluecaptured1") != null)
-                    w.Map.Zones.FindExact("bluecaptured1").Name = "redbase1";
-                if (w.Map.Zones.FindExact("bluecaptured2") != null)
-                    w.Map.Zones.FindExact("bluecaptured2").Name = "redbase2";
-                if (w.Map.Zones.FindExact("bluecaptured3") != null)
-                    w.Map.Zones.FindExact("bluecaptured3").Name = "redbase3";
-            }
+            TFMinecraftHandler.BaseRevert();
         }
 
         public static void PlayerMoved(object sender, PlayerMovedEventArgs e)
@@ -157,7 +142,6 @@ namespace fCraft
             }
         }
 
-        static readonly object Lock = new object();
         public static void PlayerDisconnected(object sender, PlayerDisconnectedEventArgs e)
         {
 
@@ -173,7 +157,6 @@ namespace fCraft
                     GameManager.RedTeam.Remove(e.Player);
                     e.Player.Info.InGame = false;
                 }
-                else return;
             }
         }
         public static void PlayerClicked(object sender, PlayerClickedEventArgs e)
@@ -194,12 +177,10 @@ namespace fCraft
                                     Red1Click++;
                                     if (Red1Click > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "bluecaptured1");
                                         Red1Click = 0;
-                                        zone.Name = "bluecaptured1";
                                         e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 1");
-                                        GameManager.BlueBaseCount++;
-                                        GameManager.RedBaseCount--;
+                                        
                                     }
                                     return;
                                 }
@@ -219,16 +200,12 @@ namespace fCraft
                                     BlueCapturedClick++;
                                     if (BlueCapturedClick > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "redbase1");
                                         BlueCapturedClick = 0;
-                                        zone.Name = "redbase1";
                                         e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 1");
-                                        GameManager.BlueBaseCount--;
-                                        GameManager.RedBaseCount++;
                                     }
                                     return;
                                 }
-
 
                                 else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
@@ -246,12 +223,9 @@ namespace fCraft
                                     Red2Click++;
                                     if (Red2Click > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "bluecaptured2");
                                         Red2Click = 0;
-                                        zone.Name = "bluecaptured2";
                                         e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 2");
-                                        GameManager.BlueBaseCount++;
-                                        GameManager.RedBaseCount--;
                                     }
                                     return;
                                 }
@@ -271,12 +245,9 @@ namespace fCraft
                                     BlueCapturedClick2++;
                                     if (BlueCapturedClick2 > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "redbase2");
                                         BlueCapturedClick2 = 0;
-                                        zone.Name = "redbase2";
                                         e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 2");
-                                        GameManager.BlueBaseCount--;
-                                        GameManager.RedBaseCount++;
                                     }
                                     return;
                                 }
@@ -297,12 +268,9 @@ namespace fCraft
                                     Red3Click++;
                                     if (Red3Click > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "bluecaptured3");
                                         Red3Click = 0;
-                                        zone.Name = "bluecaptured3";
                                         e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 3");
-                                        GameManager.BlueBaseCount++;
-                                        GameManager.RedBaseCount--;
                                     }
                                     return;
                                 }
@@ -315,7 +283,6 @@ namespace fCraft
                                 }
                             }
 
-
                             if (zone.Name.EndsWith("bluecaptured3"))
                             {
                                 if (GameManager.RedTeam.Contains(e.Player))
@@ -323,12 +290,9 @@ namespace fCraft
                                     BlueCapturedClick3++;
                                     if (BlueCapturedClick3 > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "redbase3");
                                         BlueCapturedClick3 = 0;
-                                        zone.Name = "redbase3";
                                         e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 2");
-                                        GameManager.BlueBaseCount--;
-                                        GameManager.RedBaseCount++;
                                     }
                                     return;
                                 }
@@ -350,12 +314,9 @@ namespace fCraft
                                     Blue1Click++;
                                     if (Blue1Click > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "redcaptured1");
                                         Blue1Click = 0;
-                                        zone.Name = "redcaptured1";
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 1");
-                                        GameManager.BlueBaseCount--;
-                                        GameManager.RedBaseCount++;
                                     }
                                     return;
                                 }
@@ -376,12 +337,9 @@ namespace fCraft
                                     RedCapturedClick++;
                                     if (RedCapturedClick > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "bluebase1");
                                         RedCapturedClick = 0;
-                                        zone.Name = "bluebase1";
                                         e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 1");
-                                        GameManager.BlueBaseCount++;
-                                        GameManager.RedBaseCount--;
                                     }
                                     return;
                                 }
@@ -402,12 +360,9 @@ namespace fCraft
                                     Blue2Click++;
                                     if (Blue2Click > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "redcaptured2");
                                         Blue2Click = 0;
-                                        zone.Name = "redcaptured2";
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 2");
-                                        GameManager.BlueBaseCount--;
-                                        GameManager.RedBaseCount++;
                                     }
                                     return;
                                 }
@@ -427,12 +382,9 @@ namespace fCraft
                                     RedCapturedClick2++;
                                     if (RedCapturedClick2 > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "redcaptured2");
                                         RedCapturedClick2 = 0;
-                                        zone.Name = "bluebase2";
                                         e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 2");
-                                        GameManager.BlueBaseCount++;
-                                        GameManager.RedBaseCount--;
                                     }
                                     return;
                                 }
@@ -453,12 +405,9 @@ namespace fCraft
                                     Blue3Click++;
                                     if (Blue3Click > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "redcaptured3");
                                         Blue3Click = 0;
-                                        zone.Name = "redcaptured3";
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 3");
-                                        GameManager.BlueBaseCount--;
-                                        GameManager.RedBaseCount++;
                                     }
                                     return;
                                 }
@@ -478,12 +427,9 @@ namespace fCraft
                                     RedCapturedClick3++;
                                     if (RedCapturedClick3 > 29)
                                     {
-                                        CaptureBase(zone, e.Player);
+                                        CaptureBase(zone, e.Player, "bluebase3");
                                         RedCapturedClick3 = 0;
-                                        zone.Name = "bluebase3";
                                         e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 3");
-                                        GameManager.BlueBaseCount++;
-                                        GameManager.RedBaseCount--;
                                     }
                                     return;
                                 }
@@ -503,8 +449,21 @@ namespace fCraft
             }
         }
 
-        static void CaptureBase(Zone zone, Player player)
+        static void CaptureBase(Zone zone, Player player, string NewName)
         {
+            zone.Name = NewName;
+            if (NewName.Contains("blue"))
+            {
+                GameManager.BlueBaseCount++;
+                GameManager.RedBaseCount--;
+            }
+
+            if (NewName.Contains("red"))
+            {
+                GameManager.BlueBaseCount--;
+                GameManager.RedBaseCount++;
+            }
+
             int sx = zone.Bounds.XMin;
             int ex = zone.Bounds.XMax;
             int sy = zone.Bounds.YMin;
@@ -522,10 +481,13 @@ namespace fCraft
                     for (int z = sz; z <= ez; z++)
                     {
                         buffer[counter] = player.WorldMap.GetBlock(x, y, z);
-                        if(zone.Name.Contains("red"))
+
+                        if(NewName.Contains("blue"))
                         player.WorldMap.QueueUpdate(new BlockUpdate(Player.Console, new Vector3I(x, y, z), Block.Blue));
-                        if (zone.Name.Contains("blue"))
+
+                        if (NewName.Contains("red"))
                             player.WorldMap.QueueUpdate(new BlockUpdate(Player.Console, new Vector3I(x, y, z), Block.Red));
+
                         counter++;
                     }
                 }

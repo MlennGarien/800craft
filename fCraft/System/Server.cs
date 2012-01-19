@@ -471,6 +471,8 @@ namespace fCraft {
                 MineQuery.GetInstance().Start();
             }
 
+            TFMinecraftHandler.BaseRevert();
+
             return true;
         }
 
@@ -568,7 +570,7 @@ namespace fCraft {
                         nameOnTimer = shutdownParams.InitiatedBy.Name;
                     }
                     shutdownTimer = ChatTimer.Start( shutdownParams.Delay, timerMsg, nameOnTimer );
-                    VoteIsOn = false;
+                    
                 }
                 shutdownThread.Start( shutdownParams );
             }

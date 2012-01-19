@@ -131,6 +131,27 @@ namespace fCraft
             }
         }
 
+        public static void BaseRevert()
+        {
+            foreach (World w in WorldManager.Worlds)
+            {
+                if (w.Map.Zones.FindExact("redcaptured1") != null)
+                    w.Map.Zones.FindExact("redcaptured1").Name = "bluebase1";
+                if (w.Map.Zones.FindExact("redcaptured2") != null)
+                    w.Map.Zones.FindExact("redcaptured2").Name = "bluebase2";
+                if (w.Map.Zones.FindExact("redcaptured3") != null)
+                    w.Map.Zones.FindExact("redcaptured3").Name = "bluebase3";
+
+                if (w.Map.Zones.FindExact("bluecaptured1") != null)
+                    w.Map.Zones.FindExact("bluecaptured1").Name = "redbase1";
+                if (w.Map.Zones.FindExact("bluecaptured2") != null)
+                    w.Map.Zones.FindExact("bluecaptured2").Name = "redbase2";
+                if (w.Map.Zones.FindExact("bluecaptured3") != null)
+                    w.Map.Zones.FindExact("bluecaptured3").Name = "redbase3";
+            }
+        }
+
+
         public static void BaseAdd(Player player, Vector3I[] marks, object tag)
         {
             int sx = Math.Min(marks[0].X, marks[1].X);

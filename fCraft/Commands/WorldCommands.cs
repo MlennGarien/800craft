@@ -65,7 +65,7 @@ namespace fCraft
             Player.Clicked += GameEvents.PlayerClicked;
             Player.Disconnected += GameEvents.PlayerDisconnected;
             Player.Moved += GameEvents.PlayerMoved;
-            Server.ShutdownBegan += GameEvents.Shutdown;
+           Server.ShutdownBegan += GameEvents.Shutdown;
             
         }
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
@@ -135,6 +135,11 @@ namespace fCraft
             {
                 if (mode == "tf2" || mode == "tfminecraft")
                 {
+                    if (GameManager.GameWorld != null)
+                    {
+                        player.Message("A game is already running");
+                        return;
+                    }
                     if (player.WorldMap.Zones.FindExact("redbase1") == null)
                     {
                         Zone BaseRed1 = new Zone();
@@ -174,7 +179,43 @@ namespace fCraft
                     }
                     else TFMinecraftHandler.Start(player, player.World);
                 }
-                
+            }
+
+            if (option == "reset")
+            {
+                if (mode == "tf2" || mode == "tfminecraft")
+                {
+                    foreach (World w in WorldManager.Worlds)
+                    {
+                        ZoneCollection q = w.Map.Zones;
+
+                        q.Remove("redbase1");
+                        q.Remove("redbase2");
+                        q.Remove("redbase3");
+                        q.Remove("bluebase1");
+                        q.Remove("bluebase2");
+                        q.Remove("bluebase3");
+                        q.Remove("redcaptured1");
+                        q.Remove("redcaptured2");
+                        q.Remove("redcaptured3");
+                        q.Remove("bluebase1");
+                        q.Remove("bluebase2");
+                        q.Remove("bluebase3");
+                    }
+                    if (GameManager.GameIsOn)
+                    {
+                        TFMinecraftHandler.Stop(player);
+                        player.Message("&SAll game conditions were reset");
+                        return;
+                    }
+                    else
+                    {
+                        GameManager.GameWorld = null;
+                        GameManager.BlueTeam.Clear();
+                        GameManager.BlueTeam.Clear();
+                        player.Message("&SAll game conditions were reset");
+                    }
+                }
                 else player.Message("Invalid Option");
             }
         }
