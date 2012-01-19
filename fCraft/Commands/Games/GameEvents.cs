@@ -33,46 +33,22 @@ namespace fCraft
 
         public static void PlayerMoved(object sender, PlayerMovedEventArgs e)
         {
+            Vector3I oldPos = new Vector3I(e.OldPosition.X, e.OldPosition.Y, e.OldPosition.Z);
+            Vector3I newPos = new Vector3I(e.NewPosition.X, e.NewPosition.Y, e.NewPosition.Z);
+            Position RedPos = new Position
+            {
+                X = (short)(newPos.X - oldPos.X),
+                Y = (short)(newPos.Y - oldPos.Y),
+                Z = (short)(newPos.Z - oldPos.Z)
+            };
+
             if (e.Player.Info.InGame)
             {
-                if (GameManager.BlueTeam.Count > 0)
+                if (GameManager.GameIsOn)
                 {
-                    if (GameManager.GameIsOn)
-                    {
-                        foreach (Player B in GameManager.BlueTeam)
-                        {
-                            if (GameManager.BlueTeam.Contains(e.Player))
-                            {
-                                if (B.Position.ToVector3I() == e.Player.Position.ToVector3I())
-                                {
-                                    //kill b send to blue spawn
-                                }
-                            }
-                        }
-                    }
+                    
                 }
             }
-
-            if (GameManager.RedTeam.Count > 0)
-            {
-                if (e.Player.Info.InGame)
-                {
-                    if (GameManager.GameIsOn)
-                    {
-                        foreach (Player R in GameManager.RedTeam)
-                        {
-                            if (GameManager.BlueTeam.Contains(e.Player))
-                            {
-                                if (R.Position.ToVector3I() == e.Player.Position.ToVector3I())
-                                {
-                                    //kill R send to red spawn
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else return;
         }
 
         public static void GameChecker(World world)
@@ -101,7 +77,7 @@ namespace fCraft
                             if (GameManager.BlueTeam.Count == 0 && GameManager.RedTeam.Count == 0)
                             {
                                 GameManager.RedTeam.Add(p);
-                                p.Message("Adding you to the &CRed &Steam!");
+                                p.Message("&SAdding you to the &CRed &Steam!");
                                 p.Info.InGame = true;
                                 p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
                                 foreach (Player u in GameManager.GameWorld.Players)
@@ -112,7 +88,7 @@ namespace fCraft
                             else if (GameManager.RedTeam.Count > GameManager.BlueTeam.Count)
                             {
                                 GameManager.BlueTeam.Add(p);
-                                p.Message("Adding you to the &9Blue &Steam!");
+                                p.Message("&SAdding you to the &9Blue &Steam!");
                                 p.Info.InGame = true;
                                 p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
                                 foreach (Player u in GameManager.GameWorld.Players)
@@ -123,7 +99,7 @@ namespace fCraft
                             else
                             {
                                 GameManager.RedTeam.Add(p);
-                                p.Message("Adding you to the &9Red &Steam!");
+                                p.Message("&SAdding you to the &CRed &Steam!");
                                 p.Info.InGame = true;
                                 p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
                                 foreach (Player u in GameManager.GameWorld.Players)
@@ -134,12 +110,48 @@ namespace fCraft
                         }
                     }
 
-                    else if ( p.Info.InGame && p.World != GameManager.GameWorld )
+                    if (p.Info.InGame)
+                    {
+                        for (int j = 1; j < GameManager.GameWorld.Players.Length; j++)
+                        {
+                            Player Player2 = GameManager.GameWorld.Players[j];
+                            if (GameManager.RedTeam.Contains(p) && p != Player2 && Player2 != null
+                                && GameManager.BlueTeam.Contains(Player2))
+                            {
+                                Position p2 = Player2.Position;
+                                Position d = new Position(
+                                    (short)(p.Position.X - p2.X),
+                                    (short)(p.Position.Y - p2.Y),
+                                    (short)(p.Position.Z - p2.Z),
+                                    (byte)0,
+                                    (byte)0);
+
+                                if (d.X * d.X + d.Y * d.Y <= 1296 && Math.Abs(d.Z) <= 52)
+                                {
+                                    Random random = new Random();
+                                    int n = random.Next(1, 3);
+                                    if (n == 1)
+                                    {
+                                        Player2.Message("{0}&S killed you", Color.Red + p.Name);
+                                        p.Message("You killed {0}", Color.Blue + Player2.Name);
+                                        Player2.TeleportTo(p.World.Map.Spawn);
+                                        return;
+                                    }
+                                    else
+                                        p.Message("{0}&S killed you", Color.Blue + Player2.Name);
+                                    Player2.Message("You killed {0}", Color.Red + p.Name);
+                                    p.TeleportTo(p.World.Map.Spawn);
+                                }
+                            }
+                        }
+                    }
+
+                    else if (p.Info.InGame && p.World != GameManager.GameWorld)
                     {
                         if (GameManager.BlueTeam.Contains(p))
                         {
                             GameManager.BlueTeam.Remove(p);
-                            p.Message("You left the world, removing you from game.");
+                            p.Message("&SYou left the world, removing you from game.");
                             p.Info.InGame = false;
                             p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
                             foreach (Player u in p.World.Players)
@@ -151,7 +163,7 @@ namespace fCraft
                         if (GameManager.RedTeam.Contains(p))
                         {
                             GameManager.RedTeam.Remove(p);
-                            p.Message("You left the world, removing you from game.");
+                            p.Message("&SYou left the world, removing you from game.");
                             p.Info.InGame = false;
                             p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
                             foreach (Player u in p.World.Players)
@@ -166,7 +178,6 @@ namespace fCraft
 
         public static void PlayerDisconnected(object sender, PlayerDisconnectedEventArgs e)
         {
-
             if (GameManager.GameIsOn)
             {
                 if (GameManager.BlueTeam.Contains(e.Player))
@@ -201,7 +212,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "bluecaptured1");
                                         Red1Click = 0;
-                                        e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 1");
+                                        e.Player.World.Players.Message("&SThe &9Blue Team &Scaptured &CRed Base 1");
                                         
                                     }
                                     return;
@@ -224,7 +235,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "redbase1");
                                         BlueCapturedClick = 0;
-                                        e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 1");
+                                        e.Player.World.Players.Message("&SThe &CRed Team &Stook back &CRed Base 1");
                                     }
                                     return;
                                 }
@@ -247,7 +258,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "bluecaptured2");
                                         Red2Click = 0;
-                                        e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 2");
+                                        e.Player.World.Players.Message("&SThe &9Blue Team &Scaptured &CRed Base 2");
                                     }
                                     return;
                                 }
@@ -269,7 +280,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "redbase2");
                                         BlueCapturedClick2 = 0;
-                                        e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 2");
+                                        e.Player.World.Players.Message("&SThe &CRed Team &Stook back &CRed Base 2");
                                     }
                                     return;
                                 }
@@ -292,7 +303,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "bluecaptured3");
                                         Red3Click = 0;
-                                        e.Player.World.Players.Message("The &9Blue Team &Scaptured &CRed Base 3");
+                                        e.Player.World.Players.Message("&SThe &9Blue Team &Scaptured &CRed Base 3");
                                     }
                                     return;
                                 }
@@ -314,7 +325,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "redbase3");
                                         BlueCapturedClick3 = 0;
-                                        e.Player.World.Players.Message("The &CRed Team &Stook back &CRed Base 2");
+                                        e.Player.World.Players.Message("&SThe &CRed Team &Stook back &CRed Base 2");
                                     }
                                     return;
                                 }
@@ -338,7 +349,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "redcaptured1");
                                         Blue1Click = 0;
-                                        e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 1");
+                                        e.Player.World.Players.Message("&SThe &CRed Team &Scaptured &9Blue Base 1");
                                     }
                                     return;
                                 }
@@ -361,7 +372,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "bluebase1");
                                         RedCapturedClick = 0;
-                                        e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 1");
+                                        e.Player.World.Players.Message("&SThe &9Blue Team &Stook back &9Blue Base 1");
                                     }
                                     return;
                                 }
@@ -384,7 +395,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "redcaptured2");
                                         Blue2Click = 0;
-                                        e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 2");
+                                        e.Player.World.Players.Message("&SThe &CRed Team &Scaptured &9Blue Base 2");
                                     }
                                     return;
                                 }
@@ -406,7 +417,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "redcaptured2");
                                         RedCapturedClick2 = 0;
-                                        e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 2");
+                                        e.Player.World.Players.Message("&SThe &9Blue Team &Stook back &9Blue Base 2");
                                     }
                                     return;
                                 }
@@ -429,7 +440,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "redcaptured3");
                                         Blue3Click = 0;
-                                        e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 3");
+                                        e.Player.World.Players.Message("&SThe &CRed Team &Scaptured &9Blue Base 3");
                                     }
                                     return;
                                 }
@@ -451,7 +462,7 @@ namespace fCraft
                                     {
                                         CaptureBase(zone, e.Player, "bluebase3");
                                         RedCapturedClick3 = 0;
-                                        e.Player.World.Players.Message("The &9Blue Team &Stook back &9Blue Base 3");
+                                        e.Player.World.Players.Message("&SThe &9Blue Team &Stook back &9Blue Base 3");
                                     }
                                     return;
                                 }

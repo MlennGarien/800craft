@@ -60,7 +60,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
-            CommandManager.RegisterCommand(CdBase);
+            CommandManager.RegisterCommand(CdGame);
             Player.JoinedWorld += DummyCheck;
             Player.Clicked += GameEvents.PlayerClicked;
             Player.Disconnected += GameEvents.PlayerDisconnected;
@@ -110,117 +110,127 @@ namespace fCraft
             }
         }
 
-        public static readonly CommandDescriptor CdBase = new CommandDescriptor
+        public static readonly CommandDescriptor CdGame = new CommandDescriptor
         {
             Name = "Game",
             Category = CommandCategory.World,
             Permissions = new[] { Permission.Build },
-            Help = ".",
+            Help = "Manages a game",
+            Usage = "/Game GameMode Start|Stop|Restart",
             Handler = Game
         };
 
         static void Game(Player player, Command cmd)
         {
-            string option = cmd.Next();
             string mode = cmd.Next();
-            if (option == "stop")
+            string option = cmd.Next();
+
+            if (mode == null)
             {
-                if (mode == "tf2" || mode == "tfminecraft")
-                {
-                    TFMinecraftHandler.Stop(player, false);
-                    return;
-                }
+                CdGame.PrintUsage(player);
+                player.Message("GameModes include: tf2");
+                return;
             }
-            if (option == "start")
+            if (mode == "tf2" || mode == "tfminecraft")
             {
-                if (mode == "tf2" || mode == "tfminecraft")
+                switch (option)
                 {
-                    if (GameManager.GameWorld != null && GameManager.GameIsOn)
-                    {
-                        player.Message("A game is already running");
-                        return;
-                    }
-                    if (player.WorldMap.Zones.FindExact("redbase1") == null)
-                    {
-                        Zone BaseRed1 = new Zone();
-                        BaseRed1.Name = "redbase1";
-                        BaseRed1.Controller.MinRank = RankManager.HighestRank;
-                        foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
-                            BaseRed1.Controller.Exclude(p);
-                        player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed1, CdBase.Permissions);
-                        player.Message("Red Base 1: Place 2 blocks to cuboid a Red base");
-                        return;
-                    }
-
-                    else if (player.WorldMap.Zones.FindExact("redbase2") == null)
-                    {
-                        TFMinecraftHandler.RedBase2(player);
-                        return;
-                    }
-                    else if (player.WorldMap.Zones.FindExact("redbase3") == null)
-                    {
-                        TFMinecraftHandler.RedBase3(player);
-                        return;
-                    }
-                    else if (player.WorldMap.Zones.FindExact("bluebase1") == null)
-                    {
-                        TFMinecraftHandler.BlueBase1(player);
-                        return;
-                    }
-                    else if (player.WorldMap.Zones.FindExact("bluebase2") == null)
-                    {
-                        TFMinecraftHandler.BlueBase2(player);
-                        return;
-                    }
-                    else if (player.WorldMap.Zones.FindExact("bluebase3") == null)
-                    {
-                        TFMinecraftHandler.BlueBase3(player);
-                        return;
-                    }
-                    else TFMinecraftHandler.Start(player, player.World);
-                }
-            }
-
-            if (option == "reset")
-            {
-                if (mode == "tf2" || mode == "tfminecraft")
-                {
-                    foreach (World w in WorldManager.Worlds)
-                    {
-                        ZoneCollection q = w.Map.Zones;
-
-                        q.Remove("redbase1");
-                        q.Remove("redbase2");
-                        q.Remove("redbase3");
-                        q.Remove("bluebase1");
-                        q.Remove("bluebase2");
-                        q.Remove("bluebase3");
-                        q.Remove("redcaptured1");
-                        q.Remove("redcaptured2");
-                        q.Remove("redcaptured3");
-                        q.Remove("bluebase1");
-                        q.Remove("bluebase2");
-                        q.Remove("bluebase3");
-                    }
-                    if (GameManager.GameIsOn)
-                    {
+                    case "stop":
+                    case "end":
                         TFMinecraftHandler.Stop(player, false);
-                        player.Message("&SAll game conditions were reset");
-                        return;
-                    }
-                    else
-                    {
-                        GameManager.GameWorld = null;
-                        GameManager.BlueTeam.Clear();
-                        GameManager.RedTeam.Clear();
-                        player.Message("&SAll game conditions were reset");
-                    }
+                        break;
+
+                    case "start":
+                        if (GameManager.GameWorld != null && GameManager.GameIsOn)
+                        {
+                            player.Message("A game is already running");
+                            return;
+                        }
+                        if (player.WorldMap.Zones.FindExact("redbase1") == null)
+                        {
+                            Zone BaseRed1 = new Zone();
+                            BaseRed1.Name = "redbase1";
+                            BaseRed1.Controller.MinRank = RankManager.HighestRank;
+                            foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
+                                BaseRed1.Controller.Exclude(p);
+                            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed1, CdGame.Permissions);
+                            player.Message("Red Base 1: Place 2 blocks to cuboid a Red base");
+                            return;
+                        }
+
+                        else if (player.WorldMap.Zones.FindExact("redbase2") == null)
+                        {
+                            Server.Message("{0}&S is preparing a game of &CTeam &9Fortress&S on world {1}", player.ClassyName, player.World.ClassyName);
+                            TFMinecraftHandler.RedBase2(player);
+                            return;
+                        }
+                        else if (player.WorldMap.Zones.FindExact("redbase3") == null)
+                        {
+                            TFMinecraftHandler.RedBase3(player);
+                            return;
+                        }
+                        else if (player.WorldMap.Zones.FindExact("bluebase1") == null)
+                        {
+                            TFMinecraftHandler.BlueBase1(player);
+                            return;
+                        }
+                        else if (player.WorldMap.Zones.FindExact("bluebase2") == null)
+                        {
+                            TFMinecraftHandler.BlueBase2(player);
+                            return;
+                        }
+                        else if (player.WorldMap.Zones.FindExact("bluebase3") == null)
+                        {
+                            TFMinecraftHandler.BlueBase3(player);
+                            return;
+                        }
+                        else TFMinecraftHandler.Start(player, player.World);
+                        break;
+
+                    case "reset":
+                    case "restart":
+                        foreach (World w in WorldManager.Worlds)
+                        {
+                            ZoneCollection q = w.Map.Zones;
+
+                            q.Remove("redbase1");
+                            q.Remove("redbase2");
+                            q.Remove("redbase3");
+                            q.Remove("bluebase1");
+                            q.Remove("bluebase2");
+                            q.Remove("bluebase3");
+                            q.Remove("redcaptured1");
+                            q.Remove("redcaptured2");
+                            q.Remove("redcaptured3");
+                            q.Remove("bluebase1");
+                            q.Remove("bluebase2");
+                            q.Remove("bluebase3");
+                        }
+                        if (GameManager.GameIsOn)
+                        {
+                            TFMinecraftHandler.Stop(player, false);
+                            player.Message("&SAll game conditions were reset");
+                            return;
+                        }
+                        else
+                        {
+                            GameManager.GameWorld = null;
+                            GameManager.BlueTeam.Clear();
+                            GameManager.RedTeam.Clear();
+                            player.Message("&SAll game conditions were reset");
+                        }
+                        break;
+
+
+                    default: 
+                        player.Message("Invalid Option");
+                        CdGame.PrintUsage(player);
+                        break;
                 }
-                else player.Message("Invalid Option");
             }
         }
             
-        
+
     #region portals
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor

@@ -10,9 +10,14 @@ namespace fCraft
         public static void Start(Player player, World world)
         {
             GameManager.GameWorld = world;
-            Scheduler.NewTask(t => GameEvents.GameChecker(world)).RunForever(TimeSpan.FromSeconds(1));
-            Server.Players.Message("Game started eloloedjfhfjf");
-            GameManager.GameIsOn = true;
+            Scheduler.NewTask(q => Scheduler.NewTask(t => GameEvents.GameChecker(world))
+                .RunForever(TimeSpan.FromSeconds(1))).RunOnce(TimeSpan.FromSeconds(30));
+            Scheduler.NewTask(q => GameManager.GameIsOn = true)
+                .RunOnce(TimeSpan.FromSeconds(30));
+            Scheduler.NewTask(q => world.Players.Message("&WThe game has begun! Capture those bases!"))
+                .RunOnce(TimeSpan.FromSeconds(30));
+            Server.Message("{0}&S started a game of &CTeam &9Fortress&S on world {1}\n&SThe game will start in 60 seconds", 
+                            player.ClassyName, world.ClassyName);
         }
 
         public static void Stop(Player player, bool Console)
@@ -21,7 +26,7 @@ namespace fCraft
             
             if (!Console && !GameManager.GameIsOn)
             {
-                player.Message("A game is not running on your world");
+                player.Message("&SA game is not running on your world");
                 return;
             }
             if (GameManager.GameIsOn)
@@ -31,8 +36,12 @@ namespace fCraft
                 Scheduler.NewTask(t => GameEvents.GameChecker(world)).Stop().RunOnce(TimeSpan.FromSeconds(0));
                 Scheduler.UpdateCache();
                 GameManager.IsStopping = true;
-               
-                Server.Players.Message("Game Ended eloloedjfhfjf");
+
+                if (!Console)
+                {
+                    Server.Players.Message("{0}&SEnded the &CTeam &9Fortress&S game on world {1}", 
+                        player.ClassyName, player.World.ClassyName );
+                }
                 foreach (Zone z in world.Map.Zones)
                 {
                     if (z.Name.Contains("redcaptured1"))
@@ -258,7 +267,7 @@ namespace fCraft
            BaseRed2.Controller.MinRank = RankManager.HighestRank;
            foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
                BaseRed2.Controller.Exclude(p);
-           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed2, WorldCommands.CdBase.Permissions);
+           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed2, WorldCommands.CdGame.Permissions);
            player.Message("Red Base 2: Place 2 blocks to cuboid a Red base");
        }
 
@@ -269,7 +278,7 @@ namespace fCraft
            BaseRed3.Controller.MinRank = RankManager.HighestRank;
            foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
                BaseRed3.Controller.Exclude(p);
-           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed3, WorldCommands.CdBase.Permissions);
+           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed3, WorldCommands.CdGame.Permissions);
            player.Message("Red Base 3: Place 2 blocks to cuboid a Red base");
        }
 
@@ -280,7 +289,7 @@ namespace fCraft
            BaseBlue1.Controller.MinRank = RankManager.HighestRank;
            foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
                BaseBlue1.Controller.Exclude(p);
-           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue1, WorldCommands.CdBase.Permissions);
+           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue1, WorldCommands.CdGame.Permissions);
            player.Message("Blue Base 1: Place 2 blocks to cuboid a Blue base");
        }
 
@@ -291,7 +300,7 @@ namespace fCraft
            BaseBlue2.Controller.MinRank = RankManager.HighestRank;
            foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
                BaseBlue2.Controller.Exclude(p);
-           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue2, WorldCommands.CdBase.Permissions);
+           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue2, WorldCommands.CdGame.Permissions);
            player.Message("Blue Base 2: Place 2 blocks to cuboid a Blue base");
        }
 
@@ -302,7 +311,7 @@ namespace fCraft
            BaseBlue3.Controller.MinRank = RankManager.HighestRank;
            foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
                BaseBlue3.Controller.Exclude(p);
-           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue3, WorldCommands.CdBase.Permissions);
+           player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue3, WorldCommands.CdGame.Permissions);
            player.Message("Blue Base 3: Place 2 blocks to cuboid a Blue base");
        }
     }
