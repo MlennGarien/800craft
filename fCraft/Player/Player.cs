@@ -1007,12 +1007,17 @@ namespace fCraft {
 
                 case CanPlaceResult.ZoneDenied:
                     Zone deniedZone = WorldMap.Zones.FindDenied( coord, this );
-                    if( deniedZone != null ) {
-                        Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
+                    if (deniedZone.Name.Contains("redbase") || deniedZone.Name.Contains("bluebase") || deniedZone.Name.Contains("redcaptured") || deniedZone.Name.Contains("bluecaptured"))
+                    {
+                        RevertBlockNow(coord);
+                        break; 
+                    }
+                    else if( deniedZone != null ) {
+                        Message("&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name);
                     } else {
                         Message( "&WYou are not allowed to build here." );
                     }
-                    RevertBlockNow( coord );
+                    RevertBlockNow(coord);
                     break;
 
                 case CanPlaceResult.PluginDenied:

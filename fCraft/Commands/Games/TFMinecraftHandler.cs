@@ -221,6 +221,9 @@ namespace fCraft
        {
            Zone BaseRed2 = new Zone();
            BaseRed2.Name = "redbase2";
+           BaseRed2.Controller.MinRank = RankManager.HighestRank;
+           foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
+               BaseRed2.Controller.Exclude(p);
            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed2, WorldCommands.CdBase.Permissions);
            player.Message("Red Base 2: Place 2 blocks to cuboid a Red base");
        }
@@ -229,6 +232,9 @@ namespace fCraft
        {
            Zone BaseRed3 = new Zone();
            BaseRed3.Name = "redbase3";
+           BaseRed3.Controller.MinRank = RankManager.HighestRank;
+           foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
+               BaseRed3.Controller.Exclude(p);
            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed3, WorldCommands.CdBase.Permissions);
            player.Message("Red Base 3: Place 2 blocks to cuboid a Red base");
        }
@@ -237,6 +243,9 @@ namespace fCraft
        {
            Zone BaseBlue1 = new Zone();
            BaseBlue1.Name = "bluebase1";
+           BaseBlue1.Controller.MinRank = RankManager.HighestRank;
+           foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
+               BaseBlue1.Controller.Exclude(p);
            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue1, WorldCommands.CdBase.Permissions);
            player.Message("Blue Base 1: Place 2 blocks to cuboid a Blue base");
        }
@@ -245,6 +254,9 @@ namespace fCraft
        {
            Zone BaseBlue2 = new Zone();
            BaseBlue2.Name = "bluebase2";
+           BaseBlue2.Controller.MinRank = RankManager.HighestRank;
+           foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
+               BaseBlue2.Controller.Exclude(p);
            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue2, WorldCommands.CdBase.Permissions);
            player.Message("Blue Base 2: Place 2 blocks to cuboid a Blue base");
        }
@@ -253,6 +265,9 @@ namespace fCraft
        {
            Zone BaseBlue3 = new Zone();
            BaseBlue3.Name = "bluebase3";
+           BaseBlue3.Controller.MinRank = RankManager.HighestRank;
+           foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
+               BaseBlue3.Controller.Exclude(p);
            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseBlue3, WorldCommands.CdBase.Permissions);
            player.Message("Blue Base 3: Place 2 blocks to cuboid a Blue base");
        }

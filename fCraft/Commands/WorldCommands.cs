@@ -68,7 +68,6 @@ namespace fCraft
             Server.ShutdownBegan += GameEvents.Shutdown;
             
         }
-        public static List<Zone> Bases = new List<Zone>();
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
         {
             if (e.OldWorld != null)
@@ -136,13 +135,13 @@ namespace fCraft
             {
                 if (mode == "tf2" || mode == "tfminecraft")
                 {
-                    //if gameMap.Zones.Contains all bases
-                    //startgame
-                    //return; (saves time)
                     if (player.WorldMap.Zones.FindExact("redbase1") == null)
                     {
                         Zone BaseRed1 = new Zone();
                         BaseRed1.Name = "redbase1";
+                        BaseRed1.Controller.MinRank = RankManager.HighestRank;
+                        foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
+                            BaseRed1.Controller.Exclude(p);
                         player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed1, CdBase.Permissions);
                         player.Message("Red Base 1: Place 2 blocks to cuboid a Red base");
                         return;
@@ -225,7 +224,6 @@ namespace fCraft
                 {
                     if (player.Can(Permission.ManagePortal))
                     {
-
                         string world = command.Next();
 
                         if (world != null && WorldManager.FindWorldExact(world) != null)
@@ -3673,7 +3671,7 @@ namespace fCraft
             {
                 player.World.Map.Spawn = player.Position;
                 player.TeleportTo(player.World.Map.Spawn);
-                player.Send(PacketWriter.MakeAddEntity(255, player.ListName, player.Position));
+                player.Send(PacketWriter.MakeAddEntity(255, player.ListName , player.Position));
                 player.Message("New spawn point saved.");
                 Logger.Log(LogType.UserActivity, "{0} changed the spawned point.",
                             player.Name);

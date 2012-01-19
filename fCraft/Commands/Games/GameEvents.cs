@@ -156,10 +156,11 @@ namespace fCraft
                 }
             }
         }
-        
 
+        static readonly object Lock = new object();
         public static void PlayerDisconnected(object sender, PlayerDisconnectedEventArgs e)
         {
+
             if (GameManager.GameIsOn)
             {
                 if (GameManager.BlueTeam.Contains(e.Player))
@@ -175,7 +176,6 @@ namespace fCraft
                 else return;
             }
         }
-
         public static void PlayerClicked(object sender, PlayerClickedEventArgs e)
         {
             if (GameManager.GameIsOn)
@@ -185,14 +185,12 @@ namespace fCraft
                     Zone[] allowed, denied;
                     if (e.Player.WorldMap.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
                     {
-                        foreach (Zone zone in allowed)
+                        foreach (Zone zone in denied)
                         {
                             if (zone.Name.EndsWith("redbase1"))
                             {
                                 if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     Red1Click++;
                                     if (Red1Click > 29)
                                     {
@@ -208,8 +206,6 @@ namespace fCraft
 
                                 else if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (Red1Click > 0)
                                         Red1Click--;
                                     return;
@@ -220,8 +216,6 @@ namespace fCraft
                             {
                                 if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     BlueCapturedClick++;
                                     if (BlueCapturedClick > 29)
                                     {
@@ -238,8 +232,6 @@ namespace fCraft
 
                                 else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (BlueCapturedClick > 0)
                                         BlueCapturedClick--;
                                     return;
@@ -251,8 +243,6 @@ namespace fCraft
                             {
                                 if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     Red2Click++;
                                     if (Red2Click > 29)
                                     {
@@ -268,8 +258,6 @@ namespace fCraft
 
                                 else if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (Red2Click > 0)
                                         Red2Click--;
                                     return;
@@ -280,8 +268,6 @@ namespace fCraft
                             {
                                 if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     BlueCapturedClick2++;
                                     if (BlueCapturedClick2 > 29)
                                     {
@@ -297,8 +283,6 @@ namespace fCraft
 
                                 else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (BlueCapturedClick2 > 0)
                                         BlueCapturedClick2--;
                                     return;
@@ -310,8 +294,6 @@ namespace fCraft
                             {
                                 if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     Red3Click++;
                                     if (Red3Click > 29)
                                     {
@@ -327,8 +309,6 @@ namespace fCraft
 
                                 else if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (Red3Click > 0)
                                         Red3Click--;
                                     return;
@@ -340,8 +320,6 @@ namespace fCraft
                             {
                                 if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     BlueCapturedClick3++;
                                     if (BlueCapturedClick3 > 29)
                                     {
@@ -357,8 +335,6 @@ namespace fCraft
 
                                 else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (BlueCapturedClick3 > 0)
                                         BlueCapturedClick3--;
                                     return;
@@ -371,8 +347,6 @@ namespace fCraft
                             {
                                 if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     Blue1Click++;
                                     if (Blue1Click > 29)
                                     {
@@ -389,8 +363,6 @@ namespace fCraft
 
                                 else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (Blue1Click > 0)
                                         Blue1Click--;
                                     return;
@@ -401,8 +373,6 @@ namespace fCraft
                             {
                                 if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     RedCapturedClick++;
                                     if (RedCapturedClick > 29)
                                     {
@@ -418,8 +388,6 @@ namespace fCraft
 
                                 else if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (RedCapturedClick > 0)
                                         RedCapturedClick--;
                                     return;
@@ -431,8 +399,6 @@ namespace fCraft
                             {
                                 if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     Blue2Click++;
                                     if (Blue2Click > 29)
                                     {
@@ -442,14 +408,12 @@ namespace fCraft
                                         e.Player.World.Players.Message("The &CRed Team &Scaptured &9Blue Base 2");
                                         GameManager.BlueBaseCount--;
                                         GameManager.RedBaseCount++;
-                                    } 
+                                    }
                                     return;
                                 }
 
                                 else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (Blue2Click > 0)
                                         Blue2Click--;
                                     return;
@@ -460,8 +424,6 @@ namespace fCraft
                             {
                                 if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     RedCapturedClick2++;
                                     if (RedCapturedClick2 > 29)
                                     {
@@ -477,8 +439,6 @@ namespace fCraft
 
                                 else if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (RedCapturedClick2 > 0)
                                         RedCapturedClick2--;
                                     return;
@@ -490,8 +450,6 @@ namespace fCraft
                             {
                                 if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     Blue3Click++;
                                     if (Blue3Click > 29)
                                     {
@@ -507,8 +465,6 @@ namespace fCraft
 
                                 else if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (Blue3Click > 0)
                                         Blue3Click--;
                                     return;
@@ -519,8 +475,6 @@ namespace fCraft
                             {
                                 if (GameManager.BlueTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     RedCapturedClick3++;
                                     if (RedCapturedClick3 > 29)
                                     {
@@ -536,8 +490,6 @@ namespace fCraft
 
                                 else if (GameManager.RedTeam.Contains(e.Player))
                                 {
-                                    BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                                    e.Player.World.Map.QueueUpdate(update);
                                     if (RedCapturedClick3 > 0)
                                         RedCapturedClick3--;
                                     return;
@@ -549,32 +501,7 @@ namespace fCraft
                     }
                 }
             }
-
-            if (!GameManager.GameIsOn)
-            {
-                Zone[] allowed, denied;
-                if (e.Player.WorldMap.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-                {
-                    foreach (Zone zone in allowed)
-                    {
-                        if (zone.Name.Contains("redbase"))
-                        {
-                            BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Red);
-                            e.Player.World.Map.QueueUpdate(update);
-                            return;
-                        }
-
-                        else if (zone.Name.Contains("bluebase"))
-                        {
-                            BlockUpdate update = new BlockUpdate(null, e.Coords, Block.Blue);
-                            e.Player.World.Map.QueueUpdate(update);
-                            return;
-                        }
-                    }
-                }
-            }
         }
-
 
         static void CaptureBase(Zone zone, Player player)
         {
@@ -595,7 +522,10 @@ namespace fCraft
                     for (int z = sz; z <= ez; z++)
                     {
                         buffer[counter] = player.WorldMap.GetBlock(x, y, z);
-                        player.WorldMap.QueueUpdate(new BlockUpdate(null, new Vector3I(x, y, z), Block.Blue));
+                        if(zone.Name.Contains("red"))
+                        player.WorldMap.QueueUpdate(new BlockUpdate(Player.Console, new Vector3I(x, y, z), Block.Blue));
+                        if (zone.Name.Contains("blue"))
+                            player.WorldMap.QueueUpdate(new BlockUpdate(Player.Console, new Vector3I(x, y, z), Block.Red));
                         counter++;
                     }
                 }
