@@ -15,11 +15,11 @@ namespace fCraft
             GameManager.GameIsOn = true;
         }
 
-        public static void Stop(Player player)
+        public static void Stop(Player player, bool Console)
         {
             World world = GameManager.GameWorld;
             
-            if (player.World != world && player.World != null)
+            if (!Console && !GameManager.GameIsOn)
             {
                 player.Message("A game is not running on your world");
                 return;
@@ -108,7 +108,10 @@ namespace fCraft
                 GameManager.BlueBaseCount = 3;
                 GameManager.GameWorld = null;
                 GameManager.IsStopping = false;
-                world.Players.Message("{0} ended the game", player.ClassyName);
+                if (!Console)
+                {
+                    world.Players.Message("{0} ended the game", player.ClassyName);
+                }
 
                 if (GameManager.RedTeam.Count > 0)
                 {
@@ -128,6 +131,16 @@ namespace fCraft
                 }
                 GameManager.RedTeam.Clear();
                 GameManager.BlueTeam.Clear();
+                
+                foreach (Player u in GameManager.GameWorld.Players)
+                {
+                    u.Send(PacketWriter.MakeAddEntity(255, u.ListName, u.Position));
+                    
+                }
+                foreach (Player u in GameManager.GameWorld.Players)
+                {
+                    u.ResetVisibleEntities2();
+                }
             }
         }
 

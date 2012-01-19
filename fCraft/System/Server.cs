@@ -470,9 +470,6 @@ namespace fCraft {
             {
                 MineQuery.GetInstance().Start();
             }
-
-            TFMinecraftHandler.BaseRevert();
-
             return true;
         }
 

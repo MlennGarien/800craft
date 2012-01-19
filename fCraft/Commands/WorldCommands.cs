@@ -127,7 +127,7 @@ namespace fCraft
             {
                 if (mode == "tf2" || mode == "tfminecraft")
                 {
-                    TFMinecraftHandler.Stop(player);
+                    TFMinecraftHandler.Stop(player, false);
                     return;
                 }
             }
@@ -135,7 +135,7 @@ namespace fCraft
             {
                 if (mode == "tf2" || mode == "tfminecraft")
                 {
-                    if (GameManager.GameWorld != null)
+                    if (GameManager.GameWorld != null && GameManager.GameIsOn)
                     {
                         player.Message("A game is already running");
                         return;
@@ -204,7 +204,7 @@ namespace fCraft
                     }
                     if (GameManager.GameIsOn)
                     {
-                        TFMinecraftHandler.Stop(player);
+                        TFMinecraftHandler.Stop(player, false);
                         player.Message("&SAll game conditions were reset");
                         return;
                     }
@@ -212,7 +212,7 @@ namespace fCraft
                     {
                         GameManager.GameWorld = null;
                         GameManager.BlueTeam.Clear();
-                        GameManager.BlueTeam.Clear();
+                        GameManager.RedTeam.Clear();
                         player.Message("&SAll game conditions were reset");
                     }
                 }

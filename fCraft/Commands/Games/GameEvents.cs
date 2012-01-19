@@ -81,13 +81,13 @@ namespace fCraft
             {
                 if (GameManager.BlueBaseCount == 6 && !GameManager.IsStopping)
                 {
-                    TFMinecraftHandler.Stop(Player.Console);
+                    TFMinecraftHandler.Stop(Player.Console, true);
                     world.Players.Message("&SThe &CRed Team &Sloses. The &9Blue Team &Shave captured all the Red bases");
                     return;
                 }
                 if (GameManager.RedBaseCount == 6 && !GameManager.IsStopping)
                 {
-                    TFMinecraftHandler.Stop(Player.Console);
+                    TFMinecraftHandler.Stop(Player.Console, true);
                     world.Players.Message("&SThe &9Blue Team &Sloses. The &CRed Team &Shave captured all the Blue bases");
                     return;
                 }
@@ -103,38 +103,60 @@ namespace fCraft
                                 GameManager.RedTeam.Add(p);
                                 p.Message("Adding you to the &CRed &Steam!");
                                 p.Info.InGame = true;
+                                p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                                foreach (Player u in GameManager.GameWorld.Players)
+                                {
+                                    u.ResetVisibleEntities2();
+                                }
                             }
                             else if (GameManager.RedTeam.Count > GameManager.BlueTeam.Count)
                             {
                                 GameManager.BlueTeam.Add(p);
                                 p.Message("Adding you to the &9Blue &Steam!");
                                 p.Info.InGame = true;
+                                p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                                foreach (Player u in GameManager.GameWorld.Players)
+                                {
+                                    u.ResetVisibleEntities2();
+                                }
                             }
                             else
                             {
                                 GameManager.RedTeam.Add(p);
-                                p.Message("Adding you to the &9Blue &Steam!");
+                                p.Message("Adding you to the &9Red &Steam!");
                                 p.Info.InGame = true;
+                                p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                                foreach (Player u in GameManager.GameWorld.Players)
+                                {
+                                    u.ResetVisibleEntities2();
+                                }
                             }
                         }
                     }
 
-                    else
+                    else if ( p.Info.InGame && p.World != GameManager.GameWorld )
                     {
-                        if (p.Info.InGame)
+                        if (GameManager.BlueTeam.Contains(p))
                         {
-                            if (GameManager.BlueTeam.Contains(p))
+                            GameManager.BlueTeam.Remove(p);
+                            p.Message("You left the world, removing you from game.");
+                            p.Info.InGame = false;
+                            p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                            foreach (Player u in p.World.Players)
                             {
-                                GameManager.BlueTeam.Remove(p);
-                                p.Message("You left the world, removing you from game.");
-                                p.Info.InGame = false;
+                                u.ResetVisibleEntities2();
                             }
+                        }
 
-                            if (GameManager.RedTeam.Contains(p))
+                        if (GameManager.RedTeam.Contains(p))
+                        {
+                            GameManager.RedTeam.Remove(p);
+                            p.Message("You left the world, removing you from game.");
+                            p.Info.InGame = false;
+                            p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                            foreach (Player u in p.World.Players)
                             {
-                                GameManager.RedTeam.Remove(p);
-                                p.Message("You left the world, removing you from game.");
-                                p.Info.InGame = false;
+                                u.ResetVisibleEntities2();
                             }
                         }
                     }

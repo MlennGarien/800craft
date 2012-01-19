@@ -119,6 +119,14 @@ namespace fCraft {
         public string ListName {
             get {
                 string displayedName = Name;
+                if (GameManager.BlueTeam.Contains(this)){
+                    displayedName = Color.Blue + displayedName; 
+                    return displayedName;
+                }
+                if (GameManager.RedTeam.Contains(this)){
+                    displayedName = Color.Red + displayedName;
+                    return displayedName;
+                }
                 if( ConfigKey.RankPrefixesInList.Enabled() ) {
                     displayedName = Info.Rank.Prefix + displayedName;
                 }
@@ -128,8 +136,6 @@ namespace fCraft {
                 return displayedName;
             }
         }
-
-        
 
         /// <summary> Name formatted for display in chat. </summary>
         [NotNull]

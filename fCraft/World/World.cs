@@ -299,8 +299,6 @@ namespace fCraft
                 foreach (Player player in Players)
                 {
                     player.JoinWorld(this, WorldChangeReason.Rejoin, player.Position);
-
-
                 }
             }
         }

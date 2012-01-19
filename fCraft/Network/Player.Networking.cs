@@ -1219,6 +1219,21 @@ namespace fCraft {
             entities.Clear();
         }
 
+        public void ResetVisibleEntities2()
+        {
+            foreach (var pos in entities.Values)
+            {
+                Send(PacketWriter.MakeRemoveEntity(pos.Id));
+            }
+            freePlayerIDs.Clear();
+            for (int i = 1; i <= sbyte.MaxValue; i++)
+            {
+                freePlayerIDs.Push((sbyte)i);
+            }
+            playersToRemove.Clear();
+            entities.Clear();
+        }
+
 
         public void UpdateVisibleEntities() {
             if( World == null ) PlayerOpException.ThrowNoWorld( this );
