@@ -64,10 +64,9 @@ namespace fCraft
             Player.JoinedWorld += DummyCheck;
             Player.Clicked += GameEvents.PlayerClicked;
             Player.Disconnected += GameEvents.PlayerDisconnected;
-            Player.Moved += GameEvents.PlayerMoved;
-           Server.ShutdownBegan += GameEvents.Shutdown;
-            
+            Server.ShutdownBegan += GameEvents.Shutdown;
         }
+
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
         {
             if (e.OldWorld != null)
@@ -184,6 +183,21 @@ namespace fCraft
                             TFMinecraftHandler.BlueBase3(player);
                             return;
                         }
+                        else if (!cmd.IsConfirmed && GameManager.RedSpawn.X == 1)
+                        {
+                            player.Confirm(cmd, "&STravel to the Red Spawn and type /ok to set the Spawn point");
+                            GameManager.RedSpawn = new Position(player.Position.X,
+                                player.Position.Y,
+                                player.Position.Z);
+                        }
+
+                        else if (!cmd.IsConfirmed && GameManager.BlueSpawn.X == 1)
+                        {
+                            player.Confirm(cmd, "&STravel to the Blue Spawn and type /ok to set the Spawn point");
+                            GameManager.BlueSpawn = new Position(player.Position.X,
+                                player.Position.Y,
+                                player.Position.Z);
+                        }
                         else TFMinecraftHandler.Start(player, player.World);
                         break;
 
@@ -210,6 +224,8 @@ namespace fCraft
                         {
                             TFMinecraftHandler.Stop(player, false);
                             player.Message("&SAll game conditions were reset");
+                            GameManager.RedSpawn = new Position(1, 1, 1);
+                            GameManager.BlueSpawn = new Position(1, 1, 1);
                             return;
                         }
                         else
@@ -217,6 +233,8 @@ namespace fCraft
                             GameManager.GameWorld = null;
                             GameManager.BlueTeam.Clear();
                             GameManager.RedTeam.Clear();
+                            GameManager.RedSpawn = new Position(1, 1, 1);
+                            GameManager.BlueSpawn = new Position(1, 1, 1);
                             player.Message("&SAll game conditions were reset");
                         }
                         break;
@@ -2030,7 +2048,14 @@ namespace fCraft
                     player.Confirm( cmd, "Replace this world's map with a generated one?" );
                     return;
                 }
-
+                if (playerWorld.Map.Dummys.Count > 0)
+                {
+                    for (int i = 0; i < playerWorld.Map.Dummys.Count + 1; i++)
+                    {
+                        playerWorld.Players.Send(PacketWriter.MakeRemoveEntity(i));
+                    }
+                    playerWorld.Map.Dummys.Clear();
+                }
             } else {
                 // saving to file
                 fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
@@ -3176,6 +3201,14 @@ namespace fCraft
                 World world = player.World;
 
                 // Loading to current world
+                if (world.Map.Dummys.Count > 0)
+                {
+                    for (int i = 0; i < world.Map.Dummys.Count() + 1; i++)
+                    {
+                        world.Players.Send(PacketWriter.MakeRemoveEntity(i));
+                    }
+                    world.Map.Dummys.Clear();
+                }
                 world.MapChangedBy = player.Name;
                 world.ChangeMap( map );
 
@@ -3232,6 +3265,7 @@ namespace fCraft
                         if( !cmd.IsConfirmed ) {
                             player.Confirm( cmd, "About to replace map for {0}&S with \"{1}\".",
                                             world.ClassyName, fileName );
+                            
                             return;
                         }
 
@@ -3242,9 +3276,17 @@ namespace fCraft
                             player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                             return;
                         }
-
+                        if (world.Map.Dummys.Count > 0)
+                        {
+                            for (int i = 0; i < world.Map.Dummys.Count + 1; i++)
+                            {
+                                world.Players.Send(PacketWriter.MakeRemoveEntity(i));
+                            }
+                            world.Map.Dummys.Clear();
+                        }
                         try {
                             world.MapChangedBy = player.Name;
+                            
                             world.ChangeMap(map);
                         } catch( WorldOpException ex ) {
                             Logger.Log( LogType.Error,
@@ -3276,6 +3318,8 @@ namespace fCraft
                         Map map;
                         try {
                             map = MapUtility.Load( fullFileName );
+                            if (map.Dummys.Count > 0)
+                                map.Dummys.Clear();
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load \"{0}\": {1}: {2}",
                                                fileName, ex.GetType().Name, ex.Message );
@@ -3285,6 +3329,7 @@ namespace fCraft
                         World newWorld;
                         try {
                             newWorld = WorldManager.AddWorld( player, worldName, map, false );
+                            
                         } catch( WorldOpException ex ) {
                             player.Message( "WLoad: {0}", ex.Message );
                             return;

@@ -165,10 +165,10 @@ namespace fCraft {
 
             if ((tempAttr = el.Attribute("realm")) != null)
             {
-                bool IsRealm;
-                if (Boolean.TryParse(tempAttr.Value, out IsRealm))
+                bool isRealm;
+                if (Boolean.TryParse(tempAttr.Value, out isRealm))
                 {
-                    world.IsRealm = IsRealm;
+                    world.IsRealm = isRealm;
                 }
                 else
                 {
@@ -185,7 +185,6 @@ namespace fCraft {
                 {
                     world.RealisticEnv = RealisticEnv;
                 }
-                
             }
             
             if( firstWorld == null ) firstWorld = world;
@@ -394,7 +393,7 @@ namespace fCraft {
 
                     if (world.IsRealm)
                     {
-                        temp.Add(new XAttribute("realm", true));
+                        temp.Add( new XAttribute( "realm", true ) );
                     }
                     temp.Add( world.BlockDB.SaveSettings() );
 

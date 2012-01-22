@@ -18,6 +18,16 @@ namespace fCraft
                 .RunOnce(TimeSpan.FromSeconds(30));
             Server.Message("{0}&S started a game of &CTeam &9Fortress&S on world {1}\n&SThe game will start in 60 seconds", 
                             player.ClassyName, world.ClassyName);
+            foreach (Player R in GameManager.RedTeam)
+            {
+                Scheduler.NewTask(t => R.TeleportTo(GameManager.RedSpawn))
+                .RunOnce(TimeSpan.FromSeconds(30));
+            }
+            foreach (Player B in GameManager.BlueTeam)
+            {
+                Scheduler.NewTask(t => B.TeleportTo(GameManager.BlueSpawn))
+                .RunOnce(TimeSpan.FromSeconds(30));
+            }
         }
 
         public static void Stop(Player player, bool Console)
@@ -115,8 +125,6 @@ namespace fCraft
 
                 GameManager.RedBaseCount = 3;
                 GameManager.BlueBaseCount = 3;
-                GameManager.GameWorld = null;
-                GameManager.IsStopping = false;
                 if (!Console)
                 {
                     world.Players.Message("{0} ended the game", player.ClassyName);
@@ -144,12 +152,14 @@ namespace fCraft
                 foreach (Player u in GameManager.GameWorld.Players)
                 {
                     u.Send(PacketWriter.MakeAddEntity(255, u.ListName, u.Position));
-                    
                 }
                 foreach (Player u in GameManager.GameWorld.Players)
                 {
                     u.ResetVisibleEntities2();
                 }
+
+                GameManager.GameWorld = null;
+                GameManager.IsStopping = false;
             }
         }
 
@@ -258,6 +268,8 @@ namespace fCraft
                 BlueBase3(player);
                 return;
             }
+
+            
         }
 
        public static void RedBase2(Player player)

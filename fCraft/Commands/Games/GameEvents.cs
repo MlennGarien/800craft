@@ -28,27 +28,8 @@ namespace fCraft
 
         public static void Shutdown(object sender, ShutdownEventArgs e)
         {
+            if(GameManager.GameIsOn)
             TFMinecraftHandler.BaseRevert();
-        }
-
-        public static void PlayerMoved(object sender, PlayerMovedEventArgs e)
-        {
-            Vector3I oldPos = new Vector3I(e.OldPosition.X, e.OldPosition.Y, e.OldPosition.Z);
-            Vector3I newPos = new Vector3I(e.NewPosition.X, e.NewPosition.Y, e.NewPosition.Z);
-            Position RedPos = new Position
-            {
-                X = (short)(newPos.X - oldPos.X),
-                Y = (short)(newPos.Y - oldPos.Y),
-                Z = (short)(newPos.Z - oldPos.Z)
-            };
-
-            if (e.Player.Info.InGame)
-            {
-                if (GameManager.GameIsOn)
-                {
-                    
-                }
-            }
         }
 
         public static void GameChecker(World world)
@@ -80,9 +61,10 @@ namespace fCraft
                                 p.Message("&SAdding you to the &CRed &Steam!");
                                 p.Info.InGame = true;
                                 p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                                p.TeleportTo(GameManager.RedSpawn);
                                 foreach (Player u in GameManager.GameWorld.Players)
                                 {
-                                    u.ResetVisibleEntities2();
+                                    u.UpdateVisibleEntities();
                                 }
                             }
                             else if (GameManager.RedTeam.Count > GameManager.BlueTeam.Count)
@@ -91,9 +73,10 @@ namespace fCraft
                                 p.Message("&SAdding you to the &9Blue &Steam!");
                                 p.Info.InGame = true;
                                 p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                                p.TeleportTo(GameManager.BlueSpawn);
                                 foreach (Player u in GameManager.GameWorld.Players)
                                 {
-                                    u.ResetVisibleEntities2();
+                                    u.UpdateVisibleEntities();
                                 }
                             }
                             else
@@ -102,15 +85,16 @@ namespace fCraft
                                 p.Message("&SAdding you to the &CRed &Steam!");
                                 p.Info.InGame = true;
                                 p.Send(PacketWriter.MakeAddEntity(255, p.ListName, p.Position));
+                                p.TeleportTo(GameManager.RedSpawn);
                                 foreach (Player u in GameManager.GameWorld.Players)
                                 {
-                                    u.ResetVisibleEntities2();
+                                    u.UpdateVisibleEntities();
                                 }
                             }
                         }
                     }
 
-                    if (p.Info.InGame)
+                    else if (p.Info.InGame)
                     {
                         for (int j = 1; j < GameManager.GameWorld.Players.Length; j++)
                         {
@@ -134,13 +118,13 @@ namespace fCraft
                                     {
                                         Player2.Message("{0}&S killed you", Color.Red + p.Name);
                                         p.Message("You killed {0}", Color.Blue + Player2.Name);
-                                        Player2.TeleportTo(p.World.Map.Spawn);
+                                        Player2.TeleportTo(GameManager.BlueSpawn);
                                         return;
                                     }
                                     else
                                         p.Message("{0}&S killed you", Color.Blue + Player2.Name);
-                                    Player2.Message("You killed {0}", Color.Red + p.Name);
-                                    p.TeleportTo(p.World.Map.Spawn);
+                                        Player2.Message("You killed {0}", Color.Red + p.Name);
+                                        p.TeleportTo(GameManager.RedSpawn);
                                 }
                             }
                         }
@@ -485,13 +469,13 @@ namespace fCraft
         static void CaptureBase(Zone zone, Player player, string NewName)
         {
             zone.Name = NewName;
-            if (NewName.Contains("blue"))
+            if (NewName.Contains("bluebase") || NewName.Contains("bluecaptured"))
             {
                 GameManager.BlueBaseCount++;
                 GameManager.RedBaseCount--;
             }
 
-            if (NewName.Contains("red"))
+            else if (NewName.Contains("redbase") || NewName.Contains("redcaptured"))
             {
                 GameManager.BlueBaseCount--;
                 GameManager.RedBaseCount++;

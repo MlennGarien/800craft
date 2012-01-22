@@ -18,8 +18,6 @@ namespace fCraft {
         public World World { get; set; }
 
         public List<Player> Dummys = new List<Player>();
-        public int DummyCount;
-        public int DummyCounter;
 
         /// <summary> Map width, in blocks. Equivalent to Notch's X (horizontal). </summary>
         public readonly int Width;

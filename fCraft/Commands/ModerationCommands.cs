@@ -66,7 +66,7 @@ namespace fCraft {
             //CommandManager.RegisterCommand(CdUnPossess);
             CommandManager.RegisterCommand(CdWarn);
             CommandManager.RegisterCommand(CdUnWarn);
-            CommandManager.RegisterCommand(cdDisconnect);
+            CommandManager.RegisterCommand(CdDisconnect);
             CommandManager.RegisterCommand(CdDummy);
             Player.Moving += DummyAI.DummyFollowing;
             Player.Moving += DummyAI.DummyTurn;
@@ -120,13 +120,11 @@ namespace fCraft {
                     {
                         Player dummy = new Player(name);
                         Position pos = player.Position;
-                        world.Map.DummyCount++;
-                        dummy.Info.ID = world.Map.DummyCount;
+                        dummy.Info.ID = world.Map.Dummys.Count() + 1;
                         name = Color.ReplacePercentCodes(name); //classynames
                         world.Players.Send(PacketWriter.MakeAddEntity(dummy.Info.ID, name, pos)); //makes the dummy
                         world.Map.Dummys.Add(dummy); //adds the dummy to a list
-                        world.Map.DummyCounter++; //counts how many dummys are on each world
-
+                       
                         //used for reloading dummies.
                         dummy.Info.DummyID = dummy.Info.ID;
                         dummy.Info.DummyName = name;
@@ -244,20 +242,20 @@ namespace fCraft {
                     if (Uname == null)
                     {
 
-                        if (world.Map.DummyCount == 0) //stops user from deleting dummys that doent exist
+                        if (world.Map.Dummys.Count == 0) //stops user from deleting dummys that doent exist
                         {
                             player.Message("The dummy list on this world is empty");
                             return;
                         }
 
-                        player.World.Players.Send(PacketWriter.MakeRemoveEntity(world.Map.DummyCount)); //removes the dummy from the world
-                        player.World.Map.DummyCount--;
+                        player.World.Players.Send(PacketWriter.MakeRemoveEntity(world.Map.Dummys.Count())); //removes the dummy from the world
+                        
                         player.Info.IsFollowing = false;
 
                         List<Player> toRemove = new List<Player>();
                         foreach (Player d in world.Map.Dummys)
                         {
-                            if (d.Info.ID == world.Map.DummyCount + 1)
+                            if (d.Info.ID == world.Map.Dummys.Count())
                                 toRemove.Add(d); //adds chosed ID to a removing list
                         }
 
@@ -276,7 +274,7 @@ namespace fCraft {
 
                 case "list":
 
-                    if (world.Map.DummyCount > 0)
+                    if (world.Map.Dummys.Count() > 0)
                     {
                         player.Message("Dummys available on world {0}: ", world.ClassyName);
                         foreach (Player d in world.Map.Dummys)
@@ -819,12 +817,11 @@ namespace fCraft {
         static readonly CommandDescriptor CdUnWarn = new CommandDescriptor
         {
             Name = "Unwarn",
-
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Warn },
-            Usage = "/unwarn PlayerName",
-            Help = "",
+            Usage = "/Unwarn PlayerName",
+            Help = "Unwarns a player",
             Handler = UnWarn
         };
 
@@ -865,7 +862,7 @@ namespace fCraft {
         }
         
 
-        static readonly CommandDescriptor cdDisconnect = new CommandDescriptor
+        static readonly CommandDescriptor CdDisconnect = new CommandDescriptor
         {
             Name = "Disconnect",
             Category = CommandCategory.Moderation,
