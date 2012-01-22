@@ -74,6 +74,11 @@ namespace fCraft {
                 case "dummys":
                 case "dummy":
                 case "bots":
+                    if (player.World == null)
+                    {
+                        player.Message(" You cannot use /List dummys from console");
+                        return;
+                    }
                     World world = player.World;
                     if (world.Map.Dummys.Count() > 0)
                     {

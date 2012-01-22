@@ -198,6 +198,11 @@ namespace fCraft
                     Server.VoteYes = 0;
                     Server.VoteNo = 0;
                     Server.VoteIsOn = false;
+                    Scheduler.NewTask(t => VoteKickCheck(player)).Stop();
+                    Scheduler.NewTask(t => VoteKickCheck(player)).IsStopped = true;
+                    Scheduler.NewTask(t => VoteCheck(player)).Stop();
+                    Scheduler.NewTask(t => VoteCheck(player)).IsStopped = true;
+                    Scheduler.UpdateCache();
 
                     foreach (Player V in Server.Voted)
                     {
@@ -659,15 +664,10 @@ namespace fCraft
             }
             else
             {
-                if (target.IsOnline)
-                {
-                    Server.Players.Message("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName);
-                    target.Message("{0}&S high fived you.", player.ClassyName);
-                }
-                else
-                {
-                    player.Message("Player {0}&S is not online.", target.ClassyName);
-                }
+                Server.Players.CanSee(target).Except(player).Message("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName);
+                target.Message("{0}&S high fived you.", player.ClassyName);
+
+                player.Message("Player {0}&S is not online.", target.ClassyName);
             }
         }
 

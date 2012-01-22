@@ -13,7 +13,7 @@ namespace fCraft {
     public static class Chat {
         public static List<string> Swears = new List<string>();
         public static IEnumerable<Regex> badWordMatchers;
-        static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+        public static Dictionary<String, String> Corrections = new Dictionary<String, String>();
         /// <summary> Sends a global (white) chat. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -91,7 +91,8 @@ namespace fCraft {
 
                     if (Swears.Count == 0)
                     {
-                        Swears.AddRange(File.ReadAllLines("SwearWords.txt").Where(line => line.StartsWith("#") == false || line.Trim().Equals(String.Empty)));
+                        Swears.AddRange(File.ReadAllLines("SwearWords.txt").
+                            Where(line => line.StartsWith("#") == false || line.Trim().Equals(String.Empty)));
                     }
 
                     if (badWordMatchers == null)
@@ -104,8 +105,44 @@ namespace fCraft {
                        Aggregate(rawMessage, (current, matcher) => matcher.Replace(current, CensoredText));
                     rawMessage = output;
                 }
-            if(rawMessage.Length > 1)
-                rawMessage = UppercaseFirst(rawMessage);
+                if (rawMessage.Length > 1)
+                {
+                    rawMessage = UppercaseFirst(rawMessage);
+                }
+
+                if (Corrections.Count < 1)
+                {
+                    Corrections["i'm"] = "I'm";
+                    Corrections["Im"] = "I'm";
+                    Corrections["im"] = "I'm";
+                    Corrections["iam"] = "I am";
+                    Corrections["Iam"] = "I am";
+                    Corrections["i"] = "I";
+                    Corrections["theyre"] = "they're";
+                    Corrections["Theyre"] = "They're";
+                    Corrections["youre"] = "you're";
+                    Corrections["Youre"] = "You're";
+                    Corrections["hes"] = "he's";
+                    Corrections["Hes"] = "He's";
+                    Corrections["Heres"] = "Here's";
+                    Corrections["heres"] = "here's";
+                    Corrections["jonty"] = "Jonty";
+                    Corrections["whats"] = "what's";
+                    Corrections["Whats"] = "What's";
+                    Corrections["Thier"] = "Their";
+                    Corrections["thier"] = "their";
+                    Corrections["Wont"] = "Won't";
+                    Corrections["wont"] = "won't";
+                    Corrections["Thats"] = "That's";
+                    Corrections["thats"] = "that's";
+                    Corrections["Cant"] = "Can't";
+                    Corrections["cant"] = "can't";
+                    Corrections["Didnt"] = "Didn't";
+                    Corrections["didnt"] = "didn't";
+                    Corrections["IPod"] = "iPod";
+                    Corrections["ipod"] = "iPod";
+                }
+           rawMessage = Regex.Replace(rawMessage, @"\b[A-Za-z']*\b", CorrectWord);
                 string formattedMessage = String.Format("{0}&F: {1}",
                                                          player.ClassyName,
                                                          rawMessage);
@@ -133,6 +170,14 @@ namespace fCraft {
             // Return char and concat substring.
             return char.ToUpper(s[0]) + s.Substring(1);
         }
+
+       public static String CorrectWord(Match match)
+       {
+           String correction;
+           if (Corrections.TryGetValue(match.Value, out correction))
+               return correction;
+           return match.Value;
+       }
         
 
         public static bool SendAdmin(Player player, string rawMessage)
@@ -158,7 +203,7 @@ namespace fCraft {
             Logger.Log(LogType.GlobalChat, "(Admin){0}: {1}", player.Name, rawMessage);
             return true;
         }
-       
+        
         public static bool SendCustom(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
@@ -167,7 +212,7 @@ namespace fCraft {
             var recepientList = Server.Players.Can(Permission.ReadCustomChat)
                                               .NotIgnoring(player);
 
-            string formattedMessage = String.Format(Color.Custom+"({2}){0}&b: {1}",
+            string formattedMessage = String.Format(Color.Custom + "({2}){0}&b: {1}",
                                                      player.ClassyName,
                                                      rawMessage, ConfigKey.CustomChatChannel.GetString());
 
@@ -280,10 +325,11 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.NotIgnoring( player );
+            var recepientList = Server.Players.NotIgnoring( player ).Where(t=> !t.Info.Rank.Can(Permission.Say));
+            var UpperList = Server.Players.NotIgnoring(player).Where(q => q.Info.Rank.Can(Permission.Say));
 
             string formattedMessage = Color.Say + rawMessage;
-
+            UpperList.Message("&C[{0}&C] {1}", player.ClassyName, formattedMessage);
             var e = new ChatSendingEventArgs( player,
                                               rawMessage,
                                               formattedMessage,

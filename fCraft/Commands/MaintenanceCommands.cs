@@ -29,6 +29,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdImport );
 
             CommandManager.RegisterCommand( CdInfoSwap );
+            CommandManager.RegisterCommand( CdFixRealms );
 
 #if DEBUG
             CommandManager.RegisterCommand( new CommandDescriptor {
@@ -535,6 +536,34 @@ namespace fCraft {
         }
 
         #endregion
+
+         static readonly CommandDescriptor CdFixRealms = new CommandDescriptor {
+            Name = "Fixrealms",
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = false,
+            IsHidden = true,
+            Permissions = new[] { Permission.EditPlayerDB},
+            Handler = FixRealms
+        };
+
+         static void FixRealms(Player player, Command cmd)
+         {
+             var Players = PlayerDB.PlayerInfoList.Where(p => p.Rank.Can(Permission.Realm));
+             int Count = 0;
+             foreach (World w in WorldManager.Worlds)
+             {
+                 foreach (PlayerInfo p in Players)
+                 {
+                     if (p.Name == w.Name)
+                     {
+                         w.IsHidden = false;
+                         w.IsRealm = true;
+                         Count++;
+                     }
+                 }
+             }
+             player.Message("Converted {0} worlds to Realms", Count.ToString());
+         }
 
 
         #region AutoRank

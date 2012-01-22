@@ -61,21 +61,16 @@ namespace fCraft.Drawing
         //all works. Maybe look at Block estimation.
         IEnumerable<Vector3I> BlockEnumerator()
         {
-
-            if (Bounds.Height > 2)
+            for (int x = Bounds.XMin; x <= Bounds.XMax; x++)
             {
-                for (int x = Bounds.XMin; x <= Bounds.XMax; x++)
+                for (int z = Bounds.ZMin - 1; z < Bounds.ZMax; z++)
                 {
-                    for (int z = Bounds.ZMin - 1; z < Bounds.ZMax; z++)
+                    yield return new Vector3I(x, Bounds.YMin, z + 1);
+                    if (Bounds.YMin != Bounds.YMax)
                     {
-                        yield return new Vector3I(x, Bounds.YMin, z + 1);
-                        if (Bounds.YMin != Bounds.YMax)
-                        {
-                            yield return new Vector3I(x, Bounds.YMax, z + 1);
-                        }
+                        yield return new Vector3I(x, Bounds.YMax, z + 1);
                     }
                 }
-
                 for (int y = Bounds.YMin; y < Bounds.YMax; y++)
                 {
                     for (int z = Bounds.ZMin - 1; z < Bounds.ZMax; z++)

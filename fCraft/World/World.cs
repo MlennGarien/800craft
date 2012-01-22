@@ -24,7 +24,6 @@ namespace fCraft
         public bool IsHidden { get; set; }
 
         /// <summary> for realms </summary>
-
         public bool IsRealm { get; set; }
 
         public bool RealisticEnv { get; set; }

@@ -74,7 +74,7 @@ namespace fCraft {
         }
         
         #region custom
-
+        public static List<string> BassText = new List<string>();
         static readonly CommandDescriptor CdDummy = new CommandDescriptor
         {
             Name = "Dummy",
@@ -338,7 +338,7 @@ namespace fCraft {
                 if (player.Can(Permission.Kill, target.Info.Rank))
                 {
                     target.TeleportTo(player.World.Map.Spawn);
-                    Server.Players.Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
+                    Server.Players.CanSee(target).Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
                     player.Info.LastUsedKill = DateTime.Now;
                     return;
                 }
@@ -510,7 +510,6 @@ namespace fCraft {
 
         static void Slap(Player player, Command cmd)
         {
-
             string name = cmd.Next();
 
             if (name == null)
@@ -538,7 +537,7 @@ namespace fCraft {
             if (player.Can(Permission.Slap, target.Info.Rank))
             {
                 Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
-                Server.Players.Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
+                Server.Players.CanSee(target).Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                 target.TeleportTo(slap);
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
@@ -716,7 +715,7 @@ namespace fCraft {
                 return;
             }
 
-            if (player.Can(Permission.Ban, target.Info.Rank))
+            if (player.Can(Permission.Kick, target.Info.Rank))
             {
                 target.Info.IsHidden = false;
 
@@ -724,18 +723,17 @@ namespace fCraft {
                 {
                     Player targetPlayer = target;
                     target.BassKick(player, reason, LeaveReason.Kick, true, true, true);
-
-                    if (!File.Exists(Paths.BasscannonFileName)) return;
-                    else
+                    if (BassText.Count < 1)
                     {
-                        string[] lines = File.ReadAllLines(Paths.BasscannonFileName);
-                        if (lines.Length == 0) return;
-                        string line = lines[new Random().Next(0, lines.Length)].Trim();
-                        if (line.Length == 0) return;
-                        {
-                            Server.Message("&9{0}", line);
-                        }
+                        BassText.Add("Flux Pavillion does not approve of your behavior");
+                        BassText.Add("Let the Basscannon KICK IT!");
+                        BassText.Add("WUB WUB WUB WUB WUB WUB!");
+                        BassText.Add("Basscannon, Basscannon, Basscannon, Basscannon!");
+                        BassText.Add("Pow pow POW!!!");
                     }
+                    string line = BassText[new Random().Next(0, BassText.Count)].Trim();
+                    if (line.Length == 0) return;
+                    Server.Message("&9{0}", line);
                 }
                 catch (PlayerOpException ex)
                 {
@@ -747,7 +745,7 @@ namespace fCraft {
             else
             {
                 player.Message("You can only use /Basscannon on players ranked {0}&S or lower",
-                                player.Info.Rank.GetLimit(Permission.Ban).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.Kick).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
             }
         }

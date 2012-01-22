@@ -806,7 +806,6 @@ namespace fCraft
                 case "invite":
 
                     string invite = cmd.Next();
-                    string JoinName = player.Name;
 
                     if (invite == null)
                     {
@@ -827,18 +826,13 @@ namespace fCraft
                         player.Message("Player not found. Please specify valid name.");
                         return;
                     }
-
-                    if (!cmd.IsConfirmed)
-                    {
-                        targetInvite.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
-                        return;
-                    }
-
                     else
                     {
-                        JoinHandler(targetInvite, new Command("/join " + JoinName));
-                        return;
+                        targetInvite.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
+                        World JoinName = WorldManager.FindWorldOrPrintMatches(targetInvite, player.Name);
+                        targetInvite.JoinWorld(JoinName, WorldChangeReason.ManualJoin);
                     }
+                        break;
 
                 case "join":
 
