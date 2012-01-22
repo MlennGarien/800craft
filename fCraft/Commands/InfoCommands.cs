@@ -51,63 +51,121 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Help = "Shows a list of requirements needed to advance to the next rank.",
-            Usage = "/List Staff | Displayednames",
+            Usage = "/List SectionName",
             Handler = ListHandler
         };
 
         internal static void ListHandler(Player player, Command cmd)
         {
             string Option = cmd.Next();
-
             if (Option == null)
             {
                 CdList.PrintUsage(player);
+                player.Message("  Sections include: Staff, DisplayedNames, Idles, dummys");
                 return;
             }
-            if (Option.ToLower() == "staff")
+            switch (Option.ToLower())
             {
-                var StaffNames = PlayerDB.PlayerInfoList
-                                     .Where(r => r.Rank.Can(Permission.ReadStaffChat) && 
-                                         r.Rank.Can(Permission.Ban) && 
-                                         r.Rank.Can(Permission.Promote))
-                                         .ToArray();
+                default:
+                    CdList.PrintUsage(player);
+                    player.Message("  Sections include: Staff, DisplayedNames, Idles");
+                    break;
 
-                if (StaffNames.Length <= PlayersPerPage)
-                {
-                    player.MessageManyMatches("staff", StaffNames);
-                }
+                case "dummys":
+                case "dummy":
+                case "bots":
+                    World world = player.World;
+                    if (world.Map.Dummys.Count() > 0)
+                    {
+                        player.Message("Dummys available on world {0}: ", world.ClassyName);
+                        foreach (Player d in world.Map.Dummys)
+                        {
+                            string Dname = d.ClassyName;
+                            Dname = Color.ReplacePercentCodes(Dname);
+                            player.Message("Name: {0}&S ID: {1}", Dname, d.Info.ID);
+                        }
+                    }
+                    else player.Message("There are no Dummys on world {0}", world.ClassyName);
+                    break;
 
-                else
-                {
-                    int offset;
+                case "idles":
+                case "idle":
+                    var Idles = Server.Players.Where(p => p.IdleTime.TotalMinutes > 5).ToArray();
+                    if (Idles.Count() > 0)
+                        player.Message("Listing players idle for 5 mins or more: {0}",
+                                        Idles.JoinToString(r => String.Format("{0}", r.ClassyName)));
+                    else player.Message("No players have been idle for more than 5 minutes");
+                    break;
 
-                    if (!cmd.NextInt(out offset)) offset = 0;
+                case "portals":
+                    if (player.World == null)
+                    {
+                        player.Message("/List portals cannot be used from Console");
+                        return;
+                    }
 
-                    if (offset >= StaffNames.Length)
-                        offset = Math.Max(0, StaffNames.Length - PlayersPerPage);
-
-                    PlayerInfo[] StaffPart = StaffNames.Skip(offset).Take(PlayersPerPage).ToArray();
-                    player.MessageManyMatches("staff", StaffPart);
-
-                    if (offset + StaffPart.Length < StaffNames.Length)
-                        player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
-                                        offset + 1, offset + StaffPart.Length, StaffNames.Length,
-                                        "staff", offset + StaffPart.Length);
+                    if (player.World.Portals == null || player.World.Portals.Count == 0)
+                    {
+                        player.Message("There are no portals in {0}&S.", player.World.ClassyName);
+                    }
                     else
-                        player.Message("Showing matches {0}-{1} (out of {2}).",
-                                        offset + 1, offset + StaffPart.Length, StaffNames.Length);
-                }
-            }
+                    {
+                        String[] portalNames = new String[player.World.Portals.Count];
+                        StringBuilder output = new StringBuilder("There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: ");
 
-            if (Option.ToLower() == "displayednames" || Option.ToLower() == "displayedname" || Option.ToLower() == "dn")
-            {
+                        for (int i = 0; i < player.World.Portals.Count; i++)
+                        {
+                            portalNames[i] = ((fCraft.Portals.Portal)player.World.Portals[i]).Name;
+                        }
+                        output.Append(portalNames.JoinToString(", "));
+                        player.Message(output.ToString());
+                    }
+                    break;
 
-                var DisplayedNames = PlayerDB.PlayerInfoList
-                                         .Where(r => r.DisplayedName != null).ToArray();
-                if (DisplayedNames.Count() > 0)
-                    player.Message("Listing all DisplayedNames: {0}",
-                                    DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
-                else player.Message("No players with DisplayedNames were found in the Player Database");
+                case "staff":
+                    var StaffNames = PlayerDB.PlayerInfoList
+                                         .Where(r => r.Rank.Can(Permission.ReadStaffChat) &&
+                                             r.Rank.Can(Permission.Ban) &&
+                                             r.Rank.Can(Permission.Promote))
+                                             .ToArray();
+
+                    if (StaffNames.Length <= PlayersPerPage)
+                    {
+                        player.MessageManyMatches("staff", StaffNames);
+                    }
+
+                    else
+                    {
+                        int offset;
+
+                        if (!cmd.NextInt(out offset)) offset = 0;
+
+                        if (offset >= StaffNames.Length)
+                            offset = Math.Max(0, StaffNames.Length - PlayersPerPage);
+
+                        PlayerInfo[] StaffPart = StaffNames.Skip(offset).Take(PlayersPerPage).ToArray();
+                        player.MessageManyMatches("staff", StaffPart);
+
+                        if (offset + StaffPart.Length < StaffNames.Length)
+                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                            offset + 1, offset + StaffPart.Length, StaffNames.Length,
+                                            "staff", offset + StaffPart.Length);
+                        else
+                            player.Message("Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + StaffPart.Length, StaffNames.Length);
+                    }
+                    break;
+
+                case "displayednames":
+                case "displayedname":
+                case "dn":
+                    var DisplayedNames = PlayerDB.PlayerInfoList
+                                             .Where(r => r.DisplayedName != null).ToArray();
+                    if (DisplayedNames.Count() > 0)
+                        player.Message("Listing all DisplayedNames: {0}",
+                                        DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
+                    else player.Message("No players with DisplayedNames were found in the Player Database");
+                    break;
             }
         }
 
