@@ -92,7 +92,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBanx);
             CommandManager.RegisterCommand(CdFly);
             CommandManager.RegisterCommand(CdPlace);
-            //CommandManager.RegisterCommand( CdTree );
+            CommandManager.RegisterCommand( CdTree );
         }
 
         static readonly CommandDescriptor CdPlace = new CommandDescriptor
@@ -1674,11 +1674,18 @@ namespace fCraft {
         }
 
 
-        static void TreeCallback( Player player, Vector3I[] marks, object tag ) {
+        static void TreeCallback(Player player, Vector3I[] marks, object tag)
+        {
             ForesterArgs args = (ForesterArgs)tag;
             int blocksPlaced = 0, blocksDenied = 0;
-            Forester.Plant( args, marks[0] );
-            DrawingFinished( player, "planted", blocksPlaced, blocksDenied);
+            UndoState undoState = player.DrawBegin(null);
+            args.BlockPlacing +=
+                (sender, e) =>
+               DrawOneBlock(player, player.World.Map, e.Block, e.Coordinate,
+                              BlockChangeContext.Drawn,
+                              ref blocksPlaced, ref blocksDenied, undoState);
+            Forester.Plant(args, marks[0]);
+            DrawingFinished(player, "planted", blocksPlaced, blocksDenied);
         }
         #endregion
 

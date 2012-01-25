@@ -30,11 +30,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
+            this.SwearBox = new System.Windows.Forms.TextBox();
             this.Button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.bMineQueryPortCheck = new System.Windows.Forms.Button();
@@ -108,6 +110,7 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -303,9 +306,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
-            this.SwearBox = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -412,11 +412,32 @@
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(5, 394);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(207, 15);
+            this.label3.TabIndex = 20;
+            this.label3.Text = "Word for swears to be replaced with: ";
+            // 
+            // SwearBox
+            // 
+            this.SwearBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.SwearBox.HideSelection = false;
+            this.SwearBox.Location = new System.Drawing.Point(212, 388);
+            this.SwearBox.MaxLength = 64;
+            this.SwearBox.Name = "SwearBox";
+            this.SwearBox.Size = new System.Drawing.Size(125, 21);
+            this.SwearBox.TabIndex = 19;
+            this.SwearBox.TextChanged += new System.EventHandler(this.SwearBox_TextChanged);
+            // 
             // Button1
             // 
             this.Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.Button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Button1.Location = new System.Drawing.Point(494, 391);
+            this.Button1.Location = new System.Drawing.Point(372, 381);
             this.Button1.Name = "Button1";
             this.Button1.Size = new System.Drawing.Size(138, 28);
             this.Button1.TabIndex = 6;
@@ -483,6 +504,7 @@
             // xMineQuery
             // 
             this.xMineQuery.AutoSize = true;
+            this.xMineQuery.Enabled = false;
             this.xMineQuery.Location = new System.Drawing.Point(64, 30);
             this.xMineQuery.Margin = new System.Windows.Forms.Padding(2);
             this.xMineQuery.Name = "xMineQuery";
@@ -543,7 +565,7 @@
             this.groupBox2.Controls.Add(this.bChangelog);
             this.groupBox2.Controls.Add(this.bCredits);
             this.groupBox2.Controls.Add(this.bReadme);
-            this.groupBox2.Location = new System.Drawing.Point(329, 439);
+            this.groupBox2.Location = new System.Drawing.Point(8, 450);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(315, 55);
             this.groupBox2.TabIndex = 4;
@@ -586,7 +608,7 @@
             this.gHelpAndSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.gHelpAndSupport.Controls.Add(this.bOpenWiki);
             this.gHelpAndSupport.Controls.Add(this.bReportABug);
-            this.gHelpAndSupport.Location = new System.Drawing.Point(8, 439);
+            this.gHelpAndSupport.Location = new System.Drawing.Point(334, 450);
             this.gHelpAndSupport.Name = "gHelpAndSupport";
             this.gHelpAndSupport.Size = new System.Drawing.Size(315, 55);
             this.gHelpAndSupport.TabIndex = 3;
@@ -988,7 +1010,7 @@
             this.tabChat.Location = new System.Drawing.Point(4, 24);
             this.tabChat.Name = "tabChat";
             this.tabChat.Padding = new System.Windows.Forms.Padding(5, 5, 5, 10);
-            this.tabChat.Size = new System.Drawing.Size(652, 508);
+            this.tabChat.Size = new System.Drawing.Size(882, 407);
             this.tabChat.TabIndex = 10;
             this.tabChat.Text = "Chat";
             // 
@@ -1291,6 +1313,13 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point(7, 284);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 213);
+            this.chatPreview.TabIndex = 2;
+            // 
             // tabWorlds
             // 
             this.tabWorlds.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
@@ -1309,7 +1338,7 @@
             this.tabWorlds.Location = new System.Drawing.Point(4, 24);
             this.tabWorlds.Name = "tabWorlds";
             this.tabWorlds.Padding = new System.Windows.Forms.Padding(5, 10, 5, 10);
-            this.tabWorlds.Size = new System.Drawing.Size(652, 508);
+            this.tabWorlds.Size = new System.Drawing.Size(973, 407);
             this.tabWorlds.TabIndex = 9;
             this.tabWorlds.Text = "Worlds";
             // 
@@ -1453,8 +1482,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvWorlds.RowTemplate.Height = 24;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size(636, 351);
@@ -1513,8 +1542,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1537,7 +1566,7 @@
             this.tabRanks.Location = new System.Drawing.Point(4, 24);
             this.tabRanks.Name = "tabRanks";
             this.tabRanks.Padding = new System.Windows.Forms.Padding(5, 10, 5, 10);
-            this.tabRanks.Size = new System.Drawing.Size(652, 508);
+            this.tabRanks.Size = new System.Drawing.Size(973, 407);
             this.tabRanks.TabIndex = 2;
             this.tabRanks.Text = "Ranks";
             // 
@@ -3574,34 +3603,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 284);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 213);
-            this.chatPreview.TabIndex = 2;
-            // 
-            // SwearBox
-            // 
-            this.SwearBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.SwearBox.HideSelection = false;
-            this.SwearBox.Location = new System.Drawing.Point(347, 395);
-            this.SwearBox.MaxLength = 64;
-            this.SwearBox.Name = "SwearBox";
-            this.SwearBox.Size = new System.Drawing.Size(125, 21);
-            this.SwearBox.TabIndex = 19;
-            this.SwearBox.TextChanged += new System.EventHandler(this.SwearBox_TextChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(134, 398);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(207, 15);
-            this.label3.TabIndex = 20;
-            this.label3.Text = "Word for swears to be replaced with: ";
             // 
             // MainForm
             // 
