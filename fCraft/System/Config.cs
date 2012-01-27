@@ -152,6 +152,7 @@ namespace fCraft {
      *               Added fillLimit rank attribute.
      *               
      * 152 - 800Craft stuff
+     * 153 - Added hbsaver key
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -162,7 +163,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of 800Craft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 152;
+        public const int CurrentVersion = 153;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY

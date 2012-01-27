@@ -305,6 +305,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.HbBox1 = new System.Windows.Forms.CheckBox();
             this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
@@ -396,6 +397,7 @@
             // tabGeneral
             // 
             this.tabGeneral.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabGeneral.Controls.Add(this.HbBox1);
             this.tabGeneral.Controls.Add(this.label3);
             this.tabGeneral.Controls.Add(this.SwearBox);
             this.tabGeneral.Controls.Add(this.Button1);
@@ -415,7 +417,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(134, 398);
+            this.label3.Location = new System.Drawing.Point(18, 382);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(207, 15);
             this.label3.TabIndex = 20;
@@ -426,7 +428,7 @@
             this.SwearBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.SwearBox.HideSelection = false;
-            this.SwearBox.Location = new System.Drawing.Point(347, 395);
+            this.SwearBox.Location = new System.Drawing.Point(227, 376);
             this.SwearBox.MaxLength = 64;
             this.SwearBox.Name = "SwearBox";
             this.SwearBox.Size = new System.Drawing.Size(125, 21);
@@ -437,7 +439,7 @@
             // 
             this.Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.Button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Button1.Location = new System.Drawing.Point(494, 391);
+            this.Button1.Location = new System.Drawing.Point(361, 369);
             this.Button1.Name = "Button1";
             this.Button1.Size = new System.Drawing.Size(138, 28);
             this.Button1.TabIndex = 6;
@@ -3597,6 +3599,17 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // HbBox1
+            // 
+            this.HbBox1.AutoSize = true;
+            this.HbBox1.Location = new System.Drawing.Point(403, 414);
+            this.HbBox1.Name = "HbBox1";
+            this.HbBox1.Size = new System.Drawing.Size(229, 19);
+            this.HbBox1.TabIndex = 20;
+            this.HbBox1.Text = "Launch HeartBeatSaver on shutdown";
+            this.HbBox1.UseVisualStyleBackColor = true;
+            this.HbBox1.CheckedChanged += new System.EventHandler(this.HbBox1_CheckedChanged);
+            // 
             // chatPreview
             // 
             this.chatPreview.Location = new System.Drawing.Point(7, 284);
@@ -3988,6 +4001,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox SwearBox;
+        private System.Windows.Forms.CheckBox HbBox1;
        // private System.Windows.Forms.Button Button1;
     }
 }

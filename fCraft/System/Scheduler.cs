@@ -219,29 +219,32 @@ namespace fCraft {
 #if DEBUG_SCHEDULER
             Logger.Log( LogType.Debug, "Scheduler: BeginShutdown..." );
 #endif
-            if (!Server.IsRestarting)
+            if (ConfigKey.HbSaverKey.Enabled())
             {
-                try
+                if (!Server.IsRestarting)
                 {
-                    if (!File.Exists("heartbeatsaver.exe"))
+                    try
                     {
-                        Logger.Log(LogType.Warning, "heartbeatsaver.exe does not exist and failed to launch");
-                        return;
-                    }
+                        if (!File.Exists("heartbeatsaver.exe"))
+                        {
+                            Logger.Log(LogType.Warning, "heartbeatsaver.exe does not exist and failed to launch");
+                            return;
+                        }
 
-                    //start the heartbeat saver
-                    Process HeartbeatSaver = new Process();
-                    Logger.Log(LogType.SystemActivity, "Starting the HeartBeat Saver");
-                    HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
-                    HeartbeatSaver.Start();
+                        //start the heartbeat saver
+                        Process HeartbeatSaver = new Process();
+                        Logger.Log(LogType.SystemActivity, "Starting the HeartBeat Saver");
+                        HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
+                        HeartbeatSaver.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(LogType.Error, "HeartBeatSaver: " + ex);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    Logger.Log(LogType.Error, "HeartBeatSaver: " + ex);
-                }
+                else
+                    Logger.Log(LogType.SystemActivity, "HeartBeat Saver was not launched");
             }
-            else 
-                Logger.Log(LogType.SystemActivity, "HeartBeat Saver was not launched");
 
             lock( TaskListLock ) {
                 foreach( SchedulerTask task in Tasks ) {

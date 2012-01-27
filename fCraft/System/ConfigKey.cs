@@ -18,6 +18,9 @@ official server list (if server is public).",
             MinLength = 2, MaxLength = 10)]
        SwearReplace,
 
+        [BoolKey(ConfigSection.General, false, "Defines wether HeartBeatSaver should be launched on shutdown.")]
+        HbSaverKey,
+
         [BoolKey(ConfigSection.General, false, "Defines wether MineQuery should be used.")]
         MineQuery,
 

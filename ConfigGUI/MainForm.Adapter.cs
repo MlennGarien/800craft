@@ -115,6 +115,7 @@ namespace fCraft.ConfigGUI {
             tServerName.Text = ConfigKey.ServerName.GetString();
             tMOTD.Text = ConfigKey.MOTD.GetString();
             SwearBox.Text = ConfigKey.SwearReplace.GetString();
+            HbBox1.Checked = ConfigKey.HbSaverKey.Enabled();
 
             nMaxPlayers.Value = ConfigKey.MaxPlayers.GetInt();
             xMineQuery.Checked = ConfigKey.MineQuery.Enabled();
@@ -443,6 +444,7 @@ namespace fCraft.ConfigGUI {
             // General
             ConfigKey.ServerName.TrySetValue( tServerName.Text );
             ConfigKey.SwearReplace.TrySetValue(SwearBox.Text);
+            ConfigKey.HbSaverKey.TrySetValue(HbBox1.Checked);
             ConfigKey.MOTD.TrySetValue( tMOTD.Text );
             ConfigKey.MaxPlayers.TrySetValue( nMaxPlayers.Value );
             ConfigKey.MaxPlayersPerWorld.TrySetValue( nMaxPlayersPerWorld.Value );
