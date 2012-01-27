@@ -1907,7 +1907,8 @@ namespace fCraft
         }
         #region Gen
 
-        static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
+        static readonly CommandDescriptor CdGenerate = new CommandDescriptor
+        {
             Name = "Gen",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1917,74 +1918,95 @@ namespace fCraft
             Handler = GenHandler
         };
 
-        static void GenHandler( Player player, Command cmd ) {
+        static void GenHandler(Player player, Command cmd)
+        {
             World playerWorld = player.World;
-            Map oldMap = player.WorldMap;
             string themeName = cmd.Next();
             string templateName;
             bool genOcean = false;
             bool genEmpty = false;
             bool noTrees = false;
 
-            if( themeName == null ) {
-                CdGenerate.PrintUsage( player );
+            if (themeName == null)
+            {
+                CdGenerate.PrintUsage(player);
                 return;
             }
             MapGenTheme theme = MapGenTheme.Forest;
             MapGenTemplate template = MapGenTemplate.Flat;
 
             // parse special template names (which do not need a theme)
-            if( themeName.Equals( "ocean" ) ) {
+            if (themeName.Equals("ocean"))
+            {
                 genOcean = true;
 
-            } else if( themeName.Equals( "empty" ) ) {
+            }
+            else if (themeName.Equals("empty"))
+            {
                 genEmpty = true;
 
-            } else {
+            }
+            else
+            {
                 templateName = cmd.Next();
-                if( templateName == null ) {
-                    CdGenerate.PrintUsage( player );
+                if (templateName == null)
+                {
+                    CdGenerate.PrintUsage(player);
                     return;
                 }
-            
+
                 // parse theme
                 bool swapThemeAndTemplate = false;
-                if( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
+                if (themeName.Equals("grass", StringComparison.OrdinalIgnoreCase))
+                {
                     theme = MapGenTheme.Forest;
                     noTrees = true;
 
-                } else if( templateName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
+                }
+                else if (templateName.Equals("grass", StringComparison.OrdinalIgnoreCase))
+                {
                     theme = MapGenTheme.Forest;
                     noTrees = true;
                     swapThemeAndTemplate = true;
 
-                } else if( EnumUtil.TryParse( themeName, out theme, true ) ) {
+                }
+                else if (EnumUtil.TryParse(themeName, out theme, true))
+                {
                     noTrees = (theme != MapGenTheme.Forest);
 
-                } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
+                }
+                else if (EnumUtil.TryParse(templateName, out theme, true))
+                {
                     noTrees = (theme != MapGenTheme.Forest);
                     swapThemeAndTemplate = true;
 
-                } else {
-                    player.Message( "Gen: Unrecognized theme \"{0}\". Available themes are: {1}",
+                }
+                else
+                {
+                    player.Message("Gen: Unrecognized theme \"{0}\". Available themes are: {1}",
                                     themeName,
-                                    Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
+                                    Enum.GetNames(typeof(MapGenTheme)).JoinToString());
                     return;
                 }
 
                 // parse template
-                if( swapThemeAndTemplate ) {
-                    if( !EnumUtil.TryParse( themeName, out template, true ) ) {
-                        player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
+                if (swapThemeAndTemplate)
+                {
+                    if (!EnumUtil.TryParse(themeName, out template, true))
+                    {
+                        player.Message("Unrecognized template \"{0}\". Available templates are: {1}",
                                         themeName,
-                                        Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
+                                        Enum.GetNames(typeof(MapGenTemplate)).JoinToString());
                         return;
                     }
-                } else {
-                    if( !EnumUtil.TryParse( templateName, out template, true ) ) {
-                        player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
+                }
+                else
+                {
+                    if (!EnumUtil.TryParse(templateName, out template, true))
+                    {
+                        player.Message("Unrecognized template \"{0}\". Available templates are: {1}",
                                         templateName,
-                                        Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
+                                        Enum.GetNames(typeof(MapGenTemplate)).JoinToString());
                         return;
                     }
                 }
@@ -1992,148 +2014,215 @@ namespace fCraft
 
             // parse map dimensions
             int mapWidth, mapLength, mapHeight;
-            if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
-                if( playerWorld != null ) {
-                    // If map dimensions were not given, use current map's dimensions
-                    mapWidth = oldMap.Width;
-                    mapLength = oldMap.Length;
-                    mapHeight = oldMap.Height;
-                } else {
-                    player.Message( "When used from console, /Gen requires map dimensions." );
-                    CdGenerate.PrintUsage( player );
-                    return;
+            if (cmd.HasNext)
+            {
+                int offset = cmd.Offset;
+                if (!(cmd.NextInt(out mapWidth) && cmd.NextInt(out mapLength) && cmd.NextInt(out mapHeight)))
+                {
+                    if (playerWorld != null)
+                    {
+                        Map oldMap = player.WorldMap;
+                        // If map dimensions were not given, use current map's dimensions
+                        mapWidth = oldMap.Width;
+                        mapLength = oldMap.Length;
+                        mapHeight = oldMap.Height;
+                    }
+                    else
+                    {
+                        player.Message("When used from console, /Gen requires map dimensions.");
+                        CdGenerate.PrintUsage(player);
+                        return;
+                    }
+                    cmd.Offset = offset;
                 }
-                cmd.Rewind();
-                cmd.Next();
-                cmd.Next();
+            }
+            else if (playerWorld != null)
+            {
+                Map oldMap = player.WorldMap;
+                // If map dimensions were not given, use current map's dimensions
+                mapWidth = oldMap.Width;
+                mapLength = oldMap.Length;
+                mapHeight = oldMap.Height;
+            }
+            else
+            {
+                player.Message("When used from console, /Gen requires map dimensions.");
+                CdGenerate.PrintUsage(player);
+                return;
             }
 
             // Check map dimensions
-            const string dimensionRecommendation = "Dimensions must be between 1 and 2047. " +
+            const string dimensionRecommendation = "Dimensions must be between 16 and 2047. " +
                                                    "Recommended values: 16, 32, 64, 128, 256, 512, and 1024.";
-            if( !Map.IsValidDimension( mapWidth ) ) {
-                player.Message( "Cannot make map with width {0}. {1}", mapWidth, dimensionRecommendation );
+            if (!Map.IsValidDimension(mapWidth))
+            {
+                player.Message("Cannot make map with width {0}. {1}", mapWidth, dimensionRecommendation);
                 return;
-            } else if( !Map.IsValidDimension( mapLength ) ) {
-                player.Message( "Cannot make map with length {0}. {1}", mapLength, dimensionRecommendation );
+            }
+            else if (!Map.IsValidDimension(mapLength))
+            {
+                player.Message("Cannot make map with length {0}. {1}", mapLength, dimensionRecommendation);
                 return;
-            } else if( !Map.IsValidDimension( mapHeight ) ) {
-                player.Message( "Cannot make map with height {0}. {1}", mapHeight, dimensionRecommendation );
+            }
+            else if (!Map.IsValidDimension(mapHeight))
+            {
+                player.Message("Cannot make map with height {0}. {1}", mapHeight, dimensionRecommendation);
+                return;
+            }
+            long volume = (long)mapWidth * (long)mapLength * (long)mapHeight;
+            if (volume > Int32.MaxValue)
+            {
+                player.Message("Map volume may not exceed {0}", Int32.MaxValue);
                 return;
             }
 
-            if( !cmd.IsConfirmed && (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength )) ) {
-                player.Message( "&WThe map will have non-standard dimensions. " +
+            if (!cmd.IsConfirmed && (!Map.IsRecommendedDimension(mapWidth) || !Map.IsRecommendedDimension(mapLength)))
+            {
+                player.Message("&WThe map will have non-standard dimensions. " +
                                 "You may see glitched blocks or visual artifacts. " +
-                                "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
+                                "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024.");
+            }
+
+            // figure out full template name
+            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
+            string templateFullName;
+            if (genEmpty)
+            {
+                templateFullName = "Empty";
+            }
+            else if (genOcean)
+            {
+                templateFullName = "Ocean";
+            }
+            else if (genFlatgrass)
+            {
+                templateFullName = "Flatgrass";
+            }
+            else
+            {
+                if (theme == MapGenTheme.Forest && noTrees)
+                {
+                    templateFullName = "Grass " + template;
+                }
+                else
+                {
+                    templateFullName = theme + " " + template;
+                }
             }
 
             // check file/world name
             string fileName = cmd.Next();
             string fullFileName = null;
-            if( fileName == null ) {
+            if (fileName == null)
+            {
                 // replacing current world
-                if( playerWorld == null ) {
-                    player.Message( "When used from console, /Gen requires FileName." );
-                    CdGenerate.PrintUsage( player );
-                    return;
-                }
-                if( !cmd.IsConfirmed ) {
-                    player.Confirm( cmd, "Replace this world's map with a generated one?" );
-                    return;
-                }
-                if (playerWorld.Map.Dummys.Count > 0)
+                if (playerWorld == null)
                 {
-                    for (int i = 0; i < playerWorld.Map.Dummys.Count + 1; i++)
-                    {
-                        playerWorld.Players.Send(PacketWriter.MakeRemoveEntity(i));
-                    }
-                    playerWorld.Map.Dummys.Clear();
+                    player.Message("When used from console, /Gen requires FileName.");
+                    CdGenerate.PrintUsage(player);
+                    return;
                 }
-            } else {
+                if (!cmd.IsConfirmed)
+                {
+                    player.Confirm(cmd, "Replace THIS MAP with a generated one ({0})?", templateFullName);
+                    return;
+                }
+
+            }
+            else
+            {
+                if (cmd.HasNext)
+                {
+                    CdGenerate.PrintUsage(player);
+                    return;
+                }
                 // saving to file
-                fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
-                if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                fileName = fileName.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                if (!fileName.EndsWith(".fcm", StringComparison.OrdinalIgnoreCase))
+                {
                     fileName += ".fcm";
                 }
-                if( !Paths.IsValidPath( fileName ) ) {
-                    player.Message( "Invalid filename." );
+                if (!Paths.IsValidPath(fileName))
+                {
+                    player.Message("Invalid filename.");
                     return;
                 }
-                fullFileName = Path.Combine( Paths.MapPath, fileName );
-                if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
+                fullFileName = Path.Combine(Paths.MapPath, fileName);
+                if (!Paths.Contains(Paths.MapPath, fullFileName))
+                {
                     player.MessageUnsafePath();
                     return;
                 }
-                string dirName = fullFileName.Substring( 0, fullFileName.LastIndexOf( Path.DirectorySeparatorChar ) );
-                if( !Directory.Exists( dirName ) ) {
-                    Directory.CreateDirectory( dirName );
+                string dirName = fullFileName.Substring(0, fullFileName.LastIndexOf(Path.DirectorySeparatorChar));
+                if (!Directory.Exists(dirName))
+                {
+                    Directory.CreateDirectory(dirName);
                 }
-                if( !cmd.IsConfirmed && File.Exists( fullFileName ) ) {
-                    player.Confirm( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
+                if (!cmd.IsConfirmed && File.Exists(fullFileName))
+                {
+                    player.Confirm(cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName);
                     return;
                 }
             }
-            
-            // generating
-            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
+
+            // generate the map
             Map map;
-            if( genEmpty ) {
-                player.MessageNow( "Generating empty map..." );
-                map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
+            player.MessageNow("Generating {0}...", templateFullName);
 
-            } else if( genOcean ) {
-                player.MessageNow( "Generating ocean map..." );
-                map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
+            if (genEmpty)
+            {
+                map = MapGenerator.GenerateEmpty(mapWidth, mapLength, mapHeight);
 
-            } else if( genFlatgrass ) {
-                player.MessageNow( "Generating flatgrass..." );
-                map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
+            }
+            else if (genOcean)
+            {
+                map = MapGenerator.GenerateOcean(mapWidth, mapLength, mapHeight);
 
-            } else {
-                // fancy generation
-                MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
-                if( theme == MapGenTheme.Desert ) {
+            }
+            else if (genFlatgrass)
+            {
+                map = MapGenerator.GenerateFlatgrass(mapWidth, mapLength, mapHeight);
+
+            }
+            else
+            {
+                MapGeneratorArgs args = MapGenerator.MakeTemplate(template);
+                if (theme == MapGenTheme.Desert)
+                {
                     args.AddWater = false;
                 }
                 float ratio = mapHeight / (float)args.MapHeight;
                 args.MapWidth = mapWidth;
                 args.MapLength = mapLength;
                 args.MapHeight = mapHeight;
-                args.MaxHeight = (int)Math.Round( args.MaxHeight * ratio );
-                args.MaxDepth = (int)Math.Round( args.MaxDepth * ratio );
-                args.SnowAltitude = (int)Math.Round( args.SnowAltitude * ratio );
+                args.MaxHeight = (int)Math.Round(args.MaxHeight * ratio);
+                args.MaxDepth = (int)Math.Round(args.MaxDepth * ratio);
+                args.SnowAltitude = (int)Math.Round(args.SnowAltitude * ratio);
                 args.Theme = theme;
                 args.AddTrees = !noTrees;
 
-                try {
-                    if( theme == MapGenTheme.Forest && noTrees ) {
-                        player.MessageNow( "Generating Grass {0}...", template );
-                    } else {
-                        player.MessageNow( "Generating {0} {1}...", theme, template );
-                    }
-                    MapGenerator generator = new MapGenerator( args );
-                    map = generator.Generate();
-
-                } catch( Exception ex ) {
-                    Logger.Log( LogType.Error,
-                                "MapGenerator: Generation failed: {0}", ex );
-                    player.Message( "&WAn error occured while generating the map." );
-                    return;
-                }
+                MapGenerator generator = new MapGenerator(args);
+                map = generator.Generate();
             }
 
-            if( fileName != null ) {
-                if( map.Save( fullFileName ) ) {
-                    player.Message( "Generation done. Saved to {0}", fileName );
-                } else {
-                    player.Message( "&WAn error occured while saving generated map to {0}", fileName );
+            // save map to file, or load it into a world
+            if (fileName != null)
+            {
+                if (map.Save(fullFileName))
+                {
+                    player.Message("Generation done. Saved to {0}", fileName);
                 }
-            } else {
-                if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-                player.MessageNow( "Generation done. Changing map..." );
+                else
+                {
+                    player.Message("&WAn error occured while saving generated map to {0}", fileName);
+                }
+            }
+            else
+            {
+                if (playerWorld == null) PlayerOpException.ThrowNoWorld(player);
+                player.MessageNow("Generation done. Changing map...");
                 playerWorld.MapChangedBy = player.Name;
-                playerWorld.ChangeMap( map );
+                playerWorld.ChangeMap(map);
             }
         }
 

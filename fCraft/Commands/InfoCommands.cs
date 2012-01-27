@@ -61,7 +61,7 @@ namespace fCraft {
             if (Option == null)
             {
                 CdList.PrintUsage(player);
-                player.Message("  Sections include: Staff, DisplayedNames, Idles, dummys");
+                player.Message("  Sections include: Staff, DisplayedNames, Idles, dummys, rank");
                 return;
             }
             switch (Option.ToLower())
@@ -161,6 +161,45 @@ namespace fCraft {
                     }
                     break;
 
+                case "rank":
+                    string rankName = cmd.Next();
+                    if (rankName == null)
+                    {
+                        player.Message("Usage: /List rank rankName");
+                        return;
+                    }
+                    Rank rank = RankManager.FindRank(rankName);
+
+                    var RankNames = PlayerDB.PlayerInfoList
+                                         .Where(r => r.Rank == rank)
+                                             .ToArray();
+
+                    if (RankNames.Length <= PlayersPerPage)
+                    {
+                        player.MessageManyMatches("rank list", RankNames);
+                    }
+
+                    else
+                    {
+                        int offset;
+
+                        if (!cmd.NextInt(out offset)) offset = 0;
+
+                        if (offset >= RankNames.Length)
+                            offset = Math.Max(0, RankNames.Length - PlayersPerPage);
+
+                        PlayerInfo[] RankPart = RankNames.Skip(offset).Take(PlayersPerPage).ToArray();
+                        player.MessageManyMatches("rank list", RankPart);
+
+                        if (offset + RankPart.Length < RankNames.Length)
+                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                            offset + 1, offset + RankPart.Length, RankNames.Length,
+                                            "rank "+ rank.ClassyName, offset + RankPart.Length);
+                        else
+                            player.Message("Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + RankPart.Length, RankNames.Length);
+                    }
+                    break;
                 case "displayednames":
                 case "displayedname":
                 case "dn":

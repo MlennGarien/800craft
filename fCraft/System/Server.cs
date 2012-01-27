@@ -621,7 +621,10 @@ namespace fCraft
                     foreach (Player p in Server.TempBans)
                     {
                         if (p.Info.IsBanned)
+                        {
                             p.Info.Unban(Player.Console, "Shutdown: Tempban cancelled", false, true);
+                            Logger.Log(LogType.SystemActivity, "Unbanning {0}: Was tempbanned", p.Name);
+                        }
                     }
                 }
 
