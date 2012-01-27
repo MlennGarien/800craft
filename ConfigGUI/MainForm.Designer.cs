@@ -35,6 +35,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.label3 = new System.Windows.Forms.Label();
+            this.SwearBox = new System.Windows.Forms.TextBox();
             this.Button1 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.bMineQueryPortCheck = new System.Windows.Forms.Button();
@@ -304,8 +306,6 @@
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
-            this.SwearBox = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -412,6 +412,27 @@
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(134, 398);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(207, 15);
+            this.label3.TabIndex = 20;
+            this.label3.Text = "Word for swears to be replaced with: ";
+            // 
+            // SwearBox
+            // 
+            this.SwearBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.SwearBox.HideSelection = false;
+            this.SwearBox.Location = new System.Drawing.Point(347, 395);
+            this.SwearBox.MaxLength = 64;
+            this.SwearBox.Name = "SwearBox";
+            this.SwearBox.Size = new System.Drawing.Size(125, 21);
+            this.SwearBox.TabIndex = 19;
+            this.SwearBox.TextChanged += new System.EventHandler(this.SwearBox_TextChanged);
+            // 
             // Button1
             // 
             this.Button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -483,6 +504,7 @@
             // xMineQuery
             // 
             this.xMineQuery.AutoSize = true;
+            this.xMineQuery.Enabled = false;
             this.xMineQuery.Location = new System.Drawing.Point(64, 30);
             this.xMineQuery.Margin = new System.Windows.Forms.Padding(2);
             this.xMineQuery.Name = "xMineQuery";
@@ -3581,27 +3603,6 @@
             this.chatPreview.Name = "chatPreview";
             this.chatPreview.Size = new System.Drawing.Size(637, 213);
             this.chatPreview.TabIndex = 2;
-            // 
-            // SwearBox
-            // 
-            this.SwearBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.SwearBox.HideSelection = false;
-            this.SwearBox.Location = new System.Drawing.Point(347, 395);
-            this.SwearBox.MaxLength = 64;
-            this.SwearBox.Name = "SwearBox";
-            this.SwearBox.Size = new System.Drawing.Size(125, 21);
-            this.SwearBox.TabIndex = 19;
-            this.SwearBox.TextChanged += new System.EventHandler(this.SwearBox_TextChanged);
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(134, 398);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(207, 15);
-            this.label3.TabIndex = 20;
-            this.label3.Text = "Word for swears to be replaced with: ";
             // 
             // MainForm
             // 

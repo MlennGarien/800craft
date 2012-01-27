@@ -60,11 +60,11 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
-            CommandManager.RegisterCommand(CdGame);
+           // CommandManager.RegisterCommand(CdGame);
             Player.JoinedWorld += DummyCheck;
-            Player.Clicked += GameEvents.PlayerClicked;
-            Player.Disconnected += GameEvents.PlayerDisconnected;
-            Server.ShutdownBegan += GameEvents.Shutdown;
+            //Player.Clicked += GameEvents.PlayerClicked;
+            //Player.Disconnected += GameEvents.PlayerDisconnected;
+            //Server.ShutdownBegan += GameEvents.Shutdown;
         }
 
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
@@ -660,7 +660,7 @@ namespace fCraft
         internal static void Realm(Player player, Command cmd)
         {
             string Choice = cmd.Next();
-            switch (Choice)
+            switch (Choice.ToLower())
             {
                 default:
                     CdRealm.PrintUsage(player);

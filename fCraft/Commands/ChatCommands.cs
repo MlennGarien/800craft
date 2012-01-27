@@ -351,7 +351,11 @@ namespace fCraft
 
                 Player target = Server.FindPlayerOrPrintMatches(Player.Console, Server.TargetName, true, true);
 
-                if (Server.VoteYes > Server.VoteNo){
+                if(!target.IsOnline){
+                    Server.Message("{0}&S is offline", target.ClassyName);
+                        return;
+                }
+                else if (Server.VoteYes > Server.VoteNo){
                     Scheduler.NewTask(t => target.Kick(Player.Console, "VoteKick by: " + player.Name + " - " + Server.VoteKickReason, LeaveReason.Kick, false, true, false)).RunOnce(TimeSpan.FromSeconds(3));
                     Server.Players.Message("{0}&S was kicked from the server", target.ClassyName);
                 }
