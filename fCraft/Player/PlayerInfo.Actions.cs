@@ -99,6 +99,18 @@ namespace fCraft {
                         if( announce ) {
                             Server.Message( target, "{0}&W was {1} by {2}",
                                             target.ClassyName, verb, player.ClassyName );
+                            if (Server.TempBans.Contains(target))
+                            {
+                                if (!target.Info.IsBanned)
+                                {
+                                    Server.TempBans.Remove(target);
+                                    return;
+                                }
+                                else if (target.Info.IsBanned)
+                                {
+                                    Server.TempBans.Remove(target);
+                                }
+                            }
                         }
 
                         // Kick the target

@@ -654,16 +654,17 @@ namespace fCraft {
                 {
                     Player targetPlayer = targets.PlayerObject;
                     targets.Ban(player, "You were Banned for " + timeString, false, true);
+                    Server.TempBans.Add(targetPlayer);
                 }
                 catch (PlayerOpException ex)
                 {
                     player.Message(ex.MessageColored);
-
                 }
                 Scheduler.NewTask(t => target.Info.Unban(player, "Tempban Expired", true, true)).RunOnce(duration);
                 Server.Message(target,
                                 "&SPlayer {0}&S was Banned by {1}&S for {2}",
                                 target.ClassyName, player.ClassyName, duration.ToMiniString());
+                if (reason.Length > 0) Server.Message("&Wreason: {0}", reason);
                 Logger.Log(LogType.UserActivity, "Player {0} was Banned by {1} for {2}",
                             target.Name, player.Name, duration.ToMiniString());
             }

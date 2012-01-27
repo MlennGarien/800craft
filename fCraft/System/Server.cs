@@ -51,6 +51,8 @@ namespace fCraft
         public static bool IsRestarting = false;
         public static bool HSaverOn = false;
 
+        public static List<Player> TempBans = new List<Player>();
+
 
         // networking
         static TcpListener listener;
@@ -611,6 +613,15 @@ namespace fCraft
                             if (world.BlockDB.IsEnabled) world.BlockDB.Flush();
                             world.SaveMap();
                         }
+                    }
+                }
+
+                if (Server.TempBans.Count() > 0)
+                {
+                    foreach (Player p in Server.TempBans)
+                    {
+                        if (p.Info.IsBanned)
+                            p.Info.Unban(Player.Console, "Shutdown: Tempban cancelled", false, true);
                     }
                 }
 
