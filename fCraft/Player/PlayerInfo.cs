@@ -30,6 +30,7 @@ namespace fCraft {
         //slap, kill
         public DateTime LastUsedSlap;
         public DateTime LastUsedKill;
+        public bool KillWait = false;
         
 
         /// <summary> Player's Minecraft account name. </summary>

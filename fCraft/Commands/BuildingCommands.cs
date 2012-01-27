@@ -92,7 +92,100 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBanx);
             CommandManager.RegisterCommand(CdFly);
             CommandManager.RegisterCommand(CdPlace);
-            CommandManager.RegisterCommand( CdTree );
+           // CommandManager.RegisterCommand( CdTree );
+            Player.PlacingBlock += TNTDrop;
+            Player.Clicked += TNTClick;
+        }
+
+        public static int size = 0;
+
+        public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
+        {
+            if (e.Player.WorldMap.GetBlock(e.Coords) == Block.TNT)
+            {
+                size = 2;
+                int X2, Y2, Z2;
+                Random rand = new Random();
+                BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air); //remove clicked block
+                Scheduler.NewTask(t => e.Player.World.Map.QueueUpdate(Update)).RunOnce(TimeSpan.FromMilliseconds(2100));
+
+                //TNT DrawOp
+                for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
+                {
+                    for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
+                    {
+                        for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                        {
+                            //block updating using only the colourful blocks
+                            if (rand.Next(1, 3) == 1)
+                            {
+                                Explode(e.Player, X2, Y2, Z2, e.Coords);
+                                LavaRemoval(e.Player, X2, Y2, Z2, e.Coords);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        public static void TNTDrop(object sender, Events.PlayerPlacingBlockEventArgs e)
+        {
+            if (e.NewBlock == Block.TNT)
+            {
+                size = 2;
+                int X2, Y2, Z2;
+                Random rand = new Random();
+                BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air); //remove clicked block
+                Scheduler.NewTask(t => e.Player.World.Map.QueueUpdate(Update)).RunOnce(TimeSpan.FromMilliseconds(2100));
+            
+                //TNT DrawOp
+                for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
+                {
+                    for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
+                    {
+                        for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                        {
+                            //block updating using only the colourful blocks
+                            if (rand.Next(1, 3) == 1){
+                                Explode(e.Player, X2, Y2, Z2, e.Coords);
+                                LavaRemoval(e.Player, X2, Y2, Z2, e.Coords);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void Explode(Player player, int X2, int Y2, int Z2, Vector3I coords)
+        {
+            BlockUpdate TNTSender = new BlockUpdate(null, (short)X2, (short)Y2, (short)Z2, Block.Lava);
+            player.World.Map.QueueUpdate(TNTSender);
+
+            /*int Xdistance = (coords.X / 32) - coords.X;
+            int Ydistance = (coords.Y / 32) - coords.Y;
+            int Zdistance = (coords.Z / 32) - coords.Z;
+            foreach (Player p in player.World.Players)
+            {
+                //ew
+                if ((int)(p.Position.X / 32) < (Xdistance + size) || (int)(p.Position.X / 32) > (Xdistance - size)
+                    || (int)(p.Position.Y / 32) < (Ydistance + size) || (int)(p.Position.Y / 32) > (Ydistance - size)
+                    || (int)(p.Position.Z / 32) < (Zdistance + size) || (int)(p.Position.Z / 32) > (Zdistance - size))
+                {
+                    //p.TeleportTo(p.WorldMap.Spawn);
+                    if (!p.Info.KillWait)
+                    {
+                        //Server.Players.Message("{0}&S was killed by &CTNT", p.ClassyName);
+                        //p.Info.KillWait = true;
+                        //Scheduler.NewTask(t => p.Info.KillWait = false).RunOnce(TimeSpan.FromSeconds(3));
+                    }
+                }
+            }*/
+            
+        }
+
+        public static void LavaRemoval(Player player, int X2, int Y2, int Z2, Vector3I coords)
+        {
+            BlockUpdate TNTSender = new BlockUpdate(null, (short)X2, (short)Y2, (short)Z2, Block.Air);
+            Scheduler.NewTask(t=> player.WorldMap.QueueUpdate(TNTSender)).RunOnce(TimeSpan.FromMilliseconds(300));
         }
 
         static readonly CommandDescriptor CdPlace = new CommandDescriptor
