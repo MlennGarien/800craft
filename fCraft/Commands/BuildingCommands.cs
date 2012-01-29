@@ -4,6 +4,7 @@ using System.Linq;
 using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using System.Threading;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -98,17 +99,18 @@ namespace fCraft {
         }
 
         public static int size = 0;
+        private static Thread tntExplode;
 
         public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
         {
             if (e.Player.WorldMap.GetBlock(e.Coords) == Block.TNT)
             {
-                size = 2;
+                tntExplode = new Thread(new ThreadStart(delegate
+                    {
+                size = 3;
                 int X2, Y2, Z2;
                 Random rand = new Random();
-                BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air); //remove clicked block
-                Scheduler.NewTask(t => e.Player.World.Map.QueueUpdate(Update)).RunOnce(TimeSpan.FromMilliseconds(2100));
-
+                
                 //TNT DrawOp
                 for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
                 {
@@ -116,7 +118,6 @@ namespace fCraft {
                     {
                         for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
                         {
-                            //block updating using only the colourful blocks
                             if (rand.Next(1, 3) == 1)
                             {
                                 Explode(e.Player, X2, Y2, Z2, e.Coords);
@@ -125,35 +126,46 @@ namespace fCraft {
                         }
                     }
                 }
+            }));
+                tntExplode.Start();
             }
         }
+
+
         public static void TNTDrop(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             if (e.NewBlock == Block.TNT)
             {
-                size = 2;
-                int X2, Y2, Z2;
-                Random rand = new Random();
-                BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air); //remove clicked block
-                Scheduler.NewTask(t => e.Player.World.Map.QueueUpdate(Update)).RunOnce(TimeSpan.FromMilliseconds(2100));
-            
-                //TNT DrawOp
-                for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
-                {
-                    for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
+                tntExplode = new Thread(new ThreadStart(delegate
                     {
-                        for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                        size = 3;
+                        int X2, Y2, Z2;
+                        Random rand = new Random();
+                        //todo: foreach block = tnt in an area, size++, then explode, remove each block.
+
+
+                        //TNT DrawOp
+                        for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
                         {
-                            //block updating using only the colourful blocks
-                            if (rand.Next(1, 3) == 1){
-                                Explode(e.Player, X2, Y2, Z2, e.Coords);
-                                LavaRemoval(e.Player, X2, Y2, Z2, e.Coords);
+                            for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
+                            {
+                                for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                                {
+                                    if (rand.Next(1, 3) == 1)
+                                    {
+                                        BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air);
+                                        e.Player.World.Map.QueueUpdate(Update); //removes tntblock
+                                        Explode(e.Player, X2, Y2, Z2, e.Coords); //explodes
+                                        LavaRemoval(e.Player, X2, Y2, Z2, e.Coords); //removes explosion
+                                    }
+                                }
                             }
                         }
-                    }
-                }
+                    }));
+                tntExplode.Start();
             }
         }
+
 
         public static void Explode(Player player, int X2, int Y2, int Z2, Vector3I coords)
         {
