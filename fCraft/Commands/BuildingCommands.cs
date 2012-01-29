@@ -134,35 +134,38 @@ namespace fCraft {
 
         public static void TNTDrop(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
-            if (e.NewBlock == Block.TNT)
+            if (e.Context == BlockChangeContext.Manual)
             {
-                tntExplode = new Thread(new ThreadStart(delegate
-                    {
-                        size = 3;
-                        int X2, Y2, Z2;
-                        Random rand = new Random();
-                        //todo: foreach block = tnt in an area, size++, then explode, remove each block.
-
-
-                        //TNT DrawOp
-                        for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
+                if (e.NewBlock == Block.TNT)
+                {
+                    tntExplode = new Thread(new ThreadStart(delegate
                         {
-                            for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
+                            size = 3;
+                            int X2, Y2, Z2;
+                            Random rand = new Random();
+                            //todo: foreach block = tnt in an area, size++, then explode, remove each block.
+
+
+                            //TNT DrawOp
+                            for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
                             {
-                                for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                                for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
                                 {
-                                    if (rand.Next(1, 3) == 1)
+                                    for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
                                     {
-                                        BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air);
-                                        e.Player.World.Map.QueueUpdate(Update); //removes tntblock
-                                        Explode(e.Player, X2, Y2, Z2, e.Coords); //explodes
-                                        LavaRemoval(e.Player, X2, Y2, Z2, e.Coords); //removes explosion
+                                        if (rand.Next(1, 3) == 1)
+                                        {
+                                            BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air);
+                                            e.Player.World.Map.QueueUpdate(Update); //removes tntblock
+                                            Explode(e.Player, X2, Y2, Z2, e.Coords); //explodes
+                                            LavaRemoval(e.Player, X2, Y2, Z2, e.Coords); //removes explosion
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }));
-                tntExplode.Start();
+                        }));
+                    tntExplode.Start();
+                }
             }
         }
 
