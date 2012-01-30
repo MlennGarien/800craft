@@ -5,6 +5,7 @@ using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -96,10 +97,12 @@ namespace fCraft {
            // CommandManager.RegisterCommand( CdTree );
             Player.PlacingBlock += TNTDrop;
             Player.Clicked += TNTClick;
+            Player.PlacingBlock += Firework;
         }
 
         public static int size = 0;
         private static Thread tntExplode;
+        private static Thread fireworkThread;
 
         public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
         {
@@ -107,26 +110,26 @@ namespace fCraft {
             {
                 tntExplode = new Thread(new ThreadStart(delegate
                     {
-                size = 3;
-                int X2, Y2, Z2;
-                Random rand = new Random();
-                
-                //TNT DrawOp
-                for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
-                {
-                    for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
-                    {
-                        for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                        size = 3;
+                        int X2, Y2, Z2;
+                        Random rand = new Random();
+
+                        //TNT DrawOp
+                        for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
                         {
-                            if (rand.Next(1, 3) == 1)
+                            for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
                             {
-                                Explode(e.Player, X2, Y2, Z2, e.Coords);
-                                LavaRemoval(e.Player, X2, Y2, Z2, e.Coords);
+                                for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                                {
+                                    if (rand.Next(1, 4) == 1)
+                                    {
+                                        Explode(e.Player, X2, Y2, Z2, Block.Lava);
+                                        Removal(e.Player, X2, Y2, Z2);
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-            }));
+                    }));
                 tntExplode.Start();
             }
         }
@@ -140,67 +143,128 @@ namespace fCraft {
                 {
                     tntExplode = new Thread(new ThreadStart(delegate
                         {
+                            Vector3I tempPos = e.Coords;
+                            int dropZ = e.Coords.Z;
+                            while (Physics.Physics.BlockThrough(e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, dropZ - 1)))
+                            {
+                                Thread.Sleep(Physics.Physics.Tick);
+                                dropZ--;
+                                if (dropZ == e.Coords.Z) return;
+                                e.Player.World.Map.QueueUpdate(new BlockUpdate(null, tempPos, Block.Air));
+                                e.Player.World.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)dropZ, Block.TNT));
+                                tempPos = new Vector3I(e.Coords.X, e.Coords.Y, dropZ);
+                            }
+
+                            Thread.Sleep(2000); //wait 2secs before big boom
                             size = 3;
                             int X2, Y2, Z2;
                             Random rand = new Random();
                             //todo: foreach block = tnt in an area, size++, then explode, remove each block.
 
-
                             //TNT DrawOp
-                            for (X2 = e.Coords.X - size; X2 <= e.Coords.X + (size + 1); X2++)
+                            for (X2 = e.Coords.X - (size + 1); X2 <= e.Coords.X + (size + 1); X2++)
                             {
                                 for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
                                 {
-                                    for (Z2 = (e.Coords.Z - (size + 1)); Z2 <= (e.Coords.Z + (size + 1)); Z2++)
+                                    for (Z2 = (dropZ - (size + 1)); Z2 <= (dropZ + (size + 1)); Z2++)
                                     {
-                                        if (rand.Next(1, 3) == 1)
+                                        if (e.Player.World.Map.GetBlock(X2, Y2, Z2) == Block.TNT)
                                         {
-                                            BlockUpdate Update = new BlockUpdate(null, e.Coords, Block.Air);
+                                            Explode(e.Player, X2, Y2, Z2, Block.Lava);
+                                            Removal(e.Player, X2, Y2, Z2);
+                                        }
+                                        if (rand.Next(1, 4) == 1)
+                                        {
+                                            BlockUpdate Update = new BlockUpdate(null, tempPos, Block.Air);
                                             e.Player.World.Map.QueueUpdate(Update); //removes tntblock
-                                            Explode(e.Player, X2, Y2, Z2, e.Coords); //explodes
-                                            LavaRemoval(e.Player, X2, Y2, Z2, e.Coords); //removes explosion
+                                            Explode(e.Player, X2, Y2, Z2, Block.Lava); //explodes
+                                            Removal(e.Player, X2, Y2, Z2); //removes explosion
                                         }
                                     }
                                 }
                             }
                         }));
-                    tntExplode.Start();
+                    tntExplode.Start(); //congrats
                 }
             }
         }
 
 
-        public static void Explode(Player player, int X2, int Y2, int Z2, Vector3I coords)
+        public static void Firework(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
-            BlockUpdate TNTSender = new BlockUpdate(null, (short)X2, (short)Y2, (short)Z2, Block.Lava);
-            player.World.Map.QueueUpdate(TNTSender);
-
-            /*int Xdistance = (coords.X / 32) - coords.X;
-            int Ydistance = (coords.Y / 32) - coords.Y;
-            int Zdistance = (coords.Z / 32) - coords.Z;
-            foreach (Player p in player.World.Players)
+            if (e.Context == BlockChangeContext.Manual)
             {
-                //ew
-                if ((int)(p.Position.X / 32) < (Xdistance + size) || (int)(p.Position.X / 32) > (Xdistance - size)
-                    || (int)(p.Position.Y / 32) < (Ydistance + size) || (int)(p.Position.Y / 32) > (Ydistance - size)
-                    || (int)(p.Position.Z / 32) < (Zdistance + size) || (int)(p.Position.Z / 32) > (Zdistance - size))
+                if (e.NewBlock == Block.Red)
                 {
-                    //p.TeleportTo(p.WorldMap.Spawn);
-                    if (!p.Info.KillWait)
+                    fireworkThread = new Thread(new ThreadStart(delegate
                     {
-                        //Server.Players.Message("{0}&S was killed by &CTNT", p.ClassyName);
-                        //p.Info.KillWait = true;
-                        //Scheduler.NewTask(t => p.Info.KillWait = false).RunOnce(TimeSpan.FromSeconds(3));
-                    }
+                        int upZ = e.Coords.Z;
+                        for (int up = 0; up < 12; up++)
+                        {
+                            Thread.Sleep(Physics.Physics.Tick);
+                            if (!Physics.Physics.BlockThrough(e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, upZ + 1)))
+                            {
+                                Thread.Sleep(1000);
+                                break;
+                            }
+                            upZ++;
+                            if (upZ == e.Coords.Z) return;
+                            e.Player.World.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(upZ - 1), Block.Air));
+                            e.Player.World.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)upZ, Block.Red));
+                        }
+                        size = 4;
+                        int X2, Y2, Z2;
+                        Random rand = new Random();
+                        int blockId = rand.Next(1, 7);
+                        Block fBlock = new Block();
+                        if (blockId == 1)
+                            fBlock = Block.Yellow;
+                        else if (blockId == 2)
+                            fBlock = Block.Lava;
+                        else if (blockId == 3)
+                            fBlock = Block.Indigo;
+                        else if (blockId == 4)
+                            fBlock = Block.Lime;
+                        else if (blockId == 5)
+                            fBlock = Block.Orange;
+                        e.Player.World.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)upZ, Block.Air));
+                        for (X2 = e.Coords.X - (size + 1); X2 <= e.Coords.X + (size + 1); X2++)
+                        {
+                            for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
+                            {
+                                for (Z2 = (upZ - (size + 1)); Z2 <= (upZ + (size + 1)); Z2++)
+                                {
+                                    if (rand.Next(1, 50) < 3)
+                                    {
+                                        if (!Physics.Physics.BlockThrough(e.Player.World.Map.GetBlock(X2, Y2, Z2)))
+                                        {
+                                            break;
+                                        }
+                                        if (blockId == 6 || blockId == 7)
+                                            fBlock = (Block)rand.Next(21, 33);
+                                        Explode(e.Player, X2, Y2, Z2, (Block)fBlock);
+                                        Removal(e.Player, X2, Y2, Z2);
+                                    }
+                                }
+                            }
+                        }
+                    }));
+                    fireworkThread.Start();
                 }
-            }*/
-            
+            }
         }
 
-        public static void LavaRemoval(Player player, int X2, int Y2, int Z2, Vector3I coords)
+
+        public static void Explode(Player player, int X2, int Y2, int Z2, Block block)
+        {
+            BlockUpdate TNTSender = new BlockUpdate(null, (short)X2, (short)Y2, (short)Z2, block);
+            player.World.Map.QueueUpdate(TNTSender);
+        }
+
+        public static void Removal(Player player, int X2, int Y2, int Z2)
         {
             BlockUpdate TNTSender = new BlockUpdate(null, (short)X2, (short)Y2, (short)Z2, Block.Air);
-            Scheduler.NewTask(t=> player.WorldMap.QueueUpdate(TNTSender)).RunOnce(TimeSpan.FromMilliseconds(300));
+            Scheduler.NewTask(t => player.WorldMap.QueueUpdate(TNTSender)).RunOnce(TimeSpan.FromMilliseconds(300));
         }
 
         static readonly CommandDescriptor CdPlace = new CommandDescriptor

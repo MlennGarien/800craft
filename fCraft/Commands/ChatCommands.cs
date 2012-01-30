@@ -526,7 +526,7 @@ namespace fCraft
             NotRepeatable = true,
             Handler = Away
         };
-
+        
         internal static void Away(Player player, Command cmd)
         {
             string msg = cmd.NextAll().Trim();

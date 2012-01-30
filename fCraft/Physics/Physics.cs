@@ -34,6 +34,9 @@ namespace fCraft.Physics
         // Queues
         private static ArrayList grassQueue = new ArrayList();
 
+        //junk
+        public const int Tick = 250; //in ms
+
         public static void Load()
         {
             SchedulerTask checkGrass = Scheduler.NewBackgroundTask(CheckGrass).RunForever(TimeSpan.FromSeconds(1));
@@ -172,5 +175,21 @@ namespace fCraft.Physics
 
             return false;
         }
+
+        public static bool BlockThrough(Block block)
+        {
+            switch (block)
+            {
+                case Block.Air:
+                case Block.Water:
+                case Block.Lava:
+                case Block.StillWater:
+                case Block.StillLava:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
     }
 }
