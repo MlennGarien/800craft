@@ -94,7 +94,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBanx);
             CommandManager.RegisterCommand(CdFly);
             CommandManager.RegisterCommand(CdPlace);
-           // CommandManager.RegisterCommand( CdTree );
+           CommandManager.RegisterCommand( CdTree );
             Player.PlacingBlock += TNTDrop;
             Player.Clicked += TNTClick;
             Player.PlacingBlock += Firework;
@@ -106,26 +106,38 @@ namespace fCraft {
         private static Thread fireworkThread;
         private static Thread treeThread;
 
+
         public static void TreeGrowing(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             if (e.Context == BlockChangeContext.Manual)
             {
                 if (e.NewBlock == Block.Plant)
                 {
+                    Random rand = new Random();
+                    int Height = rand.Next(4, 7);
+                    for (int x = e.Coords.X; x < e.Coords.X + 5; x++)
+                    {
+                        for (int y = e.Coords.Y; y < e.Coords.Y + 5; y++)
+                        {
+                            for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
+                            {
+                                if (e.Player.WorldMap.GetBlock(x, y, z) != Block.Air)
+                                    return;
+                            }
+                        }
+                    }
+
                     treeThread = new Thread(new ThreadStart(delegate
                     {
                         Thread.Sleep(5000);
                         if (e.Player.WorldMap.GetBlock(e.Coords) == Block.Plant)
                         {
                             string type = null;
-                            if (e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Grass
-                                || e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Dirt)
-                                type = "normal";
-                            else if (e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Sand)
-                                type = "palm";
-                            else return;
-                            Random rand = new Random();
-                            MakeTrunk(e.Player, e.Coords, rand.Next(4, 7), type);
+                            if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Grass)
+                                type = "grass";
+                            else if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Sand)
+                                type = "sand";
+                            MakeTrunks(e.Player, e.Coords, Height, type);
                         }
                     }));
                     treeThread.Start();
@@ -133,73 +145,22 @@ namespace fCraft {
             }
         }
 
-        public static void MakeTrunk(Player player, Vector3I Coords, int Height, string type)
+
+        public static void MakeTrunks(Player player, Vector3I Coords, int Height, string type)
         {
+
             for (int i = 0; i < Height; i++)
             {
                 Thread.Sleep(Physics.Physics.Tick);
                 player.World.Map.QueueUpdate(new BlockUpdate(null, (short)Coords.X, (short)Coords.Y, (short)(Coords.Z + i), Block.Log));
             }
-            if (type.Equals("normal"))
-                MakeNormalFoliage(player, Coords, Height);
-            else if (type.Equals("palm"))
-                MakePalmTreeFoliage(player, Coords, Height);
+            if (type.Equals("grass"))
+                Physics.TreeGeneration.MakeNormalFoliage(player, Coords, Height + 1);
+
+            else if (type.Equals("sand"))
+                Physics.TreeGeneration.MakePalmFoliage(player, Coords, Height);
         }
-
-        public static void MakePalmTreeFoliage(Player player, Vector3I Coords, int Height)
-        {
-            int z = Coords.Z + Height;
-            for (int xoff = -2; xoff < 3; xoff++)
-            {
-                for (int yoff = -2; yoff < 3; yoff++)
-                {
-                    if (Math.Abs(xoff) == Math.Abs(yoff))
-                    {
-                        if (player.World.Map.GetBlock(Coords.X + xoff, Coords.Y + yoff, z) != Block.Air) break;
-                        Thread.Sleep(Physics.Physics.Tick / 3);
-                        player.World.Map.QueueUpdate(new BlockUpdate(null, (short)(Coords.X + xoff), (short)(Coords.Y + yoff), (short)z, Block.Leaves));
-                    }
-                }
-            }
-        }
-
-        public static void MakeNormalFoliage(Player player, Vector3I Coords, int Height)
-        {
-            int topy = Coords.Z + Height;
-            int start = topy;
-            int end = topy + 2;
-
-            for (int z = start; z < end; z++)
-            {
-                int rad;
-                if (z > start + 1)
-                {
-                    rad = 1;
-                }
-                else
-                {
-                    rad = 2;
-                }
-                Random rand = new Random();
-                for (int xoff = -rad; xoff < rad + 1; xoff++)
-                {
-                    for (int yoff = -rad; yoff < rad + 1; yoff++)
-                    {
-                        if (rand.NextDouble() > .618 &&
-                            Math.Abs(xoff) == Math.Abs(yoff) &&
-                            Math.Abs(xoff) == rad)
-                        {
-                            continue;
-                        }
-                        Thread.Sleep(Physics.Physics.Tick / 3);
-                        if (player.World.Map.GetBlock(Coords.X + xoff, Coords.Y - yoff, z) != Block.Air) break;
-                        else
-                        player.World.Map.QueueUpdate(new BlockUpdate(null, (short)(Coords.X + xoff), (short)(Coords.Y + yoff), (short)z, Block.Leaves));
-                    }
-                }
-            }
-        }
-
+                    
 
         public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
         {
@@ -316,7 +277,7 @@ namespace fCraft {
                         Block fBlock = new Block();
                         if (blockId == 1)
                             fBlock = Block.Lava;
-                        if (blockId < 6 && blockId != 1)
+                        if (blockId <= 6 && blockId != 1)
                             fBlock = (Block)rand.Next(21, 33);
                         e.Player.World.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)upZ, Block.Air));
                         for (X2 = e.Coords.X - (size + 1); X2 <= e.Coords.X + (size + 1); X2++)
@@ -1928,8 +1889,9 @@ namespace fCraft {
 
             ForesterArgs args = new ForesterArgs {
                 Height = height,
+                TreeCount = 1,
+                TrunkHeight = height,
                 Shape = shape,
-                Map = map,
                 Rand = new Random()
             };
 

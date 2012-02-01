@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace fCraft.Utils
 {
@@ -26,46 +27,50 @@ namespace fCraft.Utils
 
             return instance;
         }
-
+        public static Thread flyThread;
         private static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
         {
             try
             {
                 if (e.Player.IsFlying)
                 {
-                    // We need to have block positions, so we divide by 32
-                    Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-                    Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
-
-                    // Check if the player actually moved and not just rotated
-                    if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
-                    {
-                        // Create new blocks part
-                        for (int i = -2; i <= 2; i++)
+                    flyThread = new Thread(new ThreadStart(delegate
                         {
-                            for (int j = -2; j <= 2; j++)
-                            {
-                                Vector3I carpet = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - 2);
+                            // We need to have block positions, so we divide by 32
+                            Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                            Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
-                                if (e.Player.World.Map.GetBlock(carpet) == Block.Air)
+                            // Check if the player actually moved and not just rotated
+                            if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
+                            {
+                                // Create new blocks part
+                                for (int i = -2; i <= 2; i++)
                                 {
-                                    e.Player.Send(PacketWriter.MakeSetBlock(carpet, Block.Glass));
-                                    e.Player.FlyCache.TryAdd(carpet.ToString(), carpet);
+                                    for (int j = -2; j <= 2; j++)
+                                    {
+                                        Vector3I carpet = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - 2);
+
+                                        if (e.Player.World.Map.GetBlock(carpet) == Block.Air)
+                                        {
+                                            e.Player.Send(PacketWriter.MakeSetBlock(carpet, Block.Glass));
+                                            e.Player.FlyCache.TryAdd(carpet.ToString(), carpet);
+                                        }
+                                    }
+                                }
+                                       
+
+                                // Remove old blocks
+                                foreach (Vector3I block in e.Player.FlyCache.Values)
+                                {
+                                    if (CanRemoveBlock(e.Player, block, newPos))
+                                    {
+                                        e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                                        Vector3I removed;
+                                        e.Player.FlyCache.TryRemove(block.ToString(), out removed);
+                                    }
                                 }
                             }
-                        }
-
-                        // Remove old blocks
-                        foreach(Vector3I block in e.Player.FlyCache.Values) 
-                        {
-                            if (CanRemoveBlock(e.Player, block, newPos))
-                            {
-                                e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
-                                Vector3I removed;
-                                e.Player.FlyCache.TryRemove(block.ToString(), out removed);
-                            }
-                        }
-                    }
+                        })); flyThread.Start();
                 }
             }
             catch (Exception ex)
