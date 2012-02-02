@@ -191,5 +191,34 @@ namespace fCraft.Physics
             }
         }
 
+        public static bool CanFloat(Block block)
+        {
+            switch (block)
+            {
+                case Block.Red:
+                case Block.Orange:
+                case Block.Yellow:
+                case Block.Lime:
+                case Block.Green:
+                case Block.Teal:
+                case Block.Aqua:
+                case Block.Cyan:
+                case Block.Blue:
+                case Block.Indigo:
+                case Block.Violet:
+                case Block.Magenta:
+                case Block.Pink:
+                case Block.Black:
+                case Block.Gray:
+                case Block.White:
+                case Block.Sponge:
+                case Block.Wood:
+                case Block.Leaves:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
     }
 }

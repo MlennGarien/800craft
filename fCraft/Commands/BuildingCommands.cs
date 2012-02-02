@@ -99,12 +99,43 @@ namespace fCraft {
             Player.Clicked += TNTClick;
             Player.PlacingBlock += Firework;
             Player.PlacingBlock += TreeGrowing;
+            Player.PlacingBlock += blockFloat;
         }
 
         public static int size = 0;
         private static Thread tntExplode;
         private static Thread fireworkThread;
         private static Thread treeThread;
+        private static Thread waterThread;
+
+        public static void blockFloat(object sender, Events.PlayerPlacingBlockEventArgs e)
+        {
+            if(e.Context == BlockChangeContext.Manual)
+            {
+                if (Physics.Physics.CanFloat(e.NewBlock))
+                {
+                    waterThread = new Thread(new ThreadStart(delegate
+                        {
+                            for (int z = e.Coords.Z; z <= e.Player.WorldMap.Height; z++)
+                            {
+                                if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, z) != Block.Water)
+                                    break;
+                                else if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, z) == Block.Water)
+                                {
+                                    Thread.Sleep(Physics.Physics.Tick);
+                                    if (z - 1 != e.Coords.Z - 1)
+                                    {
+                                        e.Player.WorldMap.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z - 1), Block.Water)); //remove when water physics is done
+                                    }
+                                    e.Player.WorldMap.QueueUpdate(new BlockUpdate
+                                        (null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z), e.NewBlock));
+                                }
+                            }
+                        })); waterThread.Start();
+                }
+            }
+        }
+    
 
 
         public static void TreeGrowing(object sender, Events.PlayerPlacingBlockEventArgs e)

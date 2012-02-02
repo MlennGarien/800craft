@@ -235,7 +235,10 @@ namespace fCraft {
 
                 try
                 {
-                    world.Terrain = envEl.Attribute("terrain").Value;
+                    if (world.Terrain != null)
+                    {
+                        world.Terrain = envEl.Attribute("terrain").Value;
+                    }
                 }
                 catch (WorldOpException ex)
                 {
