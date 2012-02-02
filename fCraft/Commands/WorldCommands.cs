@@ -660,6 +660,11 @@ namespace fCraft
         internal static void Realm(Player player, Command cmd)
         {
             string Choice = cmd.Next();
+            if (Choice == null)
+            {
+                CdRealm.PrintUsage(player);
+                return;
+            }
             switch (Choice.ToLower())
             {
                 default:

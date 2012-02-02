@@ -69,7 +69,7 @@ namespace fCraft {
 #if !DEBUG
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
-                                                          "fCraft", ex, false );
+                                                          "800Craft", ex, false );
                             }
 #endif
                         }
@@ -231,6 +231,18 @@ namespace fCraft {
                                     "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
+                }
+
+                try
+                {
+                    world.Terrain = envEl.Attribute("terrain").Value;
+                }
+                catch (WorldOpException ex)
+                {
+                    Logger.Log(LogType.Error,
+                                "WorldManager: Error adding terrain to \"{0}\": {1}",
+                                worldName, ex.Message);
+                    return;
                 }
                 if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
@@ -420,10 +432,11 @@ namespace fCraft {
                     if( world.FogColor > -1 ) elEnv.Add( new XAttribute( "fog", world.FogColor ) );
                     if( world.SkyColor > -1 ) elEnv.Add( new XAttribute( "sky", world.SkyColor ) );
                     if( world.EdgeLevel > -1 ) elEnv.Add( new XAttribute( "level", world.EdgeLevel ) );
-                    if (world.Terrain != null) elEnv.Add(new XAttribute("Terrain", world.Terrain));
+                    if (world.Terrain != null) elEnv.Add(new XAttribute("terrain", world.Terrain));
                     if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
                     if( elEnv.HasAttributes ) {
                         temp.Add( elEnv );
+
                     }
 
                     root.Add( temp );

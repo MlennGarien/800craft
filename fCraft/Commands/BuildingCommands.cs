@@ -127,6 +127,19 @@ namespace fCraft {
                         }
                     }
 
+                    //move these to a function in physics.cs.
+                    for (int x = e.Coords.X; x > e.Coords.X - 5; x--)
+                    {
+                        for (int y = e.Coords.Y; y > e.Coords.Y - 5; y--)
+                        {
+                            for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
+                            {
+                                if (e.Player.WorldMap.GetBlock(x, y, z) != Block.Air)
+                                    return;
+                            }
+                        }
+                    }
+
                     treeThread = new Thread(new ThreadStart(delegate
                     {
                         Thread.Sleep(5000);
@@ -137,6 +150,7 @@ namespace fCraft {
                                 type = "grass";
                             else if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Sand)
                                 type = "sand";
+                            else return;
                             MakeTrunks(e.Player, e.Coords, Height, type);
                         }
                     }));
@@ -169,6 +183,7 @@ namespace fCraft {
                 tntExplode = new Thread(new ThreadStart(delegate
                     {
                         size = 3;
+                        tntCheck(e.Player, e.Coords);
                         int X2, Y2, Z2;
                         Random rand = new Random();
 
@@ -200,48 +215,49 @@ namespace fCraft {
                 if (e.NewBlock == Block.TNT)
                 {
                     tntExplode = new Thread(new ThreadStart(delegate
+                    {
+                        Vector3I tempPos = e.Coords;
+                        int dropZ = e.Coords.Z;
+                        while (Physics.Physics.BlockThrough(e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, dropZ - 1)))
                         {
-                            Vector3I tempPos = e.Coords;
-                            int dropZ = e.Coords.Z;
-                            while (Physics.Physics.BlockThrough(e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, dropZ - 1)))
-                            {
-                                Thread.Sleep(Physics.Physics.Tick);
-                                dropZ--;
-                                if (dropZ == e.Coords.Z) return;
-                                e.Player.World.Map.QueueUpdate(new BlockUpdate(null, tempPos, Block.Air));
-                                e.Player.World.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)dropZ, Block.TNT));
-                                tempPos = new Vector3I(e.Coords.X, e.Coords.Y, dropZ);
-                            }
+                            Thread.Sleep(Physics.Physics.Tick);
+                            dropZ--;
+                            if (dropZ == e.Coords.Z) return;
+                            e.Player.World.Map.QueueUpdate(new BlockUpdate(null, tempPos, Block.Air));
+                            e.Player.World.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)dropZ, Block.TNT));
+                            tempPos = new Vector3I(e.Coords.X, e.Coords.Y, dropZ);
+                        }
 
-                            Thread.Sleep(2000); //wait 2secs before big boom
-                            size = 3;
-                            int X2, Y2, Z2;
-                            Random rand = new Random();
-                            //todo: foreach block = tnt in an area, size++, then explode, remove each block.
+                        Thread.Sleep(2000); //wait 2secs before big boom
+                        size = 3;
+                        tntCheck(e.Player, e.Coords);
+                        int X2, Y2, Z2;
+                        Random rand = new Random();
+                        //todo: foreach block = tnt in an area, size++, then explode, remove each block.
 
-                            //TNT DrawOp
-                            for (X2 = e.Coords.X - (size + 1); X2 <= e.Coords.X + (size + 1); X2++)
+                        //TNT DrawOp
+                        for (X2 = e.Coords.X - (size + 1); X2 <= e.Coords.X + (size + 1); X2++)
+                        {
+                            for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
                             {
-                                for (Y2 = (e.Coords.Y - (size + 1)); Y2 <= (e.Coords.Y + (size + 1)); Y2++)
+                                for (Z2 = (dropZ - (size + 1)); Z2 <= (dropZ + (size + 1)); Z2++)
                                 {
-                                    for (Z2 = (dropZ - (size + 1)); Z2 <= (dropZ + (size + 1)); Z2++)
+                                    if (e.Player.World.Map.GetBlock(X2, Y2, Z2) == Block.TNT)
                                     {
-                                        if (e.Player.World.Map.GetBlock(X2, Y2, Z2) == Block.TNT)
-                                        {
-                                            Explode(e.Player, X2, Y2, Z2, Block.Lava);
-                                            Removal(e.Player, X2, Y2, Z2);
-                                        }
-                                        if (rand.Next(1, 4) == 1)
-                                        {
-                                            BlockUpdate Update = new BlockUpdate(null, tempPos, Block.Air);
-                                            e.Player.World.Map.QueueUpdate(Update); //removes tntblock
-                                            Explode(e.Player, X2, Y2, Z2, Block.Lava); //explodes
-                                            Removal(e.Player, X2, Y2, Z2); //removes explosion
-                                        }
+                                        Explode(e.Player, X2, Y2, Z2, Block.Lava);
+                                        Removal(e.Player, X2, Y2, Z2);
+                                    }
+                                    if (rand.Next(1, 4) == 1)
+                                    {
+                                        BlockUpdate Update = new BlockUpdate(null, tempPos, Block.Air);
+                                        e.Player.World.Map.QueueUpdate(Update); //removes tntblock
+                                        Explode(e.Player, X2, Y2, Z2, Block.Lava); //explodes
+                                        Removal(e.Player, X2, Y2, Z2); //removes explosion
                                     }
                                 }
                             }
-                        }));
+                        }
+                    }));
                     tntExplode.Start(); //congrats
                 }
             }
@@ -306,6 +322,40 @@ namespace fCraft {
             }
         }
 
+        public static void tntCheck(Player player, Vector3I Coords)
+        {
+            for (int x = Coords.X; x < Coords.X + size + 1; x++)
+            {
+                for (int y = Coords.Z; y < Coords.Z + size +1; y++)
+                {
+                    for (int z = Coords.Z; z < Coords.Z + size+1; z++)
+                    {
+                        if (new Vector3I(x, y, z) != Coords && player.WorldMap.GetBlock(x, y, z) == Block.TNT)
+                        {
+                            Random rand = new Random();
+                            if (rand.Next(1, 5) == 1)
+                            Explode(player, x, y, z, Block.Lava);
+                        }
+                    }
+                }
+            }
+
+            for (int x = Coords.X; x > Coords.X - size; x--)
+            {
+                for (int y = Coords.Z; y > Coords.Z - size; y--)
+                {
+                    for (int z = Coords.Z; z > Coords.Z - size; z--)
+                    {
+                        if (new Vector3I(x, y, z) != Coords && player.WorldMap.GetBlock(x, y, z) == Block.TNT)
+                        {
+                            Random rand = new Random();
+                            if(rand.Next(1,5) == 1)
+                            Explode(player, x, y, z, Block.Lava);
+                        }
+                    }
+                }
+            }
+        }
 
         public static void Explode(Player player, int X2, int Y2, int Z2, Block block)
         {
