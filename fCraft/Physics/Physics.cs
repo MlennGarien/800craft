@@ -219,6 +219,5 @@ namespace fCraft.Physics
                     return false;
             }
         }
-
     }
 }

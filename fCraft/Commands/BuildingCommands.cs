@@ -110,7 +110,7 @@ namespace fCraft {
 
         public static void blockFloat(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
-            if(e.Context == BlockChangeContext.Manual)
+            if (e.Context == BlockChangeContext.Manual)
             {
                 if (Physics.Physics.CanFloat(e.NewBlock))
                 {
@@ -133,10 +133,38 @@ namespace fCraft {
                             }
                         })); waterThread.Start();
                 }
+
+                else if (e.NewBlock != Block.Air
+                   && e.NewBlock != Block.Water
+                    && e.NewBlock != Block.Lava
+                    && e.NewBlock != Block.BrownMushroom
+                    && e.NewBlock != Block.RedFlower
+                    && e.NewBlock != Block.RedMushroom
+                    && e.NewBlock != Block.YellowFlower
+                    && e.NewBlock != Block.Plant)
+                {
+                    waterThread = new Thread(new ThreadStart(delegate
+                    {
+                        for (int z = e.Coords.Z; z >= -e.Player.WorldMap.Height; z--)
+                        {
+                            if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, z) != Block.Water)
+                                break;
+                            else if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, z) == Block.Water)
+                            {
+                                Thread.Sleep(Physics.Physics.Tick);
+                                if (z + 1 != e.Coords.Z + 1)
+                                {
+                                    e.Player.WorldMap.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z + 1), Block.Water)); //remove when water physics is done
+                                }
+                                e.Player.WorldMap.QueueUpdate(new BlockUpdate
+                                    (null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z), e.NewBlock));
+                            }
+                        }
+                    })); waterThread.Start();
+                }
             }
         }
     
-
 
         public static void TreeGrowing(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
