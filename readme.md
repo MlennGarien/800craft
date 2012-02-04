@@ -38,8 +38,6 @@ On top of all the amazing features fCraft already has, we have implemented:
 
 ## HeartbeatSaver
 
-There are 2 ways you can use this:
-
 * When you shutdown your server, or the server crashes, the Heartbeat Saver automatically opens, keeping your uptime on minecraft.net the same as it was before shutdown.
 Nobody likes suddenly dropping to the bottom of a list containing 1000+ servers.
 
