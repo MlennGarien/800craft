@@ -1,9 +1,9 @@
 ## About 800craft
 800craft is a modified version of the popular Minecraft server software called fCraft. It was created by Jonty800 and is now maintained by GlennMR and Jonty800.
 
-800Craft is currently working on a big update with will include Physics and many more features.
-Something to get real excited for is the MineManager that is coming very soon. You'll be able to access your console and monitor month by month server statistics anywhere in the world from 800Craft.net and best of all - it's going to be 100% free!
-Download it now, it's extremely stable and very high on performance and when we release our next version, we'll send you an automatic update :).
+800Craft is currently working on a big update, which will include Physics and many more new features and commands.
+Something to get real excited for is the MineManager that is coming very soon. You'll be able to access your con- isole and monitor month by month server statistics anywhere in the world from 800Craft.net and best of all, it's going to be 100% free!
+Download it now, 800Craft is extremely stable and very high on performance and when we release our next version, we'll send you an automatic update :).
 ## Features
 
 On top of all the amazing features fCraft already has, we have implemented:
@@ -46,7 +46,7 @@ Nobody likes suddenly dropping to the bottom of a list containing 1000+ servers.
 This feature can only found in 800Craft.
 
 ## Release
-800Craft has been released and is at version 0.103. You can download it here: https://github.com/GlennMR/800craft/downloads
+800Craft has been released and is currently at version 0.103. You can download it here: https://github.com/GlennMR/800craft/downloads
 For support, visit our forum here: http://www.au70galaxy.com/314/upload/index.php?/forum/32-au70-server-software/
 
 Thanks for using 800Craft, enjoy!
