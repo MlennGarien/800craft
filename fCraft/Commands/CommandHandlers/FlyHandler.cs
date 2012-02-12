@@ -48,12 +48,12 @@ namespace fCraft.Utils
                                 {
                                     for (int j = -2; j <= 2; j++)
                                     {
-                                        Vector3I carpet = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - 2);
+                                        Vector3I layer = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - 2);
 
-                                        if (e.Player.World.Map.GetBlock(carpet) == Block.Air)
+                                        if (e.Player.World.Map.GetBlock(layer) == Block.Air)
                                         {
-                                            e.Player.Send(PacketWriter.MakeSetBlock(carpet, Block.Glass));
-                                            e.Player.FlyCache.TryAdd(carpet.ToString(), carpet);
+                                            e.Player.Send(PacketWriter.MakeSetBlock(layer, Block.Glass));
+                                            e.Player.FlyCache.TryAdd(layer.ToString(), layer);
                                         }
                                     }
                                 }
@@ -111,6 +111,10 @@ namespace fCraft.Utils
             int z = block.Z - newPos.Z;
 
             if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -2 && z <= 2))
+            {
+                return true;
+            }
+            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -3 && z <= 2))
             {
                 return true;
             }

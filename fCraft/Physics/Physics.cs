@@ -25,132 +25,29 @@ namespace fCraft.Physics
     //░░░░░░░░░░░░░░▀▄▄▄▄▄░░░░░█
     // Trollphysics, incoming? Admit it, you just laughed.
     /// </summary>
-    class Physics
+    public static class Physics
     {
-        // Threads
-        private static Thread checkGrass;
-        private static Thread checkGrassQueue;
-
-        // Queues
-        private static ArrayList grassQueue = new ArrayList();
 
         //junk
         public const int Tick = 250; //in ms
+        public static int size = 3;
 
+        //init
         public static void Load()
         {
-            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(CheckGrass).RunForever(TimeSpan.FromSeconds(1));
-            SchedulerTask checkGrassQueue = Scheduler.NewBackgroundTask(CheckGrassQueue).RunForever(TimeSpan.FromSeconds(1));
+            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
+            //SchedulerTask checkGrassQueue = Scheduler.NewBackgroundTask(CheckGrassQueue).RunForever(TimeSpan.FromSeconds(2));
+            Player.PlacingBlock += PlantPhysics.TreeGrowing;
+            Player.PlacingBlock += ExplodingPhysics.TNTDrop;
+            Player.Clicked += ExplodingPhysics.TNTClick;
+            Player.PlacingBlock += ExplodingPhysics.Firework;
+            Player.PlacingBlock += WaterPhysics.blockFloat;
+            Player.Clicking += WaterPhysics.towerRemove;
+            Player.PlacingBlock += WaterPhysics.towerInit;
         }
 
-        public static void CheckGrass(SchedulerTask task)
-        {
-            if (checkGrass != null)
-            {
-                if (checkGrass.ThreadState != ThreadState.Stopped)
-                {
-                    return;
-                }
-            }
 
-            checkGrass = new Thread(new ThreadStart(delegate
-            {
-                foreach (World world in WorldManager.Worlds)
-                {
-                    if (world.Map != null && world.IsLoaded)
-                    {
-                        for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
-                        {
-                            if (world.Map == null)
-                            {
-                                break;
-                            }
-
-                            for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
-                            {
-                                if (world.Map == null)
-                                {
-                                    break;
-                                }
-
-                                for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
-                                {
-                                    if (world.Map == null)
-                                    {
-                                        break;
-                                    }
-
-                                    if (world.Map.GetBlock(new Vector3I(x, y, z)) == Block.Dirt)
-                                    {
-                                        if (CanPutGrassOn(new Vector3I(x, y, z), world))
-                                        {
-                                            // Okay let's plant some seeds
-                                            int randomDelay = new Random().Next(1, 60001);
-                                            GrassUpdate update = new GrassUpdate(world, new Vector3I(x, y, z), DateTime.Now.AddMilliseconds(randomDelay));
-                                            
-                                            lock (grassQueue.SyncRoot)
-                                            {
-                                                grassQueue.Add(update);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }));
-            checkGrass.Start();
-        }
-
-        private static void CheckGrassQueue(SchedulerTask task)
-        {
-            try
-            {
-                if (checkGrassQueue != null)
-                {
-                    if (checkGrassQueue.ThreadState != ThreadState.Stopped)
-                    {
-                        return;
-                    }
-                }
-                checkGrassQueue = new Thread(new ThreadStart(delegate
-                {
-                    lock (grassQueue.SyncRoot)
-                    {
-                        for (int i = 0; i < grassQueue.Count; i++)
-                        {
-                            GrassUpdate update = (GrassUpdate)grassQueue[i];
-
-                            if (DateTime.Now > update.Scheduled)
-                            {
-                                try
-                                {
-                                    if (CanPutGrassOn(update.Block, update.World))
-                                    {
-                                        BlockUpdate grassUpdate = new BlockUpdate(null, update.Block, Block.Grass);
-                                        update.World.Map.QueueUpdate(grassUpdate);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Log(LogType.Error, "Physics.CheckGrassQueue: " + ex);
-                                }
-                                finally
-                                {
-                                    grassQueue.Remove(update);
-                                }
-                            }
-                        }
-                    }
-                }));
-                checkGrassQueue.Start();
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.Error, "Physics.CheckGrassQueue: " + ex);
-            }
-        }
+        //physics helpers & bools
 
         public static bool CanPutGrassOn(Vector3I block, World world)
         {
@@ -172,9 +69,9 @@ namespace fCraft.Physics
                     }
                 }
             }
-
             return false;
         }
+    
 
         public static bool BlockThrough(Block block)
         {

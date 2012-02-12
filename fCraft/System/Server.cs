@@ -541,7 +541,7 @@ namespace fCraft
 
             PortalHandler.GetInstance();
             PortalDB.Load();
-            //Physics.Physics.Load();
+            Physics.Physics.Load();
             if (ConfigKey.MineQuery.Enabled())
             {
                 MineQuery.GetInstance().Start();

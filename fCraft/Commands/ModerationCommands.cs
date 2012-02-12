@@ -568,7 +568,7 @@ namespace fCraft {
             string zoneName = cmd.Next();
             if (zoneName == null)
             {
-                player.Message("No zone name specified. See &Z/help tpzone");
+                player.Message("No zone name specified. See &W/Help tpzone");
                 return;
             }
 
@@ -580,7 +580,11 @@ namespace fCraft {
                     player.MessageNoZone(zoneName);
                     return;
                 }
-                TPHandler2(player, new Command("/tp " + ((zone.Bounds.XMin + zone.Bounds.XMax) / 2) + " " + ((zone.Bounds.YMin + zone.Bounds.YMax) / 2) + " " + (((zone.Bounds.ZMin + zone.Bounds.ZMax) / 2) + 2)));
+                Position zPos = new Position((((zone.Bounds.XMin + zone.Bounds.XMax) / 2) * 32),
+                    (((zone.Bounds.YMin + zone.Bounds.YMax) / 2) * 32),
+                    (((zone.Bounds.ZMin + zone.Bounds.ZMax) / 2) + 2) * 32);
+                player.TeleportTo((zPos));
+                player.Message("&WTeleporting you to zone " + zone.ClassyName);
             }
         }
 
@@ -711,7 +715,7 @@ namespace fCraft {
 
             if (ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty(reason))
             {
-                player.Message("&WPlease specify a reason: &Z/Basscannon PlayerName Reason");
+                player.Message("&WPlease specify a reason: &W/Basscannon PlayerName Reason");
                 // freeze the target player to prevent further damage
                 return;
             }

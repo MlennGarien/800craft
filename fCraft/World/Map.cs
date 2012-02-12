@@ -785,6 +785,9 @@ namespace fCraft {
 
             BlockNames["onyx"] = Block.Obsidian;
 
+            //BlockNames["towerGen"] = Block.TowerGen;
+            //BlockNames["towerWater"] = Block.TowerWater;
+
             // add WoM file hashes for edge textures
             BlockEdgeTextures[Block.Aqua] = "246870d16093ff02738b3d42084c6597c02fad36";
             BlockEdgeTextures[Block.Black] = "48dcdd9b63fe5ce1129baea990189653dc833d69";

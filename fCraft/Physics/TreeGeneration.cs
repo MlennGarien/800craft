@@ -11,46 +11,52 @@ namespace fCraft.Physics
     {
         public static Random Rand = new Random();
 
-        public static void MakeNormalFoliage(Player player, Vector3I Pos, int Height)
+        public static void MakeNormalFoliage(World w, Vector3I Pos, int Height)
         {
-            int topy = Pos.Z + Height - 1;
-            int start = topy - 2;
-            int end = topy + 2;
-
-            for (int y = start; y < end; y++)
+            if (w.Map != null && w.IsLoaded)
             {
-                int rad;
-                if (y > start + 1)
-                    rad = 1;
-                else
-                    rad = 2;
-                for (int xoff = -rad; xoff < rad + 1; xoff++)
+                int topy = Pos.Z + Height - 1;
+                int start = topy - 2;
+                int end = topy + 2;
+
+                for (int y = start; y < end; y++)
                 {
-                    for (int zoff = -rad; zoff < rad + 1; zoff++)
+                    int rad;
+                    if (y > start + 1)
+                        rad = 1;
+                    else
+                        rad = 2;
+                    for (int xoff = -rad; xoff < rad + 1; xoff++)
                     {
-                        if (Rand.NextDouble() > .618 &&
-                            Math.Abs(xoff) == Math.Abs(zoff) &&
-                            Math.Abs(xoff) == rad)
+                        for (int zoff = -rad; zoff < rad + 1; zoff++)
                         {
-                            continue;
+                            if (Rand.NextDouble() > .618 &&
+                                Math.Abs(xoff) == Math.Abs(zoff) &&
+                                Math.Abs(xoff) == rad)
+                            {
+                                continue;
+                            }
+                            w.Map.QueueUpdate(new
+                                 BlockUpdate(null, (short)(Pos.X + xoff), (short)(Pos.Y + zoff), (short)y, Block.Leaves));
                         }
-                        player.WorldMap.QueueUpdate(new
-                            BlockUpdate(null, (short)(Pos.X + xoff), (short)(Pos.Y + zoff), (short)y, Block.Leaves));
                     }
                 }
             }
         }
 
 
-        public static void MakePalmFoliage(Player player, Vector3I Pos, int Height)
+        public static void MakePalmFoliage(World world, Vector3I Pos, int Height)
         {
-            int z = Pos.Z + Height;
-            for (int xoff = -2; xoff < 3; xoff++)
+            if (world.Map != null && world.IsLoaded)
             {
-                for (int yoff = -2; yoff < 3; yoff++)
+                int z = Pos.Z + Height;
+                for (int xoff = -2; xoff < 3; xoff++)
                 {
-                    if (Math.Abs(xoff) == Math.Abs(yoff))
-                        player.WorldMap.QueueUpdate(new BlockUpdate(null, (short)(Pos.Z + xoff), (short)(Pos.Y + yoff), (short)z, Block.Leaves));
+                    for (int yoff = -2; yoff < 3; yoff++)
+                    {
+                        if (Math.Abs(xoff) == Math.Abs(yoff))
+                            world.Map.QueueUpdate(new BlockUpdate(null, (short)(Pos.Z + xoff), (short)(Pos.Y + yoff), (short)z, Block.Leaves));
+                    }
                 }
             }
         }

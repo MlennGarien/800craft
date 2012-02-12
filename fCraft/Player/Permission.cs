@@ -28,36 +28,7 @@ namespace fCraft
         PlaceLava,
         /// <summary> Ability to build admincrete. </summary>
         PlaceAdmincrete,
-        /// <summary> Ability to start bromode. </summary>
-        BroMode,
-        /// <summary> Ability to impersonate other players (Power Abusable Tool). </summary>
-        Troll,
-        /// <summary> Ability to hide selected ranks. </summary>
-        HideRanks,
-        /// <summary> Ability to spawn skins to your position. </summary>
-        MakeDummys,
-        /// <summary> Ability to read admin chat. </summary>
-        ReadAdminChat,
-        /// <summary> Ability to read from the custom chat channel. </summary>
-        ReadCustomChat,
-        /// <summary> Ability to use realms. </summary>
-        Realm,
-        /// <summary> Ability to possess other players. </summary>
-        Possess,
-        /// <summary> Ability to manually disconnect other players. </summary>
-        Gtfo,
-        /// <summary> Ability to Ragequit from the server. </summary>
-        RageQuit,
-        /// <summary> Ability to tempban. </summary>
-        TempBan,
-        /// <summary> Ability to warn other players. </summary>
-        Warn,
-        /// <summary> Ability to slap players to the sky. </summary>
-        Slap,
-        /// <summary> Ability to kill other players. </summary>
-        Kill,
-        /// <summary> Ability to blast players out of the server (kick). </summary>
-        Basscannon,
+        
         /// <summary> Ability to delete or replace admincrete. </summary>
         DeleteAdmincrete,
         /// <summary> Ability to view extended information about other players. </summary>
@@ -161,6 +132,36 @@ namespace fCraft
         /// <summary> Ability to Make votes in /vote </summary>
         MakeVotes,
         /// <summary> Ability to start VoteKicks in /vote kick</summary>
-        MakeVoteKicks
+        MakeVoteKicks,
+        /// <summary> Ability to start bromode. </summary>
+        BroMode,
+        /// <summary> Ability to impersonate other players (Power Abusable Tool). </summary>
+        Troll,
+        /// <summary> Ability to hide selected ranks. </summary>
+        HideRanks,
+        /// <summary> Ability to spawn skins to your position. </summary>
+        MakeDummys,
+        /// <summary> Ability to read admin chat. </summary>
+        ReadAdminChat,
+        /// <summary> Ability to read from the custom chat channel. </summary>
+        ReadCustomChat,
+        /// <summary> Ability to use realms. </summary>
+        Realm,
+        /// <summary> Ability to possess other players. </summary>
+        Possess,
+        /// <summary> Ability to manually disconnect other players. </summary>
+        Gtfo,
+        /// <summary> Ability to Ragequit from the server. </summary>
+        RageQuit,
+        /// <summary> Ability to tempban. </summary>
+        TempBan,
+        /// <summary> Ability to warn other players. </summary>
+        Warn,
+        /// <summary> Ability to slap players to the sky. </summary>
+        Slap,
+        /// <summary> Ability to kill other players. </summary>
+        Kill,
+        /// <summary> Ability to blast players out of the server (kick). </summary>
+        Basscannon
     }
 }

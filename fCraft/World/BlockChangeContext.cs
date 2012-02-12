@@ -36,6 +36,9 @@ namespace fCraft {
         Filled = 256,
 
         /// <summary> System is building / removing a portal. </summary>
-        Portal = 512
+        Portal = 512,
+
+        /// <summary> System is building / removing a TNT explosion. </summary>
+        Explosion = 1024
     }
 }

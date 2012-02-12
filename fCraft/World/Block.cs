@@ -3,9 +3,9 @@
 
 namespace fCraft {
     /// <summary> Enumeration of all standard Minecraft Classic block types. </summary>
-    public enum Block : byte {
+    public enum Block : byte
+    {
         Undefined = 255, // for error checking
-
         Air = 0,
         Stone = 1,
         Grass = 2,
@@ -59,6 +59,5 @@ namespace fCraft {
         Books = 47,
         MossyRocks = 48,
         Obsidian = 49,
-        
     }
 }

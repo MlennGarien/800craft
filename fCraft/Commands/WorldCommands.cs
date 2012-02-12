@@ -60,11 +60,36 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
-           // CommandManager.RegisterCommand(CdGame);
+            CommandManager.RegisterCommand(CdPhysics);
             Player.JoinedWorld += DummyCheck;
-            //Player.Clicked += GameEvents.PlayerClicked;
-            //Player.Disconnected += GameEvents.PlayerDisconnected;
-            //Server.ShutdownBegan += GameEvents.Shutdown;
+        }
+
+        static readonly CommandDescriptor CdPhysics = new CommandDescriptor
+        {
+            Name = "Physics",
+            Category = CommandCategory.World,
+            Permissions = new Permission[] { Permission.UsePortal },
+            IsConsoleSafe = false,
+            Usage = "/Physics [TNT | Fireworks | Water | Plant | All | disable ]",
+            Help = "Enables / disables a type of physics for the current world. Physics may use more server resources.",
+            HelpSections = new Dictionary<string,string>() {
+                { "tnt",     "&H/Physics tnt on/off \n&S" +
+                                "Turns TNT exploding physics on / off in the current world"},
+                { "fireworks",     "&H/Physics fireworks on/off \n&S" +
+                                "Turns firework physics on / off in the current world"},
+                { "water",       "&H/Physics water on/off \n&S" +
+                                "Turns water physics on / off in the current world"},
+                { "plant",       "&H/Physics plant on/off \n&S" +
+                                "Turns plant physics on / off in the current world"},
+                { "all",     "&H/Physics all on/off \n&S" +
+                                "Turns all physics on / off in the current world"},
+            },
+            Handler = PhysicsHandler
+        };
+
+        private static void PhysicsHandler(Player player, Command command)
+        {
+
         }
 
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)
@@ -336,7 +361,7 @@ namespace fCraft
 
 
                             player.SelectionStart(operation.ExpectedMarks, PortalCreateCallback, operation, Permission.Draw);
-                            player.Message("Click {0} blocks or use &Z/Mark&S to mark the area of the portal.", operation.ExpectedMarks);
+                            player.Message("Click {0} blocks or use &H/Mark&S to mark the area of the portal.", operation.ExpectedMarks);
                         }
                         else
                         {

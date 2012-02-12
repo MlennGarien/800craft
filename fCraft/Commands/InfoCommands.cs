@@ -234,7 +234,7 @@ namespace fCraft {
                 string[] sections = GetReqSectionList();
                 if (sections != null)
                 {
-                    player.Message("Requirement sections: {0}. Type &Z/reqs SectionName&S to read information on how to gain that rank.", sections.JoinToString());
+                    player.Message("Requirement sections: {0}. Type &H/reqs SectionName&S to read information on how to gain that rank.", sections.JoinToString());
                 }
                 return;
             }
