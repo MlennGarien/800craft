@@ -1,5 +1,9 @@
 ## About 800craft
 800craft is a modified version of the popular Minecraft server software called fCraft. It was created by Jonty800 and is now maintained by GlennMR and Jonty800.
+
+800Craft is currently working on a big update, which will include Physics and many more new features and commands.
+Something to get real excited for is the MineManager that is coming very soon. You'll be able to access your console and monitor month by month server statistics anywhere in the world from 800Craft.net. And best of all, it's going to be 100% free!
+Download it now, 800Craft is extremely stable and very high on performance and when we release our next version, we'll send you an automatic update :).
 ## Features
 
 On top of all the amazing features fCraft already has, we have implemented:
@@ -30,17 +34,17 @@ On top of all the amazing features fCraft already has, we have implemented:
 * Profanity detector
 * Grass Physics (More physics coming soon)
 
-* Lua plugin support
 * Customize your server by writing your own .NET DLL's and using them to modify existing functions or add features.
 
 ## HeartbeatSaver
 
-There are 2 ways you can use this:
+* When you shutdown your server, or the server crashes, the Heartbeat Saver automatically opens, keeping your uptime on minecraft.net the same as it was before shutdown.
+Nobody likes suddenly dropping to the bottom of a list containing 1000+ servers.
 
-* Run the Heartbeat Saver while your server is up to give additional support to your server's uptime not resetting
-* When you shutdown your server, the Heartbeat Saver automatically opens, keeping your uptime the same as it was before shutdown.
-
-This is a unique Server Software feature that is only found in 800Craft.
+This feature can only found in 800Craft.
 
 ## Release
-It is now the 16th of December and the first version of 800Craft has been released. You can download it here: https://github.com/GlennMR/800craft/downloads
+800Craft has been released and is currently at version 0.103. You can download it here: https://github.com/GlennMR/800craft/downloads
+For support, visit our forum here: http://www.au70galaxy.com/314/upload/index.php?/forum/32-au70-server-software/
+
+Thanks for using 800Craft, enjoy!
