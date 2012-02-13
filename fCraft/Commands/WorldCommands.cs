@@ -87,9 +87,106 @@ namespace fCraft
             Handler = PhysicsHandler
         };
 
-        private static void PhysicsHandler(Player player, Command command)
+        private static void PhysicsHandler(Player player, Command cmd)
         {
+            string option = cmd.Next();
+            World world = player.World;
+            if (option == null)
+            {
+                CdPhysics.PrintUsage(player);
+                return;
+            }
+            switch (option.ToLower())
+            {
+                case "tnt":
+                    if (world.tntPhysics)
+                    {
+                        world.tntPhysics = false;
+                        Server.Players.Message("{0}&S turned TNT phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned TNT phyiscs off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.tntPhysics = true;
+                        Server.Players.Message("{0}&S turned TNT phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned TNT phyiscs on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "fireworks":
+                case "firework":
+                    if (world.fireworkPhysics)
+                    {
+                        world.fireworkPhysics = false;
+                        Server.Players.Message("{0}&S turned Firework phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Firework phyiscs off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.fireworkPhysics = true;
+                        Server.Players.Message("{0}&S turned Firework phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Firework phyiscs on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "water":
+                    if (world.waterPhysics)
+                    {
+                        world.waterPhysics = false;
+                        Server.Players.Message("{0}&S turned Water phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Water phyiscs off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.waterPhysics = true;
+                        Server.Players.Message("{0}&S turned Water phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Water phyiscs on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "plant":
+                    if (world.plantPhysics)
+                    {
+                        world.plantPhysics = false;
+                        Server.Players.Message("{0}&S turned Plant phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Plant phyiscs off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.plantPhysics = true;
+                        Server.Players.Message("{0}&S turned Plant phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Plant phyiscs on for {1}", player.Name, world.Name);
+                        Physics.Physics.Load();
+                    }
+                    break;
+                case "all":
+                    string nextOp = cmd.Next();
+                    if (nextOp == null)
+                    {
+                        CdPhysics.PrintUsage(player);
+                        return;
+                    }
 
+                    if (nextOp.ToLower() == "on")
+                    {
+                        world.tntPhysics = true;
+                        world.fireworkPhysics = true;
+                        world.waterPhysics = true;
+                        world.plantPhysics = true;
+                        Server.Players.Message("{0}&S turned ALL phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned ALL phyiscs on for {1}", player.Name, world.Name);
+                    }
+
+                    else if (nextOp.ToLower() == "off")
+                    {
+                        world.tntPhysics = false;
+                        world.fireworkPhysics = false;
+                        world.waterPhysics = false;
+                        world.plantPhysics = false;
+                        Server.Players.Message("{0}&S turned ALL phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned ALL phyiscs off for {1}", player.Name, world.Name);
+                    }
+                    break;
+                default: CdPhysics.PrintUsage(player);
+                    break;
+            }
         }
 
         public static void DummyCheck(object sender, Events.PlayerJoinedWorldEventArgs e)

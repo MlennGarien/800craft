@@ -119,7 +119,6 @@
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Network\Player.Networking.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
-    <Compile Include="Physics\FontRender.cs" />
     <Compile Include="Physics\GrassUpdate.cs" />
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Physics\PlantPhysics.cs" />

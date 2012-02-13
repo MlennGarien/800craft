@@ -33,6 +33,12 @@ namespace fCraft
         public ArrayList Portals;
         public int portalID = 1;
 
+        //physics
+        public bool tntPhysics = false;
+        public bool fireworkPhysics = false;
+        public bool waterPhysics = false;
+        public bool plantPhysics = false;
+
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }

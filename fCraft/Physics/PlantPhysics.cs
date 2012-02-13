@@ -17,6 +17,8 @@ namespace fCraft.Physics
         public static void TreeGrowing(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
+            if (!world.plantPhysics)
+                return;
             if (world.Map != null && world.IsLoaded)
             {
                 if (e.Context == BlockChangeContext.Manual)
@@ -72,6 +74,8 @@ namespace fCraft.Physics
 
         public static void MakeTrunks(World w, Vector3I Coords, int Height, string type)
         {
+            if (!w.plantPhysics)
+                return;
             if (w.Map != null && w.IsLoaded)
             {
                 for (int i = 0; i < Height; i++)
@@ -104,37 +108,40 @@ namespace fCraft.Physics
                 {
                     if (world.Map != null && world.IsLoaded) //for all loaded worlds
                     {
-                        Map map = world.Map;
-
-                        for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
+                        if (world.plantPhysics)
                         {
-                            if (world.Map == null) //unload protection
-                            {
-                                break;
-                            }
+                            Map map = world.Map;
 
-                            for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
+                            for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
                             {
-                                if (world.Map == null)
+                                if (world.Map == null) //unload protection
                                 {
                                     break;
                                 }
 
-                                for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
+                                for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
                                 {
                                     if (world.Map == null)
                                     {
                                         break;
                                     }
-                                    if (map.InBounds(x, y, z) && Physics.CanPutGrassOn(new Vector3I(x, y, z), world)) //shadow detection
+
+                                    for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
                                     {
-                                        if (new Random().Next(1, 45) > 35) //random seed generation lolz
+                                        if (world.Map == null)
                                         {
-                                            map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Grass));
+                                            break;
                                         }
-                                        Thread.Sleep(25); //throttle, slow down horsey
-                                    } //0.5 - 3% cpu average, better than the original ~17%
-                                    //has not been tested with more than 5 maps loaded at once
+                                        if (map.InBounds(x, y, z) && Physics.CanPutGrassOn(new Vector3I(x, y, z), world)) //shadow detection
+                                        {
+                                            if (new Random().Next(1, 45) > 35) //random seed generation lolz
+                                            {
+                                                map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Grass));
+                                            }
+                                            Thread.Sleep(25); //throttle, slow down horsey
+                                        } //0.5 - 3% cpu average, better than the original ~17%
+                                        //has not been tested with more than 5 maps loaded at once
+                                    }
                                 }
                             }
                         }

@@ -16,6 +16,8 @@ namespace fCraft.Physics
         public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
         {
             World world = e.Player.World;
+            if (!world.tntPhysics)
+                return;
             if (world.Map != null && world.IsLoaded)
             {
                 if (world.Map.GetBlock(e.Coords) == Block.TNT)
@@ -36,6 +38,8 @@ namespace fCraft.Physics
         public static void TNTDrop(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
+            if (!world.tntPhysics)
+                return;
             if (world.Map != null && world.IsLoaded)
             {
                 if (e.Context == BlockChangeContext.Manual)
@@ -76,6 +80,8 @@ namespace fCraft.Physics
         {
             if (world.Map != null && world.IsLoaded)
             {
+                if (!world.tntPhysics)
+                    return;
                 SphereDrawOperation operation = new SphereDrawOperation(p);
                 MarbledBrush brush = new MarbledBrush(Block.Lava, 1);
                 Vector3I secPos = new Vector3I(Coords.X + Physics.size, Coords.Y, Coords.Z);
@@ -93,6 +99,8 @@ namespace fCraft.Physics
         {
             if (world.Map != null && world.IsLoaded)
             {
+                if (!world.tntPhysics)
+                    return;
                 SphereDrawOperation operation = new SphereDrawOperation(p);
                 MarbledBrush brush = new MarbledBrush(Block.Air, 1);
                 Vector3I secPos = new Vector3I(Coords.X + Physics.size, Coords.Y, Coords.Z);
@@ -110,6 +118,8 @@ namespace fCraft.Physics
         public static void Firework(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
+            if (!world.tntPhysics)
+                return;
             if (world.Map != null && world.IsLoaded)
             {
                 if (e.Context == BlockChangeContext.Manual)
@@ -158,6 +168,8 @@ namespace fCraft.Physics
                                                 fBlock = (Block)rand.Next(21, 33);
                                             if (world.Map != null && world.IsLoaded)
                                             {
+                                                if (!world.tntPhysics)
+                                                    return;
                                                 Explode(world, X2, Y2, Z2, (Block)fBlock);
                                                 Removal(world, X2, Y2, Z2);
                                             }
