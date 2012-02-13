@@ -70,7 +70,7 @@ namespace fCraft
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.UsePortal },
             IsConsoleSafe = false,
-            Usage = "/Physics [TNT | Fireworks | Water | Plant | All | disable ]",
+            Usage = "/Physics [TNT | Fireworks | Water | Plant | All] On / Off",
             Help = "Enables / disables a type of physics for the current world. Physics may use more server resources.",
             HelpSections = new Dictionary<string,string>() {
                 { "tnt",     "&H/Physics tnt on/off \n&S" +
@@ -153,7 +153,6 @@ namespace fCraft
                         world.plantPhysics = true;
                         Server.Players.Message("{0}&S turned Plant phyiscs on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0}&S turned Plant phyiscs on for {1}", player.Name, world.Name);
-                        Physics.Physics.Load();
                     }
                     break;
                 case "all":

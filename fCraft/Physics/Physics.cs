@@ -36,7 +36,6 @@ namespace fCraft.Physics
         public static void Load()
         {
             SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
-            //SchedulerTask checkGrassQueue = Scheduler.NewBackgroundTask(CheckGrassQueue).RunForever(TimeSpan.FromSeconds(2));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             Player.Clicked += ExplodingPhysics.TNTClick;
@@ -59,7 +58,8 @@ namespace fCraft.Physics
                     {
                         for (int z = block.Z; z < world.Map.Bounds.ZMax; z++)
                         {
-                            if (world.Map.GetBlock(new Vector3I(block.X, block.Y, z + 1)) != Block.Air)
+                            Block toCheck = world.Map.GetBlock(new Vector3I(block.X, block.Y, z + 1));
+                            if (makeShadow(toCheck))
                             {
                                 return false;
                             }
@@ -70,6 +70,22 @@ namespace fCraft.Physics
                 }
             }
             return false;
+        }
+
+        public static bool makeShadow( Block block ) {
+            switch( block ) {
+                case Block.Air:
+                case Block.Glass:
+                case Block.Leaves:
+                case Block.YellowFlower:
+                case Block.RedFlower:
+                case Block.BrownMushroom:
+                case Block.RedMushroom:
+                case Block.Plant:
+                    return false;
+                default:
+                    return true;
+            }
         }
     
 
