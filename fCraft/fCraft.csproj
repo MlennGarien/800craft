@@ -136,6 +136,7 @@
     <Compile Include="Utils\MineQueryResponce.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
+    <Compile Include="Utils\SimplexNoise3D.cs" />
     <Compile Include="Utils\Vector3F.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\WorldCommands.cs" />

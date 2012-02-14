@@ -64,7 +64,6 @@ namespace fCraft.Physics
                                 return false;
                             }
                         }
-
                         return true;
                     }
                 }
