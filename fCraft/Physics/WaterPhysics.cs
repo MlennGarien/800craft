@@ -10,7 +10,7 @@ namespace fCraft.Physics
 {
     class WaterPhysics
     {
-        private static Thread waterThread;
+        public static Thread waterThread;
 
         public static void towerInit(object sender, Events.PlayerPlacedBlockEventArgs e)
         {
@@ -25,19 +25,28 @@ namespace fCraft.Physics
                         {
                             waterThread = new Thread(new ThreadStart(delegate
                             {
-                                e.Player.FlyCache = new System.Collections.Concurrent.ConcurrentDictionary<string, Vector3I>();
+                                if (e.Player.TowerCache != null)
+                                {
+                                    world.Map.QueueUpdate(new BlockUpdate(null, e.Player.towerOrigin, Block.Air));
+                                    e.Player.towerOrigin = e.Coords;
+                                    foreach (Vector3I block in e.Player.TowerCache.Values)
+                                    {
+                                        e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                                    }
+                                    e.Player.TowerCache.Clear();
+                                }
+                                e.Player.towerOrigin = e.Coords;
+                                e.Player.TowerCache = new System.Collections.Concurrent.ConcurrentDictionary<string, Vector3I>();
                                 for (int z = e.Coords.Z; z <= world.Map.Height; z++)
                                 {
                                     Thread.Sleep(250);
-                                    if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z + 1) != Block.Air || world.Map.GetBlock(e.Coords) != Block.Iron)
+                                    if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z + 1) != Block.Air || world.Map.GetBlock(e.Coords) != Block.Iron || e.Player.towerOrigin != e.Coords)
                                         break;
                                     else
                                     {
                                         Vector3I tower = new Vector3I(e.Coords.X, e.Coords.Y, z + 1);
-                                        e.Player.FlyCache.TryAdd(tower.ToString(), tower);
+                                        e.Player.TowerCache.TryAdd(tower.ToString(), tower);
                                         e.Player.Send(PacketWriter.MakeSetBlock(tower, Block.Water));
-                                        // world.Map.QueueUpdate(new BlockUpdate(
-                                        // null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z + 1), Block.Water));
                                     }
                                 }
                             })); waterThread.Start();
@@ -52,24 +61,20 @@ namespace fCraft.Physics
             World world = e.Player.World;
             if (world.waterPhysics)
             {
-                if (e.Player.TowerCache != null)
+                if (e.Action == ClickAction.Delete)
                 {
-                    if (world.Map != null && world.IsLoaded)
+                    if (e.Player.TowerCache != null)
                     {
-                        if (e.Block == Block.Iron)
+                        if (world.Map != null && world.IsLoaded)
                         {
-                            waterThread = new Thread(new ThreadStart(delegate
+                            if (e.Block == Block.Iron)
                             {
-                                Thread.Sleep(255);
-
-                                foreach (Vector3I block in e.Player.FlyCache.Values)
+                                foreach (Vector3I block in e.Player.TowerCache.Values)
                                 {
                                     e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
                                 }
-                                e.Player.FlyCache.Clear();
-                                //world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z + 1), Block.Air));
-
-                            })); waterThread.Start();
+                                e.Player.TowerCache.Clear();
+                            }
                         }
                     }
                 }

@@ -41,6 +41,7 @@ namespace fCraft.Physics
             Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
             Player.PlacingBlock += WaterPhysics.blockFloat;
+           // Player.PlacingBlock += WaterPhysics.waterPhysics;
             Player.Clicking += WaterPhysics.towerRemove;
             Player.PlacingBlock += WaterPhysics.towerInit;
         }

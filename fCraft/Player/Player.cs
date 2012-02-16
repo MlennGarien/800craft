@@ -157,6 +157,7 @@ namespace fCraft {
         public bool IsFlying = false;
         public ConcurrentDictionary<String, Vector3I> FlyCache;
         public ConcurrentDictionary<String, Vector3I> TowerCache;
+        public Vector3I towerOrigin;
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
         public String PortalWorld;
