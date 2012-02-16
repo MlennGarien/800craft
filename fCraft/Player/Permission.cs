@@ -153,6 +153,8 @@ namespace fCraft
         Gtfo,
         /// <summary> Ability to Ragequit from the server. </summary>
         RageQuit,
+        /// <summary> Ability to tower safely with invisible water towers that cannot harm builds. </summary>
+        Tower,
         /// <summary> Ability to tempban. </summary>
         TempBan,
         /// <summary> Ability to warn other players. </summary>

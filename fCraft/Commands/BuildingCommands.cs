@@ -90,11 +90,12 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdStatic );
 
-            CommandManager.RegisterCommand(CdWalls);
-            CommandManager.RegisterCommand(CdBanx);
-            CommandManager.RegisterCommand(CdFly);
-            CommandManager.RegisterCommand(CdPlace);
+            CommandManager.RegisterCommand( CdWalls );
+            CommandManager.RegisterCommand( CdBanx );
+            CommandManager.RegisterCommand( CdFly );
+            CommandManager.RegisterCommand( CdPlace );
            //CommandManager.RegisterCommand( CdTree );
+            CommandManager.RegisterCommand( CdTower );
         }
         
         static readonly CommandDescriptor CdPlace = new CommandDescriptor
@@ -132,6 +133,51 @@ namespace fCraft {
                 else player.Message("&WError: No last used blocktype was found");
             }
             catch { }
+        }
+
+        static readonly CommandDescriptor CdTower = new CommandDescriptor
+        {
+            Name = "Tower",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Tower },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Tower [/Tower Remove]",
+            Help = "Toggles tower mode on self. All Iron blocks will be replaced with towers.",
+            UsableByFrozenPlayers = false,
+            Handler = towerHandler
+        };
+
+        static void towerHandler(Player player, Command cmd)
+        {
+            string Param = cmd.Next();
+            if (Param == null)
+            {
+                if (player.towerMode){
+                    player.towerMode = false;
+                    player.Message("TowerMode has been turned off.");
+                    return;
+                }else{
+                    player.towerMode = true;
+                    player.Message("TowerMode has been turned on. " +
+                        "All Iron blocks are now being replaced with Towers.");
+                }
+            }
+            else if (Param.ToLower() == "remove")
+            {
+                if (player.TowerCache != null) {
+                    player.World.Map.QueueUpdate(new BlockUpdate(null, player.towerOrigin, Block.Air));
+                    foreach (Vector3I block in player.TowerCache.Values){
+                        player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                    }
+                    player.TowerCache.Clear();
+                    return;
+                }else{
+                    player.Message("&WThere is no Tower to remove");
+                }
+            }
+
+            else CdTower.PrintUsage(player);
         }
         static readonly CommandDescriptor CdFly = new CommandDescriptor
         {

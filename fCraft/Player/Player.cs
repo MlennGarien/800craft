@@ -155,6 +155,7 @@ namespace fCraft {
         public string elol = "lol";
         public bool IsAway;
         public bool IsFlying = false;
+        public bool towerMode = false;
         public ConcurrentDictionary<String, Vector3I> FlyCache;
         public ConcurrentDictionary<String, Vector3I> TowerCache;
         public Vector3I towerOrigin;

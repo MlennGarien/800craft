@@ -15,7 +15,7 @@ namespace fCraft.Physics
         public static void towerInit(object sender, Events.PlayerPlacedBlockEventArgs e)
         {
             World world = e.Player.World;
-            if (world.waterPhysics)
+            if (e.Player.towerMode)
             {
                 if (world.Map != null && world.IsLoaded)
                 {
@@ -40,7 +40,10 @@ namespace fCraft.Physics
                                 for (int z = e.Coords.Z; z <= world.Map.Height; z++)
                                 {
                                     Thread.Sleep(250);
-                                    if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z + 1) != Block.Air || world.Map.GetBlock(e.Coords) != Block.Iron || e.Player.towerOrigin != e.Coords)
+                                    if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z + 1) != Block.Air 
+                                        || world.Map.GetBlock(e.Coords) != Block.Iron 
+                                        || e.Player.towerOrigin != e.Coords
+                                        || !e.Player.towerMode)
                                         break;
                                     else
                                     {
@@ -59,9 +62,9 @@ namespace fCraft.Physics
         public static void towerRemove(object sender, Events.PlayerClickingEventArgs e)
         {
             World world = e.Player.World;
-            if (world.waterPhysics)
+            if (e.Action == ClickAction.Delete)
             {
-                if (e.Action == ClickAction.Delete)
+                if (e.Coords == e.Player.towerOrigin)
                 {
                     if (e.Player.TowerCache != null)
                     {
@@ -69,6 +72,7 @@ namespace fCraft.Physics
                         {
                             if (e.Block == Block.Iron)
                             {
+                                e.Player.towerOrigin = new Vector3I();
                                 foreach (Vector3I block in e.Player.TowerCache.Values)
                                 {
                                     e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
@@ -80,6 +84,7 @@ namespace fCraft.Physics
                 }
             }
         }
+        
 
         public static void waterPhysics(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
