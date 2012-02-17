@@ -176,7 +176,6 @@ namespace fCraft {
                     player.Message("&WThere is no Tower to remove");
                 }
             }
-
             else CdTower.PrintUsage(player);
         }
         static readonly CommandDescriptor CdFly = new CommandDescriptor
@@ -199,13 +198,13 @@ namespace fCraft {
                 player.Message("You are no longer flying.");
                 return;
             }
-            if (player.IsUsingWoM)
-            {
-                player.Message("You cannot use /fly when using WOM");
-                return;
-            }
             else
             {
+                if (player.IsUsingWoM)
+                {
+                    player.Message("You cannot use /fly when using WOM");
+                    return;
+                }
                 fCraft.Utils.FlyHandler.GetInstance().StartFlying(player);
                 player.Message("You are now flying, jump!");
             }

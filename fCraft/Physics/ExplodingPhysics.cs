@@ -26,8 +26,9 @@ namespace fCraft.Physics
                     {
                         Physics.size = 3;
                         world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
-                        startExplosion(e.Coords, e.Player, world);
-                        Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world)).RunOnce(TimeSpan.FromMilliseconds(300));
+                        int Seed = new Random().Next(1, 15);
+                        startExplosion(e.Coords, e.Player, world, Seed);
+                        Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
                     }));
                     explodeThread.Start();
                 }
@@ -67,8 +68,9 @@ namespace fCraft.Physics
                             Physics.size = 3;
                             SphereDrawOperation operation = new SphereDrawOperation(e.Player);
                             world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
-                            startExplosion(e.Coords, e.Player, world);
-                            Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world)).RunOnce(TimeSpan.FromMilliseconds(300));
+                            int Seed = new Random().Next(1, 15);
+                            startExplosion(e.Coords, e.Player, world, Seed);
+                            Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
                         }));
                         explodeThread.Start(); //congrats
                     }
@@ -76,7 +78,7 @@ namespace fCraft.Physics
             }
         }
 
-        public static void startExplosion(Vector3I Coords, Player p, World world)
+        public static void startExplosion(Vector3I Coords, Player p, World world, int Seed)
         {
             if (world.Map != null && world.IsLoaded)
             {
@@ -87,7 +89,7 @@ namespace fCraft.Physics
                 Vector3I secPos = new Vector3I(Coords.X + Physics.size, Coords.Y, Coords.Z);
                 Vector3I[] marks = { Coords, secPos };
                 operation.Brush = brush;
-                brush.Seed = 3;
+                brush.Seed = Seed;
                 operation.Prepare(marks);
                 operation.AnnounceCompletion = false;
                 operation.Context = BlockChangeContext.Explosion;
@@ -95,7 +97,7 @@ namespace fCraft.Physics
             }
         }
 
-        public static void removeLava(Vector3I Coords, Player p, World world)
+        public static void removeLava(Vector3I Coords, Player p, World world, int Seed)
         {
             if (world.Map != null && world.IsLoaded)
             {
@@ -106,7 +108,7 @@ namespace fCraft.Physics
                 Vector3I secPos = new Vector3I(Coords.X + Physics.size, Coords.Y, Coords.Z);
                 Vector3I[] marks = { Coords, secPos };
                 operation.Brush = brush;
-                brush.Seed = 3;
+                brush.Seed = Seed;
                 operation.Prepare(marks);
                 operation.AnnounceCompletion = false;
                 operation.Context = BlockChangeContext.Explosion;
