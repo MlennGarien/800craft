@@ -38,6 +38,7 @@ namespace fCraft
         public bool fireworkPhysics = false;
         public bool waterPhysics = false;
         public bool plantPhysics = false;
+        public bool sandPhysics = false;
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>

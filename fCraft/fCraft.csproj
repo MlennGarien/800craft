@@ -106,9 +106,6 @@
     <Compile Include="Commands\CommandHandlers\DummyAI.cs" />
     <Compile Include="Commands\CommandHandlers\FlyHandler.cs" />
     <Compile Include="Commands\CommandHandlers\RealmHandler.cs" />
-    <Compile Include="Commands\Games\GameEvents.cs" />
-    <Compile Include="Commands\Games\GameManager.cs" />
-    <Compile Include="Commands\Games\TFMinecraftHandler.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
@@ -298,6 +295,9 @@
     <Compile Include="Player\PlayerInfo.Events.cs" />
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Commands\Games\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -81,6 +81,8 @@ namespace fCraft
                                 "Turns water physics on / off in the current world"},
                 { "plant",       "&H/Physics plant on/off \n&S" +
                                 "Turns plant physics on / off in the current world"},
+                { "sand",       "&H/Physics sand on/off \n&S" +
+                                "Turns sand and gravel physics on / off in the current world"},
                 { "all",     "&H/Physics all on/off \n&S" +
                                 "Turns all physics on / off in the current world"},
             },
@@ -125,6 +127,20 @@ namespace fCraft
                         world.fireworkPhysics = true;
                         Server.Players.Message("{0}&S turned Firework phyiscs on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0}&S turned Firework phyiscs on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "sand":
+                    if (world.sandPhysics)
+                    {
+                        world.sandPhysics = false;
+                        Server.Players.Message("{0}&S turned Sand phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Sand phyiscs off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.sandPhysics = true;
+                        Server.Players.Message("{0}&S turned Sand phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0}&S turned Sand phyiscs on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "water":
@@ -229,146 +245,6 @@ namespace fCraft
                 }
             }
         }
-
-        public static readonly CommandDescriptor CdGame = new CommandDescriptor
-        {
-            Name = "Game",
-            Category = CommandCategory.World,
-            Permissions = new[] { Permission.Build },
-            Help = "Manages a game",
-            Usage = "/Game GameMode Start|Stop|Restart",
-            Handler = Game
-        };
-
-        static void Game(Player player, Command cmd)
-        {
-            string mode = cmd.Next();
-            string option = cmd.Next();
-
-            if (mode == null)
-            {
-                CdGame.PrintUsage(player);
-                player.Message("GameModes include: tf2");
-                return;
-            }
-            if (mode == "tf2" || mode == "tfminecraft")
-            {
-                switch (option)
-                {
-                    case "stop":
-                    case "end":
-                        TFMinecraftHandler.Stop(player, false);
-                        break;
-
-                    case "start":
-                        if (GameManager.GameWorld != null && GameManager.GameIsOn)
-                        {
-                            player.Message("A game is already running");
-                            return;
-                        }
-                        if (player.WorldMap.Zones.FindExact("redbase1") == null)
-                        {
-                            Zone BaseRed1 = new Zone();
-                            BaseRed1.Name = "redbase1";
-                            BaseRed1.Controller.MinRank = RankManager.HighestRank;
-                            foreach (PlayerInfo p in PlayerDB.PlayerInfoList.Where(t => t.Rank == RankManager.HighestRank))
-                                BaseRed1.Controller.Exclude(p);
-                            player.SelectionStart(2, TFMinecraftHandler.BaseAdd, BaseRed1, CdGame.Permissions);
-                            player.Message("Red Base 1: Place 2 blocks to cuboid a Red base");
-                            return;
-                        }
-
-                        else if (player.WorldMap.Zones.FindExact("redbase2") == null)
-                        {
-                            Server.Message("{0}&S is preparing a game of &CTeam &9Fortress&S on world {1}", player.ClassyName, player.World.ClassyName);
-                            TFMinecraftHandler.RedBase2(player);
-                            return;
-                        }
-                        else if (player.WorldMap.Zones.FindExact("redbase3") == null)
-                        {
-                            TFMinecraftHandler.RedBase3(player);
-                            return;
-                        }
-                        else if (player.WorldMap.Zones.FindExact("bluebase1") == null)
-                        {
-                            TFMinecraftHandler.BlueBase1(player);
-                            return;
-                        }
-                        else if (player.WorldMap.Zones.FindExact("bluebase2") == null)
-                        {
-                            TFMinecraftHandler.BlueBase2(player);
-                            return;
-                        }
-                        else if (player.WorldMap.Zones.FindExact("bluebase3") == null)
-                        {
-                            TFMinecraftHandler.BlueBase3(player);
-                            return;
-                        }
-                        else if (!cmd.IsConfirmed && GameManager.RedSpawn.X == 1)
-                        {
-                            player.Confirm(cmd, "&STravel to the Red Spawn and type /ok to set the Spawn point");
-                            GameManager.RedSpawn = new Position(player.Position.X,
-                                player.Position.Y,
-                                player.Position.Z);
-                        }
-
-                        else if (!cmd.IsConfirmed && GameManager.BlueSpawn.X == 1)
-                        {
-                            player.Confirm(cmd, "&STravel to the Blue Spawn and type /ok to set the Spawn point");
-                            GameManager.BlueSpawn = new Position(player.Position.X,
-                                player.Position.Y,
-                                player.Position.Z);
-                        }
-                        else TFMinecraftHandler.Start(player, player.World);
-                        break;
-
-                    case "reset":
-                    case "restart":
-                        foreach (World w in WorldManager.Worlds)
-                        {
-                            ZoneCollection q = w.Map.Zones;
-
-                            q.Remove("redbase1");
-                            q.Remove("redbase2");
-                            q.Remove("redbase3");
-                            q.Remove("bluebase1");
-                            q.Remove("bluebase2");
-                            q.Remove("bluebase3");
-                            q.Remove("redcaptured1");
-                            q.Remove("redcaptured2");
-                            q.Remove("redcaptured3");
-                            q.Remove("bluebase1");
-                            q.Remove("bluebase2");
-                            q.Remove("bluebase3");
-                        }
-                        if (GameManager.GameIsOn)
-                        {
-                            TFMinecraftHandler.Stop(player, false);
-                            player.Message("&SAll game conditions were reset");
-                            GameManager.RedSpawn = new Position(1, 1, 1);
-                            GameManager.BlueSpawn = new Position(1, 1, 1);
-                            return;
-                        }
-                        else
-                        {
-                            GameManager.GameWorld = null;
-                            GameManager.BlueTeam.Clear();
-                            GameManager.RedTeam.Clear();
-                            GameManager.RedSpawn = new Position(1, 1, 1);
-                            GameManager.BlueSpawn = new Position(1, 1, 1);
-                            player.Message("&SAll game conditions were reset");
-                        }
-                        break;
-
-
-                    default: 
-                        player.Message("Invalid Option");
-                        CdGame.PrintUsage(player);
-                        break;
-                }
-            }
-        }
-            
 
     #region portals
 

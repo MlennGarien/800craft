@@ -23,11 +23,28 @@ namespace fCraft.Utils
             {
                 instance = new FlyHandler();
                 Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
+                Player.PlacedBlock += new EventHandler<Events.PlayerPlacedBlockEventArgs>(Player_Clicked);
             }
 
             return instance;
         }
         public static Thread flyThread;
+        private static void Player_Clicked(object sender, Events.PlayerPlacedBlockEventArgs e)
+        {
+            if (e.Player.IsFlying)
+            {
+                if (e.Player.FlyCache.Values.Contains(e.Coords))
+                {
+                    foreach (Vector3I block in e.Player.FlyCache.Values)
+                    {
+                        e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                        Vector3I removed;
+                        e.Player.FlyCache.TryRemove(block.ToString(), out removed);
+                    }
+                }
+            }
+        }
+        
         private static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
         {
             try
@@ -110,11 +127,11 @@ namespace fCraft.Utils
             int y = block.Y - newPos.Y;
             int z = block.Z - newPos.Z;
 
-            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -2 && z <= 2))
+            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -3 && z <= 3))
             {
                 return true;
             }
-            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -3 && z <= 2))
+            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -2 && z <= 2))
             {
                 return true;
             }

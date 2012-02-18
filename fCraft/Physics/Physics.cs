@@ -35,7 +35,8 @@ namespace fCraft.Physics
         //init
         public static void Load()
         {
-            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
+            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1,5)));
+            SchedulerTask sandGrass = Scheduler.NewBackgroundTask(PlantPhysics.sandChecker).RunForever(TimeSpan.FromMilliseconds(350));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             Player.Clicked += ExplodingPhysics.TNTClick;
