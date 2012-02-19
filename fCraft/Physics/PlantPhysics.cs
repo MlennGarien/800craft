@@ -5,6 +5,7 @@ using System.Text;
 using fCraft.Events;
 using fCraft.Physics;
 using System.Threading;
+using System.Diagnostics;
 
 namespace fCraft.Physics
 {
@@ -93,9 +94,34 @@ namespace fCraft.Physics
 
         public static void grassChecker(SchedulerTask task)
         {
+            //imma put this here and be cheeky
+            if ((Server.CPUUsageTotal * 100) > 20 || Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024) > 1000)
+            {
+                foreach (World world in WorldManager.Worlds)
+                {
+                    if (world.waterPhysics || world.plantPhysics || world.fireworkPhysics || 
+                        world.tntPhysics || world.sandPhysics)
+                    {
+                        world.waterPhysics = false;
+                        world.plantPhysics = false;
+                        world.fireworkPhysics = false;
+                        world.tntPhysics = false;
+                        world.sandPhysics = false;
+                        if (world.waterQueue.Values.Count > 0)
+                        {
+                            foreach (Vector3I block in world.waterQueue.Values)
+                            {
+                                Vector3I removed;
+                                world.waterQueue.TryRemove(block.ToString(), out removed);
+                            }
+                        }
+                    }
+                    Server.Players.Message("&WPhysics has been shutdown on all worlds: High memory usage");
+                }
+            }
             if (checkGrass != null)
             {
-                if (checkGrass.ThreadState != ThreadState.Stopped) //stops multiple threads from opening
+                if (checkGrass.ThreadState != System.Threading.ThreadState.Stopped) //stops multiple threads from opening
                 {
                     return;
                 }
