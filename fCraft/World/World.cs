@@ -8,6 +8,7 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 using fCraft.Portals;
 using System.Collections;
+using System.Collections.Concurrent;
 
 namespace fCraft
 {
@@ -39,6 +40,7 @@ namespace fCraft
         public bool waterPhysics = false;
         public bool plantPhysics = false;
         public bool sandPhysics = false;
+        public ConcurrentDictionary<String, Vector3I> waterQueue = new ConcurrentDictionary<String, Vector3I>();
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>

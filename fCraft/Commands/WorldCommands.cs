@@ -199,6 +199,19 @@ namespace fCraft
                         Logger.Log(LogType.SystemActivity, "{0}&S turned ALL phyiscs off for {1}", player.Name, world.Name);
                     }
                     break;
+                case "unflood":
+                    if (world.waterQueue.Values.Count > 0)
+                    {
+                        foreach (Vector3I block in world.waterQueue.Values)
+                        {
+                            world.Map.QueueUpdate(new BlockUpdate(null, block, Block.Air));
+                            Vector3I removed;
+                            world.waterQueue.TryRemove(block.ToString(), out removed);
+                        }
+                        world.Flush();
+                        Server.Players.Message("{0}&S unflooded physics on {1}", player.ClassyName, world.ClassyName);
+                    }
+                    break;
                 default: CdPhysics.PrintUsage(player);
                     break;
             }

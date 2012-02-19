@@ -89,66 +89,8 @@ namespace fCraft.Physics
                     TreeGeneration.MakePalmFoliage(w, Coords, Height);
             }
         }
-        public static Thread sandCheck;
-        //grass physics
-        public static void sandChecker(SchedulerTask task)
-        {
-            if (sandCheck != null)
-            {
-                if (sandCheck.ThreadState != ThreadState.Stopped) //stops multiple threads from opening
-                {
-                    return;
-                }
-            }
-            sandCheck = new Thread(new ThreadStart(delegate
-            {
-                sandCheck.Priority = ThreadPriority.Lowest;
-                sandCheck.IsBackground = true;
-                foreach (World world in WorldManager.Worlds)
-                {
-                    if (world.Map != null && world.IsLoaded) //for all loaded worlds
-                    {
-                        if (!world.sandPhysics)
-                        {
-                            return;
-                        }
-                        else
-                        {
-                            Map map = world.Map;
 
-                            for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
-                            {
-                                for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
-                                {
-                                    for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
-                                    {
-                                        if (world.Map == null && !world.IsLoaded)
-                                        {
-                                            break;
-                                        }
-                                        if (world.sandPhysics)
-                                        {
-                                            if (map.GetBlock(x, y, z) == Block.Sand)
-                                            {
-                                                if (Physics.BlockThrough(map.GetBlock(x, y, z - 1)))
-                                                {
-                                                    map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
-                                                    map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)(z - 1), Block.Sand));
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            })); //sandCheck.Start();
-        }
-    
-    
-            
-       
+
         public static void grassChecker(SchedulerTask task)
         {
             if (checkGrass != null)
@@ -160,9 +102,10 @@ namespace fCraft.Physics
             }
             checkGrass = new Thread(new ThreadStart(delegate
             {
-               // checkGrass.Priority = ThreadPriority.Lowest;
+                // checkGrass.Priority = ThreadPriority.Lowest;
                 checkGrass.IsBackground = true;
-                foreach (World world in WorldManager.Worlds)
+                var worlds = WorldManager.Worlds.Where(w => w.IsLoaded && w.Map != null && w.plantPhysics);
+                foreach (World world in worlds)
                 {
                     if (world.Map != null && world.IsLoaded) //for all loaded worlds
                     {
@@ -173,7 +116,6 @@ namespace fCraft.Physics
                         else
                         {
                             Map map = world.Map;
-
                             for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
                             {
                                 for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
@@ -184,17 +126,17 @@ namespace fCraft.Physics
                                         {
                                             break;
                                         }
-                                        
+
                                         if (world.plantPhysics)
                                         {
-                                            if (map.InBounds(x, y, z) && Physics.CanPutGrassOn(new Vector3I(x, y, z), world)) //shadow detection
+                                            if (Physics.CanPutGrassOn(new Vector3I(x, y, z), world)) //shadow detection
                                             {
                                                 if (new Random().Next(1, 45) > 35) //random seed generation lolz
                                                 {
-                                                   map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Grass));
+                                                    map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Grass));
                                                 }
                                                 Thread.Sleep(25); //throttle, slow down horsey
-                                            } //0.5 - 4% cpu average, better than the original ~17%
+                                            } //0.7 - 4% cpu average, better than the original ~17%
                                             //has not been tested with more than 5 maps loaded at once
                                         }
                                     }

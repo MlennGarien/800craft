@@ -35,14 +35,14 @@ namespace fCraft.Physics
         //init
         public static void Load()
         {
-            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1,5)));
-            SchedulerTask sandGrass = Scheduler.NewBackgroundTask(PlantPhysics.sandChecker).RunForever(TimeSpan.FromMilliseconds(350));
+            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
+            SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(2));
+            SchedulerTask waterProcess = Scheduler.NewBackgroundTask(WaterPhysics.deQueueWater).RunForever(TimeSpan.FromSeconds(1));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
             Player.PlacingBlock += WaterPhysics.blockFloat;
-           // Player.PlacingBlock += WaterPhysics.waterPhysics;
             Player.Clicking += WaterPhysics.towerRemove;
             Player.PlacingBlock += WaterPhysics.towerInit;
         }
@@ -56,7 +56,11 @@ namespace fCraft.Physics
             {
                 if (world.Map.InBounds(block.X, block.Y, block.Z))
                 {
-                    if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) == Block.Dirt)
+                    if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Dirt)
+                    {
+                        return false;
+                    }
+                    else
                     {
                         for (int z = block.Z; z < world.Map.Bounds.ZMax; z++)
                         {
