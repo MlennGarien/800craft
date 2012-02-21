@@ -36,13 +36,15 @@ namespace fCraft.Physics
         public static void Load()
         {
             SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
-            SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(5));
-            SchedulerTask waterProcess = Scheduler.NewBackgroundTask(WaterPhysics.deQueueWater).RunForever(TimeSpan.FromSeconds(2));
+            SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(1));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
+           // Player.PlacingBlock += PlantPhysics.test; (drawimg)
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
+            Player.PlacingBlock += WaterPhysics.playerPlacedWater;
             Player.PlacingBlock += WaterPhysics.blockFloat;
+            Player.PlacingBlock += WaterPhysics.blockSink;
             Player.Clicking += WaterPhysics.towerRemove;
             Player.PlacingBlock += WaterPhysics.towerInit;
         }

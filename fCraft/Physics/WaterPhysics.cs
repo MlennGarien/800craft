@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using fCraft.Events;
@@ -11,7 +10,22 @@ namespace fCraft.Physics
     class WaterPhysics
     {
         public static Thread waterThread;
-        public static Thread waterQueueThread;
+        public static Thread waterSpreadThread;
+
+        public static void playerPlacedWater(object sender, Events.PlayerPlacedBlockEventArgs e)
+        {
+            if (e.NewBlock == Block.Water)
+            {
+                World world = e.Player.World;
+                if (world.waterPhysics)
+                {
+                    if (e.NewBlock == Block.Water)
+                    {
+                        world.waterQueue.TryAdd(e.Coords.ToString(), e.Coords);
+                    }
+                }
+            }
+        }
 
         public static void towerInit(object sender, Events.PlayerPlacedBlockEventArgs e)
         {
@@ -45,7 +59,9 @@ namespace fCraft.Physics
                                         || world.Map.GetBlock(e.Coords) != Block.Iron
                                         || e.Player.towerOrigin != e.Coords
                                         || !e.Player.towerMode)
+                                    {
                                         break;
+                                    }
                                     else
                                     {
                                         Vector3I tower = new Vector3I(e.Coords.X, e.Coords.Y, z + 1);
@@ -86,56 +102,61 @@ namespace fCraft.Physics
             }
         }
 
-
         public static void waterChecker(SchedulerTask task)
         {
-            /*if (waterThread != null)
+            if (waterSpreadThread != null)
             {
-                if (waterThread.ThreadState != ThreadState.Stopped) //stops multiple threads from opening
+                if (waterSpreadThread.ThreadState != ThreadState.Stopped)
                 {
                     return;
                 }
-            }*/
-            waterThread = new Thread(new ThreadStart(delegate
+            }
+            waterSpreadThread = new Thread(new ThreadStart(delegate
             {
-                waterThread.IsBackground = true;
-                var worlds = WorldManager.Worlds.Where(w => w.IsLoaded && w.Map != null && w.waterPhysics);
-                foreach (World world in worlds)
+                foreach (World world in WorldManager.Worlds)
                 {
-                    if (world.IsLoaded && world.Map != null && world.waterPhysics)
+                    if (world.IsLoaded && world.Map != null && world.waterPhysics && world.waterQueue.Count > 0)
                     {
                         Map map = world.Map;
-                        for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
+                        if (world.waterQueue.Values.Count > 0)
                         {
-                            for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
+                            foreach (Vector3I block in world.waterQueue.Values)
                             {
-                                for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
+                                if (world.Map != null && world.IsLoaded && world.waterPhysics)
                                 {
-                                    if (world.Map == null && !world.IsLoaded)
+                                    if (map.GetBlock(block) == Block.Water)
                                     {
-                                        break;
-                                    }
-
-                                    if (world.waterPhysics)
-                                    {
-                                        if (map.GetBlock(x, y, z) == Block.Water)
+                                        if (world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Water &&
+                                            world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Air)
                                         {
-                                            if (!world.waterQueue.Values.Contains(new Vector3I(x, y, z)))
-                                            {
-                                                world.waterQueue.TryAdd(new Vector3I(x, y, z).ToString(), new Vector3I(x, y, z));
-                                            }
+                                            waterCheck(block.X - 1, block.Y, block.Z, world);
+                                            waterCheck(block.X + 1, block.Y, block.Z, world);
+                                            waterCheck(block.X, block.Y - 1, block.Z, world);
+                                            waterCheck(block.X, block.Y + 1, block.Z, world);
                                         }
+                                        else
+                                        {
+                                            waterCheck(block.X, block.Y, block.Z - 1, world);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Vector3I removed;
+                                        world.waterQueue.TryRemove(block.ToString(), out removed);
                                     }
                                 }
                             }
                         }
                     }
                 }
-
-            })); waterThread.Start();
+            })); waterSpreadThread.Start();
         }
-
-
+        
+        
+                
+       
+        #region hidden
+        /*
         public static void deQueueWater(SchedulerTask task)
         {
             if (waterQueueThread != null)
@@ -161,7 +182,7 @@ namespace fCraft.Physics
                                  {
                                      if (world.IsLoaded && world.Map != null && world.waterPhysics)
                                      {
-                                         if (world.Map.GetBlock(block) == Block.Water)
+                                         if (world.Map.GetBlock(block) == Block.Water) //if block is still water
                                          {
                                              waterCheck(block.X - 1, block.Y, block.Z, world);
                                              waterCheck(block.X + 1, block.Y, block.Z, world);
@@ -172,7 +193,7 @@ namespace fCraft.Physics
                                          else
                                          {
                                              Vector3I removed;
-                                             world.waterQueue.TryRemove(block.ToString(), out removed);
+                                             world.waterQueue.TryRemove(block.ToString(), out removed); //else remove it from collection
                                          }
                                      }
                                  }
@@ -182,14 +203,65 @@ namespace fCraft.Physics
                 }
             }
         }
+*/
 
+
+        /*public static void deQueueWater(SchedulerTask task)
+        {
+            if (waterQueueThread != null)
+            {
+                if (waterQueueThread.ThreadState != ThreadState.Stopped && waterQueueThread.ThreadState == ThreadState.WaitSleepJoin) //stops multiple threads from opening
+                {
+                    return;
+                }
+            }
+            var worlds = WorldManager.Worlds.Where(w => w.waterPhysics && w.IsLoaded && w.Map != null);
+            foreach (World world in worlds)
+            {
+                if (world.waterPhysics)
+                {
+                    waterQueueThread = new Thread(new ThreadStart(delegate
+                    {
+                        waterQueueThread.IsBackground = true;
+
+                        if (world.waterQueue != null)
+                        {
+                            foreach (Vector3I block in world.waterQueue.Values)
+                            {
+                                if (world.Map.GetBlock(block.X, block.Y, block.Z) == Block.Water)
+                                {
+                                    if (world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Water &&
+                                        world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Air)
+                                    {
+                                        if (world.waterPhysics)
+                                        {
+                                            waterCheck(block.X - 1, block.Y, block.Z, world);
+                                            waterCheck(block.X + 1, block.Y, block.Z, world);
+                                            waterCheck(block.X, block.Y - 1, block.Z, world);
+                                            waterCheck(block.X, block.Y + 1, block.Z, world);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        waterCheck(block.X, block.Y, block.Z - 1, world);
+                                    }
+                                }
+                            }
+                        } Thread.Sleep(350);
+                    })); waterQueueThread.Start();
+                }
+            }
+        }
+        
+        */
+        #endregion
         public static void waterCheck(int x, int y, int z, World world)
         {
             if (world.Map != null && world.IsLoaded &&
                world.Map.GetBlock(x, y, z) == Block.Air)
             {
-                world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Water));
                 world.waterQueue.TryAdd(new Vector3I(x, y, z).ToString(), new Vector3I(x, y, z));
+                world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Water));
             }
         }
 
@@ -200,16 +272,16 @@ namespace fCraft.Physics
             {
                 if (e.Context == BlockChangeContext.Manual)
                 {
+                    if (e.NewBlock == Block.TNT && world.tntPhysics)
+                    {
+                        return;
+                    }
+                    if (e.NewBlock == Block.Red && world.fireworkPhysics)
+                    {
+                        return;
+                    }
                     if (Physics.CanFloat(e.NewBlock))
                     {
-                        if (e.NewBlock == Block.TNT && world.tntPhysics)
-                        {
-                            return;
-                        }
-                        if (e.NewBlock == Block.Red && world.tntPhysics)
-                        {
-                            return;
-                        }
                         waterThread = new Thread(new ThreadStart(delegate
                         {
                             for (int z = e.Coords.Z; z <= world.Map.Height; z++)
@@ -233,35 +305,55 @@ namespace fCraft.Physics
                         })); waterThread.Start();
                     }
                 }
-
-                else if (e.NewBlock != Block.Air
-                    && e.NewBlock != Block.Water
-                    && e.NewBlock != Block.Lava
-                    && e.NewBlock != Block.BrownMushroom
-                    && e.NewBlock != Block.RedFlower
-                    && e.NewBlock != Block.RedMushroom
-                    && e.NewBlock != Block.YellowFlower
-                    && e.NewBlock != Block.Plant)
+            }
+        }
+            
+       public static void blockSink(object sender, Events.PlayerPlacingBlockEventArgs e)
+        {
+            World world = e.Player.World;
+            if (world.waterPhysics)
+            {
+                if (e.Context == BlockChangeContext.Manual)
                 {
-                    if (world.waterPhysics)
+                    if(!Physics.CanFloat(e.NewBlock) 
+                        && e.NewBlock != Block.Air
+                        && e.NewBlock != Block.Water
+                        && e.NewBlock != Block.Lava
+                        && e.NewBlock != Block.BrownMushroom
+                        && e.NewBlock != Block.RedFlower
+                        && e.NewBlock != Block.RedMushroom
+                        && e.NewBlock != Block.YellowFlower
+                        && e.NewBlock != Block.Plant)
                     {
-                        waterThread = new Thread(new ThreadStart(delegate
+                        if (world.waterPhysics)
                         {
-                            for (int z = e.Coords.Z; z >= 1; z--)
+                            waterThread = new Thread(new ThreadStart(delegate
                             {
-                                if (world.Map != null && world.IsLoaded)
+                                for (int z = e.Coords.Z; z >= 1; z--)
                                 {
-                                    if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z) == Block.Water)
+                                    if (world.Map != null && world.IsLoaded)
                                     {
-                                        Thread.Sleep(Physics.Tick);
-                                        world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z - 1), Block.Water)); //remove when water physics is done
+                                        if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z) == Block.Water)
+                                        {
+                                            Thread.Sleep(Physics.Tick);
+                                            world.Map.QueueUpdate(new BlockUpdate
+                                                (null, 
+                                                (short)e.Coords.X, 
+                                                (short)e.Coords.Y, 
+                                                (short)(z + 1), 
+                                                Block.Water));
 
-                                        world.Map.QueueUpdate(new BlockUpdate
-                                            (null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z), e.NewBlock));
+                                            world.Map.QueueUpdate(new BlockUpdate
+                                                (null, 
+                                                (short)e.Coords.X, 
+                                                (short)e.Coords.Y, 
+                                                (short)(z), 
+                                                e.NewBlock));
+                                        }
                                     }
                                 }
-                            }
-                        })); waterThread.Start();
+                            })); waterThread.Start();
+                        }
                     }
                 }
             }

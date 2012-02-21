@@ -70,8 +70,8 @@ namespace fCraft
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.UsePortal },
             IsConsoleSafe = false,
-            Usage = "/Physics [TNT | Fireworks | Water | Plant | All] On / Off",
-            Help = "Enables / disables a type of physics for the current world. Physics may use more server resources.",
+            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | All> <On / Off>",
+            Help = "Enables / disables a type of Physics for the current world. Physics may use more server resources.",
             HelpSections = new Dictionary<string,string>() {
                 { "tnt",     "&H/Physics tnt on/off \n&S" +
                                 "Turns TNT exploding physics on / off in the current world"},
@@ -83,6 +83,8 @@ namespace fCraft
                                 "Turns plant physics on / off in the current world"},
                 { "sand",       "&H/Physics sand on/off \n&S" +
                                 "Turns sand and gravel physics on / off in the current world"},
+                { "grass",       "&H/Physics grass on/off \n&S" +
+                                "Turns grass regrowing physics on / off in the current world"},
                 { "all",     "&H/Physics all on/off \n&S" +
                                 "Turns all physics on / off in the current world"},
             },
@@ -112,6 +114,20 @@ namespace fCraft
                         world.tntPhysics = true;
                         Server.Players.Message("{0}&S turned TNT phyiscs on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0}&S turned TNT phyiscs on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "grass":
+                    if (world.grassPhysics)
+                    {
+                        world.grassPhysics = false;
+                        Server.Players.Message("{0}&S turned Grass Phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Phyiscs off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.grassPhysics = true;
+                        Server.Players.Message("{0}&S turned Grass Phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Phyiscs on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "fireworks":
@@ -200,7 +216,7 @@ namespace fCraft
                     }
                     break;
                 case "unflood":
-                    if (world.waterQueue.Values.Count > 0)
+                    if (world.waterQueue.Count > 0)
                     {
                         foreach (Vector3I block in world.waterQueue.Values)
                         {
@@ -211,6 +227,7 @@ namespace fCraft
                         world.Flush();
                         Server.Players.Message("{0}&S unflooded physics on {1}", player.ClassyName, world.ClassyName);
                     }
+                    else player.Message("&WError&S: No blocks to flush.");
                     break;
                 default: CdPhysics.PrintUsage(player);
                     break;
