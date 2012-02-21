@@ -6,6 +6,9 @@ using fCraft.Events;
 using fCraft.Physics;
 using System.Threading;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Net;
 
 namespace fCraft.Physics
 {
@@ -13,6 +16,112 @@ namespace fCraft.Physics
     {
         private static Thread plantThread;
         private static Thread checkGrass;
+
+        public static void test(object sender, Events.PlayerPlacingBlockEventArgs e)
+        {
+            string url = "http://www.deviantart.com/download/182426032/cod_black_ops_game_icon_by_wolfangraul-d30m0ts.png";
+            Bitmap img = processImg(url);
+            World world = e.Player.World;
+            Block block = Block.Black;
+            plantThread = new Thread(new ThreadStart(delegate
+              {
+                  for (int x = 0; x < img.Height; x++)
+                  {
+                      for (int y = 0; y < img.Width; y++)
+                      {
+                          byte r = img.GetPixel(y, x).R;
+                          byte g = img.GetPixel(y, x).G;
+                          byte b = img.GetPixel(y, x).B;
+                          /*if (r == 116 && g == 116 && b == 116) block = Block.Stone;
+                          if (r == 121 && g == 85 && b == 58) block = Block.Dirt;
+                          if (r == 106 && g == 106 && b == 106) block = Block.Cobblestone;
+                          if (r == 144 && g == 115 && b == 72) block = Block.Wood;
+                          if (r == 220 && g == 214 && b == 158) block = Block.Sand;
+                          if (r == 108 && g == 94 && b == 95) block = Block.Gravel;
+                          if (r == 82 && g == 66 && b == 39) block = Block.Log;
+                          if (r == 82 && g == 66 && b == 39) block = Block.Sand;
+                          if (r == 211 && g == 47 && b == 47) block = Block.Red;
+                          if (r == 244 && g == 137 && b == 50) block = Block.Orange;
+                          if (r == 193 && g == 193 && b == 43) block = Block.Yellow;
+                          if (r == 139 && g == 228 && b == 51) block = Block.Lime;
+                          if (r == 54 && g == 241 && b == 54) block = Block.Green;
+                          if (r == 50 && g == 224 && b == 224) block = Block.Aqua;
+                          if (r == 47 && g == 208 && b == 208) block = Block.Cyan;
+                          if (r == 110 && g == 172 && b == 234) block = Block.Blue;
+                          if (r == 121 && g == 121 && b == 224) block = Block.Magenta;
+                          if (r == 120 && g == 44 && b == 196) block = Block.Indigo;
+                          if (r == 166 && g == 70 && b == 211) block = Block.Violet;
+                          if (r == 215 && g == 48 && b == 215) block = Block.Magenta;
+                          if (r == 231 && g == 52 && b == 141) block = Block.Pink;
+                          if (r == 71 && g == 71 && b == 71) block = Block.Black;
+                          if (r == 138 && g == 138 && b == 138) block = Block.Gray;
+                          if (r == 253 && g == 253 && b == 253) block = Block.White;
+                          if (r == 201 && g == 185 && b == 57) block = Block.Gold;
+                          if (r == 189 && g == 189 && b == 189) block = Block.Iron;
+                          if (r == 11 && g == 11 && b == 18) block = Block.Obsidian;*/
+                          if ((r + g + b) / 3 < (256 / 4))
+                          {
+                              block = Block.Obsidian;
+                          }
+                          else if (((r + g + b) / 3) >= (256 / 4) && ((r + g + b) / 3) < (256 / 4) * 2)
+                          {
+                             block = Block.Black;
+                          }
+                          else if (((r + g + b) / 3) >= (256 / 4) * 2 && ((r + g + b) / 3) < (256 / 4) * 3)
+                          {
+                              block = Block.Gray;
+                          }
+                          else
+                          {
+                              block = Block.White;
+                          }
+                              world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)(e.Coords.Y + y), (short)(e.Coords.Z + x), block));
+                      }
+                  }
+                  img.Dispose();
+              })); plantThread.Start();
+        }
+
+        public static Bitmap processImg(string url)
+        {
+            WebClient client = new WebClient();
+            Stream stream = client.OpenRead(url);
+            Bitmap img = new Bitmap(ResizeImage(System.Drawing.Image.FromStream(stream), 50, 50, true));
+            stream.Flush();
+            stream.Close();
+            client.Dispose();
+            img.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            return img;
+        }
+
+
+        public static System.Drawing.Image ResizeImage(System.Drawing.Image FullsizeImage, int NewWidth, int MaxHeight, bool OnlyResizeIfWider)
+        {
+            if (OnlyResizeIfWider)
+            {
+                if (FullsizeImage.Width <= NewWidth)
+                {
+                    NewWidth = FullsizeImage.Width;
+                }
+            }
+
+            int NewHeight = FullsizeImage.Height * NewWidth / FullsizeImage.Width;
+            if (NewHeight > MaxHeight)
+            {
+                // Resize with height instead
+                NewWidth = FullsizeImage.Width * MaxHeight / FullsizeImage.Height;
+                NewHeight = MaxHeight;
+            }
+
+            System.Drawing.Image NewImage = FullsizeImage.GetThumbnailImage(NewWidth, NewHeight, null, IntPtr.Zero);
+
+            // Clear 
+            FullsizeImage.Dispose();
+
+            // You mad bro?
+            return NewImage;
+            // He mad son...
+        }
 
         public static void TreeGrowing(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
@@ -97,6 +206,7 @@ namespace fCraft.Physics
             //imma put this here and be cheeky
             if ((Server.CPUUsageTotal * 100) > 20 || Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024) > 1000)
             {
+                int count = 0;
                 foreach (World world in WorldManager.Worlds)
                 {
                     if (world.waterPhysics || world.plantPhysics || world.fireworkPhysics || 
@@ -107,7 +217,8 @@ namespace fCraft.Physics
                         world.fireworkPhysics = false;
                         world.tntPhysics = false;
                         world.sandPhysics = false;
-                        if (world.waterQueue.Values.Count > 0)
+                        count++;
+                        if (world.waterQueue.Count > 0)
                         {
                             foreach (Vector3I block in world.waterQueue.Values)
                             {
@@ -116,6 +227,9 @@ namespace fCraft.Physics
                             }
                         }
                     }
+                }
+                if (count > 0)
+                {
                     Server.Players.Message("&WPhysics has been shutdown on all worlds: High memory usage");
                 }
             }

@@ -200,7 +200,7 @@ namespace fCraft
                     }
                     break;
                 case "unflood":
-                    if (world.waterQueue.Values.Count > 0)
+                    if (world.waterQueue.Count > 0)
                     {
                         foreach (Vector3I block in world.waterQueue.Values)
                         {
@@ -211,6 +211,7 @@ namespace fCraft
                         world.Flush();
                         Server.Players.Message("{0}&S unflooded physics on {1}", player.ClassyName, world.ClassyName);
                     }
+                    else player.Message("&WError&S: No blocks to flush.");
                     break;
                 default: CdPhysics.PrintUsage(player);
                     break;

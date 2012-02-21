@@ -128,7 +128,6 @@ namespace fCraft.Portals
                                                 e.Player.Message("Cannot join world {0}&S: must be {1}+",
                                                              world.ClassyName, world.AccessSecurity.MinRank.ClassyName);
                                                 break;
-                                            
                                         }
                                     }
                                     else

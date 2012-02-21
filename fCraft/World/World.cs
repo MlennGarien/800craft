@@ -53,8 +53,6 @@ namespace fCraft
         [NotNull]
         public SecurityController BuildSecurity { get; internal set; }
 
-
-
         public DateTime LoadedOn { get; internal set; }
 
         [CanBeNull]
