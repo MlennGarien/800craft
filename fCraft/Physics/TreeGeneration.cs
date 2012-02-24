@@ -23,9 +23,13 @@ namespace fCraft.Physics
                 {
                     int rad;
                     if (y > start + 1)
+                    {
                         rad = 1;
+                    }
                     else
+                    {
                         rad = 2;
+                    }
                     for (int xoff = -rad; xoff < rad + 1; xoff++)
                     {
                         for (int zoff = -rad; zoff < rad + 1; zoff++)
@@ -55,7 +59,9 @@ namespace fCraft.Physics
                     for (int yoff = -2; yoff < 3; yoff++)
                     {
                         if (Math.Abs(xoff) == Math.Abs(yoff))
+                        {
                             world.Map.QueueUpdate(new BlockUpdate(null, (short)(Pos.Z + xoff), (short)(Pos.Y + yoff), (short)z, Block.Leaves));
+                        }
                     }
                 }
             }

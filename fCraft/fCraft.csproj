@@ -131,6 +131,7 @@
     <Compile Include="Commands\ModerationCommands.cs" />
     <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
+    <Compile Include="Drawing\DrawOps\Copy of EllipsoidDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\TreeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />

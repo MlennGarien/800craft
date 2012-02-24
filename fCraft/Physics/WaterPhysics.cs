@@ -102,9 +102,10 @@ namespace fCraft.Physics
             }
         }
 
+
         public static void waterChecker(SchedulerTask task)
         {
-            if (waterSpreadThread != null)
+            if (waterThread != null)
             {
                 if (waterSpreadThread.ThreadState != ThreadState.Stopped)
                 {
@@ -117,6 +118,7 @@ namespace fCraft.Physics
                 {
                     if (world.IsLoaded && world.Map != null && world.waterPhysics && world.waterQueue.Count > 0)
                     {
+                        waterThread.IsBackground = true;
                         Map map = world.Map;
                         if (world.waterQueue.Values.Count > 0)
                         {
@@ -126,23 +128,32 @@ namespace fCraft.Physics
                                 {
                                     if (map.GetBlock(block) == Block.Water)
                                     {
-                                        if (world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Water &&
+                                        if (world.waterPhysics)
+                                        {
+                                            if (map.GetBlock(block) == Block.Water)
+                                            {
+                                                if (world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Water &&
                                             world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Air)
-                                        {
-                                            waterCheck(block.X - 1, block.Y, block.Z, world);
-                                            waterCheck(block.X + 1, block.Y, block.Z, world);
-                                            waterCheck(block.X, block.Y - 1, block.Z, world);
-                                            waterCheck(block.X, block.Y + 1, block.Z, world);
+                                                {
+                                                    if (world.waterPhysics)
+                                                    {
+                                                        waterCheck(block.X - 1, block.Y, block.Z, world);
+                                                        waterCheck(block.X + 1, block.Y, block.Z, world);
+                                                        waterCheck(block.X, block.Y - 1, block.Z, world);
+                                                        waterCheck(block.X, block.Y + 1, block.Z, world);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    waterCheck(block.X, block.Y, block.Z - 1, world);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Vector3I removed;
+                                                world.waterQueue.TryRemove(block.ToString(), out removed);
+                                            }
                                         }
-                                        else
-                                        {
-                                            waterCheck(block.X, block.Y, block.Z - 1, world);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Vector3I removed;
-                                        world.waterQueue.TryRemove(block.ToString(), out removed);
                                     }
                                 }
                             }
@@ -151,9 +162,7 @@ namespace fCraft.Physics
                 }
             })); waterSpreadThread.Start();
         }
-        
-        
-                
+            
        
         #region hidden
         /*
@@ -204,6 +213,56 @@ namespace fCraft.Physics
             }
         }
 */
+#endregion
+
+        /*public static void deQueueWater(SchedulerTask task)
+        {
+            if (waterQueueThread != null)
+            {
+                if (waterQueueThread.ThreadState != ThreadState.Stopped && waterQueueThread.ThreadState == ThreadState.WaitSleepJoin) //stops multiple threads from opening
+                {
+                    return;
+                }
+            }
+            var worlds = WorldManager.Worlds.Where(w => w.waterPhysics && w.IsLoaded && w.Map != null);
+            foreach (World world in worlds)
+            {
+                if (world.waterPhysics)
+                {
+                    waterQueueThread = new Thread(new ThreadStart(delegate
+                    {
+                        waterQueueThread.IsBackground = true;
+
+                        if (world.waterQueue != null)
+                        {
+                            foreach (Vector3I block in world.waterQueue.Values)
+                            {
+                                if (world.Map.GetBlock(block.X, block.Y, block.Z) == Block.Water)
+                                {
+                                    if (world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Water &&
+                                        world.Map.GetBlock(block.X, block.Y, block.Z - 1) != Block.Air)
+                                    {
+                                        if (world.waterPhysics)
+                                        {
+                                            waterCheck(block.X - 1, block.Y, block.Z, world);
+                                            waterCheck(block.X + 1, block.Y, block.Z, world);
+                                            waterCheck(block.X, block.Y - 1, block.Z, world);
+                                            waterCheck(block.X, block.Y + 1, block.Z, world);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        waterCheck(block.X, block.Y, block.Z - 1, world);
+                                    }
+                                }
+                            }
+                        } Thread.Sleep(350);
+                    })); waterQueueThread.Start();
+                }
+            }
+        }
+        
+        */
 
 
         /*public static void deQueueWater(SchedulerTask task)
@@ -254,7 +313,6 @@ namespace fCraft.Physics
         }
         
         */
-        #endregion
         public static void waterCheck(int x, int y, int z, World world)
         {
             if (world.Map != null && world.IsLoaded &&

@@ -6,6 +6,8 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.Threading;
 using System.Collections.Generic;
+using LibNbt;
+using LibNbt.Tags;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -46,6 +48,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPasteNotX );
             CommandManager.RegisterCommand( CdMirror );
             CommandManager.RegisterCommand( CdRotate );
+            CommandManager.RegisterCommand(CdDrawScheme);
             CdCut.Help += GeneralDrawingHelp;
             CdPaste.Help += GeneralDrawingHelp;
             CdPasteNot.Help += GeneralDrawingHelp;
@@ -753,6 +756,44 @@ namespace fCraft {
             }
         }
 
+        static readonly CommandDescriptor CdDrawScheme = new CommandDescriptor
+        {
+            Name = "DrawScheme",
+            Aliases = new[] { "drs" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.PlaceAdmincrete },
+            Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
+            Handler = test
+        };
+        public static void test(Player player, Command cmd)
+        {
+            NbtFile file = new NbtFile("C:\\Users\\Jon\\Downloads\\AutoChicken.schematic");
+            file.RootTag = new NbtCompound("Schematic");
+            file.LoadFile();
+
+            short width = file.RootTag.Query<NbtShort>("/Schematic/Width").Value;
+            short height = file.RootTag.Query<NbtShort>("/Schematic/Height").Value;
+            short length = file.RootTag.Query<NbtShort>("/Schematic/Length").Value;
+            Byte[] blocks = file.RootTag.Query<NbtByteArray>("/Schematic/Blocks").Value;
+
+            Vector3I position = player.Position.ToVector3I();
+            int i = 0;
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < length; y++)
+            {
+                for (int z = 0; z < height; z++)
+                {
+                   i++;
+                        Vector3I pos = new Vector3I((position.X / 32) + x, (position.Y / 32) + y, (position.Z / 32) + z);
+                        //if (Enum.Parse(typeof(Block), ((Block)blocks[index]).ToString(), true) != null)
+                        //{
+                        player.WorldMap.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, (Block)blocks[i]));
+                        //}
+                    }
+                }
+            }
+        }
 
 
         static readonly CommandDescriptor CdLava = new CommandDescriptor {
@@ -850,7 +891,7 @@ namespace fCraft {
         #endregion
 
 
-        static void DrawOneBlock( [NotNull] Player player, [NotNull] Map map, Block drawBlock, Vector3I coord,
+        public static void DrawOneBlock( [NotNull] Player player, [NotNull] Map map, Block drawBlock, Vector3I coord,
                                   BlockChangeContext context, ref int blocks, ref int blocksDenied, UndoState undoState ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
