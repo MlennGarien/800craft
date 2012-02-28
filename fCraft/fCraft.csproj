@@ -92,8 +92,6 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
@@ -138,8 +136,10 @@
     <Compile Include="Network\Player.Networking.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\GrassUpdate.cs" />
+    <Compile Include="Physics\GunTest.cs" />
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Physics\PlantPhysics.cs" />
+    <Compile Include="Physics\SandPhysics.cs" />
     <Compile Include="Physics\TreeGeneration.cs" />
     <Compile Include="Physics\WaterPhysics.cs" />
     <Compile Include="Player\SecurityController.cs" />
@@ -331,7 +331,6 @@
     <Folder Include="Commands\Games\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

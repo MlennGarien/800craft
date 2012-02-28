@@ -35,8 +35,12 @@ namespace fCraft.Physics
         //init
         public static void Load()
         {
+            Player.Clicking += GunTest.ClickedGlass;//
+            Player.Moving += GunTest.gunMove;//
+            Player.Moving += GunTest.movePortal;//
             SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
-
+            SchedulerTask checkSand = Scheduler.NewBackgroundTask(SandPhysics.checkSand).RunForever(TimeSpan.FromSeconds(1));
+            SchedulerTask checkSandQueue = Scheduler.NewBackgroundTask(SandPhysics.processSand).RunForever(TimeSpan.FromSeconds(1));
             SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(1));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             // Player.PlacingBlock += PlantPhysics.test; (drawimg)
@@ -44,10 +48,35 @@ namespace fCraft.Physics
             Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
             Player.PlacingBlock += WaterPhysics.playerPlacedWater;
+            Player.PlacingBlock += WaterPhysics.blockFloat;
+            Player.PlacingBlock += WaterPhysics.blockSink;
         }
 
 
         //physics helpers & bools
+
+        public static bool MoveSand(Vector3I block, World world)
+        {
+            if (world.Map != null)
+            {
+                if (world.Map.InBounds(block.X, block.Y, block.Z))
+                {
+                    if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Sand)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        if(world.Map.GetBlock(block.X, block.Y, block.Z -1) != Block.Air)
+                        { 
+                            return false;
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         public static bool CanPutGrassOn(Vector3I block, World world)
         {

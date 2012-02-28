@@ -148,7 +148,11 @@ namespace fCraft {
         public bool IsFlying = false;
         public bool towerMode = false;
         public ConcurrentDictionary<String, Vector3I> FlyCache;
+        public ConcurrentDictionary<String, Vector3I> GunCache = new ConcurrentDictionary<string, Vector3I>();
+        public ConcurrentDictionary<String, Vector3I> bluePortal = new ConcurrentDictionary<string, Vector3I>();
+        public ConcurrentDictionary<String, Vector3I> orangePortal = new ConcurrentDictionary<string, Vector3I>();
         public ConcurrentDictionary<String, Vector3I> TowerCache;
+
         public Vector3I towerOrigin;
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;

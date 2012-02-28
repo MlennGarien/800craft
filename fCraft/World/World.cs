@@ -42,7 +42,7 @@ namespace fCraft
         public bool sandPhysics = false;
         public bool grassPhysics = false;
         public ConcurrentDictionary<String, Vector3I> waterQueue = new ConcurrentDictionary<String, Vector3I>();
-
+        public ConcurrentDictionary<String, Vector3I> sandQueue = new ConcurrentDictionary<String, Vector3I>();
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }
