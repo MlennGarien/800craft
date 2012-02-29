@@ -35,9 +35,6 @@ namespace fCraft.Physics
         //init
         public static void Load()
         {
-            Player.Clicking += GunTest.ClickedGlass;//
-            Player.Moving += GunTest.gunMove;//
-            Player.Moving += GunTest.movePortal;//
             SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
             SchedulerTask checkSand = Scheduler.NewBackgroundTask(SandPhysics.checkSand).RunForever(TimeSpan.FromSeconds(1));
             SchedulerTask checkSandQueue = Scheduler.NewBackgroundTask(SandPhysics.processSand).RunForever(TimeSpan.FromSeconds(1));

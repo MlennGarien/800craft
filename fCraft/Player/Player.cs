@@ -145,15 +145,22 @@ namespace fCraft {
 
         #endregion
         public bool IsAway;
-        public bool IsFlying = false;
-        public bool towerMode = false;
-        public ConcurrentDictionary<String, Vector3I> FlyCache;
-        public ConcurrentDictionary<String, Vector3I> GunCache = new ConcurrentDictionary<string, Vector3I>();
-        public ConcurrentDictionary<String, Vector3I> bluePortal = new ConcurrentDictionary<string, Vector3I>();
-        public ConcurrentDictionary<String, Vector3I> orangePortal = new ConcurrentDictionary<string, Vector3I>();
-        public ConcurrentDictionary<String, Vector3I> TowerCache;
 
+        public bool IsFlying = false;
+        public ConcurrentDictionary<String, Vector3I> FlyCache;
+        public readonly object FlyLock = new object();
+
+        public ConcurrentDictionary<String, Vector3I> TowerCache = new ConcurrentDictionary<String, Vector3I>();
+        public bool towerMode = false;
         public Vector3I towerOrigin;
+
+        public ConcurrentDictionary<String, Vector3I> GunCache = new ConcurrentDictionary<String, Vector3I>();
+        public List<Vector3I> bluePortal = new List<Vector3I>();
+        public List<Vector3I> orangePortal = new List<Vector3I>();
+        public List<Block> blueOld = new List<Block>();
+        public List<Block> orangeOld = new List<Block>();
+        public bool GunMode = false;
+
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
         public String PortalWorld;
@@ -161,7 +168,6 @@ namespace fCraft {
         public bool BuildingPortal = true;
         public DateTime LastUsedPortal;
         public DateTime LastWarnedPortal;
-        public readonly object FlyLock = new object();
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
         public bool IsStaticStaff;

@@ -358,6 +358,9 @@ namespace fCraft
             // prepare the list of commands
             CommandManager.Init();
 
+            //Gun
+            Physics.GunTest.Init();
+
             PluginManager.GetInstance();
 
             // prepare the brushes

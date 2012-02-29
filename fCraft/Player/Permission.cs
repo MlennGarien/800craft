@@ -164,6 +164,8 @@ namespace fCraft
         /// <summary> Ability to kill other players. </summary>
         Kill,
         /// <summary> Ability to blast players out of the server (kick). </summary>
-        Basscannon
+        Basscannon,
+        /// <summary> Ability to use the /Gun for killing, exploding TNT and Portals. </summary>
+        Gun
     }
 }
