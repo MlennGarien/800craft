@@ -53,7 +53,7 @@ namespace fCraft.Physics
                                 e.Player.towerOrigin = e.Coords;
                                 for (int z = e.Coords.Z; z <= world.Map.Height; z++)
                                 {
-                                    Thread.Sleep(250);
+                                    Thread.Sleep(Physics.Tick);
                                     if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z + 1) != Block.Air
                                         || world.Map.GetBlock(e.Coords) != Block.Iron
                                         || e.Player.towerOrigin != e.Coords
@@ -122,7 +122,7 @@ namespace fCraft.Physics
                             foreach (Vector3I block in world.waterQueue.Values)
                             {
                                 Random rand = new Random();
-                                int spread = rand.Next(1, 16);
+                                int spread = rand.Next(1, 36);
                                 if (world.Map != null && world.IsLoaded && world.waterPhysics)
                                 {
                                     if (map.GetBlock(block) == Block.Water)
@@ -137,7 +137,7 @@ namespace fCraft.Physics
                                         }
                                         else
                                         {
-                                            if (spread == 8)
+                                            if (spread == 8) // 1 in 35
                                             {
                                                 if (world.Map.GetBlock(block.X, block.Y, block.Z - 1) == Block.Air)
                                                 {
@@ -300,7 +300,9 @@ namespace fCraft.Physics
                                 if (world.Map != null && world.IsLoaded)
                                 {
                                     if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z) != Block.Water)
+                                    {
                                         break;
+                                    }
                                     else if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z) == Block.Water)
                                     {
                                         Thread.Sleep(Physics.Tick);

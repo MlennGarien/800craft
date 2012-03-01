@@ -121,9 +121,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ChatBackground.png" />
-    <Content Include="ConfigCLI.ico" />
-    <Content Include="ConfigGUI.ico" />
-    <Content Include="ConfigGUI2.ico" />
     <Content Include="ConfigGUI4.ico" />
     <Content Include="fcraft_config.ico" />
   </ItemGroup>

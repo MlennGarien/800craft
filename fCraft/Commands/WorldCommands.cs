@@ -106,14 +106,14 @@ namespace fCraft
                     if (world.tntPhysics)
                     {
                         world.tntPhysics = false;
-                        Server.Players.Message("{0}&S turned TNT phyiscs off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned TNT phyiscs off for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned TNT Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned TNT Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.tntPhysics = true;
-                        Server.Players.Message("{0}&S turned TNT phyiscs on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned TNT phyiscs on for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned TNT Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned TNT Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "grass":
@@ -121,13 +121,13 @@ namespace fCraft
                     {
                         world.grassPhysics = false;
                         Server.Players.Message("{0}&S turned Grass Phyiscs off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Phyiscs off for {1}", player.Name, world.Name);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.grassPhysics = true;
                         Server.Players.Message("{0}&S turned Grass Phyiscs on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Phyiscs on for {1}", player.Name, world.Name);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "fireworks":
@@ -136,55 +136,55 @@ namespace fCraft
                     {
                         world.fireworkPhysics = false;
                         Server.Players.Message("{0}&S turned Firework phyiscs off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Firework phyiscs off for {1}", player.Name, world.Name);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.fireworkPhysics = true;
                         Server.Players.Message("{0}&S turned Firework phyiscs on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Firework phyiscs on for {1}", player.Name, world.Name);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "sand":
                     if (world.sandPhysics)
                     {
                         world.sandPhysics = false;
-                        Server.Players.Message("{0}&S turned Sand phyiscs off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Sand phyiscs off for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned Sand Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Sand Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.sandPhysics = true;
-                        Server.Players.Message("{0}&S turned Sand phyiscs on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Sand phyiscs on for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned Sand Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Sand Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "water":
                     if (world.waterPhysics)
                     {
                         world.waterPhysics = false;
-                        Server.Players.Message("{0}&S turned Water phyiscs off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Water phyiscs off for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned Water Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Water Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.waterPhysics = true;
-                        Server.Players.Message("{0}&S turned Water phyiscs on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Water phyiscs on for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned Water Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Water Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "plant":
                     if (world.plantPhysics)
                     {
                         world.plantPhysics = false;
-                        Server.Players.Message("{0}&S turned Plant phyiscs off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Plant phyiscs off for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned Plant Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Plant Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.plantPhysics = true;
-                        Server.Players.Message("{0}&S turned Plant phyiscs on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Plant phyiscs on for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned Plant Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Plant Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "all":
@@ -203,8 +203,8 @@ namespace fCraft
                         world.waterPhysics = true;
                         world.plantPhysics = true;
                         world.grassPhysics = true;
-                        Server.Players.Message("{0}&S turned ALL phyisics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned ALL phyiscs on for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned ALL Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics on for {1}", player.Name, world.Name);
                     }
 
                     else if (nextOp.ToLower() == "off")
@@ -215,14 +215,14 @@ namespace fCraft
                         world.waterPhysics = false;
                         world.plantPhysics = false;
                         world.grassPhysics = false;
-                        Server.Players.Message("{0}&S turned ALL phyisics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned ALL phyiscs off for {1}", player.Name, world.Name);
+                        Server.Players.Message("{0}&S turned ALL Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics off for {1}", player.Name, world.Name);
                     }
                     break;
                 case "unflood":
                     if (world.waterQueue.Count > 0)
                     {
-                        Physics.WaterPhysics.waterSpreadThread.Abort();
+                        world.waterPhysics = false;
                         foreach (Vector3I block in world.waterQueue.Values)
                         {
                             world.Map.QueueUpdate(new BlockUpdate(null, block, Block.Air));
@@ -231,6 +231,7 @@ namespace fCraft
                         }
                         world.Flush();
                         Server.Players.Message("{0}&S unflooded physics on {1}", player.ClassyName, world.ClassyName);
+                        world.waterPhysics = true;
                     }
                     else player.Message("&WError:&S No blocks to flush.");
                     break;

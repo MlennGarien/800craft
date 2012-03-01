@@ -52,7 +52,8 @@ namespace fCraft.Physics
                 }
             })); sandQueueThread.Start();
         }
-        //make a collection to reduce cpu, thread for adding, thread for moving.
+
+
         public static void checkSand(SchedulerTask task)
         {
             if (sandThread != null)

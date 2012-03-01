@@ -29,16 +29,16 @@ namespace fCraft.Physics
     {
 
         //junk
-        public const int Tick = 250; //in ms
+        public const int Tick = 150; //in ms
         public static int size = 3;
 
         //init
         public static void Load()
         {
             SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
-            SchedulerTask checkSand = Scheduler.NewBackgroundTask(SandPhysics.checkSand).RunForever(TimeSpan.FromSeconds(1));
-            SchedulerTask checkSandQueue = Scheduler.NewBackgroundTask(SandPhysics.processSand).RunForever(TimeSpan.FromSeconds(1));
-            SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(1));
+            SchedulerTask checkSand = Scheduler.NewBackgroundTask(SandPhysics.checkSand).RunForever(TimeSpan.FromSeconds(0.7));
+            SchedulerTask checkSandQueue = Scheduler.NewBackgroundTask(SandPhysics.processSand).RunForever(TimeSpan.FromSeconds(0.7));
+            SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(0.7));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             // Player.PlacingBlock += PlantPhysics.test; (drawimg)
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
@@ -56,22 +56,21 @@ namespace fCraft.Physics
         {
             if (world.Map != null)
             {
-                if (world.Map.InBounds(block.X, block.Y, block.Z))
+                if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Sand)
                 {
-                    if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Sand)
+                    return false;
+                }
+                else
+                {
+                    Block thisBlock = world.Map.GetBlock(block.X, block.Y, block.Z - 1);
+                    if (!BlockThrough(thisBlock))
                     {
                         return false;
                     }
-                    else
-                    {
-                        if(world.Map.GetBlock(block.X, block.Y, block.Z -1) != Block.Air)
-                        { 
-                            return false;
-                        }
-                        return true;
-                    }
+                    return true;
                 }
             }
+
             return false;
         }
 

@@ -17,6 +17,7 @@ namespace fCraft.Physics
         private static Thread plantThread;
         private static Thread checkGrass;
 
+        #region drawimg
         public static void test(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             string url = "http://www.deviantart.com/download/182426032/cod_black_ops_game_icon_by_wolfangraul-d30m0ts.png";
@@ -122,7 +123,7 @@ namespace fCraft.Physics
             return NewImage;
             // He mad son...
         }
-
+        #endregion
         public static void TreeGrowing(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
@@ -162,7 +163,7 @@ namespace fCraft.Physics
 
                         plantThread = new Thread(new ThreadStart(delegate
                         {
-                            Thread.Sleep(5000);
+                            Thread.Sleep(rand.Next(5000, 8000));
                             if (e.Player.WorldMap.GetBlock(e.Coords) == Block.Plant)
                             {
                                 string type = null;
@@ -215,7 +216,7 @@ namespace fCraft.Physics
         public static void grassChecker(SchedulerTask task)
         {
             //imma put this here and be cheeky
-            if ((Server.CPUUsageTotal * 100) > 20 || Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024) > 1000)
+            if ((Server.CPUUsageTotal * 100) >= 30 || Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024) > 1200)
             {
                 int count = 0;
                 foreach (World world in WorldManager.Worlds)
@@ -247,6 +248,7 @@ namespace fCraft.Physics
                 }
             }
 
+            //grass physics
             if (checkGrass != null)
             {
                 if (checkGrass.ThreadState != System.Threading.ThreadState.Stopped) //stops multiple threads from opening
