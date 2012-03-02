@@ -38,7 +38,7 @@ namespace fCraft.Physics
             SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
             SchedulerTask checkSand = Scheduler.NewBackgroundTask(SandPhysics.SandSearch).RunForever(TimeSpan.FromSeconds(0.7));
             SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(0.7));
-            SchedulerTask checkPlayers = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(0.7));
+            SchedulerTask checkPlayers = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(1));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             Player.PlacingBlock += PlantPhysics.blockSquash;
             // Player.PlacingBlock += PlantPhysics.test; (drawimg)

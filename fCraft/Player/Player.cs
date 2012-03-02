@@ -155,10 +155,13 @@ namespace fCraft {
         public Vector3I towerOrigin;
 
         public ConcurrentDictionary<String, Vector3I> GunCache = new ConcurrentDictionary<String, Vector3I>();
+        
         public List<Vector3I> bluePortal = new List<Vector3I>();
         public List<Vector3I> orangePortal = new List<Vector3I>();
         public List<Block> blueOld = new List<Block>();
         public List<Block> orangeOld = new List<Block>();
+        public byte blueOut;
+        public byte orangeOut;
         public bool GunMode = false;
 
         public bool StandingInPortal = false;

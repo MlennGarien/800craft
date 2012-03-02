@@ -79,7 +79,7 @@ namespace fCraft.Physics
             {
                 if (e.OldBlock == Block.Water || e.OldBlock == Block.Lava)
                 {
-                    if (p.orangePortal.Contains(e.Coords) || p.orangePortal.Contains(e.Coords))
+                    if (p.orangePortal.Contains(e.Coords) || p.bluePortal.Contains(e.Coords))
                     {
                         e.Result = CanPlaceResult.Revert;
                     }
@@ -112,12 +112,11 @@ namespace fCraft.Physics
 
                         e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass)); //setblock
 
-                        pos.X = (short)Math.Round((startX + (double)(rSin * 3))); //math.round improves accuracy
-                        pos.Y = (short)Math.Round((startY + (double)(rCos * 3)));
-                        pos.Z = (short)Math.Round((startZ + (double)(lCos * 3)));
+                        pos.R = e.Player.Position.R;
+                        pos.L = e.Player.Position.L;
                         for (int startB = 4; startB <= map.Volume; startB++)
                         {
-                            pos.X = (short)Math.Round((startX + (double)(rSin * startB)));
+                            pos.X = (short)Math.Round((startX + (double)(rSin * startB))); //math.round improves accuracy
                             pos.Y = (short)Math.Round((startY + (double)(rCos * startB)));
                             pos.Z = (short)Math.Round((startZ + (double)(lCos * startB)));
                             bool hit = false;
@@ -125,12 +124,12 @@ namespace fCraft.Physics
                             Block toSend = Block.Admincrete;
                             if (e.Player.LastUsedBlockType == Block.Orange)
                             {
-                                toSend = Block.Orange;
+                                toSend = Block.Lava;
                             }
 
                             if (e.Player.LastUsedBlockType == Block.Blue)
                             {
-                                toSend = Block.Blue;
+                                toSend = Block.Water;
                             }
 
                             if (e.Player.LastUsedBlockType == Block.TNT)
@@ -184,7 +183,6 @@ namespace fCraft.Physics
                                 removal(bullets, map);
                                 if (hit)
                                 {
-                                    Server.Message("hit player");
                                     break;
                                 }
                             }
@@ -218,7 +216,7 @@ namespace fCraft.Physics
                                     }
                                 }
                                 //blue portal
-                                if (toSend == Block.Blue)
+                                if (toSend == Block.Water)
                                 {
                                     if (CanPlacePortal(pos.X, pos.Y, pos.Z, map))
                                     {
@@ -236,6 +234,7 @@ namespace fCraft.Physics
 
                                         e.Player.blueOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z));
                                         e.Player.blueOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z + 1));
+                                        e.Player.orangeOut = pos.R;
                                         for (double z = pos.Z; z < pos.Z + 2; z++)
                                         {
                                             map.QueueUpdate(new BlockUpdate(null, (short)(pos.X), (short)(pos.Y), (short)z, Block.Water));
@@ -246,7 +245,7 @@ namespace fCraft.Physics
                                 }
 
                                     //orange portal
-                                else if (toSend == Block.Orange)
+                                else if (toSend == Block.Lava)
                                 {
                                     if (CanPlacePortal(pos.X, pos.Y, pos.Z, map))
                                     {
@@ -260,10 +259,10 @@ namespace fCraft.Physics
                                             }
                                             e.Player.orangeOld.Clear();
                                             e.Player.orangePortal.Clear();
-
                                         }
                                         e.Player.orangeOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z));
                                         e.Player.orangeOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z + 1));
+                                        e.Player.blueOut = pos.R;
                                         for (double z = pos.Z; z < pos.Z + 2; z++)
                                         {
                                             map.QueueUpdate(new BlockUpdate(null, (short)(pos.X), (short)(pos.Y), (short)z, Block.Lava));
@@ -305,7 +304,7 @@ namespace fCraft.Physics
                                     X = (short)(((p.orangePortal[0].X)+ 0.5) * 32),
                                     Y = (short)(((p.orangePortal[0].Y)+ 0.5) * 32),
                                     Z = (short)(((p.orangePortal[0].Z) + 1.59375) * 32),
-                                    R = (byte)(e.Player.Position.R - 128),
+                                    R = (byte)(p.blueOut - 128),
                                     L = e.Player.Position.L
                                 });
                             }
@@ -327,7 +326,7 @@ namespace fCraft.Physics
                                     X = (short)(((p.bluePortal[0].X + 0.5)) * 32),
                                     Y = (short)(((p.bluePortal[0].Y + 0.5)) * 32),
                                     Z = (short)(((p.bluePortal[0].Z) + 1.59375) * 32), //fixed point 1.59375 lol.
-                                    R = (byte)(e.Player.Position.R - 128),
+                                    R = (byte)(p.orangeOut - 128),
                                     L = e.Player.Position.L
                                 });
                             }
@@ -550,6 +549,9 @@ namespace fCraft.Physics
                 return false;
             }
         }
-        public struct Pos { public short X, Y, Z; }
+        public struct Pos { 
+            public short X, Y, Z; 
+            public byte R, L;
+        }
     }
 }

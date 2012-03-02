@@ -24,8 +24,7 @@ namespace fCraft.Physics
             {
                 sandThread.Priority = ThreadPriority.BelowNormal;
                 sandThread.IsBackground = true;
-                var worlds = WorldManager.Worlds.Where(w => w.IsLoaded && w.Map != null && w.sandPhysics);
-                foreach (World world in worlds)
+                foreach (World world in WorldManager.Worlds.Where(w => w.IsLoaded && w.Map != null && w.sandPhysics))
                 {
                     Map map = world.Map;
                     for (int x = world.Map.Bounds.XMin; x <= world.Map.Bounds.XMax; x++)
