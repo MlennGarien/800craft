@@ -371,5 +371,39 @@ namespace fCraft.Physics
                 }
             }
         }
+
+        public static void drownCheck(SchedulerTask task)
+        {
+            foreach (Player p in Server.Players)
+            {
+                if (p.World != null) //ignore console
+                {
+                    if (p.World.waterPhysics)
+                    {
+                        Position pos = new Position(
+                            (short)(p.Position.X / 32),
+                            (short)(p.Position.Y / 32),
+                            (short)((p.Position.Z + 1) / 32)
+                        );
+                        if (p.WorldMap.GetBlock(pos.X, pos.Y, pos.Z) == Block.Water)
+                        {
+                            if (p.DrownTime == null || (DateTime.Now - p.DrownTime).TotalSeconds > 33)
+                            {
+                                p.DrownTime = DateTime.Now;
+                            }
+                            if ((DateTime.Now - p.DrownTime).TotalSeconds > 30)
+                            {
+                                p.TeleportTo(p.WorldMap.Spawn);
+                                p.World.Players.Message("{0}&S drowned and died", p.ClassyName);
+                            }
+                        }
+                        else
+                        {
+                            p.DrownTime = DateTime.Now;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

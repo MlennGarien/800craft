@@ -168,6 +168,7 @@ namespace fCraft {
         public bool BuildingPortal = true;
         public DateTime LastUsedPortal;
         public DateTime LastWarnedPortal;
+        public DateTime DrownTime;
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
         public bool IsStaticStaff;

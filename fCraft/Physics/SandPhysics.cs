@@ -10,56 +10,8 @@ namespace fCraft.Physics
     class SandPhysics
     {
         public static Thread sandThread;
-        public static Thread sandQueueThread;
 
-        public static void processSand(SchedulerTask task)
-        {
-            sandQueueThread = new Thread(new ThreadStart(delegate
-            {
-                sandQueueThread.Priority = ThreadPriority.BelowNormal;
-                sandQueueThread.IsBackground = true;
-                foreach (World world in WorldManager.Worlds)
-                {
-                    if (world.Map != null && world.IsLoaded && world.sandQueue.Count > 0)
-                    {
-                        if (world.sandPhysics)
-                        {
-                            foreach (Vector3I block in world.sandQueue.Values)
-                            {
-                                if (world.Map.GetBlock(block) == Block.Sand)
-                                {
-                                    if (Physics.MoveSand(block, world))
-                                    {
-                                        Map map = world.Map;
-                                        map.QueueUpdate(new BlockUpdate(null,
-                                                            block,
-                                                            Block.Air));
-                                        map.QueueUpdate(new BlockUpdate(null,
-                                                            (short)block.X,
-                                                            (short)block.Y,
-                                                            (short)(block.Z - 1),
-                                                            Block.Sand));
-                                    }
-                                    else
-                                    {
-                                        Vector3I removed;
-                                        world.sandQueue.TryRemove(block.ToString(), out removed);
-                                    }
-                                }
-                                else
-                                {
-                                    Vector3I removed;
-                                    world.sandQueue.TryRemove(block.ToString(), out removed);
-                                }
-                            }
-                        }
-                    }
-                }
-            })); sandQueueThread.Start();
-        }
-
-
-        public static void checkSand(SchedulerTask task)
+        public static void SandSearch(SchedulerTask task)
         {
             if (sandThread != null)
             {
@@ -70,7 +22,7 @@ namespace fCraft.Physics
             }
             sandThread = new Thread(new ThreadStart(delegate
             {
-                sandThread.Priority = ThreadPriority.Lowest;
+                sandThread.Priority = ThreadPriority.BelowNormal;
                 sandThread.IsBackground = true;
                 var worlds = WorldManager.Worlds.Where(w => w.IsLoaded && w.Map != null && w.sandPhysics);
                 foreach (World world in worlds)
@@ -89,17 +41,29 @@ namespace fCraft.Physics
 
                                 if (world.sandPhysics)
                                 {
-                                    Vector3I block = new Vector3I(x, y, z);
-                                    if (Physics.MoveSand(block, world) && !world.sandQueue.Values.Contains(block))
-                                    {
-                                        world.sandQueue.TryAdd(block.ToString(), block);
-                                    }
+                                    SandCheck(x, y, z, map);
                                 }
                             }
                         }
                     }
                 }
             })); sandThread.Start();
+        }
+
+        public static void SandCheck(int x, int y, int z, Map map)
+        {
+            if (map.GetBlock(x, y, z) == Block.Sand || map.GetBlock(x, y, z) == Block.Gravel)
+            {
+                if (!Physics.BlockThrough(map.GetBlock(x, y, z - 1)))
+                {
+                    return;
+                }
+                if (z - 1 == z) return;
+                Thread.Sleep(10);
+                Block oldBlock = map.GetBlock(x, y, z);
+                map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
+                map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)(z - 1), oldBlock));
+            }
         }
     }
 }
