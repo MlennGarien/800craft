@@ -16,6 +16,7 @@ namespace fCraft.Physics
             Player.JoinedWorld += GunTest.changedWorld;//
             Player.Moving += GunTest.movePortal;//
             Player.Disconnected += GunTest.playerDisconnected;//
+            Player.PlacingBlock += playerPlaced;
             CommandManager.RegisterCommand(CdGun);
         }
         static readonly CommandDescriptor CdGun = new CommandDescriptor
@@ -71,6 +72,20 @@ namespace fCraft.Physics
             }
         }
         private static Thread gunThread;
+
+        public static void playerPlaced(object sender, PlayerPlacingBlockEventArgs e)
+        {
+            foreach (Player p in e.Player.World.Players)
+            {
+                if (e.OldBlock == Block.Water || e.OldBlock == Block.Lava)
+                {
+                    if (p.orangePortal.Contains(e.Coords) || p.orangePortal.Contains(e.Coords))
+                    {
+                        e.Result = CanPlaceResult.Revert;
+                    }
+                }
+            }
+        }
         public static void ClickedGlass(object sender, PlayerClickingEventArgs e)
         {
             if (e.Player.GunMode)
@@ -287,8 +302,8 @@ namespace fCraft.Physics
                             {
                                 e.Player.TeleportTo(new Position
                                 {
-                                    X = (short)((p.orangePortal[0].X) * 32),
-                                    Y = (short)((p.orangePortal[0].Y) * 32),
+                                    X = (short)(((p.orangePortal[0].X)+ 0.5) * 32),
+                                    Y = (short)(((p.orangePortal[0].Y)+ 0.5) * 32),
                                     Z = (short)(((p.orangePortal[0].Z) + 1.59375) * 32),
                                     R = (byte)(e.Player.Position.R - 128),
                                     L = e.Player.Position.L
@@ -309,8 +324,8 @@ namespace fCraft.Physics
                             {
                                 e.Player.TeleportTo(new Position
                                 {
-                                    X = (short)((p.bluePortal[0].X) * 32),
-                                    Y = (short)((p.bluePortal[0].Y) * 32),
+                                    X = (short)(((p.bluePortal[0].X + 0.5)) * 32),
+                                    Y = (short)(((p.bluePortal[0].Y + 0.5)) * 32),
                                     Z = (short)(((p.bluePortal[0].Z) + 1.59375) * 32), //fixed point 1.59375 lol.
                                     R = (byte)(e.Player.Position.R - 128),
                                     L = e.Player.Position.L
