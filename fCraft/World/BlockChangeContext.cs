@@ -39,6 +39,9 @@ namespace fCraft {
         Portal = 512,
 
         /// <summary> System is building / removing a TNT explosion. </summary>
-        Explosion = 1024
+        Explosion = 1024,
+
+        /// <summary> System is using physics to change a block. </summary>
+        Physics = 2048
     }
 }

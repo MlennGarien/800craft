@@ -120,13 +120,13 @@ namespace fCraft
                     if (world.grassPhysics)
                     {
                         world.grassPhysics = false;
-                        Server.Players.Message("{0}&S turned Grass Phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Server.Players.Message("{0}&S turned Grass Physics off for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.grassPhysics = true;
-                        Server.Players.Message("{0}&S turned Grass Phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Server.Players.Message("{0}&S turned Grass Physics on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics on for {1}", player.Name, world.Name);
                     }
                     break;
@@ -135,13 +135,13 @@ namespace fCraft
                     if (world.fireworkPhysics)
                     {
                         world.fireworkPhysics = false;
-                        Server.Players.Message("{0}&S turned Firework phyiscs off for {1}", player.ClassyName, world.ClassyName);
+                        Server.Players.Message("{0}&S turned Firework Physics off for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics off for {1}", player.Name, world.Name);
                     }
                     else
                     {
                         world.fireworkPhysics = true;
-                        Server.Players.Message("{0}&S turned Firework phyiscs on for {1}", player.ClassyName, world.ClassyName);
+                        Server.Players.Message("{0}&S turned Firework Physics on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics on for {1}", player.Name, world.Name);
                     }
                     break;
@@ -230,7 +230,7 @@ namespace fCraft
                             world.waterQueue.TryRemove(block.ToString(), out removed);
                         }
                         world.Flush();
-                        Server.Players.Message("{0}&S unflooded physics on {1}", player.ClassyName, world.ClassyName);
+                        Server.Players.Message("{0}&S unflooded Physics on {1}", player.ClassyName, world.ClassyName);
                         world.waterPhysics = true;
                     }
                     else player.Message("&WError:&S No blocks to flush.");

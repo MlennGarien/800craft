@@ -100,11 +100,11 @@ namespace fCraft.Physics
                         pos.X = (short)Math.Round((startX + (double)(rSin * 3))); //math.round improves accuracy
                         pos.Y = (short)Math.Round((startY + (double)(rCos * 3)));
                         pos.Z = (short)Math.Round((startZ + (double)(lCos * 3)));
-                        for (int t = 4; t < map.Volume; t++)
+                        for (int startB = 4; startB <= map.Volume; startB++)
                         {
-                            pos.X = (short)Math.Round((startX + (double)(rSin * t)));
-                            pos.Y = (short)Math.Round((startY + (double)(rCos * t)));
-                            pos.Z = (short)Math.Round((startZ + (double)(lCos * t)));
+                            pos.X = (short)Math.Round((startX + (double)(rSin * startB)));
+                            pos.Y = (short)Math.Round((startY + (double)(rCos * startB)));
+                            pos.Z = (short)Math.Round((startZ + (double)(lCos * startB)));
                             bool hit = false;
 
                             Block toSend = Block.Admincrete;

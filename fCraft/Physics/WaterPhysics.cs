@@ -268,7 +268,7 @@ namespace fCraft.Physics
         #endregion
         public static void waterCheck(int x, int y, int z, World world)
         {
-            if (world.Map != null && world.IsLoaded &&
+            if (world.Map != null && world.IsLoaded && world.Map.InBounds(x,y,z) &&
                world.Map.GetBlock(x, y, z) == Block.Air)
             {
                 world.waterQueue.TryAdd(new Vector3I(x, y, z).ToString(), new Vector3I(x, y, z));

@@ -146,7 +146,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Tower [/Tower Remove]",
-            Help = "Toggles tower mode on self. All Iron blocks will be replaced with towers.",
+            Help = "Toggles tower mode on for yourself. All Iron blocks will be replaced with towers.",
             UsableByFrozenPlayers = false,
             Handler = towerHandler
         };
@@ -195,16 +195,12 @@ namespace fCraft {
 
         static void Fly(Player player, Command cmd)
         {
-            if (player.IsFlying)
-            {
+            if (player.IsFlying){
                 fCraft.Utils.FlyHandler.GetInstance().StopFlying(player);
                 player.Message("You are no longer flying.");
                 return;
-            }
-            else
-            {
-                if (player.IsUsingWoM)
-                {
+            }else{
+                if (player.IsUsingWoM) {
                     player.Message("You cannot use /fly when using WOM");
                     return;
                 }

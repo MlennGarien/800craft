@@ -996,6 +996,9 @@ namespace fCraft {
                     Message("&WYou are not allowed to build inside doors.");
                     RevertBlockNow(coord);
                     break;
+                case CanPlaceResult.Revert:
+                    RevertBlockNow(coord);
+                    break;
 
                 case CanPlaceResult.RankDenied:
                     Message( "&WYour rank is not allowed to build." );

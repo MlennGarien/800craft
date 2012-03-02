@@ -157,6 +157,9 @@ namespace fCraft {
         /// <summary> Player's rank is not allowed to build in doors. </summary>
         Door,
 
+        /// <summary> Reverts a block with no message. </summary>
+        Revert,
+
         /// <summary> A plugin callback cancelled block placement/deletion.
         /// To keep player's copy of the map in sync, he will be resent the old blocktype at that location. </summary>
         PluginDenied,

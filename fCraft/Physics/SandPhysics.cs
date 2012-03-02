@@ -16,7 +16,7 @@ namespace fCraft.Physics
         {
             sandQueueThread = new Thread(new ThreadStart(delegate
             {
-                sandQueueThread.Priority = ThreadPriority.Lowest;
+                sandQueueThread.Priority = ThreadPriority.BelowNormal;
                 sandQueueThread.IsBackground = true;
                 foreach (World world in WorldManager.Worlds)
                 {
@@ -39,6 +39,11 @@ namespace fCraft.Physics
                                                             (short)block.Y,
                                                             (short)(block.Z - 1),
                                                             Block.Sand));
+                                    }
+                                    else
+                                    {
+                                        Vector3I removed;
+                                        world.sandQueue.TryRemove(block.ToString(), out removed);
                                     }
                                 }
                                 else
@@ -67,32 +72,27 @@ namespace fCraft.Physics
             {
                 sandThread.Priority = ThreadPriority.Lowest;
                 sandThread.IsBackground = true;
-                foreach (World world in WorldManager.Worlds)
+                var worlds = WorldManager.Worlds.Where(w => w.IsLoaded && w.Map != null && w.sandPhysics);
+                foreach (World world in worlds)
                 {
-                    if (world.Map != null && world.IsLoaded) //for all loaded worlds
+                    Map map = world.Map;
+                    for (int x = world.Map.Bounds.XMin; x <= world.Map.Bounds.XMax; x++)
                     {
-                        if (world.sandPhysics)
+                        for (int y = world.Map.Bounds.YMin; y <= world.Map.Bounds.YMax; y++)
                         {
-                            Map map = world.Map;
-                            for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
+                            for (int z = world.Map.Bounds.ZMin; z <= world.Map.Bounds.ZMax; z++)
                             {
-                                for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
+                                if (world.Map == null && !world.IsLoaded)
                                 {
-                                    for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
-                                    {
-                                        if (world.Map == null && !world.IsLoaded)
-                                        {
-                                            break;
-                                        }
+                                    break;
+                                }
 
-                                        if (world.sandPhysics)
-                                        {
-                                            Vector3I block = new Vector3I(x, y, z);
-                                            if (Physics.MoveSand(block, world) && !world.sandQueue.Values.Contains(block))
-                                            {
-                                                world.sandQueue.TryAdd(block.ToString(), block);
-                                            }
-                                        }
+                                if (world.sandPhysics)
+                                {
+                                    Vector3I block = new Vector3I(x, y, z);
+                                    if (Physics.MoveSand(block, world) && !world.sandQueue.Values.Contains(block))
+                                    {
+                                        world.sandQueue.TryAdd(block.ToString(), block);
                                     }
                                 }
                             }

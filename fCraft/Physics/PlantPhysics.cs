@@ -124,7 +124,27 @@ namespace fCraft.Physics
             // He mad son...
         }
         #endregion
-        public static void TreeGrowing(object sender, Events.PlayerPlacingBlockEventArgs e)
+
+        public static void blockSquash(object sender, PlayerPlacingBlockEventArgs e)
+        {
+            Player player = e.Player;
+            World world = player.World;
+            if (world != null && world.IsLoaded && world.plantPhysics)
+            {
+                Vector3I z = new Vector3I(e.Coords.X, e.Coords.Y, e.Coords.Z - 1);
+                if (world.Map.GetBlock(z) == Block.Grass)
+                {
+                    world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
+                }
+                else if(Physics.CanSquash(world.Map.GetBlock(z)))
+                {
+                    e.Result = CanPlaceResult.Revert;
+                    Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);
+                    world.Map.QueueUpdate(new BlockUpdate(null, z, e.NewBlock));
+                }
+            }
+        }
+        public static void TreeGrowing(object sender, PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
             if (!world.plantPhysics)
@@ -268,11 +288,11 @@ namespace fCraft.Physics
                         if (world.grassPhysics)
                         {
                             Map map = world.Map;
-                            for (int x = world.Map.Bounds.XMin; x < world.Map.Bounds.XMax; x++)
+                            for (int x = world.Map.Bounds.XMin; x <= world.Map.Bounds.XMax; x++)
                             {
-                                for (int y = world.Map.Bounds.YMin; y < world.Map.Bounds.YMax; y++)
+                                for (int y = world.Map.Bounds.YMin; y <= world.Map.Bounds.YMax; y++)
                                 {
-                                    for (int z = world.Map.Bounds.ZMin; z < world.Map.Bounds.ZMax; z++)
+                                    for (int z = world.Map.Bounds.ZMin; z <= world.Map.Bounds.ZMax; z++)
                                     {
                                         if (world.Map == null && !world.IsLoaded)
                                         {

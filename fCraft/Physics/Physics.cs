@@ -40,6 +40,7 @@ namespace fCraft.Physics
             SchedulerTask checkSandQueue = Scheduler.NewBackgroundTask(SandPhysics.processSand).RunForever(TimeSpan.FromSeconds(0.7));
             SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(0.7));
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
+            Player.PlacingBlock += PlantPhysics.blockSquash;
             // Player.PlacingBlock += PlantPhysics.test; (drawimg)
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             Player.Clicked += ExplodingPhysics.TNTClick;
@@ -71,6 +72,20 @@ namespace fCraft.Physics
                 }
             }
 
+            return false;
+        }
+
+        public static bool CanSquash(Block block)
+        {
+            switch (block)
+            {
+                case Block.BrownMushroom: 
+                case Block.Plant:
+                case Block.RedFlower:
+                case Block.RedMushroom:
+                case Block.YellowFlower:
+                    return true;
+            }
             return false;
         }
 
