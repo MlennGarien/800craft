@@ -66,7 +66,7 @@ namespace fCraft.Physics
                           }
                           else if (((r + g + b) / 3) >= (256 / 4) && ((r + g + b) / 3) < (256 / 4) * 2)
                           {
-                             block = Block.Black;
+                              block = Block.Black;
                           }
                           else if (((r + g + b) / 3) >= (256 / 4) * 2 && ((r + g + b) / 3) < (256 / 4) * 3)
                           {
@@ -76,7 +76,7 @@ namespace fCraft.Physics
                           {
                               block = Block.White;
                           }
-                              world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)(e.Coords.Y + y), (short)(e.Coords.Z + x), block));
+                          world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)(e.Coords.Y + y), (short)(e.Coords.Z + x), block));
                       }
                   }
                   img.Dispose();
@@ -127,201 +127,236 @@ namespace fCraft.Physics
 
         public static void blockSquash(object sender, PlayerPlacingBlockEventArgs e)
         {
-            Player player = e.Player;
-            World world = player.World;
-            if (world != null && world.IsLoaded && world.plantPhysics)
+            try
             {
-                Vector3I z = new Vector3I(e.Coords.X, e.Coords.Y, e.Coords.Z - 1);
-                if (world.Map.GetBlock(z) == Block.Grass)
+                Player player = e.Player;
+                World world = player.World;
+                if (world != null && world.IsLoaded && world.plantPhysics)
                 {
-                    world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
+                    Vector3I z = new Vector3I(e.Coords.X, e.Coords.Y, e.Coords.Z - 1);
+                    if (world.Map.GetBlock(z) == Block.Grass)
+                    {
+                        world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
+                    }
+                    else if (Physics.CanSquash(world.Map.GetBlock(z)))
+                    {
+                        e.Result = CanPlaceResult.Revert;
+                        Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);
+                        world.Map.QueueUpdate(new BlockUpdate(null, z, e.NewBlock));
+                    }
                 }
-                else if(Physics.CanSquash(world.Map.GetBlock(z)))
-                {
-                    e.Result = CanPlaceResult.Revert;
-                    Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);
-                    world.Map.QueueUpdate(new BlockUpdate(null, z, e.NewBlock));
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
         public static void TreeGrowing(object sender, PlayerPlacingBlockEventArgs e)
         {
-            World world = e.Player.World;
-            if (!world.plantPhysics)
-                return;
-            if (world.Map != null && world.IsLoaded)
+            try
             {
-                if (e.Context == BlockChangeContext.Manual)
+                World world = e.Player.World;
+                if (!world.plantPhysics)
+                    return;
+                if (world.Map != null && world.IsLoaded)
                 {
-                    if (e.NewBlock == Block.Plant)
+                    if (e.Context == BlockChangeContext.Manual)
                     {
-                        Random rand = new Random();
-                        int Height = rand.Next(4, 7);
-                        for (int x = e.Coords.X; x < e.Coords.X + 5; x++)
+                        if (e.NewBlock == Block.Plant)
                         {
-                            for (int y = e.Coords.Y; y < e.Coords.Y + 5; y++)
+                            Random rand = new Random();
+                            int Height = rand.Next(4, 7);
+                            for (int x = e.Coords.X; x < e.Coords.X + 5; x++)
                             {
-                                for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
+                                for (int y = e.Coords.Y; y < e.Coords.Y + 5; y++)
                                 {
-                                    if (world.Map.GetBlock(x, y, z) != Block.Air)
-                                        return;
+                                    for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
+                                    {
+                                        if (world.Map.GetBlock(x, y, z) != Block.Air)
+                                            return;
+                                    }
                                 }
                             }
-                        }
 
-                        for (int x = e.Coords.X; x > e.Coords.X - 5; x--)
-                        {
-                            for (int y = e.Coords.Y; y > e.Coords.Y - 5; y--)
+                            for (int x = e.Coords.X; x > e.Coords.X - 5; x--)
                             {
-                                for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
+                                for (int y = e.Coords.Y; y > e.Coords.Y - 5; y--)
                                 {
-                                    if (world.Map.GetBlock(x, y, z) != Block.Air)
-                                        return;
+                                    for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
+                                    {
+                                        if (world.Map.GetBlock(x, y, z) != Block.Air)
+                                            return;
+                                    }
                                 }
                             }
-                        }
 
-                        plantThread = new Thread(new ThreadStart(delegate
-                        {
-                            Thread.Sleep(rand.Next(5000, 8000));
-                            if (e.Player.WorldMap.GetBlock(e.Coords) == Block.Plant)
+                            plantThread = new Thread(new ThreadStart(delegate
                             {
-                                string type = null;
-                                if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Grass)
+                                Thread.Sleep(rand.Next(5000, 8000));
+                                if (e.Player.WorldMap.GetBlock(e.Coords) == Block.Plant)
                                 {
-                                    type = "grass";
+                                    string type = null;
+                                    if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Grass)
+                                    {
+                                        type = "grass";
+                                    }
+                                    else if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Sand)
+                                    {
+                                        type = "sand";
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+                                    MakeTrunks(world, e.Coords, Height, type);
                                 }
-                                else if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Sand)
-                                {
-                                    type = "sand";
-                                }
-                                else
-                                {
-                                    return;
-                                }
-                                MakeTrunks(world, e.Coords, Height, type);
-                            }
-                        }));
-                        plantThread.Start();
+                            }));
+                            plantThread.Start();
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
 
 
         public static void MakeTrunks(World w, Vector3I Coords, int Height, string type)
         {
-            if (w.plantPhysics)
+            try
             {
-                if (w.Map != null && w.IsLoaded)
+                if (w.plantPhysics)
                 {
-                    for (int i = 0; i < Height; i++)
+                    if (w.Map != null && w.IsLoaded)
                     {
-                        Thread.Sleep(Physics.Tick);
-                        w.Map.QueueUpdate(new BlockUpdate(null, (short)Coords.X, (short)Coords.Y, (short)(Coords.Z + i), Block.Log));
-                    }
-                    if (type.Equals("grass"))
-                    {
-                        TreeGeneration.MakeNormalFoliage(w, Coords, Height + 1);
-                    }
-                    else if (type.Equals("sand"))
-                    {
-                        TreeGeneration.MakePalmFoliage(w, Coords, Height);
+                        for (int i = 0; i < Height; i++)
+                        {
+                            if (w.Map != null && w.IsLoaded)
+                            {
+                                Thread.Sleep(Physics.Tick);
+                                w.Map.QueueUpdate(new BlockUpdate(null, (short)Coords.X, (short)Coords.Y, (short)(Coords.Z + i), Block.Log));
+                            }
+                        }
+                        if (type.Equals("grass"))
+                        {
+                            TreeGeneration.MakeNormalFoliage(w, Coords, Height + 1);
+                        }
+                        else if (type.Equals("sand"))
+                        {
+                            TreeGeneration.MakePalmFoliage(w, Coords, Height);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
 
 
         public static void grassChecker(SchedulerTask task)
         {
-            //imma put this here and be cheeky
-            if ((Server.CPUUsageTotal * 100) >= 30 || Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024) > 1200)
+            try
             {
-                int count = 0;
-                foreach (World world in WorldManager.Worlds)
+                //imma put this here and be cheeky
+                if ((Server.CPUUsageTotal * 100) >= 25 || Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024) > 1200)
                 {
-                    if (world.waterPhysics || world.plantPhysics || world.fireworkPhysics || 
-                        world.tntPhysics || world.sandPhysics || world.grassPhysics)
+                    int count = 0;
+                    foreach (World world in WorldManager.Worlds)
                     {
-                        world.waterPhysics = false;
-                        world.plantPhysics = false;
-                        world.fireworkPhysics = false;
-                        world.tntPhysics = false;
-                        world.sandPhysics = false;
-                        world.grassPhysics = false;
-                        count++;
-
-                        if (world.waterQueue.Count > 0)
+                        if (world.Map != null && world.IsLoaded)
                         {
-                            foreach (Vector3I block in world.waterQueue.Values)
+                            if (world.waterPhysics || world.plantPhysics || world.fireworkPhysics ||
+                                world.tntPhysics || world.sandPhysics || world.grassPhysics)
                             {
-                                Vector3I removed;
-                                world.waterQueue.TryRemove(block.ToString(), out removed);
+                                world.waterPhysics = false;
+                                world.plantPhysics = false;
+                                world.fireworkPhysics = false;
+                                world.tntPhysics = false;
+                                world.sandPhysics = false;
+                                world.grassPhysics = false;
+                                count++;
+
+                                if (world.waterQueue.Count > 0)
+                                {
+                                    foreach (Vector3I block in world.waterQueue.Values)
+                                    {
+                                        Vector3I removed;
+                                        world.waterQueue.TryRemove(block.ToString(), out removed);
+                                    }
+                                }
                             }
                         }
                     }
-                }
-                if (count > 0)
-                {
-                    Server.Players.Message("&WPhysics has been shutdown on all worlds: High memory usage");
-                }
-            }
-
-            //grass physics
-            if (checkGrass != null)
-            {
-                if (checkGrass.ThreadState != System.Threading.ThreadState.Stopped) //stops multiple threads from opening
-                {
-                    return;
-                }
-            }
-            checkGrass = new Thread(new ThreadStart(delegate
-            {
-                checkGrass.Priority = ThreadPriority.Lowest;
-                checkGrass.IsBackground = true;
-                var worlds = WorldManager.Worlds.Where(w => w.IsLoaded && w.Map != null && w.grassPhysics);
-                foreach (World world in worlds)
-                {
-                    if (world.Map != null && world.IsLoaded) //for all loaded worlds
+                    if (count > 0)
                     {
-                        if (world.grassPhysics)
-                        {
-                            Map map = world.Map;
-                            for (int x = world.Map.Bounds.XMin; x <= world.Map.Bounds.XMax; x++)
-                            {
-                                for (int y = world.Map.Bounds.YMin; y <= world.Map.Bounds.YMax; y++)
-                                {
-                                    for (int z = world.Map.Bounds.ZMin; z <= world.Map.Bounds.ZMax; z++)
-                                    {
-                                        if (world.Map == null && !world.IsLoaded)
-                                        {
-                                            break;
-                                        }
+                        Server.Players.Message("&WPhysics has been shutdown on all worlds: High memory usage");
+                    }
+                }
 
-                                        if (world.grassPhysics)
+                //grass physics
+                if (checkGrass != null)
+                {
+                    if (checkGrass.ThreadState != System.Threading.ThreadState.Stopped) //stops multiple threads from opening
+                    {
+                        return;
+                    }
+                }
+                checkGrass = new Thread(new ThreadStart(delegate
+                {
+                    checkGrass.Priority = ThreadPriority.Lowest;
+                    foreach (World world in WorldManager.Worlds)
+                    {
+                        if (world.Map != null && world.IsLoaded) //for all loaded worlds
+                        {
+                            if (world.grassPhysics)
+                            {
+                                Map map = world.Map;
+                                for (int x = world.Map.Bounds.XMin; x <= world.Map.Bounds.XMax; x++)
+                                {
+                                    if (world.Map != null && world.IsLoaded)
+                                    {
+                                        for (int y = world.Map.Bounds.YMin; y <= world.Map.Bounds.YMax; y++)
                                         {
-                                            if (Physics.CanPutGrassOn(new Vector3I(x, y, z), world)) //shadow detection
+                                            if (world.Map != null && world.IsLoaded)
                                             {
-                                                if (new Random().Next(1, 45) > new Random().Next(15, 35)) //random seed generation lolz
+                                                for (int z = world.Map.Bounds.ZMin; z <= world.Map.Bounds.ZMax; z++)
                                                 {
-                                                    map.QueueUpdate(new BlockUpdate(null, 
-                                                        (short)x, 
-                                                        (short)y, 
-                                                        (short)z, 
-                                                        Block.Grass));
+                                                    if (world.Map != null && world.IsLoaded)
+                                                    {
+                                                        if (world.grassPhysics)
+                                                        {
+                                                            if (Physics.CanPutGrassOn(new Vector3I(x, y, z), world)) //shadow detection
+                                                            {
+                                                                if (new Random().Next(1, 45) > new Random().Next(15, 35)) //random seed generation lolz
+                                                                {
+                                                                    map.QueueUpdate(new BlockUpdate(null,
+                                                                        (short)x,
+                                                                        (short)y,
+                                                                        (short)z,
+                                                                        Block.Grass));
+                                                                }
+                                                                Thread.Sleep(new Random().Next(3, 8)); //throttle, slow down horsey
+                                                            } //0.3 - 0.7% cpu average, better than the original ~17%
+                                                            //has not been tested with more than 5 maps loaded at once
+                                                        }
+                                                    }
                                                 }
-                                                Thread.Sleep(10); //throttle, slow down horsey
-                                            } //0.3 - 0.7% cpu average, better than the original ~17%
-                                            //has not been tested with more than 5 maps loaded at once
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
-            })); checkGrass.Start();
-        }
+                })); checkGrass.Start();
+            }
+            catch (Exception ex) {
+                Logger.Log(LogType.SeriousError, "" + ex);
+            }
+        }    
     }
 }

@@ -165,6 +165,8 @@ namespace fCraft
         Kill,
         /// <summary> Ability to blast players out of the server (kick). </summary>
         Basscannon,
+        /// <summary> Ability to turn physics on and off. </summary>
+        Physics,
         /// <summary> Ability to use the /Gun for killing, exploding TNT and Portals. </summary>
         Gun
     }

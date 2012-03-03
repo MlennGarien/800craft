@@ -31,6 +31,7 @@ namespace fCraft
 
         public bool ZombieGame = false;
 
+        public int FireworkCount = 0;
         public ArrayList Portals;
         public int portalID = 1;
 

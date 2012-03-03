@@ -13,26 +13,27 @@ namespace fCraft.Physics
 
         public static void MakeNormalFoliage(World w, Vector3I Pos, int Height)
         {
-            if (w.Map != null && w.IsLoaded)
-            {
-                int topy = Pos.Z + Height - 1;
-                int start = topy - 2;
-                int end = topy + 2;
 
-                for (int y = start; y < end; y++)
+            int topy = Pos.Z + Height - 1;
+            int start = topy - 2;
+            int end = topy + 2;
+
+            for (int y = start; y < end; y++)
+            {
+                int rad;
+                if (y > start + 1)
                 {
-                    int rad;
-                    if (y > start + 1)
+                    rad = 1;
+                }
+                else
+                {
+                    rad = 2;
+                }
+                for (int xoff = -rad; xoff < rad + 1; xoff++)
+                {
+                    for (int zoff = -rad; zoff < rad + 1; zoff++)
                     {
-                        rad = 1;
-                    }
-                    else
-                    {
-                        rad = 2;
-                    }
-                    for (int xoff = -rad; xoff < rad + 1; xoff++)
-                    {
-                        for (int zoff = -rad; zoff < rad + 1; zoff++)
+                        if (w.Map != null && w.IsLoaded)
                         {
                             if (Rand.NextDouble() > .618 &&
                                 Math.Abs(xoff) == Math.Abs(zoff) &&
@@ -60,7 +61,10 @@ namespace fCraft.Physics
                     {
                         if (Math.Abs(xoff) == Math.Abs(yoff))
                         {
-                            world.Map.QueueUpdate(new BlockUpdate(null, (short)(Pos.Z + xoff), (short)(Pos.Y + yoff), (short)z, Block.Leaves));
+                            if (world.Map != null && world.IsLoaded)
+                            {
+                                world.Map.QueueUpdate(new BlockUpdate(null, (short)(Pos.Z + xoff), (short)(Pos.Y + yoff), (short)z, Block.Leaves));
+                            }
                         }
                     }
                 }

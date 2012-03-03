@@ -68,9 +68,9 @@ namespace fCraft
         {
             Name = "Physics",
             Category = CommandCategory.World,
-            Permissions = new Permission[] { Permission.UsePortal },
+            Permissions = new Permission[] { Permission.Physics },
             IsConsoleSafe = false,
-            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | All> <On / Off>",
+            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | All | Unflood> <On / Off>",
             Help = "Enables / disables a type of Physics for the current world. Physics may use more server resources.",
             HelpSections = new Dictionary<string,string>() {
                 { "tnt",     "&H/Physics tnt on/off \n&S" +

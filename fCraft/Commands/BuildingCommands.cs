@@ -48,7 +48,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPasteNotX );
             CommandManager.RegisterCommand( CdMirror );
             CommandManager.RegisterCommand( CdRotate );
-            CommandManager.RegisterCommand(CdDrawScheme);
+           // CommandManager.RegisterCommand(CdDrawScheme);
             CdCut.Help += GeneralDrawingHelp;
             CdPaste.Help += GeneralDrawingHelp;
             CdPasteNot.Help += GeneralDrawingHelp;
