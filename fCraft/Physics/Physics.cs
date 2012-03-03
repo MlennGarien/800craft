@@ -48,6 +48,9 @@ namespace fCraft.Physics
             Player.PlacingBlock += WaterPhysics.playerPlacedWater;
             Player.PlacingBlock += WaterPhysics.blockFloat;
             Player.PlacingBlock += WaterPhysics.blockSink;
+
+            Player.PlacedBlock += WaterPhysics.towerInit;//
+            Player.Clicking += WaterPhysics.towerRemove;//
         }
 
 

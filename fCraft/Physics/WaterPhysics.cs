@@ -35,33 +35,34 @@ namespace fCraft.Physics
 
         public static void towerInit(object sender, Events.PlayerPlacedBlockEventArgs e)
         {
-            try
+            World world = e.Player.World;
+            if (e.Player.towerMode)
             {
-                World world = e.Player.World;
-                if (e.Player.towerMode)
+                if (world.Map != null && world.IsLoaded)
                 {
-                    if (world.Map != null && world.IsLoaded)
+                    if (e.Context == BlockChangeContext.Manual)
                     {
-                        if (e.Context == BlockChangeContext.Manual)
+                        if (e.NewBlock == Block.Iron)
                         {
-                            if (e.NewBlock == Block.Iron)
+                            waterThread = new Thread(new ThreadStart(delegate
                             {
-                                waterThread = new Thread(new ThreadStart(delegate
+                                if (e.Player.TowerCache != null)
                                 {
-                                    if (e.Player.TowerCache != null)
-                                    {
-                                        world.Map.QueueUpdate(new BlockUpdate(null, e.Player.towerOrigin, Block.Air));
-                                        e.Player.towerOrigin = e.Coords;
-                                        foreach (Vector3I block in e.Player.TowerCache.Values)
-                                        {
-                                            e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
-                                        }
-                                        e.Player.TowerCache.Clear();
-                                    }
+                                    world.Map.QueueUpdate(new BlockUpdate(null, e.Player.towerOrigin, Block.Air));
                                     e.Player.towerOrigin = e.Coords;
-                                    for (int z = e.Coords.Z; z <= world.Map.Height; z++)
+                                    foreach (Vector3I block in e.Player.TowerCache.Values)
                                     {
-                                        Thread.Sleep(Physics.Tick);
+                                        e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                                    }
+                                    e.Player.TowerCache.Clear();
+                                }
+                                e.Player.towerOrigin = e.Coords;
+                                e.Player.TowerCache = new System.Collections.Concurrent.ConcurrentDictionary<string, Vector3I>();
+                                for (int z = e.Coords.Z; z <= world.Map.Height; z++)
+                                {
+                                    Thread.Sleep(250);
+                                    if (world.Map != null && world.IsLoaded)
+                                    {
                                         if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z + 1) != Block.Air
                                             || world.Map.GetBlock(e.Coords) != Block.Iron
                                             || e.Player.towerOrigin != e.Coords
@@ -76,48 +77,37 @@ namespace fCraft.Physics
                                             e.Player.Send(PacketWriter.MakeSetBlock(tower, Block.Water));
                                         }
                                     }
-                                })); waterThread.Start();
-                            }
+                                }
+                            })); waterThread.Start();
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
 
         public static void towerRemove(object sender, Events.PlayerClickingEventArgs e)
         {
-            try
+            World world = e.Player.World;
+            if (e.Action == ClickAction.Delete)
             {
-                World world = e.Player.World;
-                if (e.Action == ClickAction.Delete)
+                if (e.Coords == e.Player.towerOrigin)
                 {
-                    if (e.Coords == e.Player.towerOrigin)
+                    if (e.Player.TowerCache != null)
                     {
-                        if (e.Player.TowerCache != null)
+                        if (world.Map != null && world.IsLoaded)
                         {
-                            if (world.Map != null && world.IsLoaded)
+                            if (e.Block == Block.Iron)
                             {
-                                if (e.Block == Block.Iron)
+                                e.Player.towerOrigin = new Vector3I();
+                                foreach (Vector3I block in e.Player.TowerCache.Values)
                                 {
-                                    e.Player.towerOrigin = new Vector3I();
-                                    foreach (Vector3I block in e.Player.TowerCache.Values)
-                                    {
-                                        e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
-                                    }
-                                    e.Player.TowerCache.Clear();
+                                    e.Player.Send(PacketWriter.MakeSetBlock(block, world.Map.GetBlock(block)));
                                 }
+                                e.Player.TowerCache.Clear();
                             }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
 

@@ -128,6 +128,7 @@ namespace fCraft {
                         return;
                     }
 
+                    Player.RaisePlayerPlacedBlockEvent(player, player.WorldMap, Pos, player.WorldMap.GetBlock(Pos), player.LastUsedBlockType, BlockChangeContext.Manual);
                     BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
                     player.World.Map.QueueUpdate(blockUpdate);
                     player.Message("Block placed");
@@ -156,11 +157,14 @@ namespace fCraft {
             string Param = cmd.Next();
             if (Param == null)
             {
-                if (player.towerMode){
+                if (player.towerMode)
+                {
                     player.towerMode = false;
                     player.Message("TowerMode has been turned off.");
                     return;
-                }else{
+                }
+                else
+                {
                     player.towerMode = true;
                     player.Message("TowerMode has been turned on. " +
                         "All Iron blocks are now being replaced with Towers.");
@@ -168,17 +172,29 @@ namespace fCraft {
             }
             else if (Param.ToLower() == "remove")
             {
-                if (player.TowerCache != null) {
-                    player.World.Map.QueueUpdate(new BlockUpdate(null, player.towerOrigin, Block.Air));
-                    foreach (Vector3I block in player.TowerCache.Values){
-                        player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                if (player.TowerCache != null)
+                {
+                    World world = player.World;
+                    if (world.Map != null)
+                    {
+                        player.World.Map.QueueUpdate(new BlockUpdate(null, player.towerOrigin, Block.Air));
+                        foreach (Vector3I block in player.TowerCache.Values)
+                        {
+                            if (world.Map != null)
+                            {
+                                player.Send(PacketWriter.MakeSetBlock(block, player.WorldMap.GetBlock(block)));
+                            }
+                        }
                     }
                     player.TowerCache.Clear();
                     return;
-                }else{
+                }
+                else
+                {
                     player.Message("&WThere is no Tower to remove");
                 }
             }
+
             else CdTower.PrintUsage(player);
         }
         static readonly CommandDescriptor CdFly = new CommandDescriptor
