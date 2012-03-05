@@ -708,8 +708,11 @@ namespace fCraft
 
                     if (player.World.Name == player.Name)
                     {
-                        Server.Players.Message("{0} &Cwould like you to review their realm", player.ClassyName);
-                        return;
+                        var recepientList = Server.Players.Can(Permission.ReadStaffChat)
+                                              .NotIgnoring(player)
+                                              .Union(player);
+                        string message = String.Format("{0}&C would like staff to review their realm", player.ClassyName);
+                        recepientList.Message(message);
                     }
 
                     else

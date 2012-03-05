@@ -594,7 +594,8 @@ namespace fCraft.Physics
             int Count = 0;
             for (short Z = z; Z < z + 2; Z++)
             {
-                if (map.GetBlock(x, y, Z) != Block.Air)
+                Block check = map.GetBlock(x, y, Z);
+                if (check != Block.Air && check != Block.Water && check != Block.Lava)
                 {
                     Count++;
                 }

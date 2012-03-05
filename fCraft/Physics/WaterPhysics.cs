@@ -366,32 +366,26 @@ namespace fCraft.Physics
                         {
                             if (world.waterPhysics)
                             {
-                                waterThread = new Thread(new ThreadStart(delegate
+                                if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Water)
                                 {
-                                    for (int z = e.Coords.Z; z >= 1; z--)
+                                    waterThread = new Thread(new ThreadStart(delegate
                                     {
-                                        if (world.Map != null && world.IsLoaded)
+                                        for (int z = e.Coords.Z; z >= 1; z--)
                                         {
-                                            if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z) == Block.Water)
+                                            Thread.Sleep(Physics.Tick);
+                                            if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z - 1) != Block.Water)
                                             {
-                                                Thread.Sleep(Physics.Tick);
-                                                world.Map.QueueUpdate(new BlockUpdate
-                                                    (null,
-                                                    (short)e.Coords.X,
-                                                    (short)e.Coords.Y,
-                                                    (short)(z + 1),
-                                                    Block.Water));
+                                                break;
+                                            }
+                                                world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z - 1), Block.Water)); //remove when water physics is done
 
                                                 world.Map.QueueUpdate(new BlockUpdate
-                                                    (null,
-                                                    (short)e.Coords.X,
-                                                    (short)e.Coords.Y,
-                                                    (short)(z),
-                                                    e.NewBlock));
-                                            }
+                                                    (null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z), e.NewBlock));
                                         }
-                                    }
-                                })); waterThread.Start();
+                                            
+                                        
+                                    })); waterThread.Start();
+                                }
                             }
                         }
                     }

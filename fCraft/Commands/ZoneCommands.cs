@@ -76,12 +76,26 @@ namespace fCraft {
         static void DoorRemove(Player player, Command cmd)
         {
             Zone zone;
-            if ((zone = player.WorldMap.Zones.FindExact(player.Name + "door")) != null) {
-                player.WorldMap.Zones.Remove(zone);
-                player.Message("Door removed.");
-            }
-            else {
-                player.Message("You do not have a door on this map.");
+            string playerName = cmd.Next();
+            if (playerName == null){
+                if ((zone = player.WorldMap.Zones.FindExact(player.Name + "door")) != null){
+                    player.WorldMap.Zones.Remove(zone);
+                    player.Message("Door removed.");
+                }else{
+                    player.Message("You do not have a door on this map.");
+                }
+            }else{
+                if(!Player.IsValidName(playerName)){
+                    player.Message("&SInvalid name");
+                    return;
+                }
+                Player target = Server.FindPlayerOrPrintMatches(player, playerName, true, true);
+                if ((zone = player.WorldMap.Zones.FindExact(target.Name + "door")) != null){
+                    player.WorldMap.Zones.Remove(zone);
+                    player.Message("Door removed for " + target.ClassyName);
+                }else{
+                    player.Message(target.ClassyName + "&S does not have a door on this map.");
+                }
             }
         }
 
@@ -117,6 +131,7 @@ namespace fCraft {
             if (e.Player.WorldMap.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied)) {
                 foreach (Zone zone in allowed) {
                     if (zone.Name.EndsWith("door")) {
+                        Player.RaisePlayerPlacedBlockEvent(e.Player, e.Player.WorldMap, e.Coords, e.Block, e.Block, BlockChangeContext.Manual);
                         lock (openDoorsLock) {
                             if (!openDoors.Contains(zone)) {
                                 openDoor(zone, e.Player);
