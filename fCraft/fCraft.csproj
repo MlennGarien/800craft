@@ -102,6 +102,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Games\MineChallenge.cs" />
     <Compile Include="Commands\nbt\Class1.cs" />
     <Compile Include="Commands\CommandHandlers\BroModeHandler.cs" />
     <Compile Include="Commands\CommandHandlers\DummyAI.cs" />
@@ -130,6 +131,9 @@
     <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Drawing\DrawOps\Copy of EllipsoidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\CylinderDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\Maze.cs" />
+    <Compile Include="Drawing\DrawOps\RandomMazeOperation.cs" />
     <Compile Include="Drawing\DrawOps\TreeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
@@ -201,6 +205,7 @@
     <Compile Include="Player\Position.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
+    <Compile Include="World\CustomBlock.cs" />
     <Compile Include="World\Forester.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs">
@@ -321,9 +326,7 @@
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\Games\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

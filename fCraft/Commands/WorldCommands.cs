@@ -61,7 +61,35 @@ namespace fCraft
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
             CommandManager.RegisterCommand(CdPhysics);
+            CommandManager.RegisterCommand(CdGame);
             Player.JoinedWorld += DummyCheck;
+        }
+
+        static readonly CommandDescriptor CdGame = new CommandDescriptor
+        {
+            Name = "Game",
+            Category = CommandCategory.World,
+            Permissions = new Permission[] { Permission.Games },
+            IsConsoleSafe = false,
+            Usage = "/Unfinished command.",
+            Handler = GameHandler
+        };
+
+        private static void GameHandler(Player player, Command cmd)
+        {
+            World world = player.World;
+            if (world == WorldManager.MainWorld)
+            {
+                player.Message("/Game cannot be used on the main world"); return;
+            }
+            if (world.GameOn)
+            {
+                Games.MineChallenge.Stop(player);
+            }
+            else
+            {
+                Games.MineChallenge.Start(player, player.World);
+            }
         }
 
         static readonly CommandDescriptor CdPhysics = new CommandDescriptor

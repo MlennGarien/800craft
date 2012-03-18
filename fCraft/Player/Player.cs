@@ -164,6 +164,8 @@ namespace fCraft {
         public byte orangeOut;
         public bool GunMode = false;
 
+        public bool fireworkMode = false;
+
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
         public String PortalWorld;

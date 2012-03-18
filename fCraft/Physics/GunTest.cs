@@ -164,7 +164,15 @@ namespace fCraft.Physics
                                     {
                                         break;
                                     }
-                                    if (map.GetBlock(pos.X, pos.Y, pos.Z) == Block.Air || map.GetBlock((int)pos.X, (int)pos.Y, (int)pos.Z) == toSend)
+                                    if (e.Player.World.GameOn && Games.MineChallenge.randomBlocks.Values.Contains(new Vector3I(pos.X, pos.Y, pos.Z)))
+                                    {
+                                        world.Map.QueueUpdate(new BlockUpdate(null, new Vector3I(pos.X, pos.Y, pos.Z), Block.Air));
+                                        Vector3I removed;
+                                        Games.MineChallenge.randomBlocks.TryRemove(new Vector3I(pos.X, pos.Y, pos.Z).ToString(), out removed);
+                                        if (world.blueTeam.Contains(e.Player)) world.blueScore++;
+                                        else world.redScore++;
+                                    }
+                                    if (map.GetBlock(pos.X, pos.Y, pos.Z) == Block.Air || map.GetBlock(pos.X, pos.Y, pos.Z) == toSend)
                                     {
                                         bullets.TryAdd(new Vector3I(pos.X, pos.Y, pos.Z).ToString(), new Vector3I(pos.X, pos.Y, pos.Z));
                                         map.QueueUpdate(new BlockUpdate(null,
@@ -191,6 +199,7 @@ namespace fCraft.Physics
                                                             removal(bullets, map);
                                                             hit = true;
                                                         }
+                                                        
                                                         else
                                                         {
                                                             world.Players.Message("{0}&S was shot by {1}", player.ClassyName, e.Player.ClassyName);

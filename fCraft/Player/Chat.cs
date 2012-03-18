@@ -27,6 +27,31 @@ namespace fCraft {
             rawMessage = rawMessage.Replace("$time", DateTime.Now.ToString()); //used to test env realistic
 
                 var recepientList = Server.Players.NotIgnoring(player);
+                if (player.World != null)
+                {
+                    if (player.World.GameOn)
+                    {
+                        if (player.World.CurrentGame == "math1")
+                        {
+                            if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
+                            {
+                                player.Message("&8Correct!");
+                                if (player.World.blueTeam.Contains(player)) player.World.blueScore++;
+                                else player.World.redScore++;
+                            }
+                        }
+
+                        if (player.World.CurrentGame == "math2")
+                        {
+                            if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
+                            {
+                                player.Message("&8Correct!");
+                                if (player.World.blueTeam.Contains(player)) player.World.blueScore++;
+                                else player.World.redScore++;
+                            }
+                        }
+                    }
+                }
 
                 // Check caps
                 if (!player.Can(Permission.ChatWithCaps))

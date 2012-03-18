@@ -139,7 +139,7 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, Vector3I coords,
+        public static void RaisePlayerPlacedBlockEvent( Player player, Map map, Vector3I coords,
                                                           Block oldBlock, Block newBlock, BlockChangeContext context ) {
             var handler = PlacedBlock;
             if( handler != null ) {

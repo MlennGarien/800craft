@@ -364,28 +364,23 @@ namespace fCraft.Physics
                             && e.NewBlock != Block.YellowFlower
                             && e.NewBlock != Block.Plant)
                         {
-                            if (world.waterPhysics)
+                            if (e.OldBlock == Block.Water)
                             {
-                                if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Water)
-                                {
-                                    waterThread = new Thread(new ThreadStart(delegate
-                                    {
-                                        for (int z = e.Coords.Z; z >= 1; z--)
-                                        {
-                                            Thread.Sleep(Physics.Tick);
-                                            if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z - 1) != Block.Water)
-                                            {
-                                                break;
-                                            }
-                                                world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z - 1), Block.Water)); //remove when water physics is done
-
-                                                world.Map.QueueUpdate(new BlockUpdate
-                                                    (null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z), e.NewBlock));
-                                        }
-                                            
-                                        
-                                    })); waterThread.Start();
-                                }
+                                waterThread = new Thread(new ThreadStart(delegate
+                                  {
+                                      for (int z = e.Coords.Z; z > 0; z--)
+                                      {
+                                          Thread.Sleep(Physics.Tick);
+                                          Vector3I oldChange = new Vector3I(e.Coords.X, e.Coords.Y, z);
+                                          Vector3I newChange = new Vector3I(e.Coords.X, e.Coords.Y, z - 1);
+                                          if (world.Map.GetBlock(newChange) != Block.Water)
+                                          {
+                                              break;
+                                          }
+                                          world.Map.QueueUpdate(new BlockUpdate(null, oldChange, Block.Water));
+                                          world.Map.QueueUpdate(new BlockUpdate(null, newChange, e.NewBlock));
+                                      }
+                                  })); waterThread.Start();
                             }
                         }
                     }

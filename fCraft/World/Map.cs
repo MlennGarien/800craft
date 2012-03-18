@@ -590,7 +590,7 @@ namespace fCraft {
         public bool ConvertBlockTypes( [NotNull] byte[] mapping ) {
             if( mapping == null ) throw new ArgumentNullException( "mapping" );
             if( mapping.Length != 256 ) throw new ArgumentException( "Mapping must list all 256 blocks", "mapping" );
-
+            
             bool mapped = false;
             fixed( byte* ptr = Blocks ) {
                 for( int j = 0; j < Blocks.Length; j++ ) {
@@ -782,11 +782,7 @@ namespace fCraft {
             BlockNames["mossycobblestone"] = Block.MossyRocks;
             BlockNames["mossy_cobblestone"] = Block.MossyRocks;
             BlockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyRocks;
-
             BlockNames["onyx"] = Block.Obsidian;
-
-            //BlockNames["towerGen"] = Block.TowerGen;
-            //BlockNames["towerWater"] = Block.TowerWater;
 
             // add WoM file hashes for edge textures
             BlockEdgeTextures[Block.Aqua] = "246870d16093ff02738b3d42084c6597c02fad36";

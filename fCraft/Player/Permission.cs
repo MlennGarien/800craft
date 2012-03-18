@@ -167,7 +167,12 @@ namespace fCraft
         Basscannon,
         /// <summary> Ability to turn physics on and off. </summary>
         Physics,
+        /// <summary> Ability to turn turn firework mode on/off. </summary>
+        Fireworks,
         /// <summary> Ability to use the /Gun for killing, exploding TNT and Portals. </summary>
-        Gun
+        Gun,
+        /// <summary> Ability to use the manage game modes. </summary>
+        Games
+
     }
 }

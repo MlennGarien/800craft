@@ -8,6 +8,7 @@ using System.Threading;
 using System.Collections.Generic;
 using LibNbt;
 using LibNbt.Tags;
+using RandomMaze;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -99,8 +100,54 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPlace );
            //CommandManager.RegisterCommand( CdTree );
             CommandManager.RegisterCommand( CdTower );
+            CommandManager.RegisterCommand(CdFirework);
+            CommandManager.RegisterCommand(CdCylinder);
+            CommandManager.RegisterCommand(CdMaze);
         }
-        
+
+        static readonly CommandDescriptor CdMaze = new CommandDescriptor
+				{
+					Name = "RandomMaze",
+					Aliases = new string[] { "Maze" },
+					Category = CommandCategory.Building,
+					Permissions = new Permission[] { Permission.DrawAdvanced },
+					RepeatableSelection = true,
+					Help = "Choose the size and it will draw a random maze at the chosen point. (C) 2012 Lao Tszy",
+                    Usage = "/RandomMaze Length Width Height",
+					Handler = MazeHandler,
+                 };
+		
+
+		private static void MazeHandler(Player p, Command cmd)
+		{
+			try
+			{
+				RandomMazeOperation op = new RandomMazeOperation(p, cmd);
+				DrawOperationBegin(p, cmd, op);
+			}
+			catch (Exception e)
+			{
+				Player.Console.Message("Error: "+ e.Message);
+			}
+		}
+
+        static readonly CommandDescriptor CdCylinder = new CommandDescriptor
+        {
+            Name = "Cylinder",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Build },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Help = "Fills the selected rectangular area with a cylinder of blocks. " +
+                   "Unless two blocks are specified, leaves the inside hollow.",
+            UsableByFrozenPlayers = false,
+            Handler = CylinderHandler
+        };
+
+        static void CylinderHandler(Player player, Command cmd)
+        {
+            DrawOperationBegin(player, cmd, new CylinderDrawOperation(player));
+        }
         static readonly CommandDescriptor CdPlace = new CommandDescriptor
         {
             Name = "Place",
@@ -116,27 +163,53 @@ namespace fCraft {
 
         static void Place(Player player, Command cmd)
         {
-            try
+            if (player.LastUsedBlockType != Block.Undefined)
             {
-                if (player.LastUsedBlockType != Block.Undefined)
+                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, player.Position.Z / 32);
+
+                if (player.CanPlace(player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual) != CanPlaceResult.Allowed)
                 {
-                    Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, player.Position.Z / 32);
-
-                    if (player.CanPlace(player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual) != CanPlaceResult.Allowed)
-                    {
-                        player.Message("&WYou are not allowed to build here");
-                        return;
-                    }
-
-                    Player.RaisePlayerPlacedBlockEvent(player, player.WorldMap, Pos, player.WorldMap.GetBlock(Pos), player.LastUsedBlockType, BlockChangeContext.Manual);
-                    BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
-                    player.World.Map.QueueUpdate(blockUpdate);
-                    player.Message("Block placed");
+                    player.Message("&WYou are not allowed to build here");
+                    return;
                 }
 
-                else player.Message("&WError: No last used blocktype was found");
+                Player.RaisePlayerPlacedBlockEvent(player, player.WorldMap, Pos, player.WorldMap.GetBlock(Pos), player.LastUsedBlockType, BlockChangeContext.Manual);
+                BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
+                player.World.Map.QueueUpdate(blockUpdate);
+                player.Message("Block placed");
             }
-            catch { }
+            else player.Message("&WError: No last used blocktype was found");
+        }
+
+        static readonly CommandDescriptor CdFirework = new CommandDescriptor
+        {
+            Name = "Firework",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Fireworks },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Firework",
+            Help = "Toggles Firework Mode on/off for yourself. " +
+            "All Gold blocks will be replaced with fireworks if " +
+            "firework physics are enabled for the current world.",
+            UsableByFrozenPlayers = false,
+            Handler = FireworkHandler
+        };
+
+        static void FireworkHandler(Player player, Command cmd)
+        {
+                if (player.fireworkMode)
+                {
+                    player.fireworkMode = false;
+                    player.Message("Firework Mode has been turned off.");
+                    return;
+                }
+                else
+                {
+                    player.fireworkMode = true;
+                    player.Message("Firework Mode has been turned on. " +
+                        "All Gold blocks are now being replaced with Fireworks.");
+                }
         }
 
         static readonly CommandDescriptor CdTower = new CommandDescriptor
