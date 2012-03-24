@@ -138,6 +138,7 @@
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Network\Player.Networking.cs" />
+    <Compile Include="Physics\BasicPhysics.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\GunTest.cs" />
     <Compile Include="Physics\Physics.cs" />
@@ -205,7 +206,6 @@
     <Compile Include="Player\Position.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
-    <Compile Include="World\CustomBlock.cs" />
     <Compile Include="World\Forester.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs">

@@ -55,6 +55,8 @@ namespace fCraft
         public bool GameOn = false;
         public string CurrentGame;
 
+        public ConcurrentDictionary<String, Vector3I> Clocks = new ConcurrentDictionary<string, Vector3I>();
+
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }

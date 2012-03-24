@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Collections;
+using fCraft.Events;
 
 namespace fCraft.Physics
 {
@@ -31,28 +32,60 @@ namespace fCraft.Physics
         //junk
         public const int Tick = 150; //in ms
         public static int size = 3;
+        public static Thread physicsQueue;
 
         //init
         public static void Load()
         {
-            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
-            SchedulerTask checkSand = Scheduler.NewBackgroundTask(SandPhysics.SandSearch).RunForever(TimeSpan.FromSeconds(0.7));
-            SchedulerTask checkWater = Scheduler.NewBackgroundTask(WaterPhysics.waterChecker).RunForever(TimeSpan.FromSeconds(0.7));
-            SchedulerTask checkPlayers = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(1));
-            Player.PlacingBlock += PlantPhysics.TreeGrowing;
-            Player.PlacingBlock += PlantPhysics.blockSquash;
-            // Player.PlacingBlock += PlantPhysics.test; (drawimg)
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
-            Player.PlacingBlock += WaterPhysics.playerPlacedWater;
-            Player.PlacingBlock += WaterPhysics.blockFloat;
-            Player.PlacingBlock += WaterPhysics.blockSink;
-
-            Player.PlacedBlock += WaterPhysics.towerInit;//
-            Player.Clicking += WaterPhysics.towerRemove;//
+            SchedulerTask deQueuePhysics = Scheduler.NewTask(PhysicsQueue).RunForever(TimeSpan.FromSeconds(0.5));
         }
 
+        public static void PhysicsQueue(SchedulerTask task)
+        {
+            try
+            {
+                if (physicsQueue != null)
+                {
+                    if (physicsQueue.ThreadState != System.Threading.ThreadState.Stopped) //stops multiple threads from opening
+                    {
+                        return;
+                    }
+                }
+                physicsQueue = new Thread(new ThreadStart(delegate
+                {
+                    physicsQueue.Priority = ThreadPriority.Lowest;
+                    foreach (World world in WorldManager.Worlds)
+                    {
+                        BasicPhysics b = new BasicPhysics(world);
+                        if (world.Map != null && world.IsLoaded) //for all loaded worlds
+                        {
+                            Map map = world.Map;
+                            for (int x = world.Map.Bounds.XMin; x <= world.Map.Bounds.XMax; x++)
+                            {
+                                for (int y = world.Map.Bounds.YMin; y <= world.Map.Bounds.YMax; y++)
+                                {
+                                    for (int z = world.Map.Bounds.ZMin; z <= world.Map.Bounds.ZMax; z++)
+                                    {
+                                        if (BasicPhysics(world.Map.GetBlock(x, y, z)))
+                                        {
+                                            b.Queue(x, y, z, world.Map.GetBlock(x, y, z));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        b.Update();
+                    }
+                })); physicsQueue.Start();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.SeriousError, "" + ex);
+            }
+        }
 
         //physics helpers & bools
 
@@ -82,7 +115,7 @@ namespace fCraft.Physics
         {
             switch (block)
             {
-                case Block.BrownMushroom: 
+                case Block.BrownMushroom:
                 case Block.Plant:
                 case Block.RedFlower:
                 case Block.RedMushroom:
@@ -90,6 +123,14 @@ namespace fCraft.Physics
                     return true;
             }
             return false;
+        }
+
+
+        public static bool SetTileNoPhysics(int x, int y, int z, Block type, World world)
+        {
+            world.Map.Blocks[(z * world.Map.Height + y) * world.Map.Width + x] = (byte)type;
+            world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, type));
+            return true;
         }
 
         public static bool CanPutGrassOn(Vector3I block, World world)
@@ -119,8 +160,61 @@ namespace fCraft.Physics
             return false;
         }
 
-        public static bool makeShadow( Block block ) {
-            switch( block ) {
+        public static bool BasicPhysics(Block type)
+        {
+            switch (type)
+            {
+                case Block.Water:
+                case Block.Lava:
+                case Block.Sponge:
+                case Block.Sand:
+                case Block.Gravel:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool Liquid(Block type)
+        {
+            switch (type)
+            {
+                case Block.Lava:
+                case Block.Water:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool AffectedBySponges(Block type)
+        {
+            switch (type)
+            {
+                case Block.Water:
+                    return true;
+                case Block.Lava:
+                default:
+                    return false;
+            }
+        }
+
+        public static bool AffectedByGravity(Block type)
+        {
+            switch (type)
+            {
+                case Block.Sand:
+                case Block.Gravel:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool makeShadow(Block block)
+        {
+            switch (block)
+            {
                 case Block.Air:
                 case Block.Glass:
                 case Block.Leaves:
@@ -134,7 +228,7 @@ namespace fCraft.Physics
                     return true;
             }
         }
-    
+
 
         public static bool BlockThrough(Block block)
         {

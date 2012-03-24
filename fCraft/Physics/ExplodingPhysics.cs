@@ -28,7 +28,7 @@ namespace fCraft.Physics
                             explodeThread = new Thread(new ThreadStart(delegate
                             {
                                 world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
-                                int Seed = new Random().Next(1, 8);
+                                int Seed = new Random().Next(1, 50);
                                 startExplosion(e.Coords, e.Player, world, Seed);
                                 Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
                             }));
@@ -65,7 +65,7 @@ namespace fCraft.Physics
                                         if (world.Map.GetBlock(e.Coords) == Block.TNT)
                                         {
                                             world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
-                                            int Seed = new Random().Next(1, 8);
+                                            int Seed = new Random().Next(1, 50);
                                             startExplosion(e.Coords, e.Player, world, Seed);
                                             Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
                                         }

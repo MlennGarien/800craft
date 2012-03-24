@@ -118,16 +118,16 @@ namespace fCraft {
                  };
 		
 
-		private static void MazeHandler(Player p, Command cmd)
+		private static void MazeHandler(Player player, Command cmd)
 		{
 			try
 			{
-				RandomMazeOperation op = new RandomMazeOperation(p, cmd);
-				DrawOperationBegin(p, cmd, op);
+				RandomMazeOperation op = new RandomMazeOperation(player, cmd);
+				DrawOperationBegin(player, cmd, op);
 			}
 			catch (Exception e)
 			{
-				Player.Console.Message("Error: "+ e.Message);
+				Logger.Log(LogType.Error, "Error: "+ e.Message);
 			}
 		}
 
