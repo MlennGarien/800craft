@@ -13,7 +13,6 @@ using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Runtime.Serialization.Json;
-using ServiceStack.Text;
 
 
 namespace HeartbeatSaver

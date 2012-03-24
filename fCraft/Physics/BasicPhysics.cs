@@ -53,11 +53,9 @@ namespace fCraft.Physics
                                 case Block.Sponge:
                                     NewSponge(block.x, block.y, block.z);
                                     break;
-                                default:
-                                    if (Physics.AffectedByGravity(block.type))
-                                    {
-                                        SandGravelFall(block.x, block.y, block.z, block.type);
-                                    }
+                                case Block.Sand:
+                                case Block.Gravel:
+                                    SandGravelFall(block.x, block.y, block.z, block.type);
                                     break;
                             }
                         }
@@ -237,7 +235,7 @@ namespace fCraft.Physics
             {
                 dz--;
             }
-            if (dz != y)
+            if (dz != z)
             {
                 world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
                 Physics.SetTileNoPhysics(x, y, dz, type, world);

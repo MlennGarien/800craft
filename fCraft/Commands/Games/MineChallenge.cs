@@ -14,8 +14,8 @@ namespace fCraft.Games
         //stuff
         public static Thread GameThread;
         public static World world;
-        public static int redRoundsWon = 0;
-        public static int blueRoundsWon = 0;
+        public static int redRoundsWon;
+        public static int blueRoundsWon;
         public static ConcurrentDictionary<String, Vector3I> platform = new ConcurrentDictionary<string, Vector3I>();
         public static ConcurrentDictionary<String, Vector3I> randomBlocks = new ConcurrentDictionary<string, Vector3I>();
         public static List<Player> completed = new List<Player>();
@@ -29,6 +29,8 @@ namespace fCraft.Games
             Player.Clicked += playerClicking;
             world.Games = new List<Action>();
             world.CurrentGame = null;
+            redRoundsWon = 0;
+            blueRoundsWon = 0;
         }
 
         //games
@@ -104,8 +106,6 @@ namespace fCraft.Games
             interval();
             gamePicker();
         }
-    
-        
 
         public static void pinkPlatform()
         {
@@ -224,7 +224,6 @@ namespace fCraft.Games
                     }
                 }
             }
-
         }
 
         
@@ -365,7 +364,7 @@ namespace fCraft.Games
                world.Players.Message("&SThe game has started!.");
                wait(2000);
                gamePicker();
-               Scheduler.NewTask(t => PositionCheck()).RunForever(TimeSpan.FromDays(1));
+               Scheduler.NewTask(t => PositionCheck()).RunForever(TimeSpan.FromSeconds(1));
              })); GameThread.Start();
         }
 

@@ -125,7 +125,7 @@ namespace fCraft.Physics
             return false;
         }
 
-
+        //check
         public static bool SetTileNoPhysics(int x, int y, int z, Block type, World world)
         {
             world.Map.Blocks[(z * world.Map.Height + y) * world.Map.Width + x] = (byte)type;
