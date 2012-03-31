@@ -42,20 +42,17 @@ namespace fCraft.Physics
                         {
                             switch (block.type)
                             {
-                                case Block.Water:
-                                    GenericSpread(block.x, block.y, block.z, block.type);
-                                    CheckWaterLavaCollide(block.x, block.y, block.z, block.type);
-                                    break;
-                                case Block.Lava:
-                                    GenericSpread(block.x, block.y, block.z, block.type);
-                                    CheckWaterLavaCollide(block.x, block.y, block.z, block.type);
-                                    break;
                                 case Block.Sponge:
                                     NewSponge(block.x, block.y, block.z);
                                     break;
                                 case Block.Sand:
                                 case Block.Gravel:
                                     SandGravelFall(block.x, block.y, block.z, block.type);
+                                    break;
+                                case Block.Water:
+                                case Block.Lava:
+                                    GenericSpread(block.x, block.y, block.z, block.type);
+                                    CheckWaterLavaCollide(block.x, block.y, block.z, block.type);
                                     break;
                             }
                         }
@@ -102,7 +99,7 @@ namespace fCraft.Physics
         }
 
         #region Individual Physics Handlers
-        public void GenericSpread(short x, short y, short z, Block type)
+        public void GenericSpread(int x, int y, int z, Block type)
         {
             if (world.Map.GetBlock(x, y, z) != type)
             {
@@ -110,23 +107,23 @@ namespace fCraft.Physics
             }
             if (world.Map.GetBlock(x + 1, y, z) == Block.Air)
             {
-                world.Map.QueueUpdate(new BlockUpdate(null, (short)(x + 1), y, z, type));
+                world.Map.QueueUpdate(new BlockUpdate(null, (short)(x + 1), (short)y, (short)z, type));
             }
             if (world.Map.GetBlock(x - 1, y, z) == Block.Air)
             {
-                world.Map.QueueUpdate(new BlockUpdate(null, (short)(x - 1), y, z, type));
+                world.Map.QueueUpdate(new BlockUpdate(null, (short)(x - 1), (short)y, (short)z, type));
             }
             if (world.Map.GetBlock(x, y - 1, z) == Block.Air)
             {
-                world.Map.QueueUpdate(new BlockUpdate(null, x, (short)(y - 1), z, type));
+                world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)(y - 1), (short)z, type));
             }
             if (world.Map.GetBlock(x, y + 1, z) == Block.Air)
             {
-                world.Map.QueueUpdate(new BlockUpdate(null, x, (short)(y + 1), z, type));
+                world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)(y + 1), (short)z, type));
             }
             if (world.Map.GetBlock(x, y, z - 1) == Block.Air)
             {
-                world.Map.QueueUpdate(new BlockUpdate(null, x, y, (short)(z - 1), type));
+                world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)(z - 1), type));
             }
         }
 

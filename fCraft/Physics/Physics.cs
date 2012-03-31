@@ -40,7 +40,7 @@ namespace fCraft.Physics
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
-            SchedulerTask deQueuePhysics = Scheduler.NewTask(PhysicsQueue).RunForever(TimeSpan.FromSeconds(0.5));
+            //SchedulerTask deQueuePhysics = Scheduler.NewTask(PhysicsQueue).RunForever(TimeSpan.FromSeconds(0.5));
         }
 
         public static void PhysicsQueue(SchedulerTask task)
