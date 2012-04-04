@@ -1530,13 +1530,19 @@ namespace fCraft {
 
             if (param == null)
             {
-                player.Message("&SCommands Available:\n" +
-                "&SFor &aBuilding &Scommands, type &a/Commands building" +
-                "\n&SFor &fChat &Scommands, type &a/Commands chat" +
-                "\n&SFor &fInfo &Scommands, type &a/Commands info" +
-                "\n&SFor &3Moderation &scommands, type &a/Commands moderation" +
-                "\n&SFor &9World &Scommands, type &a/Commands world" +
-                "\n&SFor &bZone &Scommands, type &a/Commands zone");
+            	player.Message("&SCommands Available:\n" +
+            	               "&SFor &aBuilding &Scommands, type &a/Commands building" +
+            	               "\n&SFor &fChat &Scommands, type &a/Commands chat" +
+            	               "\n&SFor &fInfo &Scommands, type &a/Commands info" +
+            	               "\n&SFor &3Moderation &scommands, type &a/Commands moderation" +
+            	               "\n&SFor &9World &Scommands, type &a/Commands world" +
+            	               "\n&SFor &bZone &Scommands, type &a/Commands zone" +
+            	               (CommandManager.GetCommands(CommandCategory.Math, false).Length > 0
+            	                	? "\n&SFor &cfunction drawing &Scommands, type &a/Commands math"
+            	                	: "") +
+            	               (CommandManager.GetCommands(CommandCategory.Fun, false).Length > 0
+            	                	? "\n&SFor &dfun &Scommands, type &a/Commands fun"
+            	                	: ""));
             }
 
             else if (param.StartsWith("@"))

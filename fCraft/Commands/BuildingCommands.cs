@@ -102,34 +102,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdTower );
             CommandManager.RegisterCommand(CdFirework);
             CommandManager.RegisterCommand(CdCylinder);
-            CommandManager.RegisterCommand(CdMaze);
         }
-
-        static readonly CommandDescriptor CdMaze = new CommandDescriptor
-				{
-					Name = "RandomMaze",
-					Aliases = new string[] { "Maze" },
-					Category = CommandCategory.Building,
-					Permissions = new Permission[] { Permission.DrawAdvanced },
-					RepeatableSelection = true,
-					Help = "Choose the size and it will draw a random maze at the chosen point. (C) 2012 Lao Tszy",
-                    Usage = "/RandomMaze Length Width Height",
-					Handler = MazeHandler,
-                 };
-		
-
-		private static void MazeHandler(Player player, Command cmd)
-		{
-			try
-			{
-				RandomMazeOperation op = new RandomMazeOperation(player, cmd);
-				DrawOperationBegin(player, cmd, op);
-			}
-			catch (Exception e)
-			{
-				Logger.Log(LogType.Error, "Error: "+ e.Message);
-			}
-		}
 
         static readonly CommandDescriptor CdCylinder = new CommandDescriptor
         {
@@ -678,7 +651,7 @@ namespace fCraft {
 
 
 
-        static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
+        internal static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
             // try to create instance of player's currently selected brush
             // all command parameters are passed to the brush
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );

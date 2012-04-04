@@ -177,6 +177,11 @@ namespace fCraft {
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
         public bool IsStaticStaff;
+
+		//general purpose state storage for plugins
+		private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
+		public IDictionary<string, object> PublicAuxStateObjects { get { return _publicAuxStateObjects; } }
+
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.

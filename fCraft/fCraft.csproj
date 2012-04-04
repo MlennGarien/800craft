@@ -102,6 +102,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\FunCommands.cs" />
     <Compile Include="Commands\Games\MineChallenge.cs" />
     <Compile Include="Commands\nbt\Class1.cs" />
     <Compile Include="Commands\CommandHandlers\BroModeHandler.cs" />
@@ -132,8 +133,9 @@
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Drawing\DrawOps\Copy of EllipsoidDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\CylinderDrawOperation.cs" />
-    <Compile Include="Drawing\DrawOps\Maze.cs" />
-    <Compile Include="Drawing\DrawOps\RandomMazeOperation.cs" />
+    <Compile Include="Drawing\DrawOps\RandomMaze\MazeCuboidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\RandomMaze\Maze.cs" />
+    <Compile Include="Drawing\DrawOps\RandomMaze\RandomMazeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\TreeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />

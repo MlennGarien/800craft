@@ -19,11 +19,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-[assembly: InternalsVisibleTo("TestMazeApp")]
 
 namespace RandomMaze
 {
-    internal static class MazeClass
+    internal static class MazeUtil
     {
         static private Random _r = new Random();
         public static void RndPermutate<T>(this T[] a)
@@ -168,7 +167,12 @@ namespace RandomMaze
         {
             return (_walls & d.Mask()) != 0;
         }
-    }
+
+		internal bool IsOnSolutionPath()
+		{
+			return (Path.ReachedDestination && IndexInPath<=Path.GoesToDestinationUpTo);
+		}
+	}
 
     internal class Path
     {
@@ -296,7 +300,7 @@ namespace RandomMaze
     internal class Maze
     {
         private Cell[][][] _cells;
-        private const double ForkProbability = 0.4;
+        private const double ForkProbability = 0.38;
 
         public int XSize;
         public int YSize;
@@ -306,8 +310,8 @@ namespace RandomMaze
 
         public Maze(int xSize, int ySize, int zSize) //2d at the moment
         {
-            if (xSize < 2 || ySize < 2 || zSize < 1)
-                throw new ArgumentException("maze size must be at least 2x2x1");
+			if (xSize < 1 || ySize < 1 || zSize<1)
+				throw new ArgumentException("maze size must be at least 1x1x1");
 
             XSize = xSize;
             YSize = ySize;
@@ -389,7 +393,7 @@ namespace RandomMaze
         private void AddCycles()
         {
             Random r = new Random();
-            for (int i = 0; i < XSize * YSize * ZSize / 100 + 1; ++i)
+            for (int i = 0; i < Math.Sqrt(XSize * YSize * ZSize) / 10.0 + 1; ++i)
             {
                 for (int tries = 0; tries < 5; ++tries) //try some times to remove a wall somewhere, it may fail though
                 {
@@ -405,11 +409,6 @@ namespace RandomMaze
             if (x < 0 || x >= XSize || y < 0 || y >= YSize || z < 0 || z >= ZSize)
                 return null;
             return _cells[x][y][z];
-        }
-
-        public override string ToString()
-        {
-            return "Maze";
         }
     }
 }
