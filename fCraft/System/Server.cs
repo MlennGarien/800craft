@@ -38,15 +38,6 @@ namespace fCraft
         internal static float TicksPerSecond;
 
         //vote
-        public static bool VoteIsOn;
-        public static float VoteYes = 0;
-        public static float VoteNo = 0;
-        public static List<Player> Voted = new List<Player>();
-        public static string Question;
-        public static string VoteKickReason;
-        public static string VoteAskStarter;
-        public static string TargetName;
-        public static string ToPossess;
 
         public static bool IsRestarting = false;
         public static bool HSaverOn = false;

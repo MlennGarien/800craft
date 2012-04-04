@@ -103,6 +103,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\FunCommands.cs" />
+    <Compile Include="Commands\CommandHandlers\VoteHandler.cs" />
     <Compile Include="Commands\Games\MineChallenge.cs" />
     <Compile Include="Commands\nbt\Class1.cs" />
     <Compile Include="Commands\CommandHandlers\BroModeHandler.cs" />
