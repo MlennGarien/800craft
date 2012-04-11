@@ -27,7 +27,7 @@ namespace fCraft {
                             White = "&f";
 
         // User-defined color assignments. Set by Config.ApplyConfig.
-        public static string Sys, Help, Say, Announcement, PM, IRC, Me, Warning;
+        public static string Sys, Help, Say, Announcement, PM, IRC, Me, Custom, Warning;
 
         // Defaults for user-defined colors.
         public const string SysDefault = Yellow,
@@ -37,7 +37,8 @@ namespace fCraft {
                             PMDefault = Aqua,
                             IRCDefault = Purple,
                             MeDefault = Purple,
-                            WarningDefault = Red;
+                            WarningDefault = Red,
+                            CustomDefault = Yellow;
 
         public static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
             { '0', "black" },

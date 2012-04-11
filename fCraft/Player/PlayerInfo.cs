@@ -39,6 +39,31 @@ namespace fCraft {
         /// <summary> Reason for leaving the server last time. </summary>
         public LeaveReason LeaveReason;
 
+        //dummy
+        public int DummyID;
+        public string DummyName;
+        public Position DummyPos;
+        public bool IsFollowing = false;
+        public string followingID;
+        public int followingCount = 0;
+        public bool Static = true;
+        public string LeaveMsg = "left the server";
+
+        //Games
+        public bool ArrivedLate = false;
+        public bool InGame = false;
+
+        //slap, kill
+        public DateTime LastUsedSlap;
+        public DateTime LastUsedKill;
+        public bool KillWait = false;
+
+        //bromode
+        public string oldname;
+        public bool changedName = false;
+
+        public bool HasVoted = false;
+
 
         #region Rank
 
@@ -97,6 +122,69 @@ namespace fCraft {
         public string BannedByClassy {
             get {
                 return PlayerDB.FindExactClassyName( BannedBy );
+            }
+        }
+
+        public bool IsWarned;
+
+        public string WarnedBy = "";
+        public DateTime WarnedOn;
+
+        public bool IsTempbanned
+        {
+            get
+            {
+                return DateTime.UtcNow < MutedUntil;
+            }
+        }
+
+        public bool UnWarn()
+        {
+            if (IsWarned)
+            {
+                IsWarned = false;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public bool Warn(string by)
+        {
+            if (by == null) throw new ArgumentNullException("by");
+            if (!IsWarned)
+            {
+                IsWarned = true;
+                WarnedOn = DateTime.UtcNow;
+                WarnedBy = by;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool Tempban(string by, TimeSpan timespan)
+        {
+            if (by == null) throw new ArgumentNullException("by");
+            if (timespan <= TimeSpan.Zero)
+            {
+                throw new ArgumentException("Tempban duration must be longer than 0", "timespan");
+            }
+            DateTime newBannedUntil = DateTime.UtcNow.Add(timespan);
+
+            if (newBannedUntil > BannedUntil)
+            {
+                BannedUntil = newBannedUntil;
+                BannedBy = by;
+                LastModified = DateTime.UtcNow;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 

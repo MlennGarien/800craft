@@ -1024,8 +1024,9 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "{0} left the server ({1}).", player.Name, player.LeaveReason );
                 if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
-                                                      player.ClassyName );
+                    Players.CanSee(player).Message("&SPlayer {0}&S {1}.",
+                                                      player.ClassyName, player.Info.LeaveMsg);
+                    player.Info.LeaveMsg = "left the server";
                 }
 
                 if( player.World != null ) {

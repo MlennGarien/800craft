@@ -9,6 +9,7 @@ using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
+using System.Collections.Concurrent;
 
 namespace fCraft {
     /// <summary> Callback for a player-made selection of one or more blocks on a map.
@@ -141,6 +142,39 @@ namespace fCraft {
         public MetadataCollection<object> Metadata { get; private set; }
 
         #endregion
+        public bool IsAway;
+
+        public bool IsFlying = false;
+        public ConcurrentDictionary<String, Vector3I> FlyCache;
+        public readonly object FlyLock = new object();
+
+        public ConcurrentDictionary<String, Vector3I> TowerCache = new ConcurrentDictionary<String, Vector3I>();
+        public bool towerMode = false;
+        public Vector3I towerOrigin;
+
+        public ConcurrentDictionary<String, Vector3I> GunCache = new ConcurrentDictionary<String, Vector3I>();
+
+        public List<Vector3I> bluePortal = new List<Vector3I>();
+        public List<Vector3I> orangePortal = new List<Vector3I>();
+        public List<Block> blueOld = new List<Block>();
+        public List<Block> orangeOld = new List<Block>();
+        public byte blueOut;
+        public byte orangeOut;
+        public bool GunMode = false;
+
+        public bool fireworkMode = false;
+
+        public bool StandingInPortal = false;
+        public bool CanUsePortal = true;
+        public String PortalWorld;
+        public String PortalName;
+        public bool BuildingPortal = true;
+        public DateTime LastUsedPortal;
+        public DateTime LastWarnedPortal;
+        public DateTime DrownTime;
+        public readonly object PortalLock = new object();
+        public bool PortalsEnabled = true;
+        public bool IsStaticStaff;
 
 
         // This constructor is used to create pseudoplayers (such as Console and /dummy).

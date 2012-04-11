@@ -35,6 +35,54 @@ namespace fCraft {
             return true;
         }
 
+        public static bool SendAdmin(Player player, string rawMessage)
+        {
+            if (player == null) throw new ArgumentNullException("player");
+            if (rawMessage == null) throw new ArgumentNullException("rawMessage");
+
+            var recepientList = Server.Players.Can(Permission.ReadAdminChat)
+                                              .NotIgnoring(player);
+
+            string formattedMessage = String.Format("&9(Admin){0}&b: {1}",
+                                                     player.ClassyName,
+                                                     rawMessage);
+
+            var e = new ChatSendingEventArgs(player,
+                                              rawMessage,
+                                              formattedMessage,
+                                              ChatMessageType.Staff,
+                                              recepientList);
+
+            if (!SendInternal(e)) return false;
+
+            Logger.Log(LogType.GlobalChat, "(Admin){0}: {1}", player.Name, rawMessage);
+            return true;
+        }
+
+        public static bool SendCustom(Player player, string rawMessage)
+        {
+            if (player == null) throw new ArgumentNullException("player");
+            if (rawMessage == null) throw new ArgumentNullException("rawMessage");
+
+            var recepientList = Server.Players.Can(Permission.ReadCustomChat)
+                                              .NotIgnoring(player);
+
+            string formattedMessage = String.Format(Color.Custom + "({2}){0}&b: {1}",
+                                                     player.ClassyName,
+                                                     rawMessage, ConfigKey.CustomChatChannel.GetString());
+
+            var e = new ChatSendingEventArgs(player,
+                                              rawMessage,
+                                              formattedMessage,
+                                              ChatMessageType.Staff,
+                                              recepientList);
+
+            if (!SendInternal(e)) return false;
+
+            Logger.Log(LogType.GlobalChat, "({2}){0}: {1}", player.Name, rawMessage, ConfigKey.CustomChatChannel.GetString());
+            return true;
+        }
+
 
         /// <summary> Sends an action message (/Me). </summary>
         /// <param name="player"> Player writing the message. </param>

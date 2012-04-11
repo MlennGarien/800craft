@@ -578,16 +578,6 @@ namespace fCraft {
         public static int SizeOf( object obj ) {
             return SizeOf( obj.GetType() );
         }
-
-
-        public static int SizeOf( Type type ) {
-            if( type.IsValueType ) {
-                return System.Runtime.InteropServices.Marshal.SizeOf( type );
-            } else {
-                RuntimeTypeHandle th = type.TypeHandle;
-                return *(*(int**)&th + 1);
-            }
-        }
     }
 
 

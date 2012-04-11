@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using System.Collections;
 
 namespace fCraft {
     public sealed class World : IClassy {
@@ -18,6 +19,25 @@ namespace fCraft {
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
         public bool IsHidden { get; set; }
+
+        //custom
+        public bool IsRealm { get; set; }
+
+        public bool RealisticEnv = false; //previously getset
+
+        public bool ZombieGame = false;
+
+        public int FireworkCount = 0;
+        public ArrayList Portals;
+        public int portalID = 1;
+
+        //physics
+        public bool tntPhysics = false;
+        public bool fireworkPhysics = false;
+        public bool waterPhysics = false;
+        public bool plantPhysics = false;
+        public bool sandPhysics = false;
+        public bool grassPhysics = false;
 
 
         /// <summary> Whether this world is currently pending unload 

@@ -67,6 +67,9 @@ namespace fCraft {
 
         /// <summary> Login denied for some other reason </summary>
         LoginFailed = 0x43,
+
+        /// <summary> When a player ragequits from the server </summary>
+        RageQuit = 0x44,
     }
 
 
