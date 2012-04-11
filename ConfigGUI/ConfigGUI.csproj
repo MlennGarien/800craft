@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3016BB07-87C4-4CA4-9DA7-492404D1FEE7}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>fCraft.ConfigGUI</RootNamespace>
+    <AssemblyName>ConfigGUI</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ApplicationIcon>fcraft_config.ico</ApplicationIcon>
+    <TargetFrameworkSubset>Client</TargetFrameworkSubset>
+    <StartupObject>fCraft.ConfigGUI.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ColorPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ColorPicker.Designer.cs">
+      <DependentUpon>ColorPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TextEditorPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TextEditorPopup.Designer.cs">
+      <DependentUpon>TextEditorPopup.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="ChatPreview.resx">
+      <DependentUpon>ChatPreview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ColorPicker.resx">
+      <DependentUpon>ColorPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeywordPicker.resx">
+      <DependentUpon>KeywordPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddWorldPopup.resx">
+      <DependentUpon>AddWorldPopup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DeleteRankPopup.resx">
+      <DependentUpon>DeleteRankPopup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PermissionLimitBox.resx">
+      <DependentUpon>PermissionLimitBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextEditorPopup.resx">
+      <DependentUpon>TextEditorPopup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UpdaterSettingsPopup.resx">
+      <DependentUpon>UpdaterSettingsPopup.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\fCraftGUI\fCraftGUI.csproj">
+      <Project>{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}</Project>
+      <Name>fCraftGUI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\fCraft\fCraft.csproj">
+      <Project>{7FBE7809-6F77-415C-ABEB-A3F627E817B0}</Project>
+      <Name>fCraft</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ChatBackground.png" />
+    <Content Include="fcraft_config.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="MinecraftFont\minecraft.ttf" />
+    <Compile Include="ChatPreview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ChatPreview.Designer.cs">
+      <DependentUpon>ChatPreview.cs</DependentUpon>
+    </Compile>
+    <Compile Include="KeywordPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeywordPicker.Designer.cs">
+      <DependentUpon>KeywordPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.ToolTips.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Adapter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddWorldPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddWorldPopup.Designer.cs">
+      <DependentUpon>AddWorldPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CustomPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DeleteRankPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DeleteRankPopup.Designer.cs">
+      <DependentUpon>DeleteRankPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PermissionLimitBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PermissionLimitBox.Designer.cs">
+      <DependentUpon>PermissionLimitBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SortableBindingList.cs" />
+    <Compile Include="UpdaterSettingsPopup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UpdaterSettingsPopup.Designer.cs">
+      <DependentUpon>UpdaterSettingsPopup.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WorldListEntry.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

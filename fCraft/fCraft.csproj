@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7FBE7809-6F77-415C-ABEB-A3F627E817B0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>fCraft</RootNamespace>
+    <AssemblyName>fCraft</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <StartupObject>
+    </StartupObject>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <TargetFrameworkSubset>Full</TargetFrameworkSubset>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Events|AnyCPU' ">
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DEBUG_EVENTS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_IRC|AnyCPU' ">
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DEBUG_IRC</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Scheduler|AnyCPU' ">
+    <OutputPath>..\bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DEBUG_SCHEDULER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel.Web">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Drawing\DrawOperation.cs" />
+    <Compile Include="AutoRank\AutoRankManager.cs" />
+    <Compile Include="Commands\ModerationCommands.cs" />
+    <Compile Include="Commands\MaintenanceCommands.cs" />
+    <Compile Include="Commands\ZoneCommands.cs" />
+    <Compile Include="MapConversion\MapFCMv3.cs" />
+    <Compile Include="Player\SecurityController.cs" />
+    <Compile Include="Utils\Paths.cs" />
+    <Compile Include="System\Scheduler.cs" />
+    <Compile Include="Utils\Vector3F.cs" />
+    <Compile Include="Commands\CommandDescriptor.cs" />
+    <Compile Include="Commands\WorldCommands.cs" />
+    <Compile Include="Commands\BuildingCommands.cs" />
+    <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\InfoCommands.cs" />
+    <Compile Include="MapConversion\MapD3.cs" />
+    <Compile Include="MapConversion\MapMyne.cs" />
+    <Compile Include="MapConversion\MapJTE.cs" />
+    <Compile Include="MapConversion\IMapConverter.cs" />
+    <Compile Include="MapConversion\MapDAT.cs" />
+    <Compile Include="MapConversion\MapFCMv2.cs" />
+    <Compile Include="MapConversion\MapFormat.cs" />
+    <Compile Include="MapConversion\MapMCSharp.cs" />
+    <Compile Include="MapConversion\MapMinerCPP.cs" />
+    <Compile Include="MapConversion\MapNBT.cs" />
+    <Compile Include="MapConversion\MapUtility.cs" />
+    <Compile Include="MapConversion\NBTag.cs" />
+    <Compile Include="Network\IRC.cs" />
+    <Compile Include="Network\IPBanList.cs" />
+    <Compile Include="Network\IRCCommands.cs" />
+    <Compile Include="Network\IRCMessage.cs" />
+    <Compile Include="Player\PlayerConstants.cs" />
+    <Compile Include="Utils\BoundingBox.cs" />
+    <Compile Include="Utils\ConcurrentQueue.cs" />
+    <Compile Include="System\ConfigKey.cs" />
+    <Compile Include="Utils\Noise.cs" />
+    <Compile Include="Utils\Updater.cs" />
+    <Compile Include="Player\RankManager.cs" />
+    <Compile Include="Player\Permission.cs" />
+    <Compile Include="Utils\Color.cs" />
+    <Compile Include="Network\Heartbeat.cs" />
+    <Compile Include="System\Server.cs" />
+    <Compile Include="System\Config.cs" />
+    <Compile Include="System\Logger.cs" />
+    <Compile Include="Network\PacketWriter.cs" />
+    <Compile Include="Network\Packet.cs" />
+    <Compile Include="Network\Player.Networking.cs" />
+    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Player\Rank.cs" />
+    <Compile Include="Player\Player.cs" />
+    <Compile Include="Player\PlayerDB.cs" />
+    <Compile Include="Player\PlayerInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="app.config" />
+    <Compile Include="Utils\Trie.cs" />
+    <Compile Include="Player\Position.cs" />
+    <Compile Include="World\Block.cs" />
+    <Compile Include="World\BlockUpdate.cs" />
+    <Compile Include="World\Forester.cs" />
+    <Compile Include="World\Map.cs" />
+    <Compile Include="World\MapGenerator.cs">
+    </Compile>
+    <Compile Include="World\MapGeneratorArgs.cs" />
+    <Compile Include="World\World.cs" />
+    <Compile Include="World\Zone.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AutoRank\Conditions.cs" />
+    <Compile Include="AutoRank\Criterion.cs" />
+    <Compile Include="Commands\ChatCommands.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
+    <Compile Include="Drawing\DrawOps\TriangleDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\TriangleWireframeDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\Fill2DDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\QuickPasteDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOpWithBrush.cs" />
+    <Compile Include="Drawing\DrawOps\UndoDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\PasteDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\CutDrawOperation.cs" />
+    <Compile Include="Drawing\UndoState.cs" />
+    <Compile Include="MapConversion\INIFile.cs" />
+    <Compile Include="Network\IPBanInfo.cs" />
+    <Compile Include="Player\ChatTimer.cs" />
+    <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
+    <Compile Include="Drawing\Brushes\CheckeredBrush.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceNotBrush.cs" />
+    <Compile Include="Drawing\Brushes\ReplaceBrush.cs" />
+    <Compile Include="Drawing\BrushManager.cs" />
+    <Compile Include="Drawing\Brushes\CloudyBrush.cs" />
+    <Compile Include="Drawing\CopyState.cs" />
+    <Compile Include="Drawing\DrawOps\SphereHollowDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\EllipsoidHollowDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\SphereDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\LineDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\EllipsoidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\CuboidHollowDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\CuboidWireframeDrawOperation.cs" />
+    <Compile Include="Drawing\Brushes\MarbledBrush.cs" />
+    <Compile Include="Drawing\Brushes\RainbowBrush.cs" />
+    <Compile Include="Drawing\Brushes\RandomBrush.cs" />
+    <Compile Include="Drawing\DrawOps\CuboidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\TorusDrawOperation.cs" />
+    <Compile Include="Drawing\IBrush.cs" />
+    <Compile Include="Drawing\Brushes\NormalBrush.cs" />
+    <Compile Include="Drawing\Axis.cs" />
+    <Compile Include="Player\Chat.cs" />
+    <Compile Include="Commands\CommandCategory.cs" />
+    <Compile Include="MapConversion\MapFormatException.cs" />
+    <Compile Include="MapConversion\MapOpticraft.cs" />
+    <Compile Include="MapConversion\MapFCMv4.cs" />
+    <Compile Include="Network\LineWrapper.cs" />
+    <Compile Include="Network\OpCode.cs" />
+    <Compile Include="Player\PlayerInfo.Actions.cs" />
+    <Compile Include="Player\Player.Events.cs" />
+    <Compile Include="Player\PlayerEnumerable.cs" />
+    <Compile Include="Player\PlayerOpException.cs" />
+    <Compile Include="System\ArgKey.cs" />
+    <Compile Include="System\ConfigKey.Metadata.cs" />
+    <Compile Include="System\ConfigSection.cs" />
+    <Compile Include="Utils\Vector3I.cs" />
+    <Compile Include="World\BlockChangeContext.cs" />
+    <Compile Include="World\BlockDB.cs" />
+    <Compile Include="Utils\EventInterfaces.cs" />
+    <Compile Include="System\SchedulerTask.cs" />
+    <Compile Include="Utils\IClassy.cs" />
+    <Compile Include="System\Server.Events.cs" />
+    <Compile Include="Utils\ExtensionMethods.cs" />
+    <Compile Include="Utils\LogRecorder.cs" />
+    <Compile Include="Utils\PerlinNoise3D.cs" />
+    <Compile Include="Utils\ZipStorer.cs" />
+    <Compile Include="World\BlockDBEntry.cs" />
+    <Compile Include="Utils\MetadataCollection.cs" />
+    <Compile Include="World\WorldManager.cs" />
+    <Compile Include="World\WorldOpException.cs" />
+    <Compile Include="Utils\MonoCompat.cs" />
+    <Compile Include="Utils\YesNoAuto.cs" />
+    <Compile Include="World\ZoneCollection.cs" />
+    <Compile Include="Player\PlayerInfo.Events.cs" />
+    <Compile Include="World\World.Events.cs" />
+    <Compile Include="Utils\JetBrains.Annotations.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
