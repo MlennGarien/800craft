@@ -284,7 +284,7 @@ namespace fCraft {
 
             // prepare the list of commands
             CommandManager.Init();
-
+            PluginManager.GetInstance(); //2nd means plugins crash and not 800Craft
             // prepare the brushes
             BrushManager.Init();
 
