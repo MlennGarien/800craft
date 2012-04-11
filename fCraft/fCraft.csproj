@@ -87,6 +87,9 @@
     <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ServiceStack.Text">
+      <HintPath>.\ServiceStack.Text.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -94,9 +97,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.ServiceModel.Web">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -121,6 +121,11 @@
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Player\SecurityController.cs" />
+    <Compile Include="Portals\Portal.cs" />
+    <Compile Include="Portals\PortalDB.cs" />
+    <Compile Include="Portals\PortalException.cs" />
+    <Compile Include="Portals\PortalHandler.cs" />
+    <Compile Include="Portals\PortalRange.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector3F.cs" />

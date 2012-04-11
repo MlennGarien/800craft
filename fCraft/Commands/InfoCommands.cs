@@ -36,11 +36,284 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdColors );
 
+            CommandManager.RegisterCommand(CdReqs);
+            CommandManager.RegisterCommand(CdList);
+
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
 #endif
         }
+        #region 800Craft
+        static readonly CommandDescriptor CdList = new CommandDescriptor
+        {
+            Name = "List",
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
+            Help = "Shows a list of requirements needed to advance to the next rank.",
+            Usage = "/List SectionName",
+            Handler = ListHandler
+        };
 
+        internal static void ListHandler(Player player, Command cmd)
+        {
+            string Option = cmd.Next();
+            if (Option == null)
+            {
+                CdList.PrintUsage(player);
+                player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank");
+                return;
+            }
+            switch (Option.ToLower())
+            {
+                default:
+                    CdList.PrintUsage(player);
+                    player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank");
+                    break;
+
+                case "idles":
+                case "idle":
+                    var Idles = Server.Players.Where(p => p.IdleTime.TotalMinutes > 5).ToArray();
+                    if (Idles.Count() > 0)
+                        player.Message("Listing players idle for 5 mins or more: {0}",
+                                        Idles.JoinToString(r => String.Format("{0}", r.ClassyName)));
+                    else player.Message("No players have been idle for more than 5 minutes");
+                    break;
+
+                case "portals":
+                    if (player.World == null)
+                    {
+                        player.Message("/List portals cannot be used from Console");
+                        return;
+                    }
+
+                    if (player.World.Portals == null || player.World.Portals.Count == 0)
+                    {
+                        player.Message("There are no portals in {0}&S.", player.World.ClassyName);
+                    }
+                    else
+                    {
+                        String[] portalNames = new String[player.World.Portals.Count];
+                        StringBuilder output = new StringBuilder("There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: ");
+
+                        for (int i = 0; i < player.World.Portals.Count; i++)
+                        {
+                            portalNames[i] = ((fCraft.Portals.Portal)player.World.Portals[i]).Name;
+                        }
+                        output.Append(portalNames.JoinToString(", "));
+                        player.Message(output.ToString());
+                    }
+                    break;
+
+                case "staff":
+                    var StaffNames = PlayerDB.PlayerInfoList
+                                         .Where(r => r.Rank.Can(Permission.ReadStaffChat) &&
+                                             r.Rank.Can(Permission.Ban) &&
+                                             r.Rank.Can(Permission.Promote))
+                                             .ToArray();
+
+                    if (StaffNames.Length <= PlayersPerPage)
+                    {
+                        player.MessageManyMatches("staff", StaffNames);
+                    }
+
+                    else
+                    {
+                        int offset;
+
+                        if (!cmd.NextInt(out offset)) offset = 0;
+
+                        if (offset >= StaffNames.Length)
+                            offset = Math.Max(0, StaffNames.Length - PlayersPerPage);
+
+                        PlayerInfo[] StaffPart = StaffNames.Skip(offset).Take(PlayersPerPage).ToArray();
+                        player.MessageManyMatches("staff", StaffPart);
+
+                        if (offset + StaffPart.Length < StaffNames.Length)
+                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                            offset + 1, offset + StaffPart.Length, StaffNames.Length,
+                                            "staff", offset + StaffPart.Length);
+                        else
+                            player.Message("Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + StaffPart.Length, StaffNames.Length);
+                    }
+                    break;
+
+                case "rank":
+                    string rankName = cmd.Next();
+                    if (rankName == null)
+                    {
+                        player.Message("Usage: /List rank rankName");
+                        return;
+                    }
+                    Rank rank = RankManager.FindRank(rankName);
+
+                    var RankNames = PlayerDB.PlayerInfoList
+                                         .Where(r => r.Rank == rank)
+                                             .ToArray();
+
+                    if (RankNames.Length <= PlayersPerPage)
+                    {
+                        player.MessageManyMatches("rank list", RankNames);
+                    }
+
+                    else
+                    {
+                        int offset;
+
+                        if (!cmd.NextInt(out offset)) offset = 0;
+
+                        if (offset >= RankNames.Length)
+                            offset = Math.Max(0, RankNames.Length - PlayersPerPage);
+
+                        PlayerInfo[] RankPart = RankNames.Skip(offset).Take(PlayersPerPage).ToArray();
+                        player.MessageManyMatches("rank list", RankPart);
+
+                        if (offset + RankPart.Length < RankNames.Length)
+                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                            offset + 1, offset + RankPart.Length, RankNames.Length,
+                                            "rank " + rank.ClassyName, offset + RankPart.Length);
+                        else
+                            player.Message("Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + RankPart.Length, RankNames.Length);
+                    }
+                    break;
+                case "displayednames":
+                case "displayedname":
+                case "dn":
+                    var DisplayedNames = PlayerDB.PlayerInfoList
+                                             .Where(r => r.DisplayedName != null).ToArray();
+                    if (DisplayedNames.Count() > 0)
+                        player.Message("Listing all DisplayedNames: {0}",
+                                        DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
+                    else player.Message("No players with DisplayedNames were found in the Player Database");
+                    break;
+            }
+        }
+
+        static readonly CommandDescriptor CdReqs = new CommandDescriptor
+        {
+            Name = "Requirements",
+            Aliases = new[] { "reqs" },
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
+            Help = "Shows a list of requirements needed to advance to the next rank.",
+            Handler = ReqsHandler
+        };
+
+        internal static void ReqsHandler(Player player, Command cmd)
+        {
+            string sectionName = cmd.Next();
+
+            if (sectionName == null)
+            {
+                FileInfo reqFile = new FileInfo(Paths.ReqFileName);
+                string[] sections = GetReqSectionList();
+                if (sections != null)
+                {
+                    player.Message("Requirement sections: {0}. Type &H/reqs SectionName&S to read information on how to gain that rank.", sections.JoinToString());
+                }
+                return;
+            }
+
+            if (!Directory.Exists(Paths.ReqPath))
+            {
+                player.Message("There are no requirement sections defined.");
+                return;
+            }
+
+            string reqFileName = null;
+            string[] sectionFiles = Directory.GetFiles(Paths.ReqPath,
+                                                        "*.txt",
+                                                        SearchOption.TopDirectoryOnly);
+
+            for (int i = 0; i < sectionFiles.Length; i++)
+            {
+                string sectionFullName = Path.GetFileNameWithoutExtension(sectionFiles[i]);
+                if (sectionFullName == null) continue;
+                if (sectionFullName.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (sectionFullName.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        reqFileName = sectionFiles[i];
+                        break;
+                    }
+                    else if (reqFileName == null)
+                    {
+                        reqFileName = sectionFiles[i];
+                    }
+                    else
+                    {
+                        var matches = sectionFiles.Select(f => Path.GetFileNameWithoutExtension(f))
+                                                  .Where(sn => sn != null && sn.StartsWith(sectionName));
+                        // if there are multiple matches, print a list
+                        player.Message("Multiple requirement sections matched \"{0}\": {1}",
+                                        sectionName, matches.JoinToString());
+                    }
+                }
+            }
+
+            if (reqFileName == null)
+            {
+                var sectionList = GetReqSectionList();
+                if (sectionList == null)
+                {
+                    player.Message("There are no requirement sections defined.");
+                }
+                else
+                {
+                    player.Message("No requirement section defined for \"{0}\". Available sections: {1}",
+                                    sectionName, sectionList.JoinToString());
+                }
+            }
+            else
+            {
+                player.Message("Requirement's for \"{0}\":",
+                                Path.GetFileNameWithoutExtension(reqFileName));
+                PrintReqFile(player, new FileInfo(reqFileName));
+            }
+        }
+
+        [CanBeNull]
+        static string[] GetReqSectionList()
+        {
+            if (Directory.Exists(Paths.ReqPath))
+            {
+                string[] sections = Directory.GetFiles(Paths.ReqPath, "*.txt", SearchOption.TopDirectoryOnly)
+                                             .Select(name => Path.GetFileNameWithoutExtension(name))
+                                             .Where(name => !String.IsNullOrEmpty(name))
+                                             .ToArray();
+                if (sections.Length != 0)
+                {
+                    return sections;
+                }
+            }
+            return null;
+        }
+
+        static void PrintReqFile(Player player, FileSystemInfo reqFile)
+        {
+            try
+            {
+                foreach (string reqLine in File.ReadAllLines(reqFile.FullName))
+                {
+                    if (reqLine.Trim().Length > 0)
+                    {
+                        player.Message("&R{0}", Server.ReplaceTextKeywords(player, reqLine));
+
+                    }
+                } player.Message("Your current time on the server is {0}" + " Hours", player.Info.TotalTime.TotalHours);
+            }
+
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "InfoCommands.PrintReqFile: An error occured while trying to read {0}: {1}",
+                            reqFile.FullName, ex);
+                player.Message("&WError reading the requirement file.");
+            }
+        }
+        #endregion
 
         #region Info
 

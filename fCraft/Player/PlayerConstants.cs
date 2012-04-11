@@ -188,7 +188,10 @@ namespace fCraft {
         WorldRemoved,
 
         /// <summary> Previous world's access permissions changed, and player was forced to main. </summary>
-        PermissionChanged
+        PermissionChanged,
+
+        /// <summary> Player entered a portal. </summary>
+        Portal
     }
 
 

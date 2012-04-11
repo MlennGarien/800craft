@@ -18,6 +18,7 @@ using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
 using ThreadState = System.Threading.ThreadState;
+using fCraft.Portals;
 
 namespace fCraft {
     /// <summary> Core of an fCraft server. Manages startup/shutdown, online player
@@ -433,8 +434,10 @@ namespace fCraft {
 
             // start the main loop - server is now connectible
             Scheduler.Start();
-            IsRunning = true;
+            PortalHandler.GetInstance();
+            PortalDB.Load();
 
+            IsRunning = true;
             RaiseEvent( Started );
             return true;
         }
