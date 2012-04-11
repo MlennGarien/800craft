@@ -68,7 +68,7 @@ namespace fCraft {
                 try {
                     // start the machinery!
                     thread = new Thread( IoThread ) {
-                        Name = "fCraft.IRC",
+                        Name = "800Craft.IRC",
                         IsBackground = true
                     };
                     thread.Start();
@@ -303,7 +303,7 @@ namespace fCraft {
 
                             case IRCReplyCode.ErrorBadChannelKey:
                                 Logger.Log( LogType.IRC,
-                                            "Error: Channel password required for {0}. fCraft does not currently support passworded channels.",
+                                            "Error: Channel password required for {0}. 800Craft does not currently support passworded channels.",
                                             msg.Channel );
                                 die = true;
                                 break;

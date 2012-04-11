@@ -348,7 +348,7 @@ namespace fCraft {
                                     "Please run ConfigGUI to make sure that everything is in order." );
                     } else if( version != CurrentVersion ) {
                         Logger.Log( LogType.Warning,
-                                    "Config.Load: Your config.xml was made for a different version of fCraft. " +
+                                    "Config.Load: Your config.xml was made for a different version of 800Craft / fCraft. " +
                                     "Some obsolete settings might be ignored, and some recently-added settings will be set to defaults. " +
                                     "It is recommended that you run ConfigGUI to make sure that everything is in order." );
                     }

@@ -79,7 +79,7 @@ namespace fCraft {
                 writer = new PacketWriter( stream );
 
                 ioThread = new Thread( IoLoop ) {
-                    Name = "fCraft.Session",
+                    Name = "800Craft.Session",
                     IsBackground = true
                 };
                 ioThread.Start();
@@ -89,7 +89,7 @@ namespace fCraft {
                 Disconnect();
 
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Session failed to start", "fCraft", ex, false );
+                Logger.LogAndReportCrash( "Session failed to start", "800Craft", ex, false );
                 Disconnect();
             }
         }
@@ -249,7 +249,7 @@ namespace fCraft {
 #if !DEBUG
             } catch( Exception ex ) {
                 LeaveReason = LeaveReason.ServerError;
-                Logger.LogAndReportCrash( "Error in Player.IoLoop", "fCraft", ex, false );
+                Logger.LogAndReportCrash( "Error in Player.IoLoop", "800Craft", ex, false );
 #endif
             } finally {
                 canQueue = false;
@@ -288,7 +288,7 @@ namespace fCraft {
             } catch( SocketException ) {
                 throw;
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
+                Logger.LogAndReportCrash( "Error while parsing player's message", "800Craft", ex, false );
                 MessageNow( "&WError while handling your message ({0}: {1})." +
                             "It is recommended that you reconnect to the server.",
                             ex.GetType().Name, ex.Message );
@@ -809,7 +809,7 @@ namespace fCraft {
 
                 Logger.Log( LogType.Warning,
                             "Player.LoginSequence: Player \"{0}\" tried connecting with Minecraft Beta client from {1}. " +
-                            "fCraft does not support Minecraft Beta.", 
+                            "800Craft does not support Minecraft Beta.", 
                             smpPlayerName, IP );
 
                 // send SMP KICK packet

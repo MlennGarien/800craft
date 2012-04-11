@@ -27,16 +27,16 @@ namespace fCraft {
  );
 
         public static string UserAgent {
-            get { return "fCraft " + CurrentRelease.VersionString; }
+            get { return "800Craft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.616_r1497";
+        public const string LatestStable = "0.103";
 
         public static string UpdateUrl { get; set; }
 
         static Updater() {
             UpdateCheckTimeout = 4000;
-            UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
+            UpdateUrl = "http://800craft.net/UpdateCheck.php?r={0}";
         }
 
 
@@ -49,12 +49,12 @@ namespace fCraft {
             string url = String.Format( UpdateUrl, CurrentRelease.Revision );
             if( RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
-            Logger.Log( LogType.SystemActivity, "Checking for fCraft updates..." );
+            Logger.Log( LogType.SystemActivity, "Checking for 800Craft updates..." );
             try {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create( url );
 
                 request.Method = "GET";
-                request.UserAgent = "fCraft";
+                request.UserAgent = "800Craft";
                 request.Timeout = UpdateCheckTimeout;
                 request.ReadWriteTimeout = UpdateCheckTimeout;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );

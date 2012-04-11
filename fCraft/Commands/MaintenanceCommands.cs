@@ -1246,7 +1246,7 @@ namespace fCraft {
                     }
                     break;
                 default:
-                    player.Message( "fCraft does not support importing from {0}", serverName );
+                    player.Message( "800Craft does not support importing from {0}", serverName );
                     return;
             }
 
@@ -1322,7 +1322,7 @@ namespace fCraft {
                     }
                     break;
                 default:
-                    player.Message( "fCraft does not support importing from {0}", serverName );
+                    player.Message( "800Craft does not support importing from {0}", serverName );
                     return;
             }
 

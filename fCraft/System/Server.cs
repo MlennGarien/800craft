@@ -112,7 +112,7 @@ namespace fCraft {
         public static void InitLibrary( [NotNull] IEnumerable<string> rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
             if( libraryInitialized ) {
-                throw new InvalidOperationException( "fCraft library is already initialized" );
+                throw new InvalidOperationException( "800Craft library is already initialized" );
             }
 
             ServicePointManager.Expect100Continue = false;
@@ -235,9 +235,9 @@ namespace fCraft {
             // warnings/disclaimers
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Dev ) ) {
                 Logger.Log( LogType.Warning,
-                            "You are using an unreleased developer version of fCraft. " +
+                            "You are using an unreleased developer version of 800Craft. " +
                             "Do not use this version unless you are ready to deal with bugs and potential data loss. " +
-                            "Consider using the lastest stable version instead, available from www.fcraft.net" );
+                            "Consider using the lastest stable version instead, available from http://github.com/glennmr/800craft" );
             }
 
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
@@ -268,7 +268,7 @@ namespace fCraft {
 
             // try to load the config
             if( !Config.Load( false, false ) ) {
-                throw new Exception( "fCraft Config failed to initialize" );
+                throw new Exception( "800Craft Config failed to initialize" );
             }
 
             if( ConfigKey.VerifyNames.GetEnum<NameVerificationMode>() == NameVerificationMode.Never ) {
@@ -505,7 +505,7 @@ namespace fCraft {
                 RaiseShutdownEndedEvent( shutdownParams );
 #if !DEBUG
             } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Error in Server.Shutdown", "fCraft", ex, true );
+                Logger.LogAndReportCrash( "Error in Server.Shutdown", "800Craft", ex, true );
             }
 #endif
         }
@@ -519,7 +519,7 @@ namespace fCraft {
             lock( ShutdownLock ) {
                 if( !CancelShutdown() ) return;
                 shutdownThread = new Thread( ShutdownThread ) {
-                    Name = "fCraft.Shutdown"
+                    Name = "800Craft.Shutdown"
                 };
                 if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
                     string timerMsg = String.Format( "Server {0} ({1})",
@@ -822,7 +822,7 @@ namespace fCraft {
             string backupFileName = String.Format( Paths.DataBackupFileNameFormat, DateTime.Now ); // localized
             backupFileName = Path.Combine( Paths.DataBackupDirectory, backupFileName );
             using( FileStream fs = File.Create( backupFileName ) ) {
-                string fileComment = String.Format( "Backup of fCraft data for server \"{0}\", saved on {1}",
+                string fileComment = String.Format( "Backup of 800Craft data for server \"{0}\", saved on {1}",
                                                     ConfigKey.ServerName.GetString(),
                                                     DateTime.Now );
                 using( ZipStorer backupZip = ZipStorer.Create( fs, fileComment ) ) {
@@ -1221,7 +1221,7 @@ namespace fCraft {
         /// <summary> Delay before shutting down. </summary>
         public TimeSpan Delay { get; private set; }
 
-        /// <summary> Whether fCraft should try to forcefully kill the current process. </summary>
+        /// <summary> Whether 800Craft should try to forcefully kill the current process. </summary>
         public bool KillProcess { get; private set; }
 
         /// <summary> Whether the server is expected to restart itself after shutting down. </summary>

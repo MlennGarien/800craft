@@ -71,7 +71,7 @@ namespace fCraft {
 #if !DEBUG
                             } catch( Exception ex ) {
                                 Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
-                                                          "fCraft", ex, false );
+                                                          "800Craft", ex, false );
                             }
 #endif
                         }
@@ -98,7 +98,7 @@ namespace fCraft {
                         }
                     }
                 } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
+                    Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "800Craft", ex, true );
                     return false;
                 }
 

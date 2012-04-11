@@ -7,7 +7,7 @@ namespace fCraft {
     public enum ConfigKey {
         #region General
 
-        [StringKey( ConfigSection.General, "Custom Minecraft Server (fCraft)",
+        [StringKey( ConfigSection.General, "Custom Minecraft Server (800Craft)",
 @"The name of the server, as shown on the welcome screen and the
 official server list (if server is public).",
             MinLength = 1, MaxLength = 64 )]
@@ -54,7 +54,7 @@ changes if your computer's IP or server's port change." )]
 
 
         [IntKey( ConfigSection.General, 25565,
-@"Port number on your local machine that fCraft uses to listen for
+@"Port number on your local machine that 800Craft uses to listen for
 incoming connections. If you are behind a router, you may need
 to set up port forwarding. You may also need to add a firewall
 exception for ServerGUI/ServerCLI/ConfigGUI. Note that your
@@ -288,7 +288,7 @@ Set to 0 to disable periodic backups.",
         DefaultBackupInterval,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
-@"Maximum number of backup files that fCraft should keep.
+@"Maximum number of backup files that 800Craft should keep.
 If exceeded, oldest backups will be deleted first.",
             MinValue = 0 )]
         MaxBackups,
@@ -324,13 +324,13 @@ If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs.",
         #region IRC
 
         [BoolKey( ConfigSection.IRC, false,
-@"fCraft includes an IRC (Internet Relay Chat) client for
+@"800Craft includes an IRC (Internet Relay Chat) client for
 relaying messages to and from any IRC network.
 Note that encrypted IRC (via SSL) is not supported." )]
         IRCBotEnabled,
 
         [StringKey( ConfigSection.IRC, "MinecraftBot",
-@"IRC bot's nickname. If the nickname is taken, fCraft will append
+@"IRC bot's nickname. If the nickname is taken, 800Craft will append
 an underscore (_) to the name and retry.",
             MinLength = 1, MaxLength = 32 )]
         IRCBotNick,
@@ -416,14 +416,14 @@ with IRC bots falling behind on messages.",
 
         [BoolKey( ConfigSection.Advanced, true,
 @"Crash reports are created when serious unexpected errors occur.
-Being able to receive crash reports helps identify bugs and improve fCraft!
+Being able to receive crash reports helps identify bugs and improve 800Craft!
 The report consists of the error information, OS and runtime versions,
 a copy of config.xml, and last 25 lines of the log file.
 Reports are confidential and are not displayed publicly." )]
         SubmitCrashReports,
 
         [EnumKey( ConfigSection.Advanced, fCraft.UpdaterMode.Prompt,
-@"fCraft can automatically update to latest stable versions.
+@"800Craft can automatically update to latest stable versions.
 If enabled, the update check is done on-startup." )]
         UpdaterMode,
 
@@ -452,8 +452,8 @@ You may use this option to disable the relative updates." )]
         NoPartialPositionUpdates,
 
         [EnumKey( ConfigSection.Advanced, ProcessPriorityClass.Normal,
-@"It is recommended to leave fCraft at default priority.
-Setting this below ""Normal"" may starve fCraft of resources.
+@"It is recommended to leave 800Craft at default priority.
+Setting this below ""Normal"" may starve 800Craft of resources.
 Setting this above ""Normal"" may slow down other software on your machine." )]
         ProcessPriority,
 
@@ -466,7 +466,7 @@ drawing commands (like cuboid).",
         BlockUpdateThrottling,
 
         [IntKey( ConfigSection.Advanced, 100,
-@"The rate at which fCraft applies block updates, in milliseconds. Lowering this will slightly
+@"The rate at which 800Craft applies block updates, in milliseconds. Lowering this will slightly
 reduce bandwidth and CPU use, but will add latency to block placement.",
             MinValue = 10, MaxValue = 10000 )]
         TickInterval,
@@ -518,7 +518,7 @@ If disabled, heartbeat data is written to heartbeatdata.txt." )]
         [IPKey( ConfigSection.Advanced, IPKeyAttribute.BlankValueMeaning.Any,
 @"If the machine has more than one available IP address (for example
 if you have more than one NIC) you can use this setting to make
-fCraft bind to the same IP every time." )]
+800Craft bind to the same IP every time." )]
         IP,
 
         [EnumKey( ConfigSection.Advanced, fCraft.BandwidthUseMode.Normal,
