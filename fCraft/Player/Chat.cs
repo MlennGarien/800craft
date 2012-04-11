@@ -59,7 +59,7 @@ namespace fCraft {
             return true;
         }
 
-        public static bool SendCustom(Player player, string rawMessage)
+       /* public static bool SendCustom(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
@@ -81,7 +81,7 @@ namespace fCraft {
 
             Logger.Log(LogType.GlobalChat, "({2}){0}: {1}", player.Name, rawMessage, ConfigKey.CustomChatChannel.GetString());
             return true;
-        }
+        }*/
 
 
         /// <summary> Sends an action message (/Me). </summary>

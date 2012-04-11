@@ -432,7 +432,7 @@ namespace fCraft {
             Handler = RankHandler
         };
 
-        static void RankHandler( Player player, Command cmd ) {
+        public static void RankHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             string newRankName = cmd.Next();
 

@@ -89,8 +89,383 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdStatic );
 
             //CommandManager.RegisterCommand( CdTree );
+
+            // CommandManager.RegisterCommand(CdDrawScheme);
+            CommandManager.RegisterCommand(CdWalls);
+            CommandManager.RegisterCommand(CdBanx);
+            CommandManager.RegisterCommand(CdFly);
+            CommandManager.RegisterCommand(CdPlace);
+            CommandManager.RegisterCommand(CdTower);
+            CommandManager.RegisterCommand(CdFirework);
+            CommandManager.RegisterCommand(CdCylinder);
+        }
+        #region 800Craft
+        static readonly CommandDescriptor CdCylinder = new CommandDescriptor
+        {
+            Name = "Cylinder",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Build },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Help = "Fills the selected rectangular area with a cylinder of blocks. " +
+                   "Unless two blocks are specified, leaves the inside hollow.",
+            UsableByFrozenPlayers = false,
+            Handler = CylinderHandler
+        };
+
+        static void CylinderHandler(Player player, Command cmd)
+        {
+            DrawOperationBegin(player, cmd, new CylinderDrawOperation(player));
+        }
+        static readonly CommandDescriptor CdPlace = new CommandDescriptor
+        {
+            Name = "Place",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Build },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Place",
+            Help = "Places a block at your position.",
+            UsableByFrozenPlayers = false,
+            Handler = Place
+        };
+
+        static void Place(Player player, Command cmd)
+        {
+            if (player.LastUsedBlockType != Block.Undefined)
+            {
+                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, player.Position.Z / 32);
+
+                if (player.CanPlace(player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual) != CanPlaceResult.Allowed)
+                {
+                    player.Message("&WYou are not allowed to build here");
+                    return;
+                }
+
+                Player.RaisePlayerPlacedBlockEvent(player, player.WorldMap, Pos, player.WorldMap.GetBlock(Pos), player.LastUsedBlockType, BlockChangeContext.Manual);
+                BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
+                player.World.Map.QueueUpdate(blockUpdate);
+                player.Message("Block placed");
+            }
+            else player.Message("&WError: No last used blocktype was found");
         }
 
+        static readonly CommandDescriptor CdFirework = new CommandDescriptor
+        {
+            Name = "Firework",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Fireworks },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Firework",
+            Help = "Toggles Firework Mode on/off for yourself. " +
+            "All Gold blocks will be replaced with fireworks if " +
+            "firework physics are enabled for the current world.",
+            UsableByFrozenPlayers = false,
+            Handler = FireworkHandler
+        };
+
+        static void FireworkHandler(Player player, Command cmd)
+        {
+            if (player.fireworkMode)
+            {
+                player.fireworkMode = false;
+                player.Message("Firework Mode has been turned off.");
+                return;
+            }
+            else
+            {
+                player.fireworkMode = true;
+                player.Message("Firework Mode has been turned on. " +
+                    "All Gold blocks are now being replaced with Fireworks.");
+            }
+        }
+
+        static readonly CommandDescriptor CdTower = new CommandDescriptor
+        {
+            Name = "Tower",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Tower },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Tower [/Tower Remove]",
+            Help = "Toggles tower mode on for yourself. All Iron blocks will be replaced with towers.",
+            UsableByFrozenPlayers = false,
+            Handler = towerHandler
+        };
+
+        static void towerHandler(Player player, Command cmd)
+        {
+            string Param = cmd.Next();
+            if (Param == null)
+            {
+                if (player.towerMode)
+                {
+                    player.towerMode = false;
+                    player.Message("TowerMode has been turned off.");
+                    return;
+                }
+                else
+                {
+                    player.towerMode = true;
+                    player.Message("TowerMode has been turned on. " +
+                        "All Iron blocks are now being replaced with Towers.");
+                }
+            }
+            else if (Param.ToLower() == "remove")
+            {
+                if (player.TowerCache != null)
+                {
+                    World world = player.World;
+                    if (world.Map != null)
+                    {
+                        player.World.Map.QueueUpdate(new BlockUpdate(null, player.towerOrigin, Block.Air));
+                        foreach (Vector3I block in player.TowerCache.Values)
+                        {
+                            if (world.Map != null)
+                            {
+                                player.Send(PacketWriter.MakeSetBlock(block, player.WorldMap.GetBlock(block)));
+                            }
+                        }
+                    }
+                    player.TowerCache.Clear();
+                    return;
+                }
+                else
+                {
+                    player.Message("&WThere is no Tower to remove");
+                }
+            }
+
+            else CdTower.PrintUsage(player);
+        }
+        static readonly CommandDescriptor CdFly = new CommandDescriptor
+        {
+            Name = "Fly",
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/fly",
+            Help = "Allows a player to fly.",
+            UsableByFrozenPlayers = false,
+            Handler = Fly
+        };
+
+        static void Fly(Player player, Command cmd)
+        {
+            if (player.IsFlying)
+            {
+                fCraft.Utils.FlyHandler.GetInstance().StopFlying(player);
+                player.Message("You are no longer flying.");
+                return;
+            }
+            else
+            {
+                if (player.IsUsingWoM)
+                {
+                    player.Message("You cannot use /fly when using WOM");
+                    return;
+                }
+                fCraft.Utils.FlyHandler.GetInstance().StartFlying(player);
+                player.Message("You are now flying, jump!");
+            }
+        }
+
+        #region banx
+        static readonly CommandDescriptor CdBanx = new CommandDescriptor
+        {
+            Name = "Banx",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = false,
+            IsHidden = false,
+            Permissions = new[] { Permission.Ban },
+            Usage = "/Banx playerName reason",
+            Help = "Bans and undoes a players actions up to 50000 blocks",
+            Handler = BanXHandler
+        };
+
+        static void BanXHandler(Player player, Command cmd)
+        {
+            string ban = cmd.Next();
+
+            if (ban == null)
+            {
+                player.Message("&WError: Enter a player name to BanX");
+                return;
+            }
+
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
+            if (target == null) return;
+            if (!Player.IsValidName(ban))
+            {
+                CdBanx.PrintUsage(player);
+                return;
+            }
+
+            else
+            {
+                UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
+
+                string reason = cmd.NextAll();
+
+                if (reason.Length < 1)
+                    reason = "Reason Undefined: BanX";
+
+                try
+                {
+                    target.Ban(player, reason, true, true);
+                    if (player.Can(Permission.Demote, target.Rank))
+                    {
+                        ModerationCommands.RankHandler(player, new Command("/rank " + target.Name + " " + RankManager.LowestRank.Name + " " + "BanX: " + reason));
+                        return;
+                    }
+                    else
+                    {
+                        player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
+                    }
+                }
+                catch (PlayerOpException ex)
+                {
+                    player.Message(ex.MessageColored);
+                    if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
+                    {
+
+                    }
+                }
+                player.Message("&SConfirm the undo with &A/ok");
+            }
+        }
+
+        static void UndoPlayerHandler2(Player player, Command cmd)
+        {
+            if (player.World == null) PlayerOpException.ThrowNoWorld(player);
+
+            if (!BlockDB.IsEnabledGlobally)
+            {
+                player.Message("&WBlockDB is disabled on this server.\nThe undo of the player's blocks failed.");
+                return;
+            }
+
+            World world = player.World;
+            if (!world.BlockDB.IsEnabled)
+            {
+                player.Message("&WBlockDB is disabled in this world.\nThe undo of the player's blocks failed.");
+                return;
+            }
+
+            string name = cmd.Next();
+            string range = cmd.Next();
+            if (name == null || range == null)
+            {
+                CdUndoPlayer.PrintUsage(player);
+                return;
+            }
+
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, name);
+            if (target == null) return;
+
+            if (player.Info != target && !player.Can(Permission.UndoOthersActions, target.Rank))
+            {
+                player.Message("You may only undo actions of players ranked {0}&S or lower.",
+                                player.Info.Rank.GetLimit(Permission.UndoOthersActions).ClassyName);
+                player.Message("Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName);
+                return;
+            }
+
+            int count;
+            TimeSpan span;
+            BlockDBEntry[] changes;
+            if (Int32.TryParse(range, out count))
+            {
+                player.Message("Searching for last {0} changes made by {1}&s...",
+                                count, target.ClassyName);
+
+                changes = world.BlockDB.Lookup(target, count);
+                if (changes.Length > 0)
+                {
+                    player.Confirm(cmd, "Undo last {0} changes made by player {1}&S?",
+                                    changes.Length, target.ClassyName);
+                    return;
+                }
+
+            }
+            else if (range.TryParseMiniTimespan(out span))
+            {
+
+                player.Message("Searching for changes made by {0}&s in the last {1}...",
+                                target.ClassyName, span.ToMiniString());
+
+                changes = world.BlockDB.Lookup(target, span);
+                if (changes.Length > 0)
+                {
+                    player.Confirm(cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
+                                    changes.Length, target.ClassyName, span.ToMiniString());
+                    return;
+                }
+            }
+            else
+            {
+                CdBanx.PrintUsage(player);
+                return;
+            }
+
+            if (changes.Length == 0)
+            {
+                player.Message("BanX: Found nothing to undo.");
+                return;
+            }
+
+            BlockChangeContext context = BlockChangeContext.Drawn;
+            if (player.Info == target)
+            {
+                context |= BlockChangeContext.UndoneSelf;
+            }
+            else
+            {
+                context |= BlockChangeContext.UndoneOther;
+            }
+
+            int blocks = 0,
+                blocksDenied = 0;
+
+            UndoState undoState = player.DrawBegin(null);
+            Map map = player.World.Map;
+
+            for (int i = 0; i < changes.Length; i++)
+            {
+                DrawOneBlock(player, map, changes[i].OldBlock,
+                              changes[i].Coord, context,
+                              ref blocks, ref blocksDenied, undoState);
+            }
+
+            Logger.Log(LogType.UserActivity,
+                        "{0} undid {1} blocks changed by player {2} (on world {3})",
+                        player.Name,
+                        blocks,
+                        target.Name,
+                        player.World.Name);
+
+            DrawingFinished(player, "UndoPlayer'ed", blocks, blocksDenied);
+        }
+        #endregion
+
+
+        static readonly CommandDescriptor CdWalls = new CommandDescriptor
+        {
+            Name = "Walls",
+            IsConsoleSafe = false,
+            Category = CommandCategory.Building,
+            IsHidden = false,
+            Permissions = new[] { Permission.Draw },
+            Help = "Fills a rectangular area of walls",
+            Handler = WallsHandler
+        };
+
+        static void WallsHandler(Player player, Command cmd)
+        {
+            DrawOperationBegin(player, cmd, new WallsDrawOperation(player));
+        }
+        #endregion
 
         #region DrawOperations & Brushes
 
@@ -278,7 +653,7 @@ namespace fCraft {
 
 
 
-        static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
+        public static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
             // try to create instance of player's currently selected brush
             // all command parameters are passed to the brush
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );

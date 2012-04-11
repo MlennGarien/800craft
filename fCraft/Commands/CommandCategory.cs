@@ -31,6 +31,8 @@ namespace fCraft {
         Zone = 64,
 
         /// <summary> Commands that are only used for diagnostics and debugging. </summary>
-        Debug = 128
+        Debug = 128,
+        /// <summary> Commands that are just fun. </summary>
+        Fun = 256
     }
 }

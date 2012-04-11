@@ -25,7 +25,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(cdReview);
             CommandManager.RegisterCommand(CdAdminChat);
-            CommandManager.RegisterCommand(CdCustomChat);
+            //CommandManager.RegisterCommand(CdCustomChat);
             CommandManager.RegisterCommand(cdAway);
             CommandManager.RegisterCommand(cdHigh5);
             CommandManager.RegisterCommand(CdPoke);
@@ -167,7 +167,7 @@ namespace fCraft {
             fCraft.VoteHandler.VoteParams(player, cmd);
         }
 
-        static readonly CommandDescriptor CdCustomChat = new CommandDescriptor
+        /*static readonly CommandDescriptor CdCustomChat = new CommandDescriptor
         {
             Name = ConfigKey.CustomChatChannel.GetString(),
             Category = CommandCategory.Chat,
@@ -198,7 +198,7 @@ namespace fCraft {
                 }
                 Chat.SendCustom(player, message);
             }
-        }
+        }*/
 
         #region Troll
 
