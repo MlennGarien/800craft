@@ -30,6 +30,8 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdInfoSwap );
 
+            CommandManager.RegisterCommand(CdFixRealms);
+
 #if DEBUG
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "BUM",
@@ -69,7 +71,36 @@ namespace fCraft {
             } );
 #endif
         }
+        #region 800Craft
+        static readonly CommandDescriptor CdFixRealms = new CommandDescriptor
+        {
+            Name = "Fixrealms",
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = false,
+            IsHidden = true,
+            Permissions = new[] { Permission.ManageWorlds },
+            Handler = FixRealms
+        };
 
+        static void FixRealms(Player player, Command cmd)
+        {
+            var Players = PlayerDB.PlayerInfoList;
+            int Count = 0;
+            foreach (World w in WorldManager.Worlds)
+            {
+                foreach (PlayerInfo p in Players)
+                {
+                    if (p.Name == w.Name)
+                    {
+                        w.IsHidden = false;
+                        w.IsRealm = true;
+                        Count++;
+                    }
+                }
+            }
+            player.Message("Converted {0} worlds to Realms", Count.ToString());
+        }
+        #endregion
 
         #region DumpStats
 

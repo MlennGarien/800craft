@@ -35,6 +35,11 @@ namespace fCraft {
                            MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
         internal static float TicksPerSecond;
 
+        public static bool IsRestarting = false;
+        public static bool HSaverOn = false;
+
+        public static List<Player> TempBans = new List<Player>();
+
 
         // networking
         static TcpListener listener;
@@ -496,6 +501,18 @@ namespace fCraft {
                         foreach( World world in WorldManager.Worlds ) {
                             if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
                             world.SaveMap();
+                        }
+                    }
+                }
+
+                if (Server.TempBans.Count() > 0)
+                {
+                    foreach (Player p in Server.TempBans)
+                    {
+                        if (p.Info.IsBanned)
+                        {
+                            p.Info.Unban(Player.Console, "Shutdown: Tempban cancelled", false, true);
+                            Logger.Log(LogType.SystemActivity, "Unbanning {0}: Was tempbanned", p.Name);
                         }
                     }
                 }

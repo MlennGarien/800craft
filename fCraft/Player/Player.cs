@@ -189,7 +189,89 @@ namespace fCraft {
             State = SessionState.Offline;
             IsSuper = true;
         }
+        public void BassKick([NotNull] Player player, [NotNull] string reason, LeaveReason context,
+                        bool announce, bool raiseEvents, bool recordToPlayerDB)
+        {
+            if (player == null) throw new ArgumentNullException("player");
+            if (reason == null) throw new ArgumentNullException("reason");
+            if (!Enum.IsDefined(typeof(LeaveReason), context))
+            {
+                throw new ArgumentOutOfRangeException("context");
+            }
 
+
+            // Check if player can ban/unban in general
+            if (!player.Can(Permission.Kick))
+            {
+                PlayerOpException.ThrowPermissionMissing(player, Info, "kick", Permission.Kick);
+            }
+
+            // Check if player is trying to ban/unban self
+            if (player == this)
+            {
+                PlayerOpException.ThrowCannotTargetSelf(player, Info, "kick");
+            }
+
+            // Check if player has sufficiently high permission limit
+            if (!player.Can(Permission.Kick, Info.Rank))
+            {
+                PlayerOpException.ThrowPermissionLimit(player, Info, "kick", Permission.Kick);
+            }
+
+            // check if kick reason is missing but required
+            PlayerOpException.CheckKickReason(reason, player, Info);
+
+            // raise Player.BeingKicked event
+            if (raiseEvents)
+            {
+                var e = new PlayerBeingKickedEventArgs(this, player, reason, announce, recordToPlayerDB, context);
+                RaisePlayerBeingKickedEvent(e);
+                if (e.Cancel) PlayerOpException.ThrowCancelled(player, Info);
+                recordToPlayerDB = e.RecordToPlayerDB;
+            }
+
+            // actually kick
+            string kickReason;
+            if (reason.Length > 0)
+            {
+                kickReason = String.Format("Got blasted out of the server with the BASSCANNON executed by {0}: {1}", player.Name, reason);
+            }
+            else
+            {
+                kickReason = String.Format("Got blasted out of the server with the BASSCANNON executed by {0}", player.Name);
+            }
+            Kick(kickReason, context);
+
+            // log and record kick to PlayerDB
+            Logger.Log(LogType.UserActivity, "{0} was kicked by {1}. Reason: {2} (Basscannon)",
+                        Name, player.Name, reason);
+            if (recordToPlayerDB)
+            {
+                Info.ProcessKick(player, reason);
+            }
+
+            // announce kick
+            if (announce)
+            {
+                if (reason.Length > 0 && ConfigKey.AnnounceKickAndBanReasons.Enabled())
+                {
+                    Server.Message("{0}&W Got blasted out of the server with the BASSCANNON executed by {1}&W: {2}",
+                                    ClassyName, player.ClassyName, reason);
+                }
+                else
+                {
+                    Server.Message("{0}&W Got blasted out of the server with the BASSCANNON executed by {1}",
+                                    ClassyName, player.ClassyName);
+                }
+            }
+
+            // raise Player.Kicked event
+            if (raiseEvents)
+            {
+                var e = new PlayerKickedEventArgs(this, player, reason, announce, recordToPlayerDB, context);
+                RaisePlayerKickedEvent(e);
+            }
+        }
 
         #region Chat and Messaging
 

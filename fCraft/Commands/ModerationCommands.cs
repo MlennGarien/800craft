@@ -55,8 +55,498 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdSpectate );
             CommandManager.RegisterCommand( CdUnspectate );
+
+            CommandManager.RegisterCommand(CdSlap);
+            CommandManager.RegisterCommand(CdTPZone);
+            CommandManager.RegisterCommand(CdBasscannon);
+            CommandManager.RegisterCommand(CdKill);
+            CommandManager.RegisterCommand(CdTempBan);
+            //CommandManager.RegisterCommand(CdPossess);
+            //CommandManager.RegisterCommand(CdUnPossess);
+            CommandManager.RegisterCommand(CdWarn);
+            CommandManager.RegisterCommand(CdUnWarn);
+            CommandManager.RegisterCommand(CdDisconnect);
+        }
+        #region 800Craft
+        public static List<string> BassText = new List<string>();
+        
+        static readonly CommandDescriptor CdKill = new CommandDescriptor
+        {
+            Name = "Kill",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = false,
+            Permissions = new[] { Permission.Kill },
+            Help = "Kills a player.",
+            NotRepeatable = true,
+            Usage = "/Kill playername",
+            Handler = KillHandler
+        };
+
+        internal static void KillHandler(Player player, Command cmd)
+        {
+            string name = cmd.Next();
+            if (name == null)
+            {
+                player.Message("Please enter a name");
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+            if (target == null) return;
+
+            if (target == player)
+            {
+                player.Message("You suicidal bro?");
+                return;
+            }
+
+            if ((DateTime.Now - player.Info.LastUsedKill).TotalSeconds < 10)
+            {
+                player.Message("&CYou can only kill once every 10 seconds. Slow down.");
+                return;
+            }
+
+            if (target == null)
+            {
+                player.Message("You need to enter a player name to Kill");
+                return;
+            }
+            else
+            {
+
+                if (player.Can(Permission.Kill, target.Info.Rank))
+                {
+                    target.TeleportTo(player.World.Map.Spawn);
+                    Server.Players.CanSee(target).Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
+                    player.Info.LastUsedKill = DateTime.Now;
+                    return;
+                }
+                else
+                {
+                    player.Message("You can only Kill players ranked {0}&S or lower",
+                                    player.Info.Rank.GetLimit(Permission.Kill).ClassyName);
+                    player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+                }
+            }
         }
 
+        static readonly CommandDescriptor CdSlap = new CommandDescriptor
+        {
+            Name = "Slap",
+            IsConsoleSafe = true,
+            NotRepeatable = true,
+            Aliases = new[] { "sky" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.Slap },
+            Help = "Slaps a player to the sky.",
+            Handler = Slap
+        };
+
+        static void Slap(Player player, Command cmd)
+        {
+            string name = cmd.Next();
+
+            if (name == null)
+            {
+                player.Message("Please enter a name");
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+
+            if (target == null) return;
+
+            if (target == player)
+            {
+                player.Message("&sYou can't slap yourself.... What's wrong with you???");
+                return;
+            }
+
+            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 10)
+            {
+                player.Message("&CYou can only use /Slap once every 10 seconds. Slow down.");
+                return;
+            }
+
+            if (player.Can(Permission.Slap, target.Info.Rank))
+            {
+                Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
+                Server.Players.CanSee(target).Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
+                target.TeleportTo(slap);
+                player.Info.LastUsedSlap = DateTime.Now;
+                return;
+            }
+
+            else
+            {
+                player.Message("&sYou can only Slap players ranked {0}&S or lower",
+                               player.Info.Rank.GetLimit(Permission.Slap).ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+            }
+        }
+
+        static readonly CommandDescriptor CdTPZone = new CommandDescriptor
+        {
+            Name = "Tpzone",
+            IsConsoleSafe = false,
+            Aliases = new[] { "tpz", "zonetp" },
+            Category = CommandCategory.World | CommandCategory.Zone,
+            Permissions = new[] { Permission.Teleport },
+            Help = "Teleports you to the centre of a Zone listed in /Zones.",
+            Usage = "/tpzone ZoneName",
+            Handler = TPZone
+        };
+
+        static void TPZone(Player player, Command cmd)
+        {
+            string zoneName = cmd.Next();
+            if (zoneName == null)
+            {
+                player.Message("No zone name specified. See &W/Help tpzone");
+                return;
+            }
+
+            else
+            {
+                Zone zone = player.World.Map.Zones.Find(zoneName);
+                if (zone == null)
+                {
+                    player.MessageNoZone(zoneName);
+                    return;
+                }
+                Position zPos = new Position((((zone.Bounds.XMin + zone.Bounds.XMax) / 2) * 32),
+                    (((zone.Bounds.YMin + zone.Bounds.YMax) / 2) * 32),
+                    (((zone.Bounds.ZMin + zone.Bounds.ZMax) / 2) + 2) * 32);
+                player.TeleportTo((zPos));
+                player.Message("&WTeleporting you to zone " + zone.ClassyName);
+            }
+        }
+
+
+        static readonly CommandDescriptor CdTempBan = new CommandDescriptor
+        {
+            Name = "Tempban",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Aliases = new[] { "tban" },
+            Permissions = new[] { Permission.TempBan },
+            Help = "Bans a player for a selected amount of time. Example: 10s | 10 m | 10h ",
+            Usage = "/Tempban Player Seconds",
+            Handler = Tempban
+        };
+
+        static void Tempban(Player player, Command cmd)
+        {
+            string targetName = cmd.Next();
+            string timeString = cmd.Next();
+            TimeSpan duration;
+
+            try
+            {
+                // validate command parameters
+                if (targetName == null || !Player.IsValidName(targetName) ||
+                    timeString == null || !timeString.TryParseMiniTimespan(out duration) ||
+                    duration <= TimeSpan.Zero)
+                {
+                    player.Message("Invalid input");
+                    return;
+                }
+            }
+            catch (OverflowException)
+            {
+                player.Message("TempBan: Given duration is too long.");
+                return;
+            }
+
+            // find the target
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
+
+            if (target == null)
+            {
+                player.MessageNoPlayer(targetName);
+                return;
+            };
+
+            if (target == player)
+            {
+                player.Message("Trying to T-Ban yourself? Fail!");
+                return;
+            }
+
+            // check permissions
+            if (!player.Can(Permission.BanIP, target.Info.Rank))
+            {
+                player.Message("You can only Temp-Ban players ranked {0}&S or lower.",
+                                player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+                return;
+            }
+
+            // do the banning
+            if (target.Info.Tempban(player.Name, duration))
+            {
+                PlayerInfo targets = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetName);
+                if (targets == null) return;
+                string reason = cmd.NextAll();
+                try
+                {
+                    Player targetPlayer = targets.PlayerObject;
+                    targets.Ban(player, "You were Banned for " + timeString, false, true);
+                    Server.TempBans.Add(targetPlayer);
+                }
+                catch (PlayerOpException ex)
+                {
+                    player.Message(ex.MessageColored);
+                }
+                Scheduler.NewTask(t => target.Info.Unban(player, "Tempban Expired", true, true)).RunOnce(duration);
+                Server.Message(target,
+                                "&SPlayer {0}&S was Banned by {1}&S for {2}",
+                                target.ClassyName, player.ClassyName, duration.ToMiniString());
+                if (reason.Length > 0) Server.Message("&Wreason: {0}", reason);
+                Logger.Log(LogType.UserActivity, "Player {0} was Banned by {1} for {2}",
+                            target.Name, player.Name, duration.ToMiniString());
+            }
+
+            else
+            {
+                player.Message("Player {0}&S is already Banned by {1}&S for {2:0} more.",
+                                target.ClassyName,
+                                target.Info.MutedBy,
+                                target.Info.MutedUntil.Subtract(DateTime.UtcNow).ToMiniString());
+            }
+        }
+
+        static readonly CommandDescriptor CdBasscannon = new CommandDescriptor
+        {
+            Name = "Basscannon",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Aliases = new[] { "bc" },
+            IsHidden = false,
+            Permissions = new[] { Permission.Basscannon },
+            Usage = "Let the Basscannon 'Kick' it!",
+            Help = "A classy way to kick players from the server",
+            Handler = Basscannon
+        };
+
+        internal static void Basscannon(Player player, Command cmd)
+        {
+            string name = cmd.Next();
+            string reason = cmd.NextAll();
+
+            if (name == null)
+            {
+                player.Message("Please enter a player name to use the basscannon on.");
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+
+            if (target == null)
+            {
+                return;
+            }
+
+            if (ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty(reason))
+            {
+                player.Message("&WPlease specify a reason: &W/Basscannon PlayerName Reason");
+                // freeze the target player to prevent further damage
+                return;
+            }
+
+            if (player.Can(Permission.Kick, target.Info.Rank))
+            {
+                target.Info.IsHidden = false;
+
+                try
+                {
+                    Player targetPlayer = target;
+                    target.BassKick(player, reason, LeaveReason.Kick, true, true, true);
+                    if (BassText.Count < 1)
+                    {
+                        BassText.Add("Flux Pavillion does not approve of your behavior");
+                        BassText.Add("Let the Basscannon KICK IT!");
+                        BassText.Add("WUB WUB WUB WUB WUB WUB!");
+                        BassText.Add("Basscannon, Basscannon, Basscannon, Basscannon!");
+                        BassText.Add("Pow pow POW!!!");
+                    }
+                    string line = BassText[new Random().Next(0, BassText.Count)].Trim();
+                    if (line.Length == 0) return;
+                    Server.Message("&9{0}", line);
+                }
+                catch (PlayerOpException ex)
+                {
+                    player.Message(ex.MessageColored);
+                    if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
+                        return;
+                }
+            }
+            else
+            {
+                player.Message("You can only use /Basscannon on players ranked {0}&S or lower",
+                                player.Info.Rank.GetLimit(Permission.Kick).ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+            }
+        }
+
+        static readonly CommandDescriptor CdWarn = new CommandDescriptor
+        {
+            Name = "Warn",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            NotRepeatable = true,
+            Permissions = new[] { Permission.Warn },
+            Help = "Warns a player and puts a black star next to their name for 20 minutes. During the 20 minutes, if they are warned again, they will get kicked.",
+            Usage = "/Warn playername",
+            Handler = Warn
+        };
+
+        internal static void Warn(Player player, Command cmd)
+        {
+            string name = cmd.Next();
+
+            if (name == null)
+            {
+                player.Message("No player specified.");
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+
+            if (target == null)
+            {
+                player.MessageNoPlayer(name);
+                return;
+            }
+
+            if (player.Can(Permission.Warn, target.Info.Rank))
+            {
+                target.Info.IsHidden = false;
+                if (target.Info.Warn(player.Name))
+                {
+                    Server.Message("{0}&S has been Warned by {1}",
+                                      target.ClassyName, player.ClassyName);
+                    Scheduler.NewTask(t => target.Info.UnWarn()).RunOnce(TimeSpan.FromMinutes(15));
+                }
+                else
+                {
+                    try
+                    {
+                        Player targetPlayer = target;
+                        target.Kick(player, "Auto Kick (2 warnings or more)", LeaveReason.Kick, true, true, true);
+                    }
+                    catch (PlayerOpException ex)
+                    {
+                        player.Message(ex.MessageColored);
+                        if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
+                            return;
+                    }
+                }
+            }
+            else
+            {
+                player.Message("You can only warn players ranked {0}&S or lower",
+                                player.Info.Rank.GetLimit(Permission.Warn).ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+            }
+        }
+
+        static readonly CommandDescriptor CdUnWarn = new CommandDescriptor
+        {
+            Name = "Unwarn",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Warn },
+            Usage = "/Unwarn PlayerName",
+            Help = "Unwarns a player",
+            Handler = UnWarn
+        };
+
+        internal static void UnWarn(Player player, Command cmd)
+        {
+            string name = cmd.Next();
+            if (name == null)
+            {
+                player.Message("No player specified.");
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+
+            if (target == null)
+            {
+                player.MessageNoPlayer(name);
+                return;
+            }
+
+            if (player.Can(Permission.Warn, target.Info.Rank))
+            {
+                if (target.Info.UnWarn())
+                {
+                    Server.Message("{0}&S had their warning removed by {1}.", target.ClassyName, player.ClassyName);
+                }
+                else
+                {
+                    player.Message("{0}&S does not have a warning.", target.ClassyName);
+                }
+            }
+            else
+            {
+                player.Message("You can only unwarn players ranked {0}&S or lower",
+                                player.Info.Rank.GetLimit(Permission.Warn).ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+            }
+        }
+
+
+        static readonly CommandDescriptor CdDisconnect = new CommandDescriptor
+        {
+            Name = "Disconnect",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Aliases = new[] { "gtfo" },
+            IsHidden = false,
+            Permissions = new[] { Permission.Gtfo },
+            Usage = "/disconnect playername",
+            Help = "Get rid of those annoying people without saving to PlayerDB",
+            Handler = dc
+        };
+
+        internal static void dc(Player player, Command cmd)
+        {
+            string name = cmd.Next();
+            if (name == null)
+            {
+                player.Message("Please enter a name");
+                return;
+            }
+
+            Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+            if (target == null) return;
+
+            if (player.Can(Permission.Gtfo, target.Info.Rank))
+            {
+                try
+                {
+                    Player targetPlayer = target;
+                    target.Kick(player, "Manually disconnected by " + player.Name, LeaveReason.Kick, false, true, false);
+                    Server.Players.Message("{0} &Swas manually disconnected by {1}", target.ClassyName, player.ClassyName);
+                }
+                catch (PlayerOpException ex)
+                {
+                    player.Message(ex.MessageColored);
+                    if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
+                        return;
+                }
+            }
+            else
+            {
+                player.Message("You can only Disconnect players ranked {0}&S or lower",
+                                player.Info.Rank.GetLimit(Permission.Gtfo).ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+            }
+        }
+        #endregion
 
         #region Ban / Unban
 
