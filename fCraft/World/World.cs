@@ -189,6 +189,7 @@ namespace fCraft {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
                     IsHidden = IsHidden,
+                    IsRealm = IsRealm,
                     BlockDB = BlockDB,
                     lastBackup = lastBackup,
                     BackupInterval = BackupInterval,
@@ -328,15 +329,35 @@ namespace fCraft {
 
                 UpdatePlayerList();
 
-                if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
-                    Server.Players.CanSee( player )
-                                  .Message( "&SPlayer {0}&S joined {1}",
-                                            player.ClassyName, ClassyName );
+                if (!IsRealm && announce && ConfigKey.ShowJoinedWorldMessages.Enabled())
+                {
+                    Server.Players.CanSee(player)
+                                  .Message("&SPlayer {0}&S joined world {1}",
+                                            player.ClassyName, ClassyName);
+
                 }
 
-                Logger.Log( LogType.UserActivity,
-                            "Player {0} joined world {1}.",
-                            player.Name, Name );
+                //realm joining announcer
+                if (IsRealm && announce && ConfigKey.ShowJoinedWorldMessages.Enabled())
+                {
+                    Server.Players.CanSee(player)
+                                  .Message("&SPlayer {0}&S joined realm {1}",
+                                            player.ClassyName, ClassyName);
+                }
+
+                if (IsRealm)
+                {
+                    Logger.Log(LogType.UserActivity,
+                    "Player {0} joined realm {1}.",
+                    player.Name, Name);
+                }
+
+                if (!IsRealm)
+                {
+                    Logger.Log(LogType.UserActivity,
+                    "Player {0} joined world {1}.",
+                    player.Name, Name);
+                }
 
                 if( IsLocked ) {
                     player.Message( "&WThis map is currently locked (read-only)." );

@@ -1021,10 +1021,14 @@ namespace fCraft {
             writer.WriteTeleport( 255, Position );
             BytesSent += 10;
 
-            if( oldWorld == newWorld ) {
-                Message( "Rejoined world {0}", newWorld.ClassyName );
-            } else {
-                Message( "Joined world {0}", newWorld.ClassyName );
+            if (World.IsRealm && oldWorld == newWorld){
+                Message("Rejoined realm {0}", newWorld.ClassyName);
+            }else if (World.IsRealm){
+                Message("Joined realm {0}", newWorld.ClassyName);
+            }if (!World.IsRealm && oldWorld == newWorld){
+                Message("Rejoined world {0}", newWorld.ClassyName);
+            }else if (!World.IsRealm){
+                Message("Joined world {0}", newWorld.ClassyName);
             }
 
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );

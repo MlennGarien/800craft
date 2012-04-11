@@ -152,6 +152,20 @@ namespace fCraft {
                             worldName, ex.Message );
                 return;
             }
+            if ((tempAttr = el.Attribute("realm")) != null)
+            {
+                bool isRealm;
+                if (Boolean.TryParse(tempAttr.Value, out isRealm))
+                {
+                    world.IsRealm = isRealm;
+                }
+                else
+                {
+                    Logger.Log(LogType.Warning,
+                                "WorldManager: Could not parse \"realm\" attribute of world \"{0}\", assuming NOT a realm.",
+                                worldName);
+                }
+            }
 
             if( (tempAttr = el.Attribute( "hidden" )) != null ) {
                 bool isHidden;
@@ -343,6 +357,10 @@ namespace fCraft {
 
                     if( world.NeverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
+                    }
+                    if (world.IsRealm)
+                    {
+                        temp.Add(new XAttribute("realm", true));
                     }
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
