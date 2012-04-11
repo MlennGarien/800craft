@@ -5,6 +5,10 @@ using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using fCraft.Drawing;
+using fCraft.Portals;
+using ServiceStack.Text;
+using System.Text;
 
 namespace fCraft {
     /// <summary> Contains commands related to world management. </summary>
@@ -45,8 +49,949 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdWorldRename );
             CommandManager.RegisterCommand( CdWorldSave );
             CommandManager.RegisterCommand( CdWorldUnload );
+
+            CommandManager.RegisterCommand(CdRealm);
+            CommandManager.RegisterCommand(CdGuestwipe);
+            CommandManager.RegisterCommand(CdRankHide);
+            CommandManager.RegisterCommand(CdPortal);
+            CommandManager.RegisterCommand(CdWorldSearch);
+            //CommandManager.RegisterCommand(CdPhysics); //coming soon
+        }
+        #region 800Craft
+        static readonly CommandDescriptor CdPhysics = new CommandDescriptor
+        {
+            Name = "Physics",
+            Category = CommandCategory.World,
+            Permissions = new Permission[] { Permission.Physics },
+            IsConsoleSafe = false,
+            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | All | Unflood> <On / Off>",
+            Help = "Enables / disables a type of Physics for the current world. Physics may use more server resources.",
+            HelpSections = new Dictionary<string, string>() {
+                { "tnt",     "&H/Physics tnt on/off \n&S" +
+                                "Turns TNT exploding physics on / off in the current world"},
+                { "fireworks",     "&H/Physics fireworks on/off \n&S" +
+                                "Turns firework physics on / off in the current world"},
+                { "water",       "&H/Physics water on/off \n&S" +
+                                "Turns water physics on / off in the current world"},
+                { "plant",       "&H/Physics plant on/off \n&S" +
+                                "Turns plant physics on / off in the current world"},
+                { "sand",       "&H/Physics sand on/off \n&S" +
+                                "Turns sand and gravel physics on / off in the current world"},
+                { "grass",       "&H/Physics grass on/off \n&S" +
+                                "Turns grass regrowing physics on / off in the current world"},
+                { "all",     "&H/Physics all on/off \n&S" +
+                                "Turns all physics on / off in the current world"},
+            },
+            Handler = PhysicsHandler
+        };
+
+        private static void PhysicsHandler(Player player, Command cmd)
+        {
+            string option = cmd.Next();
+            World world = player.World;
+            if (option == null)
+            {
+                CdPhysics.PrintUsage(player);
+                return;
+            }
+            switch (option.ToLower())
+            {
+                case "tnt":
+                    if (world.tntPhysics)
+                    {
+                        world.tntPhysics = false;
+                        Server.Players.Message("{0}&S turned TNT Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned TNT Physics off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.tntPhysics = true;
+                        Server.Players.Message("{0}&S turned TNT Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned TNT Physics on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "grass":
+                    if (world.grassPhysics)
+                    {
+                        world.grassPhysics = false;
+                        Server.Players.Message("{0}&S turned Grass Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.grassPhysics = true;
+                        Server.Players.Message("{0}&S turned Grass Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "fireworks":
+                case "firework":
+                    if (world.fireworkPhysics)
+                    {
+                        world.fireworkPhysics = false;
+                        Server.Players.Message("{0}&S turned Firework Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.fireworkPhysics = true;
+                        Server.Players.Message("{0}&S turned Firework Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "sand":
+                    if (world.sandPhysics)
+                    {
+                        world.sandPhysics = false;
+                        Server.Players.Message("{0}&S turned Sand Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Sand Physics off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.sandPhysics = true;
+                        Server.Players.Message("{0}&S turned Sand Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Sand Physics on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "water":
+                    if (world.waterPhysics)
+                    {
+                        world.waterPhysics = false;
+                        Server.Players.Message("{0}&S turned Water Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Water Physics off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.waterPhysics = true;
+                        Server.Players.Message("{0}&S turned Water Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Water Physics on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "plant":
+                    if (world.plantPhysics)
+                    {
+                        world.plantPhysics = false;
+                        Server.Players.Message("{0}&S turned Plant Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Plant Physics off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.plantPhysics = true;
+                        Server.Players.Message("{0}&S turned Plant Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned Plant Physics on for {1}", player.Name, world.Name);
+                    }
+                    break;
+                case "all":
+                    string nextOp = cmd.Next();
+                    if (nextOp == null)
+                    {
+                        CdPhysics.PrintUsage(player);
+                        return;
+                    }
+
+                    if (nextOp.ToLower() == "on")
+                    {
+                        world.tntPhysics = true;
+                        world.sandPhysics = true;
+                        world.fireworkPhysics = true;
+                        world.waterPhysics = true;
+                        world.plantPhysics = true;
+                        world.grassPhysics = true;
+                        Server.Players.Message("{0}&S turned ALL Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics on for {1}", player.Name, world.Name);
+                    }
+
+                    else if (nextOp.ToLower() == "off")
+                    {
+                        world.tntPhysics = false;
+                        world.fireworkPhysics = false;
+                        world.sandPhysics = false;
+                        world.waterPhysics = false;
+                        world.plantPhysics = false;
+                        world.grassPhysics = false;
+                        Server.Players.Message("{0}&S turned ALL Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics off for {1}", player.Name, world.Name);
+                    }
+                    break;
+                
+                default: CdPhysics.PrintUsage(player);
+                    break;
+            }
         }
 
+        #region portals
+
+        static readonly CommandDescriptor CdPortal = new CommandDescriptor
+        {
+            Name = "portal",
+            Category = CommandCategory.World,
+            Permissions = new Permission[] { Permission.UsePortal },
+            IsConsoleSafe = false,
+            Usage = "/portal [create | remove | info | list | enable | disable ]",
+            Help = "Controls portals, options are: create, remove, list, info, enable, disable\n&S" +
+                   "See &H/Help portal <option>&S for details about each option.",
+            HelpSections = new Dictionary<string, string>() {
+                { "create",     "&H/portal create Guest\n&S" +
+                                "Creates a basic water portal to world Guest.\n&S" +
+                                "&H/portal create Guest lava test\n&S" +
+                                "Creates a lava portal with name 'test' to world Guest."},
+                { "remove",     "&H/portal remove Portal1\n&S" +
+                                "Removes portal with name 'Portal1'."},
+                { "list",       "&H/portal list\n&S" +
+                                "Gives you a list of portals in the current world."},
+                { "info",       "&H/portal info Portal1\n&S" +
+                                "Gives you information of portal with name 'Portal1'."},
+                { "enable",     "&H/portal enable\n&S" +
+                                "Enables the use of portals, this is player specific."},
+                { "disable",     "&H/portal disable\n&S" +
+                                "Disables the use of portals, this is player specific."},
+            },
+            Handler = PortalH
+        };
+
+        private static void PortalH(Player player, Command command)
+        {
+            try
+            {
+                String option = command.Next();
+
+                if (option == null)
+                {
+                    CdPortal.PrintUsage(player);
+                }
+                else if (option.ToLower().Equals("create"))
+                {
+                    if (player.Can(Permission.ManagePortal))
+                    {
+                        string world = command.Next();
+
+                        if (world != null && WorldManager.FindWorldExact(world) != null)
+                        {
+                            DrawOperation operation = new CuboidDrawOperation(player);
+                            NormalBrush brush = new NormalBrush(Block.Water, Block.Water);
+
+                            string blockTypeOrName = command.Next();
+
+                            if (blockTypeOrName != null && blockTypeOrName.ToLower().Equals("lava"))
+                            {
+                                brush = new NormalBrush(Block.Lava, Block.Lava);
+                            }
+                            else if (blockTypeOrName != null && !blockTypeOrName.ToLower().Equals("water"))
+                            {
+                                player.Message("Invalid block, choose between water or lava.");
+                                return;
+                            }
+
+                            string portalName = command.Next();
+
+                            if (portalName == null)
+                            {
+                                player.PortalName = null;
+                            }
+                            else
+                            {
+                                if (!Portal.DoesNameExist(player.World, portalName))
+                                {
+                                    player.PortalName = portalName;
+                                }
+                                else
+                                {
+                                    player.Message("A portal with name {0} already exists in this world.", portalName);
+                                    return;
+                                }
+                            }
+
+                            operation.Brush = brush;
+                            player.PortalWorld = world;
+
+
+                            player.SelectionStart(operation.ExpectedMarks, PortalCreateCallback, operation, Permission.Draw);
+                            player.Message("Click {0} blocks or use &H/Mark&S to mark the area of the portal.", operation.ExpectedMarks);
+                        }
+                        else
+                        {
+                            if (world == null)
+                            {
+                                player.Message("No world specified.");
+                            }
+                            else
+                            {
+                                player.MessageNoWorld(world);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        player.MessageNoAccess(Permission.ManagePortal);
+                    }
+                }
+                else if (option.ToLower().Equals("remove"))
+                {
+                    if (player.Can(Permission.ManagePortal))
+                    {
+                        string portalName = command.Next();
+
+                        if (portalName == null)
+                        {
+                            player.Message("No portal name specified.");
+                        }
+                        else
+                        {
+                            if (player.World.Portals != null && player.World.Portals.Count > 0)
+                            {
+                                bool found = false;
+                                Portal portalFound = null;
+
+                                lock (player.World.Portals.SyncRoot)
+                                {
+                                    foreach (Portal portal in player.World.Portals)
+                                    {
+                                        if (portal.Name.Equals(portalName))
+                                        {
+                                            portalFound = portal;
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!found)
+                                    {
+                                        player.Message("Could not find portal by name {0}.", portalName);
+                                    }
+                                    else
+                                    {
+                                        portalFound.Remove(player);
+                                        player.Message("Portal was removed.");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                player.Message("Could not find portal as this world doesn't contain a portal.");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        player.MessageNoAccess(Permission.ManagePortal);
+                    }
+                }
+                else if (option.ToLower().Equals("info"))
+                {
+                    string portalName = command.Next();
+
+                    if (portalName == null)
+                    {
+                        player.Message("No portal name specified.");
+                    }
+                    else
+                    {
+                        if (player.World.Portals != null && player.World.Portals.Count > 0)
+                        {
+                            bool found = false;
+
+                            lock (player.World.Portals.SyncRoot)
+                            {
+                                foreach (Portal portal in player.World.Portals)
+                                {
+                                    if (portal.Name.Equals(portalName))
+                                    {
+                                        World portalWorld = WorldManager.FindWorldExact(portal.World);
+                                        player.Message("Portal {0}&S was created by {1}&S at {2} and teleports to world {3}&S.",
+                                            portal.Name, PlayerDB.FindPlayerInfoExact(portal.Creator).ClassyName, portal.Created, portalWorld.ClassyName);
+                                        found = true;
+                                    }
+                                }
+                            }
+
+                            if (!found)
+                            {
+                                player.Message("Could not find portal by name {0}.", portalName);
+                            }
+                        }
+                        else
+                        {
+                            player.Message("Could not find portal as this world doesn't contain a portal.");
+                        }
+                    }
+                }
+                else if (option.ToLower().Equals("list"))
+                {
+                    if (player.World.Portals == null || player.World.Portals.Count == 0)
+                    {
+                        player.Message("There are no portals in {0}&S.", player.World.ClassyName);
+                    }
+                    else
+                    {
+                        String[] portalNames = new String[player.World.Portals.Count];
+                        StringBuilder output = new StringBuilder("There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: ");
+
+                        for (int i = 0; i < player.World.Portals.Count; i++)
+                        {
+                            portalNames[i] = ((Portal)player.World.Portals[i]).Name;
+                        }
+
+                        output.Append(portalNames.JoinToString(", "));
+
+                        player.Message(output.ToString());
+                    }
+                }
+                else if (option.ToLower().Equals("enable"))
+                {
+                    player.PortalsEnabled = true;
+                    player.Message("You enabled the use of portals.");
+                }
+                else if (option.ToLower().Equals("disable"))
+                {
+                    player.PortalsEnabled = false;
+                    player.Message("You disabled the use of portals, type /portal enable to re-enable portals.");
+                }
+                else
+                {
+                    CdPortal.PrintUsage(player);
+                }
+            }
+            catch (PortalException ex)
+            {
+                player.Message(ex.Message);
+                Logger.Log(LogType.Error, "WorldCommands.PortalH: " + ex);
+            }
+            catch (Exception ex)
+            {
+                player.Message("Unexpected error: " + ex);
+                Logger.Log(LogType.Error, "WorldCommands.PortalH: " + ex);
+            }
+        }
+
+        static void PortalCreateCallback(Player player, Vector3I[] marks, object tag)
+        {
+            try
+            {
+                World world = WorldManager.FindWorldExact(player.PortalWorld);
+
+                if (world != null)
+                {
+                    DrawOperation op = (DrawOperation)tag;
+                    if (!op.Prepare(marks)) return;
+                    if (!player.CanDraw(op.BlocksTotalEstimate))
+                    {
+                        player.MessageNow("You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                           player.Info.Rank.DrawLimit,
+                                           op.Bounds.Volume);
+                        op.Cancel();
+                        return;
+                    }
+
+                    int Xmin = Math.Min(marks[0].X, marks[1].X);
+                    int Xmax = Math.Max(marks[0].X, marks[1].X);
+                    int Ymin = Math.Min(marks[0].Y, marks[1].Y);
+                    int Ymax = Math.Max(marks[0].Y, marks[1].Y);
+                    int Zmin = Math.Min(marks[0].Z, marks[1].Z);
+                    int Zmax = Math.Max(marks[0].Z, marks[1].Z);
+
+                    for (int x = Xmin; x <= Xmax; x++)
+                    {
+                        for (int y = Ymin; y <= Ymax; y++)
+                        {
+                            for (int z = Zmin; z <= Zmax; z++)
+                            {
+                                if (PortalHandler.IsInRangeOfSpawnpoint(player.World, new Vector3I(x, y, z)))
+                                {
+                                    player.Message("You can not build a portal near a spawnpoint.");
+                                    return;
+                                }
+
+                                if (PortalHandler.GetInstance().GetPortal(player.World, new Vector3I(x, y, z)) != null)
+                                {
+                                    player.Message("You can not build a portal inside a portal, U MAD BRO?");
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    if (player.PortalName == null)
+                    {
+                        player.PortalName = Portal.GenerateName(player.World);
+                    }
+
+                    Portal portal = new Portal(player.PortalWorld, marks, player.PortalName, player.Name, player.World.Name);
+                    PortalHandler.CreatePortal(portal, player.World);
+                    op.AnnounceCompletion = false;
+                    op.Context = BlockChangeContext.Portal;
+                    op.Begin();
+
+                    player.Message("Successfully created portal with name " + portal.Name + ".");
+                }
+                else
+                {
+                    player.MessageInvalidWorldName(player.PortalWorld);
+                }
+            }
+            catch (Exception ex)
+            {
+                player.Message("Failed to create portal.");
+                Logger.Log(LogType.Error, "WorldCommands.PortalCreateCallback: " + ex);
+            }
+        }
+        #endregion
+
+        static readonly CommandDescriptor CdWorldSearch = new CommandDescriptor
+        {
+            Name = "Worldsearch",
+            Aliases = new[] { "ws" },
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
+            Usage = "/Worldsearch WorldName",
+            Help = "An easy way to search through a big list of worlds",
+            Handler = WorldSearchHandler
+        };
+
+        static void WorldSearchHandler(Player player, Command cmd)
+        {
+            string worldName = cmd.Next();
+            if (worldName == null)
+            {
+                CdWorldSearch.PrintUsage(player);
+                return;
+            }
+
+            if (worldName.Length < 2)
+            {
+                CdWorldSearch.PrintUsage(player);
+                return;
+            }
+
+            else
+            {
+                player.Message("Worlds found: ");
+                foreach (World w in WorldManager.Worlds)
+                {
+                    if (w.Name.Contains(worldName))
+                        player.Message("{0} ", w.ClassyName);
+                }
+                return;
+            }
+        }
+
+
+
+        static readonly CommandDescriptor CdRankHide = new CommandDescriptor
+        {
+            Name = "Rankhide",
+            Aliases = new[] { "rhide" },
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.HideRanks },
+            Usage = "/rhide rankname",
+            Handler = RankHideHandler
+        };
+
+        static void RankHideHandler(Player player, Command cmd)
+        {
+            string worldName = cmd.Next();
+            if (worldName == null)
+            {
+                CdRankHide.PrintUsage(player);
+                return;
+            }
+
+            Rank rank = RankManager.FindRank(worldName);
+            if (rank == null) return;
+
+            if (rank.IsHidden)
+            {
+                player.Message("Rank \"{0}&S\" is no longer hidden.", rank.ClassyName);
+                rank.IsHidden = false;
+                return;
+            }
+            else
+            {
+                player.Message("Rank \"{0}&S\" is now hidden.", rank.ClassyName);
+                rank.IsHidden = true;
+
+            }
+        }
+
+
+        static readonly CommandDescriptor CdRealm = new CommandDescriptor
+        {
+            Name = "Realm",
+            Category = CommandCategory.World,
+            Permissions = new[] { Permission.Realm },
+            IsConsoleSafe = false,
+            Usage = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
+            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Invite",
+            Help = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
+            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Invite",
+            Handler = Realm,
+        };
+
+        internal static void Realm(Player player, Command cmd)
+        {
+            string Choice = cmd.Next();
+            if (Choice == null)
+            {
+                CdRealm.PrintUsage(player);
+                return;
+            }
+            switch (Choice.ToLower())
+            {
+                default:
+                    CdRealm.PrintUsage(player);
+                    break;
+
+                case "review":
+
+                    if (player.World.Name == player.Name)
+                    {
+                        var recepientList = Server.Players.Can(Permission.ReadStaffChat)
+                                              .NotIgnoring(player)
+                                              .Union(player);
+                        string message = String.Format("{0}&C would like staff to review their realm", player.ClassyName);
+                        recepientList.Message(message);
+                    }
+
+                    else
+                        player.Message("You are not in your Realm");
+
+                    break;
+
+                case "like":
+
+                    Choice = player.World.Name;
+                    World world = WorldManager.FindWorldOrPrintMatches(player, Choice);
+                    if (world == null) player.Message("You need to enter a realm name");
+
+                    if (world.IsRealm)
+                    {
+                        Server.Players.Message("{0}&S likes realm {1}.",
+                                               player.ClassyName, world.ClassyName);
+                        return;
+                    }
+                    else player.Message("You are not in a Realm");
+
+                    break;
+
+                case "flush":
+
+                    WorldFlushHandler(player, new Command("/wflush " + player.Name));
+                    break;
+
+                case "create":
+
+                    string create = cmd.Next();
+                    if (player.World.Name == player.Name)
+                    {
+                        player.Message("You cannot create a new Realm when you are inside your Realm");
+                        return;
+                    }
+
+                    if (create == null)
+                    {
+                        player.Message("Realm create. Use /realm create [ThemeType]" +
+                            " Theme types include | flat | hills | hell | island | swamp | desert | arctic | forest | ");
+                    }
+
+                    if (create == "flat")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "grass", "flat");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "hills")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "grass", "hills");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "island")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "desert", "island");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "hell")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "hell", "streams");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "swamp")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "swamp", "river");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "desert")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "desert", "flat");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "arctic")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "arctic", "ice");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    if (create == "forest")
+                    {
+                        RealmHandler.RealmCreate(player, cmd, "forest", "hills");
+                        player.Message("You have created a Realm. Activate it with /realm activate");
+                    }
+
+                    break;
+
+                case "home":
+                    JoinHandler(player, new Command("/join " + player.Name));
+                    break;
+
+                case "help":
+
+                    player.Message("To build a realm, use /realm create. To activate it so you can build, use /realm activate. " +
+                    "If you find yourself unable to build in your Realm, use /realm activate again. " +
+                    "If there are any Bugs, report them to Jonty800@gmail.com.");
+                    break;
+
+                case "activate":
+                    {
+                        if (player.World.Name == player.Name)
+                        {
+                            player.Message("You cannot use /Realm activate when you are in your Realm");
+                            return;
+                        }
+                        RealmHandler.RealmLoad(player, cmd, player.Name + ".fcm", player.Name);
+                        RealmHandler.RealmBuild(player, cmd, player.Name, RankManager.HighestRank.Name, null);
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "+" + player.Name, null);
+                        WorldManager.SaveWorldList();
+                        break;
+                    }
+
+                case "spawn":
+
+                    if (player.World.Name == player.Name)
+                    {
+                        ModerationCommands.SetSpawnHandler(player, new Command("/setspawn"));
+                        return;
+                    }
+                    else
+                    {
+                        player.Message("You can only change the Spawn on your own realm");
+                        return;
+                    }
+
+                case "invite":
+
+                    string invite = cmd.Next();
+
+                    if (invite == null)
+                    {
+                        player.Message("Invite a player to see your Realm. Useage: /Realm invite playername.");
+                        return;
+                    }
+
+                    Player targetInvite = Server.FindPlayerOrPrintMatches(player, invite, false, true);
+
+                    if (targetInvite == null)
+                    {
+                        player.Message("Please enter the name of the player you want to invite into your Realm.");
+                        return;
+                    }
+
+                    if (!Player.IsValidName(targetInvite.Name))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+                    else
+                    {
+                        targetInvite.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
+                        World JoinName = WorldManager.FindWorldOrPrintMatches(targetInvite, player.Name);
+                        targetInvite.JoinWorld(JoinName, WorldChangeReason.ManualJoin);
+                    }
+                    break;
+
+                case "join":
+
+                    string JoinCmd = cmd.Next();
+                    if (JoinCmd == null)
+                    {
+                        player.Message("Derp. Invalid Realm.");
+                        return;
+                    }
+
+                    else
+                    {
+                        Player target = Server.FindPlayerOrPrintMatches(player, Choice, false, true);
+                        JoinHandler(player, new Command("/goto " + JoinCmd));
+                        return;
+                    }
+
+                case "allow":
+
+                    string toAllow = cmd.Next();
+
+                    if (toAllow == null)
+                    {
+                        player.Message("Allows a player to build in your world. useage: /realm allow playername.");
+                        return;
+                    }
+
+                    PlayerInfo targetAllow = PlayerDB.FindPlayerInfoOrPrintMatches(player, toAllow);
+
+                    if (targetAllow == null)
+                    {
+                        player.Message("Please enter the name of the player you want to allow to build in your Realm.");
+                        return;
+                    }
+
+                    if (!Player.IsValidName(targetAllow.Name))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+
+                    else
+                    {
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "+" + targetAllow.Name, null);
+                        if (!Player.IsValidName(targetAllow.Name))
+                        {
+                            player.Message("Player not found. Please specify valid name.");
+                            return;
+                        }
+                    }
+                    break;
+
+                case "unallow":
+
+                    string Unallow = cmd.Next();
+
+                    if (Unallow == null)
+                    {
+                        player.Message("Stops a player from building in your world. usage: /realm unallow playername.");
+                        return;
+                    }
+                    PlayerInfo targetUnallow = PlayerDB.FindPlayerInfoOrPrintMatches(player, Unallow);
+
+
+                    if (targetUnallow == null)
+                    {
+                        player.Message("Please enter the name of the player you want to stop building in your Realm.");
+                        return;
+                    }
+
+                    if (!Player.IsValidName(targetUnallow.Name))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+
+                    else
+                    {
+                        RealmHandler.RealmBuild(player, cmd, player.Name, "-" + targetUnallow.Name, null);
+                        if (!Player.IsValidName(targetUnallow.Name))
+                        {
+                            player.Message("Player not found. Please specify valid name.");
+                            return;
+                        }
+                    }
+                    break;
+
+                case "ban":
+
+                    string Ban = cmd.Next();
+
+                    if (Ban == null)
+                    {
+                        player.Message("Bans a player from accessing your Realm. Useage: /Realm ban playername.");
+                        return;
+                    }
+                    Player targetBan = Server.FindPlayerOrPrintMatches(player, Ban, false, true);
+
+
+                    if (targetBan == null)
+                    {
+                        player.Message("Please enter the name of the player you want to ban from your Realm.");
+                        return;
+                    }
+
+                    if (!Player.IsValidName(targetBan.Name))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+
+                    else
+                    {
+                        RealmHandler.RealmAccess(player, cmd, player.Name, "-" + targetBan.Name);
+                        if (!Player.IsValidName(targetBan.Name))
+                        {
+                            player.Message("Player not found. Please specify valid name.");
+                            return;
+                        }
+                    }
+
+                    break;
+
+                case "unban":
+
+                    string UnBan = cmd.Next();
+
+                    if (UnBan == null)
+                    {
+                        player.Message("Unbans a player from your Realm. Useage: /Realm unban playername.");
+                        return;
+                    }
+                    PlayerInfo targetUnBan = PlayerDB.FindPlayerInfoOrPrintMatches(player, UnBan);
+
+                    if (targetUnBan == null)
+                    {
+                        player.Message("Please enter the name of the player you want to unban from your Realm.");
+                        return;
+                    }
+
+                    if (!Player.IsValidName(targetUnBan.Name))
+                    {
+                        player.Message("Player not found. Please specify valid name.");
+                        return;
+                    }
+
+                    else
+                    {
+                        RealmHandler.RealmAccess(player, cmd, player.Name, "+" + targetUnBan.Name);
+                        if (!Player.IsValidName(targetUnBan.Name))
+                        {
+                            player.Message("Player not found. Please specify valid name.");
+                            return;
+                        }
+                        break;
+                    }
+            }
+        }
+
+        static readonly CommandDescriptor CdGuestwipe = new CommandDescriptor
+        {
+            Name = "Guestwipe",
+
+            Category = CommandCategory.World,
+            Permissions = new[] { Permission.ManageWorlds },
+            IsConsoleSafe = true,
+            Usage = "/guestwipe",
+            Help = "Wipes a map with the name 'Guest'.",
+            Handler = Guestwipe
+        };
+
+        internal static void Guestwipe(Player player, Command cmd)
+        {
+            Scheduler.NewTask(t => Server.Players.Message("&9Warning! The Guest world will be wiped in 30 seconds.")).RunOnce(TimeSpan.FromSeconds(1));
+            Scheduler.NewTask(t => Server.Players.Message("&9Warning! The Guest world will be wiped in 15 seconds.")).RunOnce(TimeSpan.FromSeconds(16));
+            Scheduler.NewTask(t => player.Message("&4Prepare to use /ok when notified.")).RunOnce(TimeSpan.FromSeconds(25));
+            Scheduler.NewTask(t => WorldLoadHandler(player, new Command("/wload guestwipe guest"))).RunOnce(TimeSpan.FromSeconds(27));
+            return;
+        }
+        #endregion
 
         #region BlockDB
 

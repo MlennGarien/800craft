@@ -15,6 +15,8 @@ namespace fCraft {
         [NotNull]
         public string Prefix { get; set; }
 
+        public bool IsHidden = false;
+
         /// <summary> Rank's displayed name.
         /// Use rank.FullName instead for serializing (to improve backwards compatibility). </summary>
         [NotNull]

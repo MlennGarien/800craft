@@ -7,6 +7,7 @@ using System.Text;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.Collections;
+using System.Collections.Concurrent;
 
 namespace fCraft {
     public sealed class World : IClassy {
@@ -38,6 +39,16 @@ namespace fCraft {
         public bool plantPhysics = false;
         public bool sandPhysics = false;
         public bool grassPhysics = false;
+
+        //games
+        public ConcurrentDictionary<String, Vector3I> blockCache = new ConcurrentDictionary<String, Vector3I>();
+        public List<Player> redTeam = new List<Player>();
+        public List<Player> blueTeam = new List<Player>();
+        public int redScore = 0;
+        public int blueScore = 0;
+        public List<Action> Games;
+        public bool GameOn = false;
+        public string CurrentGame;
 
 
         /// <summary> Whether this world is currently pending unload 

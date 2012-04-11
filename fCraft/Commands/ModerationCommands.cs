@@ -1091,7 +1091,7 @@ namespace fCraft {
             Handler = SetSpawnHandler
         };
 
-        static void SetSpawnHandler( Player player, Command cmd ) {
+        public static void SetSpawnHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
