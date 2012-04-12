@@ -85,11 +85,9 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdUndoArea );
             CommandManager.RegisterCommand( CdUndoPlayer );
             CdUndoArea.Help += GeneralDrawingHelp;
-
             CommandManager.RegisterCommand( CdStatic );
 
-            //CommandManager.RegisterCommand( CdTree );
-
+            CommandManager.RegisterCommand(CdTree);
             // CommandManager.RegisterCommand(CdDrawScheme);
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
@@ -100,6 +98,70 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdCylinder);
         }
         #region 800Craft
+
+        static readonly CommandDescriptor CdTree = new CommandDescriptor
+        {
+            Name = "Tree",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Usage = "/Tree Shape Height",
+            Help = "Plants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove",
+            Handler = TreeHandler
+        };
+
+        static void TreeHandler(Player player, Command cmd)
+        {
+            string shapeName = cmd.Next();
+            int height;
+            Forester.TreeShape shape;
+
+            // that's one ugly if statement... does the job though.
+            if (shapeName == null ||
+                !cmd.NextInt(out height) ||
+                !EnumUtil.TryParse(shapeName, out shape, true) ||
+                shape == Forester.TreeShape.Stickly ||
+                shape == Forester.TreeShape.Procedural)
+            {
+                CdTree.PrintUsage(player);
+                return;
+            }
+
+            if (height < 6 || height > 1024)
+            {
+                player.Message("Tree height must be 6 blocks or above");
+                return;
+            }
+
+            Map map = player.World.Map;
+
+            ForesterArgs args = new ForesterArgs
+            {
+                Height = height - 1,
+                Operation = Forester.ForesterOperation.Add,
+                Map = map,
+                Shape = shape,
+                TreeCount = 1,
+                Rand = new Random()
+            };
+            player.SelectionStart(1, TreeCallback, args, CdTree.Permissions);
+            player.MessageNow("Tree: Place a block or type /Mark to use your location.");
+        }
+
+        static void TreeCallback(Player player, Vector3I[] marks, object tag)
+        {
+            ForesterArgs args = (ForesterArgs)tag;
+            int blocksPlaced = 0, blocksDenied = 0;
+            UndoState undoState = player.DrawBegin(null);
+            args.BlockPlacing +=
+                (sender, e) =>
+               DrawOneBlock(player, player.World.Map, e.Block, new Vector3I(e.Coordinate.X, e.Coordinate.Y, e.Coordinate.Z),
+                              BlockChangeContext.Drawn,
+                              ref blocksPlaced, ref blocksDenied, undoState);
+            Forester.SexyPlant(args, marks[0]);
+            DrawingFinished(player, "/Tree: Planted", blocksPlaced, blocksDenied);
+        }
+
+
         static readonly CommandDescriptor CdCylinder = new CommandDescriptor
         {
             Name = "Cylinder",
@@ -311,27 +373,20 @@ namespace fCraft {
                 if (reason.Length < 1)
                     reason = "Reason Undefined: BanX";
 
-                try
-                {
-                    target.Ban(player, reason, true, true);
+                    target.Ban(player, reason, false, true);
                     if (player.Can(Permission.Demote, target.Rank))
                     {
-                        ModerationCommands.RankHandler(player, new Command("/rank " + target.Name + " " + RankManager.LowestRank.Name + " " + "BanX: " + reason));
+                        target = PlayerDB.AddFakeEntry(target.Name, RankChangeType.Demoted);
+                        player.LastUsedPlayerName = target.Name;
+                        target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
+                        Server.Players.Message("{0}&S was BanX'd by {1}&S(with auto-demote): {2}", target.ClassyName, player.ClassyName, reason);
                         return;
                     }
                     else
                     {
                         player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
+                        Server.Players.Message("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason);
                     }
-                }
-                catch (PlayerOpException ex)
-                {
-                    player.Message(ex.MessageColored);
-                    if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
-                    {
-
-                    }
-                }
                 player.Message("&SConfirm the undo with &A/ok");
             }
         }

@@ -98,6 +98,41 @@ namespace fCraft {
             }
         }
 
+        public static void SexyPlant([NotNull] ForesterArgs args, Vector3I treeCoordinate)
+        {
+            List<Tree> treeList = new List<Tree> {
+                new Tree {
+                    Args = args,
+                    Height = args.Height,
+                    Pos = new Vector3I(treeCoordinate.X, treeCoordinate.Z, treeCoordinate.Y)
+                }
+            };
+            switch (args.Shape)
+            {
+                case TreeShape.Rainforest:
+                    PlantRainForestTrees(args, treeList);
+                    break;
+                default:
+                    PlantTrees(args, treeList);
+                    break;
+            }
+            ProcessTrees(args, treeList);
+            if (args.Foliage)
+            {
+                foreach (Tree tree in treeList)
+                {
+                    tree.MakeFoliage();
+                }
+            }
+            if (args.Wood)
+            {
+                foreach (Tree tree in treeList)
+                {
+                    tree.MakeTrunk();
+                }
+            }
+        }
+
 
         static void FindTrees( ForesterArgs args, ICollection<Tree> treelist ) {
             int treeheight = args.Height;
