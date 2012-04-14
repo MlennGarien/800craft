@@ -13,6 +13,20 @@ official server list (if server is public).",
             MinLength = 1, MaxLength = 64 )]
         ServerName,
 
+        [StringKey(ConfigSection.General, "EngineerChat",
+@"The name of the custom chat channel",
+            MinLength = 1, MaxLength = 12)]
+        CustomChatName,
+        [StringKey(ConfigSection.General, "En",
+@"The name of the custom chat alias",
+            MinLength = 1, MaxLength = 12)]
+        CustomAliasName,
+
+        [StringKey(ConfigSection.General, "&CBlock",
+@"The word which swears will be replaced with",
+            MinLength = 1, MaxLength = 12)]
+        SwearName,
+
 
         [StringKey( ConfigSection.General, "Welcome to the server!",
 @"MOTD (Message Of The Day) is a message shown to connecting players 
@@ -28,6 +42,11 @@ uses more RAM and more bandwidth. If a player's rank is given a
 ""reserved slot"" on the server, they can join even if server is full.",
             MinValue = 1, MaxValue = 1000 )]
         MaxPlayers,
+
+        [IntKey(ConfigSection.General, 8,
+@"Maximum number Caps a player is allowed to chat with.",
+            MinValue = 1, MaxValue = 12)]
+        MaxCaps,
 
 
         [IntKey( ConfigSection.General, 20,
@@ -103,6 +122,9 @@ will not show custom skins for players with prefixed names." )]
         [ColorKey( ConfigSection.Chat, Color.SysDefault,
 @"Color of normal system messages." )]
         SystemMessageColor,
+        [ColorKey(ConfigSection.Chat, Color.CustomDefault,
+@"Color of custom chat channel.")]
+        CustomChatColor,
 
         [ColorKey( ConfigSection.Chat, Color.HelpDefault,
 @"Color of command usage examples in help." )]
@@ -302,6 +324,9 @@ If exceeded, oldest backups will be deleted first.",
         [BoolKey( ConfigSection.SavingAndBackup, true,
 @"Create backups of server data (PlayerDB and IPBanList) on startup." )]
         BackupDataOnStartup,
+        [BoolKey(ConfigSection.SavingAndBackup, true,
+@"Starts the heartbeatsaver on shutdown")]
+        HbSaverKey,
 
         #endregion
 

@@ -202,6 +202,7 @@ namespace fCraft {
                     IsHidden = IsHidden,
                     IsRealm = IsRealm,
                     BlockDB = BlockDB,
+                    Terrain = Terrain,
                     lastBackup = lastBackup,
                     BackupInterval = BackupInterval,
                     IsLocked = IsLocked,
@@ -669,6 +670,7 @@ namespace fCraft {
                    FogColor = -1,
                    SkyColor = -1,
                    EdgeLevel = -1;
+        public string Terrain { get; set; }
 
         public Block EdgeBlock = Block.Water;
 
@@ -685,6 +687,7 @@ namespace fCraft {
             if( FogColor > -1 ) sb.AppendLine( "environment.fog = " + FogColor );
             if( SkyColor > -1 ) sb.AppendLine( "environment.sky = " + SkyColor );
             if( EdgeLevel > -1 ) sb.AppendLine( "environment.level = " + EdgeLevel );
+            if (Terrain != null) sb.AppendLine("environment.terrain = " + Terrain);
             if( EdgeBlock != Block.Water ) {
                 string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
                 if( edgeTexture != null ) {

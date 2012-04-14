@@ -4,10 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace fCraft {
     /// <summary> Helper class for handling player-generated chat. </summary>
     public static class Chat {
+        public static List<string> Swears = new List<string>();
+        public static IEnumerable<Regex> badWordMatchers;
         /// <summary> Sends a global (white) chat. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -39,13 +44,63 @@ namespace fCraft {
                     if (Char.IsUpper(rawMessage[i]))
                     {
                         caps++;
-                        if (caps > 10/*ConfigKey.MaxCaps.GetInt()*/) //config
+                        if (caps > ConfigKey.MaxCaps.GetInt())
                         {
                             rawMessage = rawMessage.ToLower();
                             player.Message("Your message was changed to lowercase as it exceeded the maximum amount of capital letters.");
                         }
                     }
                 }
+            }
+
+            if (!player.Can(Permission.Swear))
+            {
+                if (!File.Exists("SwearWords.txt"))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("#This txt file should be filled with bad words that you want to be filtered out");
+                    sb.AppendLine("#I have included some examples, excuse my language :P");
+                    sb.AppendLine("fuck");
+                    sb.AppendLine("fucking");
+                    sb.AppendLine("fucked");
+                    sb.AppendLine("dick");
+                    sb.AppendLine("bitch");
+                    sb.AppendLine("shit");
+                    sb.AppendLine("shitting");
+                    sb.AppendLine("shithead");
+                    sb.AppendLine("cunt");
+                    sb.AppendLine("nigger");
+                    sb.AppendLine("wanker");
+                    sb.AppendLine("wank");
+                    sb.AppendLine("wanking");
+                    sb.AppendLine("piss");
+                    File.WriteAllText("SwearWords.txt", sb.ToString());
+                }
+                string CensoredText = Color.ReplacePercentCodes(ConfigKey.SwearName.GetString()) + "&F";
+
+                if (ConfigKey.SwearName.GetString() == null)
+                {
+                    CensoredText = "&CBlock&F";
+                }
+
+                const string PatternTemplate = @"\b({0})(s?)\b";
+                const RegexOptions Options = RegexOptions.IgnoreCase;
+
+                if (Swears.Count == 0)
+                {
+                    Swears.AddRange(File.ReadAllLines("SwearWords.txt").
+                        Where(line => line.StartsWith("#") == false || line.Trim().Equals(String.Empty)));
+                }
+
+                if (badWordMatchers == null)
+                {
+                    badWordMatchers = Swears.
+                        Select(x => new Regex(string.Format(PatternTemplate, x), Options));
+                }
+
+                string output = badWordMatchers.
+                   Aggregate(rawMessage, (current, matcher) => matcher.Replace(current, CensoredText));
+                rawMessage = output;
             }
 
             if (player.World != null)
@@ -129,7 +184,7 @@ namespace fCraft {
             return true;
         }
 
-       /* public static bool SendCustom(Player player, string rawMessage)
+       public static bool SendCustom(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
@@ -139,7 +194,7 @@ namespace fCraft {
 
             string formattedMessage = String.Format(Color.Custom + "({2}){0}&b: {1}",
                                                      player.ClassyName,
-                                                     rawMessage, ConfigKey.CustomChatChannel.GetString());
+                                                     rawMessage, ConfigKey.CustomChatName.GetString());
 
             var e = new ChatSendingEventArgs(player,
                                               rawMessage,
@@ -149,9 +204,9 @@ namespace fCraft {
 
             if (!SendInternal(e)) return false;
 
-            Logger.Log(LogType.GlobalChat, "({2}){0}: {1}", player.Name, rawMessage, ConfigKey.CustomChatChannel.GetString());
+            Logger.Log(LogType.GlobalChat, "({2}){0}: {1}", player.Name, rawMessage, ConfigKey.CustomChatName.GetString());
             return true;
-        }*/
+        }
 
 
         /// <summary> Sends an action message (/Me). </summary>

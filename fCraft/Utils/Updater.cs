@@ -16,11 +16,11 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            617,
-            1551,
+            200,
+            1,
             new DateTime( 2012, 3, 25, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Dev
+            ReleaseFlags.Bugfix | ReleaseFlags.Feature |  ReleaseFlags.Optimized
 #if DEBUG
             | ReleaseFlags.Dev
 #endif

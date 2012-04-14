@@ -114,14 +114,14 @@ namespace fCraft {
         }
 
 
-        static void RaisePlayerMovedEvent( [NotNull] Player player, Position oldPos ) {
+        public static void RaisePlayerMovedEvent( [NotNull] Player player, Position oldPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var h = Moved;
             if( h != null ) h( null, new PlayerMovedEventArgs( player, oldPos ) );
         }
 
 
-        static bool RaisePlayerClickingEvent( [NotNull] PlayerClickingEventArgs e ) {
+        public static bool RaisePlayerClickingEvent( [NotNull] PlayerClickingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             var h = Clicking;
             if( h == null ) return false;
@@ -130,7 +130,7 @@ namespace fCraft {
         }
 
 
-        static void RaisePlayerClickedEvent( Player player, Vector3I coords,
+       public static void RaisePlayerClickedEvent( Player player, Vector3I coords,
                                              ClickAction action, Block block ) {
             var handler = Clicked;
             if( handler != null ) {
@@ -139,7 +139,7 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerPlacedBlockEvent( Player player, Map map, Vector3I coords,
+        public static void RaisePlayerPlacedBlockEvent( Player player, Map map, Vector3I coords,
                                                           Block oldBlock, Block newBlock, BlockChangeContext context ) {
             var handler = PlacedBlock;
             if( handler != null ) {

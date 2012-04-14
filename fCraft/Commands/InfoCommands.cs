@@ -1048,9 +1048,12 @@ namespace fCraft {
             }
             player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
             foreach( Rank rank in RankManager.Ranks ) {
-                player.Message( "&S    {0}  ({1} players)",
-                                rank.ClassyName,
-                                rank.PlayerCount );
+                if (!rank.IsHidden)
+                {
+                    player.Message("&S    {0}  ({1} players)",
+                                    rank.ClassyName,
+                                    rank.PlayerCount);
+                }
             }
         }
 
@@ -1478,12 +1481,26 @@ namespace fCraft {
 
         internal static void CommandsHandler( Player player, Command cmd ) {
             string param = cmd.Next();
-            if( cmd.HasNext ) {
-                CdCommands.PrintUsage( player );
-                return;
-            }
             CommandDescriptor[] cd;
             CommandCategory category;
+
+            if (param == null)
+            {
+                player.Message("&SCommands Available:\n" +
+                               "&SFor &aBuilding &Scommands, type &a/Commands building" +
+                               "\n&SFor &fChat &Scommands, type &a/Commands chat" +
+                               "\n&SFor &fInfo &Scommands, type &a/Commands info" +
+                               "\n&SFor &3Moderation &scommands, type &a/Commands moderation" +
+                               "\n&SFor &9World &Scommands, type &a/Commands world" +
+                               "\n&SFor &bZone &Scommands, type &a/Commands zone" +
+                               (CommandManager.GetCommands(CommandCategory.Math, false).Length > 0
+                                    ? "\n&SFor &cfunction drawing &Scommands, type &a/Commands math"
+                                    : "") +
+                               (CommandManager.GetCommands(CommandCategory.Fun, false).Length > 0
+                                    ? "\n&SFor &dfun &Scommands, type &a/Commands fun"
+                                    : ""));
+                return;
+            }
 
             string prefix;
 

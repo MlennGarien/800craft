@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>fCraft.ServerGUI.Program</StartupObject>
-    <ApplicationIcon>f2k.ico</ApplicationIcon>
+    <ApplicationIcon>f2k - Copy.ico</ApplicationIcon>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -101,6 +101,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="f2k - Copy.ico" />
     <Content Include="f2k.ico" />
   </ItemGroup>
   <ItemGroup>

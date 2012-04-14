@@ -112,7 +112,11 @@ namespace fCraft.ConfigGUI {
 
 
         void ApplyTabGeneral() {
+            HbBox1.Checked = ConfigKey.HbSaverKey.Enabled();
             tServerName.Text = ConfigKey.ServerName.GetString();
+            CustomName.Text = ConfigKey.CustomChatName.GetString();
+            SwearBox.Text = ConfigKey.SwearName.GetString();
+            CustomAliases.Text = ConfigKey.CustomAliasName.GetString();
             tMOTD.Text = ConfigKey.MOTD.GetString();
 
             nMaxPlayers.Value = ConfigKey.MaxPlayers.GetInt();
@@ -129,6 +133,7 @@ namespace fCraft.ConfigGUI {
 
             cPublic.SelectedIndex = ConfigKey.IsPublic.Enabled() ? 0 : 1;
             nPort.Value = ConfigKey.Port.GetInt();
+            MaxCapsValue.Value = ConfigKey.MaxCaps.GetInt();
             nUploadBandwidth.Value = ConfigKey.UploadBandwidth.GetInt();
 
             xAnnouncements.Checked = (ConfigKey.AnnouncementInterval.GetInt() > 0);
@@ -157,6 +162,10 @@ namespace fCraft.ConfigGUI {
             colorSys = Color.ParseToIndex( ConfigKey.SystemMessageColor.GetString() );
             ApplyColor( bColorSys, colorSys );
             Color.Sys = Color.Parse( colorSys );
+
+            colorCustom = Color.ParseToIndex(ConfigKey.CustomChatColor.GetString());
+            ApplyColor(CustomColor, colorCustom);
+            Color.Custom = Color.Parse(colorCustom);
 
             colorHelp = Color.ParseToIndex( ConfigKey.HelpColor.GetString() );
             ApplyColor( bColorHelp, colorHelp );
@@ -435,7 +444,11 @@ namespace fCraft.ConfigGUI {
 
         void SaveConfig() {
             // General
+            ConfigKey.HbSaverKey.TrySetValue(HbBox1.Checked);
             ConfigKey.ServerName.TrySetValue( tServerName.Text );
+            ConfigKey.CustomChatName.TrySetValue(CustomName.Text);
+            ConfigKey.SwearName.TrySetValue(SwearBox.Text);
+            ConfigKey.CustomAliasName.TrySetValue(CustomAliases.Text);
             ConfigKey.MOTD.TrySetValue( tMOTD.Text );
             ConfigKey.MaxPlayers.TrySetValue( nMaxPlayers.Value );
             ConfigKey.MaxPlayersPerWorld.TrySetValue( nMaxPlayersPerWorld.Value );
@@ -446,6 +459,7 @@ namespace fCraft.ConfigGUI {
             }
             ConfigKey.IsPublic.TrySetValue( cPublic.SelectedIndex == 0 );
             ConfigKey.Port.TrySetValue( nPort.Value );
+            ConfigKey.MaxCaps.TrySetValue(MaxCapsValue.Value);
             if( xIP.Checked ) {
                 ConfigKey.IP.TrySetValue( tIP.Text );
             } else {
@@ -466,6 +480,7 @@ namespace fCraft.ConfigGUI {
 
             // Chat
             ConfigKey.SystemMessageColor.TrySetValue( Color.GetName( colorSys ) );
+            ConfigKey.CustomChatColor.TrySetValue(Color.GetName(colorCustom));
             ConfigKey.HelpColor.TrySetValue( Color.GetName( colorHelp ) );
             ConfigKey.SayColor.TrySetValue( Color.GetName( colorSay ) );
             ConfigKey.AnnouncementColor.TrySetValue( Color.GetName( colorAnnouncement ) );

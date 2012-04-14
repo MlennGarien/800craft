@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>fCraft.ServerCLI.Program</StartupObject>
-    <ApplicationIcon>fcraft_console.ico</ApplicationIcon>
+    <ApplicationIcon>ServerCLI.ico</ApplicationIcon>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="fcraft_console.ico" />
+    <Content Include="ServerCLI.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

@@ -25,7 +25,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(cdReview);
             CommandManager.RegisterCommand(CdAdminChat);
-            //CommandManager.RegisterCommand(CdCustomChat);
+            CommandManager.RegisterCommand(CdCustomChat);
             CommandManager.RegisterCommand(cdAway);
             CommandManager.RegisterCommand(cdHigh5);
             CommandManager.RegisterCommand(CdPoke);
@@ -92,7 +92,7 @@ namespace fCraft {
 
             else
             {
-                Server.Players.Message("{0} &1RageQuit from the server: &C{1}",
+                Server.Players.Message("{0} &4RageQuit from the server: &C{1}",
                                 player.ClassyName, reason);
                 player.Kick(Player.Console, reason, LeaveReason.RageQuit, false, false, false);
             }
@@ -144,7 +144,7 @@ namespace fCraft {
                 // Check if the player actually moved and not just rotated
                 if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
                 {
-                    Server.Players.Message("{0} &Eis no longer away", e.Player.ClassyName);
+                    Server.Players.Message("{0} &Eis back", e.Player.ClassyName);
                     e.Player.IsAway = false;
                 }
             }
@@ -167,10 +167,11 @@ namespace fCraft {
             fCraft.VoteHandler.VoteParams(player, cmd);
         }
 
-        /*static readonly CommandDescriptor CdCustomChat = new CommandDescriptor
+        static readonly CommandDescriptor CdCustomChat = new CommandDescriptor
         {
-            Name = ConfigKey.CustomChatChannel.GetString(),
+            Name = ConfigKey.CustomChatName.GetString(),
             Category = CommandCategory.Chat,
+            Aliases = new [] { ConfigKey.CustomAliasName.GetString() },
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             NotRepeatable = true,
@@ -198,7 +199,7 @@ namespace fCraft {
                 }
                 Chat.SendCustom(player, message);
             }
-        }*/
+        }
 
         #region Troll
 

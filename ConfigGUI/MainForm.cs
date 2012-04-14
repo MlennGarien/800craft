@@ -32,7 +32,7 @@ namespace fCraft.ConfigGUI {
             dgvcBlockDB.IndeterminateValue = YesNoAuto.Auto;
             bold = new Font( Font, FontStyle.Bold );
             Shown += Init;
-            Text = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
+            Text = "800Craft Configuration (" + Updater.CurrentRelease.VersionString + ")";
         }
 
 
@@ -1273,7 +1273,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         #region Colors
-        int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC, colorMe, colorWarning;
+        int colorSys, colorSay, colorHelp, colorAnnouncement, colorPM, colorIRC, colorMe, colorWarning, colorCustom;
 
         void ApplyColor( Button button, int color ) {
             button.Text = Color.GetName( color );
@@ -1475,6 +1475,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring, DefaultPermissionLimitString );
             permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit", Permission.Spectate, DefaultPermissionLimitString );
             permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox( "Undo limit", Permission.UndoOthersActions, DefaultPermissionLimitString );
+            permissionLimitBoxes[Permission.Slap] = new PermissionLimitBox("Slap limit", Permission.Slap, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Kill] = new PermissionLimitBox("Kill limit", Permission.Kill, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Possess] = new PermissionLimitBox("Possess limit", Permission.Possess, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Warn] = new PermissionLimitBox("Warn limit", Permission.Warn, DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Gtfo] = new PermissionLimitBox("Gtfo limit", Permission.Gtfo, DefaultPermissionLimitString);
 
             foreach( var box in permissionLimitBoxes.Values ) {
                 permissionLimitBoxContainer.Controls.Add( box );
@@ -1546,6 +1551,65 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             tPrefix.Enabled = usePrefixes;
             lPrefix.Enabled = usePrefixes;
             RebuildRankList();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ColorPicker picker = new ColorPicker("Custom Chat command color", colorCustom);
+            picker.ShowDialog();
+            colorCustom = picker.ColorIndex;
+            ApplyColor(CustomColor, colorCustom);
+            Color.Custom = Color.Parse(colorCustom);
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tServerName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CustomName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void CustomAliases_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SwearBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MaxCapsValue_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nPort_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void HbBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

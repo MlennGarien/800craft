@@ -7,6 +7,9 @@ namespace fCraft.ConfigGUI {
 
             toolTip.SetToolTip( lServerName, ConfigKey.ServerName.GetDescription() );
             toolTip.SetToolTip( tServerName, ConfigKey.ServerName.GetDescription() );
+            toolTip.SetToolTip(CustomName, ConfigKey.CustomChatName.GetDescription());
+            toolTip.SetToolTip(CustomAliases, ConfigKey.CustomAliasName.GetDescription());
+            toolTip.SetToolTip(SwearBox, ConfigKey.SwearName.GetDescription());
 
             toolTip.SetToolTip( lMOTD, ConfigKey.MOTD.GetDescription() );
             toolTip.SetToolTip( tMOTD, ConfigKey.MOTD.GetDescription() );

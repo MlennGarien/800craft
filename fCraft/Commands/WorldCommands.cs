@@ -55,6 +55,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdRankHide);
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
+            SchedulerTask TimeCheckR = Scheduler.NewTask(TimeCheck).RunForever(TimeSpan.FromSeconds(120));
             //CommandManager.RegisterCommand(CdPhysics); //coming soon
         }
         #region 800Craft
@@ -565,10 +566,11 @@ namespace fCraft {
 
             else
             {
+                worldName = worldName.ToLower();
                 player.Message("Worlds found: ");
                 foreach (World w in WorldManager.Worlds)
                 {
-                    if (w.Name.Contains(worldName))
+                    if (w.Name.ToLower().Contains(worldName))
                         player.Message("{0} ", w.ClassyName);
                 }
                 return;
@@ -1455,17 +1457,22 @@ namespace fCraft {
 
         #region Env
 
-        static readonly CommandDescriptor CdEnv = new CommandDescriptor {
+        static readonly CommandDescriptor CdEnv = new CommandDescriptor
+        {
             Name = "Env",
             Category = CommandCategory.World,
             Permissions = new[] { Permission.ManageWorlds },
             Help = "Prints or changes the environmental variables for a given world. " +
-                   "Variables are: clouds, fog, sky, level, edge. " +
+                   "Variables are: clouds, fog, sky, level, edge, terrain, realistic " +
                    "See &H/Help env <Variable>&S for details about each variable. " +
                    "Type &H/Env <WorldName> normal&S to reset everything for a world.",
             HelpSections = new Dictionary<string, string>{
                 { "normal",     "&H/Env <WorldName> normal\n&S" +
                                 "Resets all environment settings to their defaults for the given world." },
+               { "terrain",     "&H/Env terrain terrainType. Leave blank for a list\n&S" +
+                                "Changes the blockset for a given world ." },
+               { "realistic",     "&H/Env realistic. Toggles realistic mode on or off\n&S" +
+                                "Changes the environment according to the server time for a chosen world" },
                 { "clouds",     "&H/Env <WorldName> clouds <Color>\n&S" +
                                 "Sets color of the clouds. Use \"normal\" instead of color to reset." },
                 { "fog",        "&H/Env <WorldName> fog <Color>\n&S" +
@@ -1519,6 +1526,95 @@ namespace fCraft {
                     player.Message( "  You need WoM client to see the changes." );
                 }
                 return;
+            }
+
+            if (variable.ToLower() == "terrain")
+            {
+                string option = cmd.Next();
+                switch (option)
+                {
+                    case "normal":
+                        world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "simple":
+                        world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "highres":
+                        world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "tron":
+                        world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "8bit":
+                        world.Terrain = "5a3fb1994e2ae526815ceaaca3a4dac0051aa890";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "mario":
+                        world.Terrain = "e98a37ddccbc6144306bd08f41248324965c4e5a";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "fall":
+                        world.Terrain = "b7c6dcb7a858639077f95ef94e8e2d51bedc3307";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "indev":
+                        world.Terrain = "73d1ef4441725bdcc9ac3616205faa3dff46e12a";
+                        player.Message("Terrain Changed Rejoin world to see changes");
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "messa":
+                        world.Terrain = "db0feeac8702704a3146a71365622db55fb5a4c4";
+                        player.Message("Terrain Changed Rejoin world to see changes");
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "portal":
+                        world.Terrain = "d4b455134394763296994d0c819b0ac0ea338457";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "winter":
+                        world.Terrain = "3d22ed0ab311e003ed4e3ba17c3cf455019e7f35";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    case "zelda":
+                        world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
+                        player.Message("Terrain Changed for {0}", world.ClassyName);
+                        WorldManager.SaveWorldList();
+                        break;
+                    default: player.Message("&A/terrain Normal | fall | winter | tron | mario | highres | 8bit | simple |" +
+                             " indev | messa | portal | zelda ");
+                        break;
+                }
+                return;
+            }
+
+            if (variable.ToLower() == "realistic")
+            {
+                if (!world.RealisticEnv)
+                {
+                    world.RealisticEnv = true;
+                    player.Message("Realistic Environment has been turned ON for world {0}", world.ClassyName);
+                    return;
+                }
+
+                if (world.RealisticEnv)
+                {
+                    world.RealisticEnv = false;
+                    player.Message("Realistic Environment has been turned OFF for world {0}", player.World.ClassyName);
+                    return;
+                }
             }
 
             if( variable.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
@@ -1686,6 +1782,124 @@ namespace fCraft {
                 return (byte)(c - 'a' + 10);
             } else {
                 throw new FormatException();
+            }
+        }
+
+        static void TimeCheck(SchedulerTask task)
+        {
+            foreach (World world in WorldManager.Worlds)
+            {
+                if (world.RealisticEnv)
+                {
+                    int sky;
+                    int clouds;
+                    int fog;
+                    DateTime now = DateTime.Now;
+                    var SunriseStart = new TimeSpan(6, 30, 0);
+                    var SunriseEnd = new TimeSpan(7, 29, 59);
+                    var MorningStart = new TimeSpan(7, 30, 0);
+                    var MorningEnd = new TimeSpan(11, 59, 59);
+                    var NormalStart = new TimeSpan(12, 0, 0);
+                    var NormalEnd = new TimeSpan(16, 59, 59);
+                    var EveningStart = new TimeSpan(17, 0, 0);
+                    var EveningEnd = new TimeSpan(18, 59, 59);
+                    var SunsetStart = new TimeSpan(19, 0, 0);
+                    var SunsetEnd = new TimeSpan(19, 29, 59);
+                    var NightaStart = new TimeSpan(19, 30, 0);
+                    var NightaEnd = new TimeSpan(1, 0, 1);
+                    var NightbStart = new TimeSpan(1, 0, 2);
+                    var NightbEnd = new TimeSpan(6, 29, 59);
+
+                    if (now.TimeOfDay > SunriseStart && now.TimeOfDay < SunriseEnd) //sunrise
+                    {
+                        sky = ParseHexColor("ffff33");
+                        clouds = ParseHexColor("ff0033");
+                        fog = ParseHexColor("ff3333");
+                        world.SkyColor = sky;
+                        world.CloudColor = clouds;
+                        world.FogColor = fog;
+                        world.EdgeBlock = Block.Water;
+                        WorldManager.SaveWorldList();
+                        return;
+                    }
+
+                    if (now.TimeOfDay > MorningStart && now.TimeOfDay < MorningEnd) //end of sunrise
+                    {
+                        sky = -1;
+                        clouds = ParseHexColor("ff0033");
+                        fog = ParseHexColor("fffff0");
+                        world.SkyColor = sky;
+                        world.CloudColor = clouds;
+                        world.FogColor = fog;
+                        world.EdgeBlock = Block.Water;
+                        WorldManager.SaveWorldList();
+                        return;
+                    }
+
+                    if (now.TimeOfDay > NormalStart && now.TimeOfDay < NormalEnd)//env normal
+                    {
+                        sky = -1;
+                        clouds = -1;
+                        fog = -1;
+                        world.SkyColor = sky;
+                        world.CloudColor = clouds;
+                        world.FogColor = fog;
+                        world.EdgeBlock = Block.Water;
+                        WorldManager.SaveWorldList();
+                        return;
+                    }
+
+                    if (now.TimeOfDay > EveningStart && now.TimeOfDay < EveningEnd) //evening
+                    {
+                        sky = ParseHexColor("99cccc");
+                        clouds = -1;
+                        fog = ParseHexColor("99ccff");
+                        world.SkyColor = sky;
+                        world.CloudColor = clouds;
+                        world.FogColor = fog;
+                        world.EdgeBlock = Block.Water;
+                        WorldManager.SaveWorldList();
+                        return;
+                    }
+
+                    if (now.TimeOfDay > SunsetStart && now.TimeOfDay < SunsetEnd) //sunset
+                    {
+                        sky = ParseHexColor("9999cc");
+                        clouds = ParseHexColor("000033");
+                        fog = ParseHexColor("cc9966");
+                        world.SkyColor = sky;
+                        world.CloudColor = clouds;
+                        world.FogColor = fog;
+                        world.EdgeBlock = Block.Water;
+                        WorldManager.SaveWorldList();
+                        return;
+                    }
+
+                    if (now.TimeOfDay > NightaStart && now.TimeOfDay < NightaEnd) //end of sunset
+                    {
+                        sky = ParseHexColor("003366");
+                        clouds = ParseHexColor("000033");
+                        fog = ParseHexColor("000033");
+                        world.SkyColor = sky;
+                        world.CloudColor = clouds;
+                        world.FogColor = fog;
+                        world.EdgeBlock = Block.Black;
+                        WorldManager.SaveWorldList();
+                        return;
+                    }
+
+                    if (now.TimeOfDay > NightbStart && now.TimeOfDay < NightbEnd) //black
+                    {
+                        sky = ParseHexColor("000000");
+                        clouds = ParseHexColor("000033");
+                        fog = ParseHexColor("000033");
+                        world.SkyColor = sky;
+                        world.CloudColor = clouds;
+                        world.FogColor = fog;
+                        world.EdgeBlock = Block.Obsidian;
+                        WorldManager.SaveWorldList();
+                    }
+                }
             }
         }
 
@@ -2144,7 +2358,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Aliases = new[] { "maps", "levels" },
-            Usage = "/Worlds [all/hidden/populated/@Rank]",
+            Usage = "/Worlds [all/hidden/realms/populated/@Rank]",
             Help = "Shows a list of available worlds. To join a world, type &H/Join WorldName&S. " +
                    "If the optional \"all\" is added, also shows inaccessible or hidden worlds. " +
                    "If \"hidden\" is added, shows only inaccessible and hidden worlds. " +
@@ -2177,6 +2391,11 @@ namespace fCraft {
                         listName = "hidden worlds";
                         extraParam = "hidden ";
                         worlds = WorldManager.Worlds.Where( w => !player.CanSee( w ) ).ToArray();
+                        break;
+                    case 'r':
+                        listName = "Available Realms";
+                        extraParam = "realms";
+                        worlds = WorldManager.Worlds.Where(w => w.IsRealm).ToArray();
                         break;
                     case 'p':
                         listName = "populated worlds";
@@ -2931,6 +3150,8 @@ namespace fCraft {
             } else {
                 player.Message( "  Periodic backups every {0}", world.BackupInterval.ToMiniString() );
             }
+            if (world.RealisticEnv)
+                player.Message("  Realistic ENV is enabled on this world");
         }
 
         #endregion

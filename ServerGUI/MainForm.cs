@@ -29,9 +29,9 @@ namespace fCraft.ServerGUI {
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
-            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+            Text = "800Craft " + Updater.CurrentRelease.VersionString + " - starting...";
             startupThread = new Thread( StartupThread );
-            startupThread.Name = "fCraft ServerGUI Startup";
+            startupThread.Name = "800Craft ServerGUI Startup";
             startupThread.Start();
         }
 
@@ -55,7 +55,7 @@ namespace fCraft.ServerGUI {
                     if( shutdownPending ) return;
                     if( update.UpdateAvailable ) {
                         if( updaterMode == UpdaterMode.Notify ) {
-                            String updateMsg = String.Format( "An fCraft update is available! Visit www.fCraft.net to download. " +
+                            String updateMsg = String.Format( "An 800Craft update is available! Visit www.fCraft.net to download. " +
                                                               "Local version: {0}. Latest available version: {1}.",
                                                               Updater.CurrentRelease.VersionString,
                                                               update.LatestRelease.VersionString );
@@ -93,7 +93,7 @@ namespace fCraft.ServerGUI {
 
 
         void OnInitSuccess() {
-            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+            Text = "800Craft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
         }
 
 
@@ -130,7 +130,7 @@ namespace fCraft.ServerGUI {
             shutdownPending = true;
             console.Enabled = false;
             console.Text = "Shutting down...";
-            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - shutting down...";
+            Text = "800Craft " + Updater.CurrentRelease.VersionString + " - shutting down...";
             uriDisplay.Enabled = false;
             if( !startupComplete ) {
                 startupThread.Join();
@@ -172,7 +172,7 @@ namespace fCraft.ServerGUI {
                 } else {
                     logBox.AppendText( e.Message + Environment.NewLine );
                     if( logBox.Lines.Length > MaxLinesInLog ) {
-                        logBox.Text = "----- cut off, see fCraft.log for complete log -----" +
+                        logBox.Text = "----- cut off, see 800Craft.log for complete log -----" +
                             Environment.NewLine +
                             logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
                     }

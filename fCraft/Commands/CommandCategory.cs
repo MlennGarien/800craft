@@ -33,6 +33,8 @@ namespace fCraft {
         /// <summary> Commands that are only used for diagnostics and debugging. </summary>
         Debug = 128,
         /// <summary> Commands that are just fun. </summary>
-        Fun = 256
+        Fun = 256,
+        /// <summary> Commands that use advanced mathematics. </summary>
+        Math = 512
     }
 }

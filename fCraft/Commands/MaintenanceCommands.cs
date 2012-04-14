@@ -1119,6 +1119,7 @@ namespace fCraft {
                     if( Server.CancelShutdown() ) {
                         Logger.Log( LogType.UserActivity,
                                     "Restart aborted by {0}.", player.Name );
+                        Server.IsRestarting = false;
                         Server.Message( "&WRestart aborted by {0}", player.ClassyName );
                     } else {
                         player.MessageNow( "Cannot abort restart - too late." );
@@ -1140,7 +1141,7 @@ namespace fCraft {
                                 TimeSpan.FromMilliseconds( Int32.MaxValue - 1 ).ToMiniString() );
                 return;
             }
-
+            Server.IsRestarting = true;
             Server.Message( "&WServer restarting in {0}", delayTime.ToMiniString() );
 
             if( String.IsNullOrEmpty( reason ) ) {

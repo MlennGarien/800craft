@@ -299,6 +299,7 @@ namespace fCraft {
 
             // Init IRC
             IRC.Init();
+            //Heartbeat.HbSave();
 
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
                 AutoRankManager.Init();
@@ -470,6 +471,7 @@ namespace fCraft {
 #if !DEBUG
             try {
 #endif
+                Heartbeat.HbSave();
                 RaiseShutdownBeganEvent( shutdownParams );
 
                 Scheduler.BeginShutdown();
@@ -543,7 +545,7 @@ namespace fCraft {
             lock( ShutdownLock ) {
                 if( !CancelShutdown() ) return;
                 shutdownThread = new Thread( ShutdownThread ) {
-                    Name = "800Craft.Shutdown"
+                    Name = "fCraft.Shutdown"
                 };
                 if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
                     string timerMsg = String.Format( "Server {0} ({1})",
@@ -1025,14 +1027,22 @@ namespace fCraft {
         public static string MakePlayerConnectedMessage( [NotNull] Player player, bool firstTime, [NotNull] World world ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( world == null ) throw new ArgumentNullException( "world" );
-            if( firstTime ) {
-                return String.Format( "&SPlayer {0}&S connected, joined {1}",
+            if (firstTime){
+                return String.Format("&S{0} &Sconnected, joined {1}",
                                       player.ClassyName,
-                                      world.ClassyName );
-            } else {
-                return String.Format( "&SPlayer {0}&S connected again, joined {1}",
+                                      world.ClassyName);
+            }
+            //use this if you want to show original names for people with displayednames
+            if (!firstTime && player.Info.DisplayedName != null){
+
+                return String.Format("&S{0} &S({1}&S) connected again, joined {2}",
                                       player.ClassyName,
-                                      world.ClassyName );
+                                      player.Name,
+                                      world.ClassyName);
+            }else{
+                return String.Format("&S{0} &Sconnected again, joined {1}",
+                                      player.ClassyName,
+                                      world.ClassyName);
             }
         }
 
