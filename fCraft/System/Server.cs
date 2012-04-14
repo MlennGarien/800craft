@@ -38,6 +38,10 @@ namespace fCraft {
         public static bool IsRestarting = false;
         public static bool HSaverOn = false;
 
+        public static bool Moderation = false;
+
+        public static List<Player> VoicedPlayers = new List<Player>();
+
         public static List<Player> TempBans = new List<Player>();
 
 

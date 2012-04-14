@@ -16,6 +16,76 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
+            if (Server.Moderation && !Server.VoicedPlayers.Contains(player) && player.World != null)
+            {
+                player.Message("&WError: Server Moderation is activated. Message failed to send");
+                return false;
+            }
+
+            rawMessage = rawMessage.Replace("$name", "Hello my name is " + player.ClassyName);
+            rawMessage = rawMessage.Replace("$kicks", "I have kicked " + player.Info.TimesKickedOthers.ToString() + " players.");
+            rawMessage = rawMessage.Replace("$bans", "I have banned " + player.Info.TimesBannedOthers.ToString() + " players.");
+            rawMessage = rawMessage.Replace("$awesome", "It is my professional opinion, that " + ConfigKey.ServerName.GetString() + " is the best server on Minecraft");
+            rawMessage = rawMessage.Replace("$server", ConfigKey.ServerName.GetString());
+            rawMessage = rawMessage.Replace("$motd", ConfigKey.MOTD.GetString());
+            rawMessage = rawMessage.Replace("$date", DateTime.UtcNow.ToShortDateString());
+            rawMessage = rawMessage.Replace("$time", DateTime.Now.ToString());
+
+            if (!player.Can(Permission.ChatWithCaps))
+            {
+                int caps = 0;
+                for (int i = 0; i < rawMessage.Length; i++)
+                {
+                    if (Char.IsUpper(rawMessage[i]))
+                    {
+                        caps++;
+                        if (caps > 10/*ConfigKey.MaxCaps.GetInt()*/) //config
+                        {
+                            rawMessage = rawMessage.ToLower();
+                            player.Message("Your message was changed to lowercase as it exceeded the maximum amount of capital letters.");
+                        }
+                    }
+                }
+            }
+
+            if (player.World != null)
+            {
+                if (player.World.GameOn)
+                {
+                    if (player.World.CurrentGame == "math1")
+                    {
+                        if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
+                        {
+                            Games.MineChallenge.completed.Add(player);
+                            player.Message("&8Correct!");
+                            if (player.World.blueTeam.Contains(player)) player.World.blueScore++;
+                            else player.World.redScore++;
+                        }
+                        else
+                        {
+                            player.Message("&8Incorrect");
+                        } 
+                        return false;
+                    }
+
+                    if (player.World.CurrentGame == "math2")
+                    {
+                        if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
+                        {
+                            Games.MineChallenge.completed.Add(player);
+                            player.Message("&8Correct!");
+                            if (player.World.blueTeam.Contains(player)) player.World.blueScore++;
+                            else player.World.redScore++;
+                        }
+                        else
+                        {
+                            player.Message("&8Incorrect");
+                        } 
+                        return false;
+                    }
+                }
+            }
+
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "{0}&F: {1}",

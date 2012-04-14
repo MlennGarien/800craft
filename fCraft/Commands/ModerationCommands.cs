@@ -66,9 +66,83 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdWarn);
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(CdDisconnect);
+            CommandManager.RegisterCommand(CdModerate);
         }
         #region 800Craft
         public static List<string> BassText = new List<string>();
+
+        static readonly CommandDescriptor CdModerate = new CommandDescriptor
+        {
+            Name = "Moderate",
+            Aliases = new [] { "MuteAll", "Moderation" },
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Moderation },
+            Help = "Create a server-wide silence, muting all players until called again.",
+            NotRepeatable = true,
+            Usage = "/Moderate [Voice / Devoice] [PlayerName]",
+            Handler = ModerateHandler
+        };
+
+        internal static void ModerateHandler(Player player, Command cmd)
+        {
+            string Option = cmd.Next();
+            if (Option == null){
+                if (Server.Moderation){
+                    Server.Moderation = false;
+                    Server.Message("{0}&W deactivated server moderation, the chat feed is enabled", player.ClassyName);
+                    Server.VoicedPlayers.Clear();
+                }else{
+                    Server.Moderation = true;
+                    Server.Message("{0}&W activated server moderation, the chat feed is disabled", player.ClassyName);
+                    if (player.World != null) //console safe
+                    {
+                        Server.VoicedPlayers.Add(player);
+                    }
+                }
+            }else{
+                string name = cmd.Next();
+                if (Option.ToLower() == "voice" && Server.Moderation)
+                {
+                    if (name == null){
+                        player.Message("Please enter a player to Voice");
+                        return;
+                    }
+                    Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+                    if (target == null) return;
+                    if (Server.VoicedPlayers.Contains(target)){
+                        player.Message("{0}&S is already voiced", target.ClassyName);
+                        return;
+                    }
+                    Server.VoicedPlayers.Add(target);
+                    Server.Message("{0}&S was given Voiced status by {1}", target.ClassyName, player.ClassyName);
+                    return;
+                }
+                else if (Option.ToLower() == "devoice" && Server.Moderation)
+                {
+                    if (name == null)
+                    {
+                        player.Message("Please enter a player to Devoice");
+                        return;
+                    }
+                    Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+                    if (target == null) return;
+                    if (!Server.VoicedPlayers.Contains(target))
+                    {
+                        player.Message("&WError: {0}&S does not have voiced status", target.ClassyName);
+                        return;
+                    }
+                    Server.VoicedPlayers.Remove(target);
+                    player.Message("{0}&S is no longer voiced", target.ClassyName);
+                    target.Message("You are no longer voiced");
+                    return;
+                }
+                else
+                {
+                    player.Message("&WError: Server moderation is not activated");
+                }
+            }
+        }
         
         static readonly CommandDescriptor CdKill = new CommandDescriptor
         {

@@ -210,7 +210,9 @@ namespace fCraft {
         /// <summary> Ability to use the /Gun for killing, exploding TNT and Portals. </summary>
         Gun,
         /// <summary> Ability to use the manage game modes. </summary>
-        Games
+        Games,
+        /// <summary> Permission to create a server-wide silence, muting all players, and to voice players while the moderation is in affect. </summary>
+        Moderation
 
     }
 }

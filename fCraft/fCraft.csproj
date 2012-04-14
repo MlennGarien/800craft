@@ -119,6 +119,7 @@
     <Compile Include="Drawing\DrawOps\MazeCuboidDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\RandomMazeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
+    <Compile Include="Games\Football.cs" />
     <Compile Include="Games\MineChallenge.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Player\SecurityController.cs" />
