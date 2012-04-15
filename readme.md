@@ -68,6 +68,14 @@
 * /Write, a command for writing text in blocks
 
 * /Cylinder, draws a cylinder, can also be hollow
+ 
+* Make a variety of trees using a custom height with /Tree
+ 
+* Create a serverwide silence with /Moderate
+
+* Create fun, random mazes with /RandomMaze
+
+* Create giant mazes with /MazeCuboid
 
 * Support for MineManager on 800Craft.net
 
@@ -79,18 +87,18 @@
 * TNT exploding physics
 
 * Grass Physics
-Grass regrows from dirt
+* Grass regrows from dirt
 
 * Water Physics
-Players die if under water for 30 seconds
-Blocks like wool float in water
-Other blocks sink in water
+* Players die if under water for 30 seconds
+* Blocks like wool float in water
+* Other blocks sink in water
 
-*Plant Physics
-Sapplings turn into trees in sunlight
-Blocks placed on grass turn the grass to dirt
-Mushrooms & flowers squash
-Mushrooms & flowers die when not in sunlight
+* Plant Physics
+* Sapplings turn into trees in sunlight
+* Blocks placed on grass turn the grass to dirt
+* Mushrooms & flowers squash
+* Mushrooms & flowers die when not in sunlight
 
 
 ## 800Craft MineManager
