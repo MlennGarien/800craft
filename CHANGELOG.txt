@@ -1,3 +1,64 @@
+800Craft Changelog:
+
+Changelog for 800Craft 0.2x
+
+Re-wrote /list
+/env terrain & realistic now need a world name
+Fixed /vote kick & ask.
+Fixed /worlds populated counting hidden players
+Updated the BanEx code, the ConfigCLI code, ServerCLI code.
+Updated irc code to fix a nasty bug
+Improved the performance of the profanity filter
+/list staff now uses pagination.
+/vote null shows information about a current running vote.
+Split ragequit into %4 and %c
+Added "players that can review you" to /review
+Rank.Color + name for bromode on / off.
+Wload now removes dummys on the old world, which fixes an annoying bug.
+Added /list idles | dummys | portals
+Fixed /walls not working if height was 1
+/say now sends the senders name before the message to players who can use /say and just the message to everyone else.
+Fixed /basscannon not showing a random message
+/high5, /slap & /kill no longer show their messages to ranks who cannot see the target
+MineQuery is now a plugin
+Disabled mineQuery checkbox
+Fixed tempban not unbanning on shutdown
+Added a way to list each player in a rank (uses pagination)
+Added a key for toggling hbsaver. Updated config version
+Terrain now saves on shutdown
+Moved permissions around a bit for the configGUI
+Added a /Tower command (Map safe)
+Slight modification to /tpzone making it fCraft compatible
+Moved permissions around a bit for the configGUI
+Added /Gun
+Added TNT exploding if physics is on, for /Gun
+Added a Portal Gun
+Added support for MineManager on 800Craft.net (coming soon)
+Added /Tree
+Changed /Banx to reduce chat spam
+Added /Moderation
+Added caps filter
+Readded minechallege game code (chat.cs)
+Added $name
+Added $server
+added $kicks
+added $bans
+
+Physics:
+Added Tree-Growing physics
+Added fireworks
+Added Grass Physics
+Added Plant Physics
+Added Blocks Floating/Sinking
+Players drown if in water for > 30 seconds
+
+
+
+
+
+fCraft Changelog:
+
+
 0.616
  Fix: Fixed /Import terminating when importing bans, if a player with the given name is already banned.
  Fix: Fixed a formatting error in /Bring and /WBring confirmation messages.

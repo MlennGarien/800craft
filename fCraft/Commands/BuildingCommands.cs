@@ -273,7 +273,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdFly = new CommandDescriptor
         {
             Name = "Fly",
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Building,
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/fly",
@@ -342,12 +342,16 @@ namespace fCraft {
                 if (reason.Length < 1)
                     reason = "Reason Undefined: BanX";
 
-                    target.Ban(player, reason, false, true);
+                    
+                Player targetPlayer = target.PlayerObject;
+                target.Ban( player, reason, false, true );
                     if (player.Can(Permission.Demote, target.Rank))
                     {
-                        target = PlayerDB.AddFakeEntry(target.Name, RankChangeType.Demoted);
-                        player.LastUsedPlayerName = target.Name;
-                        target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
+                        if (target.Rank != RankManager.LowestRank)
+                        {
+                            player.LastUsedPlayerName = target.Name;
+                            target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
+                        }
                         Server.Players.Message("{0}&S was BanX'd by {1}&S(with auto-demote): {2}", target.ClassyName, player.ClassyName, reason);
                         return;
                     }
@@ -401,9 +405,6 @@ namespace fCraft {
             BlockDBEntry[] changes;
             if (Int32.TryParse(range, out count))
             {
-                player.Message("Searching for last {0} changes made by {1}&s...",
-                                count, target.ClassyName);
-
                 changes = world.BlockDB.Lookup(target, count);
                 if (changes.Length > 0)
                 {
@@ -415,10 +416,6 @@ namespace fCraft {
             }
             else if (range.TryParseMiniTimespan(out span))
             {
-
-                player.Message("Searching for changes made by {0}&s in the last {1}...",
-                                target.ClassyName, span.ToMiniString());
-
                 changes = world.BlockDB.Lookup(target, span);
                 if (changes.Length > 0)
                 {

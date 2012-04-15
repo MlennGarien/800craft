@@ -1,42 +1,36 @@
-Thank you for downloading fCraft, the custom Minecraft server.
+Thank you for downloading 800Craft, a custom Minecraft server based on fCraft.
 
-If you like fCraft, support its development by donating!
-    http://donate.fcraft.net
+If you like 800Craft, feel free to buy me and GlennMR a drink by donating to:
+    http://donate.800craft.net
 
+Special thanks to fragmer, what a bro!
 
 
 === Installation (Windows) ====================================================
 
-fCraft requires Microsoft .NET Framework 3.5. Your system may already have it
+80Craft requires Microsoft .NET Framework 4.0. Your system may already have it
 installed, and you can download it from microsoft.com
-For more information, see http://www.fcraft.net/wiki/Installation_Instructions
-
-
 
 === Installation (Linux, Unix, MacOS X) =======================================
 
-fCraft requires Mono 2.6.4 (minumum) or Mono 2.10 (recommended). You can
+800Craft requires Mono 2.10 (recommended). You can
 download it from www.mono-project.org, or (on some Linux distributions) install
 it through your package manager.
 
-To be able to use graphical fCraft components (ServerGUI and ConfigGUI) you
-will also need GDI+ library (libgdiplus). Before starting fCraft, make sure
-that it has read/write permissions in the fCraft directory.
+To be able to use graphical 800Craft components (ServerGUI and ConfigGUI) you
+will also need GDI+ library (libgdiplus). Before starting 800Craft, make sure
+that it has read/write permissions in the 800Craft directory.
 
 To run ".exe" files with Mono, use the following syntax:
 Mono 2.6.4: "mono SomeFile.exe"
 Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
-
-For more information, see http://www.fcraft.net/wiki/Installation_Instructions
-
-
 
 === Initial Setup =============================================================
 
 Before starting the server for the first time, run ConfigGUI.exe to choose
 your server's name and settings.
 
-You may need to add firewall exceptions for fCraft applications (ConfigGUI,
+You may need to add firewall exceptions for 800Craft applications (ConfigGUI,
 ServerGUI, or ServerCLI, or ServerWinService) to allow incoming TCP connections
 on the listening port. Default port is 25565.
 
@@ -46,8 +40,6 @@ on the same port. See www.port-forward.com for further guidance.
 When you are ready to start the server, run ONE of the available server
 front-ends (GUI, CLI, or WinService).
 
-
-
 === Troubleshooting ===========================================================
 
 Server does not show up on minecraft.net list:
@@ -55,14 +47,14 @@ Server does not show up on minecraft.net list:
         (or set <IsPublic> to true in config.xml).
 
 "Could not connect to server: it's probably down":
-    Make sure that you added firewall exception for fCraft (if applicable),
+    Make sure that you added firewall exception for 800Craft (if applicable),
     and forwarded the port on your router. If you are connecting from same
     computer that the server is working on, try connecting to:
     http://www.minecraft.net/play.jsp?ip=127.0.0.1&port=____
         (fill in the blank with your server's port number)
 
 "Could not verify player name":
-    Verification problems occur when your fCraft server cannot verify identity
+    Verification problems occur when your 800Craft server cannot verify identity
     of connecting players. Here are some things that may cause or fix
     verification problems:
     1. If minecraft.net is offline or slow, wait for it to stabilize.
@@ -108,7 +100,7 @@ Other players cannot connect from the same LAN/network as me:
        ConfigCLI.exe - A simple command-line configuration tool.
 
           fCraft.dll - Core of the server, used by all other applications.
-       fCraftGUI.dll - Provides shared functionality for Config and Server GUI.
+          fCraftGUI.dll - Provides shared functionality for Config and Server GUI.
 
        ServerCLI.exe - Command-line interface for the server.
        ServerGUI.exe - Graphical interface for the server.
@@ -117,10 +109,10 @@ Other players cannot connect from the same LAN/network as me:
 
 === Command-line Options ======================================================
 
-In addition to many settings stored in config.xml, fCraft has several special
+In addition to many settings stored in config.xml, 800Craft has several special
 options that can only be set via command-line switches:
 
-    --path=<path>       Working path (directory) that fCraft should use. If the
+    --path=<path>       Working path (directory) that 800Craft should use. If the
                         given path is relative, it's computed against the
                         location of fCraft.dll
 
@@ -136,12 +128,12 @@ options that can only be set via command-line switches:
                         filename (typically "config.xml"). If the given path
                         is relative, it's computed against the working path.
 
-    --norestart         If this flag is present, fCraft will shutdown whenever
+    --norestart         If this flag is present, 800Craft will shutdown whenever
                         it would normally restart (e.g. automatic updates or
                         /restart command). This may be useful if you are using
                         an auto-restart script or a process monitor.
 
-    --exitoncrash       If this flag is present, fCraft frontends will exit
+    --exitoncrash       If this flag is present, 800Craft frontends will exit
                         at once in the event of an unrecoverable crash, instead
                         of showing a message and prompting for user input.
 
@@ -160,23 +152,16 @@ When you first join the server, promote yourself by typing...
 
 Type "/help" in-game or in server console to get started. Type "/commands" for
 a list of available commands. For detailed information, please visit:
-    http://fcraft.net/wiki
+    http://800Craft.net/wiki
 
 To request features, report bugs, or receive support, please visit:
-    http://forums.fcraft.net
-
-For quick help/support, join #fCraft channel on Esper.net IRC:
-    irc://irc.esper.net:5555/fCraft
-
-See CHANGELOG.txt or visit http://www.fcraft.net/wiki/Version_history for
-complete information about changes in this release compared to previous
-versions of fCraft.
+    http://forums.800Craft.net
 
 
 
 === Licensing =================================================================
 
-fCraft is open-source and free for all uses. fCraft code and binaries are
+800Craft is open-source and free for all uses. However, fCraft code and binaries are
 licensed and distributed under the permissive MIT License, reproduced here:
 
 ----
@@ -201,31 +186,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ----
 
-If you create fCraft plugins that do not include any substantial portions of
+If you create 800Craft plugins that do not include any substantial portions of
 fCraft's original code, they belong to you and you are free to do absolutely
 anything with them. However, if you would like to distribute whole modified
 copies of fCraft, please follow the MIT License terms.
 
-fCraft uses and bundles Devart dotConnect for MySQL, under free license.
-Full text of the Devart dotConnect for MySQL license should be included with
-your copy of fCraft in LICENSE.dotConnect.txt
-
-Original Minecraft was developed by Markus "Notch" Persson of Mojang, and is 
+Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
 not affiliated with fCraft in any way. fCraft does not use any code, assets,
-or any other files from Minecraft.
+or any other files from Minecraft... neither does 800Craft.
 
 
 
 === Credits ===================================================================
 
-fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2011
+800Craft was developed by Jonty800 and GlennMR.
+
+Thanks again to fragmer, what a bro.
+
+Thanks to 800Craft code contributers:
+    Rebelliousdude, boblol0909 and Maicke98 for trying.
 
 Thanks to fCraft code contributors and modders:
-    Asiekierka, Dag10, Destroyer, FontPeg, Jonty800, M1_Abrams, Optical-Lza,
+    Asiekierka, Dag10, Destroyer, FontPeg, M1_Abrams, Optical-Lza,
     Redshift, SystemX17, TkTech, Wootalyzer
 
 Thanks to people who supported fCraft development through donations:
-    fCraft.net community, Astelyn, D3M0N, Destoned, DreamPhreak, Pandorum,
+    800Craft.net community, Astelyn, D3M0N, Destoned, DreamPhreak, Pandorum,
     Redshift, TkTech, ven000m,  wtfmejt, Team9000 and SpecialAttack.net
     communities, and others who donated anonymously
 
@@ -233,9 +219,12 @@ Thanks to people whose code has been ported to fCraft:
     Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove,
     Paul Bourke
 
+Thanks to Minecraft servers that helped test and improve 800Craft:
+    Au70 Galaxy, Project Vanilla.
+
 Thanks to Minecraft servers that helped test and improve fCraft:
     TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,
-    D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official
+    D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, 800Craft Freebuild Official
 
 Thanks to people who submitted bug reports and feature requests:
     Astelyn, Clhdrums87, Darklight, David00143, Dogwatch, Epiclolwut, Fehzor,
@@ -247,4 +236,4 @@ Special thanks for inspiration and suggestions:
     PyroPyro, Revenant, Varriount, Voziv, Zaneo, #mcc on Esper.net,
     HyveBuild/iCraft team, MinerCPP team, OpenCraft team
 
-And thank You for using fCraft!
+And thank You for using 800Craft!
