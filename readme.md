@@ -1,50 +1,322 @@
-## About 800craft
-800craft is a modified version of the popular Minecraft server software called fCraft. It was created by Jonty800 and is now maintained by GlennMR and Jonty800.
+'''800Craft''' is a custom server developed by Jonty800 and GlennMR. 800Craft is forked from [[fCraft]], it is designed to maintain high performance without lag or crashing while having a wide selection of implemented commands and features. 
 
-800Craft is currently working on a big update, which will include Physics and many more new features and commands.
-Something to get real excited for is the MineManager that is coming very soon. You'll be able to access your console and monitor month by month server statistics anywhere in the world from 800Craft.net. And best of all, it's going to be 100% free!
-Download it now, 800Craft is extremely stable and very high on performance and when we release our next version, we'll send you an automatic update :).
-## Features
+== History ==
 
-On top of all the amazing features fCraft already has, we have implemented:
+800Craft started off as Au70 v800.X, which was a private mod of fCraft built specifically for Au70 Galaxy by Jonty800. The software was placed in Sourceforge as a backup, but somehow went viral and suddenly there was a demand for new features from hosts who had found the software and were using it full-time. In October 2011, a Halloween Mod was released and was recommended to Project-Vanilla host 'GlennMR'. Glenn contacted Jonty800 personally and persuaded him to make an Official Software with him. The software then changed name to '800Craft' (the name of the sourceforge) and branch 0.1x was released in late December.
 
-* Custom kick and ban commands such as: /Basscanon, /Gtfo, /Tempban, /Banx, /Warn
-* Custom chat commands such as: /High5, /Away, /Poke, /Troll, /Review
-* As well as the addition of Admin Chat, you also get the option to create your own chat channel
-* Fun commands such as: /Slap, /Kill, /Possess
-* Additional building commands
-* Fly around the server with /Fly
-* Voting with /Vote
-* Make a server-wide vote for if a player should be kicked with /Vote kick
-* Set your rank requirements with /Requirements (/Reqs)
-* Change your server's blocks with /Env terrain
-* Let your server's environment change according to the local time with /Env realistic
-* Wipe your guest world easily with /Guestwipe
-* Create dummy skins on a given world
-* Minecraft making you mad? /Ragequit
-* Doors
-* Portals
-* Realms (Personal worlds for players)
-* Hide ranks with /Rhide
-* Teleport to zones with /Tpzone
-* Control your Realm with /Realm create activate kick ban unban like invite join flush
-* Fun modes like: /Bromode
-* Flying
-* Anti-Caps detector
-* Profanity detector
-* Grass Physics (More physics coming soon)
+== Download == 
+'''800Craft is almost at the end of its development for v0.2x and will be released shortly. The features below will be a rough list of what 800Craft 0.2x contains.
 
-* Customize your server by writing your own .NET DLL's and using them to modify existing functions or add features.
+ All 800Craft 0.1x features are listed on the Official Repo.'''
+* Official Repo - [http://github.com/GlennMR/800Craft/]
+* Download - [https://github.com/GlennMR/800craft/downloads]
 
-## HeartbeatSaver
+== Related Links == 
+* [http://au70.net Au70 Galaxy Forum]
 
-* When you shutdown your server, or the server crashes, the Heartbeat Saver automatically opens, keeping your uptime on minecraft.net the same as it was before shutdown.
-Nobody likes suddenly dropping to the bottom of a list containing 1000+ servers.
+== 800Craft Commands and features == 
 
-This feature can only found in 800Craft.
+* 800Craft Commands
 
-## Release
-800Craft has been released and is currently at version 0.103. You can download it here: https://github.com/GlennMR/800craft/downloads
-For support, visit our forum here: http://www.au70galaxy.com/314/upload/index.php?/forum/32-au70-server-software/
+Custom kick and ban commands such as: '''/Basscanon, /Gtfo, /Tempban, /Banx, /Warn'''
 
-Thanks for using 800Craft, enjoy!
+Custom chat commands such as: '''/High5, /Away, /Poke, /Troll, /Review'''
+
+As well as the addition of Admin Chat, you also get the option to '''create your own chat channel'''
+
+Fun commands such as: '''/Slap''', '''/Kill''', '''/Possess'''
+
+Additional building commands
+
+Fly around the server with '''/Fly'''
+
+Voting with '''/Vote'''
+
+Make a server-wide vote for if a player should be kicked with '''/Vote kick'''
+
+Set your rank requirements with '''/Requirements''' (/Reqs)
+
+Change your server's blocks with '''/Env terrain'''
+
+Let your server's environment change according to the local time with '''/Env realistic'''
+
+Wipe your guest world easily with '''/Guestwipe'''
+
+Create dummy skins on a given world
+
+Minecraft making you mad? '''/Ragequit'''
+
+'''Doors'''
+
+'''Portals'''
+
+'''Realms''' (Personal worlds for players)
+
+Hide ranks with '''/RankHide'''
+
+Teleport to zones with '''/Tpzone'''
+
+Control your Realm with '''/Realm''' create activate kick ban unban like invite join flush
+
+Fun modes like: '''/Bromode'''
+
+'''Anti-Caps''' detector
+
+'''Anti-Profanity''' detector
+
+Customize your server by writing your own '''.NET DLL's''' and using them to modify existing functions or add features.
+
+'''/List'''
+
+A '''Grammar checking mode''' (Chat messages sent with the first char as uppercase, words such as iam are auto-corrected)
+
+'''Heartbeat Saver''' (Stops you from dropping to the bottom of the list on Shutdown)
+
+'''/Tower''' command (Map safe)
+
+/Gun & Portal Gun & TNT exploding gun
+
+/DrawScheme, a command for printing .Schematics
+
+/Write, a command for writing text in blocks
+
+/Cylinder, draws a cylinder, can also be hollow
+
+Support for MineManager on 800Craft.net
+
+== ''' 800Craft Physics ''' ==
+
+
+[[Fireworks]]
+
+[[TNT exploding physics]]
+
+[[Grass Physics]]
+* Grass regrows from dirt
+
+[[Water Physics]]
+* Water spread (flowing)
+* Players die if under water for 30 seconds
+
+[[Sand Physics]]
+* Sand and Gravel have gravity
+
+[[Plant Physics]]
+* Sapplings turn into trees in sunlight
+* Blocks placed on grass turn the grass to dirt
+* Mushrooms & flowers squash
+* Mushrooms & flowers die when not in sunlight
+
+[[Blocks Floating/Sinking]]
+* Blocks like wool float in water
+* Other blocks sink in water
+
+== 800Craft MineManager == 
+MineManager is a control panel which you can use to manage nearly every aspect of your server. It is under constant development so features are added on a regular basis.
+
+Imagine yourself sitting at school and you receive a text message saying there's something wrong with your server. Obviously you want to fix this as soon as possible but you may not be able to access the server from school. That's where MineManager comes in handy, MineManager allows you to manage your server from 800Craft.net, and best of all, its 100% free!
+
+== fCraft Commands and Features ==
+
+
+* '''All included in 800Craft'''
+
+/BInfo
+
+/Ban
+
+/BanAll
+
+/BanEx
+
+/BanIP
+
+/BanInfo
+
+/Bind
+
+/BlockDB
+
+/Bring
+
+/BringAll
+
+/Brush
+
+/Cancel
+
+/Clear
+
+/Colors
+
+/Commands
+
+/Copy
+
+/CopySlot
+
+/Cuboid
+
+/CuboidH
+
+/CuboidW
+
+/Cut
+
+/Deafen
+
+/DumpStats
+
+/Ellipsoid
+
+/EllipsoidH
+
+/Env
+
+/Fill2D
+
+/Freeze
+
+/Gen
+
+/Grass
+
+/Help
+
+/Hide
+
+/Ignore
+
+/Import
+
+/Info
+
+/Join
+
+/Kick
+
+/Lava
+
+/Line
+
+/MassRank
+
+/Me
+
+/Measure
+
+/Mute
+
+/Paint
+
+/Paste
+
+/PasteNot
+
+/PasteNotX
+
+/PasteX
+
+/Patrol
+
+/Players
+
+/Rank
+
+/Ranks
+
+/Redo
+
+/Reload
+
+/Restart
+
+/Roll
+
+/Rules
+
+/Say
+
+/SetInfo
+
+/SetSpawn
+
+/Shutdown
+
+/Solid
+
+/Spawn
+
+/SpecPatrol
+
+/Spectate
+
+/Staff
+
+/Static
+
+/TP
+
+/Timer
+
+/Triangle
+
+/TriangleW
+
+/Unfreeze
+
+/Unban
+
+/UnbanAll
+
+/UnbanIP
+
+/Undo
+
+/UndoArea
+
+/UndoPlayer
+
+/Unhide
+
+/Unignore
+
+/Unmute
+
+/Unspectate
+
+/WBring
+
+/WHide
+
+/WInfo
+
+/WLoad
+
+/WLock
+
+/WMain
+
+/WRename
+
+/WSave
+
+/WUnhide
+
+/WUnlock
+
+/Water
+
+/Worlds
+
+/ZAdd
+
+/ZEdit
+
+/ZInfo
+
+/ZRename
+
+/ZTest
+
+/Zones
