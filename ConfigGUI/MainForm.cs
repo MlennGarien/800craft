@@ -183,11 +183,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void bOpenWiki_Click( object sender, EventArgs e ) {
-            Process.Start( "http://www.fcraft.net/wiki/Main_Page" );
+            Process.Start("http://www.minecraftwiki.net/wiki/Custom_servers/800Craft");
         }
 
         private void bReportABug_Click( object sender, EventArgs e ) {
-            Process.Start( "http://forum.fcraft.net/viewforum.php?f=5" );
+            Process.Start("http://forums.au70.net/index.php/forum/32-800craft-server-software/");
         }
 
         private void nMaxPlayerPerWorld_Validating( object sender, CancelEventArgs e ) {

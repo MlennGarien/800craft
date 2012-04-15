@@ -56,7 +56,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdPortal);
             CommandManager.RegisterCommand(CdWorldSearch);
             SchedulerTask TimeCheckR = Scheduler.NewTask(TimeCheck).RunForever(TimeSpan.FromSeconds(120));
-            //CommandManager.RegisterCommand(CdPhysics); //coming soon
+            CommandManager.RegisterCommand(CdPhysics);
         }
         #region 800Craft
         static readonly CommandDescriptor CdPhysics = new CommandDescriptor
@@ -65,8 +65,8 @@ namespace fCraft {
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.Physics },
             IsConsoleSafe = false,
-            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | All | Unflood> <On / Off>",
-            Help = "Enables / disables a type of Physics for the current world. Physics may use more server resources.",
+            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | All > <On / Off>",
+            Help = "Enables / disables a type of Physics for the current world. Physics use more server resources.",
             HelpSections = new Dictionary<string, string>() {
                 { "tnt",     "&H/Physics tnt on/off \n&S" +
                                 "Turns TNT exploding physics on / off in the current world"},
@@ -76,8 +76,6 @@ namespace fCraft {
                                 "Turns water physics on / off in the current world"},
                 { "plant",       "&H/Physics plant on/off \n&S" +
                                 "Turns plant physics on / off in the current world"},
-                { "sand",       "&H/Physics sand on/off \n&S" +
-                                "Turns sand and gravel physics on / off in the current world"},
                 { "grass",       "&H/Physics grass on/off \n&S" +
                                 "Turns grass regrowing physics on / off in the current world"},
                 { "all",     "&H/Physics all on/off \n&S" +
@@ -140,20 +138,7 @@ namespace fCraft {
                         Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics on for {1}", player.Name, world.Name);
                     }
                     break;
-                case "sand":
-                    if (world.sandPhysics)
-                    {
-                        world.sandPhysics = false;
-                        Server.Players.Message("{0}&S turned Sand Physics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Sand Physics off for {1}", player.Name, world.Name);
-                    }
-                    else
-                    {
-                        world.sandPhysics = true;
-                        Server.Players.Message("{0}&S turned Sand Physics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Sand Physics on for {1}", player.Name, world.Name);
-                    }
-                    break;
+                
                 case "water":
                     if (world.waterPhysics)
                     {

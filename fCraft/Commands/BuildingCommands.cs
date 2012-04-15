@@ -94,7 +94,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdFly);
             CommandManager.RegisterCommand(CdPlace);
             CommandManager.RegisterCommand(CdTower);
-            CommandManager.RegisterCommand(CdFirework);
             CommandManager.RegisterCommand(CdCylinder);
         }
         #region 800Craft
@@ -212,37 +211,7 @@ namespace fCraft {
             else player.Message("&WError: No last used blocktype was found");
         }
 
-        static readonly CommandDescriptor CdFirework = new CommandDescriptor
-        {
-            Name = "Firework",
-            Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Fireworks },
-            IsConsoleSafe = false,
-            NotRepeatable = false,
-            Usage = "/Firework",
-            Help = "Toggles Firework Mode on/off for yourself. " +
-            "All Gold blocks will be replaced with fireworks if " +
-            "firework physics are enabled for the current world.",
-            UsableByFrozenPlayers = false,
-            Handler = FireworkHandler
-        };
-
-        static void FireworkHandler(Player player, Command cmd)
-        {
-            if (player.fireworkMode)
-            {
-                player.fireworkMode = false;
-                player.Message("Firework Mode has been turned off.");
-                return;
-            }
-            else
-            {
-                player.fireworkMode = true;
-                player.Message("Firework Mode has been turned on. " +
-                    "All Gold blocks are now being replaced with Fireworks.");
-            }
-        }
-
+       
         static readonly CommandDescriptor CdTower = new CommandDescriptor
         {
             Name = "Tower",

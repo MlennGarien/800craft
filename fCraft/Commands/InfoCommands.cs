@@ -154,7 +154,7 @@ namespace fCraft {
 
                     if (RankNames.Length <= PlayersPerPage)
                     {
-                        player.MessageManyMatches("rank list", RankNames);
+                        player.MessageManyMatches("players", RankNames);
                     }
 
                     else
@@ -546,6 +546,9 @@ namespace fCraft {
                 player.Message( "  Muted for {0} by {1}",
                                 info.TimeMutedLeft.ToMiniString(),
                                 info.MutedByClassy );
+                float blocks = ((info.BlocksBuilt + info.BlocksDrawn) - info.BlocksDeleted);
+                if (blocks < 0)
+                    player.Message("  &CWARNING! {0}&S has deleted more than built!", info.ClassyName);//<---- GlennMR on Au70 Galaxy
             }
 
             // Show ban information
@@ -568,6 +571,7 @@ namespace fCraft {
                 case BanStatus.NotBanned:
                     if( ipBan != null ) {
                         player.Message( "  IP is &CBANNED&S. See &H/BanInfo" );
+
                     }
                     break;
             }
@@ -1486,18 +1490,17 @@ namespace fCraft {
 
             if (param == null)
             {
-                player.Message("&SCommands Available:\n" +
-                               "&SFor &aBuilding &Scommands, type &a/Commands building" +
+                player.Message("&SFor &aBuilding &Scommands, type &a/Commands building" +
                                "\n&SFor &fChat &Scommands, type &a/Commands chat" +
                                "\n&SFor &fInfo &Scommands, type &a/Commands info" +
                                "\n&SFor &3Moderation &scommands, type &a/Commands moderation" +
                                "\n&SFor &9World &Scommands, type &a/Commands world" +
                                "\n&SFor &bZone &Scommands, type &a/Commands zone" +
                                (CommandManager.GetCommands(CommandCategory.Math, false).Length > 0
-                                    ? "\n&SFor &cfunction drawing &Scommands, type &a/Commands math"
+                                    ? "\n&SFor &cFunction drawing &Scommands, type &a/Commands math"
                                     : "") +
                                (CommandManager.GetCommands(CommandCategory.Fun, false).Length > 0
-                                    ? "\n&SFor &dfun &Scommands, type &a/Commands fun"
+                                    ? "\n&SFor &dFun &Scommands, type &a/Commands fun"
                                     : ""));
                 return;
             }

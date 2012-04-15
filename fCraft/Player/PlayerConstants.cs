@@ -161,7 +161,9 @@ namespace fCraft {
 
         /// <summary> A plugin callback cancelled block placement/deletion.
         /// A copy of the old block will not be sent to the player (he may go out of sync). </summary>
-        PluginDeniedNoUpdate
+        PluginDeniedNoUpdate,
+        
+        Revert
     }
 
 

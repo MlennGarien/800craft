@@ -299,7 +299,8 @@ namespace fCraft {
 
             // Init IRC
             IRC.Init();
-            //Heartbeat.HbSave();
+            GunClass.Init();
+            Physics.Physics.Load();
 
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
                 AutoRankManager.Init();

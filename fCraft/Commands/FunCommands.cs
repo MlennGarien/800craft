@@ -12,8 +12,42 @@ namespace fCraft
         {
             CommandManager.RegisterCommand(CdRandomMaze);
             CommandManager.RegisterCommand(CdMazeCuboid);
-            CommandManager.RegisterCommand(CdGame);
+            //CommandManager.RegisterCommand(CdGame);
+
+            CommandManager.RegisterCommand(CdFirework);
         }
+
+        static readonly CommandDescriptor CdFirework = new CommandDescriptor
+        {
+            Name = "Firework",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.Fireworks },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Firework",
+            Help = "Toggles Firework Mode on/off for yourself. " +
+            "All Gold blocks will be replaced with fireworks if " +
+            "firework physics are enabled for the current world.",
+            UsableByFrozenPlayers = false,
+            Handler = FireworkHandler
+        };
+
+        static void FireworkHandler(Player player, Command cmd)
+        {
+            if (player.fireworkMode)
+            {
+                player.fireworkMode = false;
+                player.Message("Firework Mode has been turned off.");
+                return;
+            }
+            else
+            {
+                player.fireworkMode = true;
+                player.Message("Firework Mode has been turned on. " +
+                    "All Gold blocks are now being replaced with Fireworks.");
+            }
+        }
+
 
         static readonly CommandDescriptor CdGame = new CommandDescriptor
         {

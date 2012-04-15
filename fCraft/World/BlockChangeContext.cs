@@ -36,6 +36,9 @@ namespace fCraft {
         Filled = 256,
 
         /// <summary> Portals </summary>
-        Portal = 512
+        Portal = 512,
+
+        Explosion = 1024,
+        Physics = 2048
     }
 }

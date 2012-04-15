@@ -107,6 +107,7 @@
   <ItemGroup>
     <Compile Include="Commands\Command Handlers\BroModeHandler.cs" />
     <Compile Include="Commands\Command Handlers\FlyHandler.cs" />
+    <Compile Include="Commands\Command Handlers\GunHandler.cs" />
     <Compile Include="Commands\Command Handlers\RealmHandler.cs" />
     <Compile Include="Commands\Command Handlers\VoteHandler.cs" />
     <Compile Include="Commands\FunCommands.cs" />
@@ -123,6 +124,12 @@
     <Compile Include="Games\Football.cs" />
     <Compile Include="Games\MineChallenge.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
+    <Compile Include="Physics\ExplodingPhysics.cs" />
+    <Compile Include="Physics\Physics.cs" />
+    <Compile Include="Physics\PlantPhysics.cs" />
+    <Compile Include="Physics\SandPhysics.cs" />
+    <Compile Include="Physics\TreeGeneration.cs" />
+    <Compile Include="Physics\WaterPhysics.cs" />
     <Compile Include="Plugins\SecurityController.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\PluginManager.cs" />

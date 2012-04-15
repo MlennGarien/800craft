@@ -164,6 +164,8 @@ namespace fCraft {
 
         public bool fireworkMode = false;
 
+        public DateTime LastTimeKilled;
+
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
         public String PortalWorld;
@@ -979,6 +981,10 @@ namespace fCraft {
                 case CanPlaceResult.RankDenied:
                     Message( "&WYour rank is not allowed to build." );
                     RevertBlockNow( coord );
+                    break;
+
+                case CanPlaceResult.Revert:
+                    RevertBlockNow(coord);
                     break;
 
                 case CanPlaceResult.WorldDenied:

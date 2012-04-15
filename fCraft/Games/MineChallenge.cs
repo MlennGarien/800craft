@@ -188,7 +188,7 @@ namespace fCraft.Games
                             if (e.Coords == block)
                             {
                                 Player.RaisePlayerPlacedBlockEvent(e.Player, world.Map, block, world.Map.GetBlock(e.Coords), world.Map.GetBlock(e.Coords), BlockChangeContext.Manual);
-                                world.Map.QueueUpdate(new BlockUpdate(null, block, world.Map.GetBlock(e.Coords)));
+                                world.Map.QueueUpdate(new BlockUpdate(null, block, Block.Pink));
                             }
                         }
                     }
