@@ -14,7 +14,7 @@ namespace fCraft.Physics
     class PlantPhysics
     {
         private static Thread plantThread;
-        private static Thread checkGrass;
+        //private static Thread checkGrass;
 
         /*#region drawimg
         public static void test(object sender, Events.PlayerPlacingBlockEventArgs e)
@@ -254,100 +254,6 @@ namespace fCraft.Physics
             {
                 Logger.Log(LogType.SeriousError, "" + ex);
             }
-        }
-
-
-        public static void grassChecker(SchedulerTask task)
-        {
-            try
-            {
-                //imma put this here and be cheeky
-                if ((Server.CPUUsageTotal * 100) >= 25 || Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024) > 1200)
-                {
-                    int count = 0;
-                    foreach (World world in WorldManager.Worlds)
-                    {
-                        if (world.Map != null && world.IsLoaded)
-                        {
-                            if (world.waterPhysics || world.plantPhysics || world.fireworkPhysics ||
-                                world.tntPhysics || world.sandPhysics || world.grassPhysics)
-                            {
-                                world.waterPhysics = false;
-                                world.plantPhysics = false;
-                                world.fireworkPhysics = false;
-                                world.tntPhysics = false;
-                                world.sandPhysics = false;
-                                world.grassPhysics = false;
-                                count++;
-                            }
-                        }
-                    }
-                    if (count > 0)
-                    {
-                        Server.Players.Message("&WPhysics has been shutdown on all worlds: High memory usage");
-                    }
-                }
-
-                //grass physics
-                if (checkGrass != null)
-                {
-                    if (checkGrass.ThreadState != System.Threading.ThreadState.Stopped) //stops multiple threads from opening
-                    {
-                        return;
-                    }
-                }
-                checkGrass = new Thread(new ThreadStart(delegate
-                {
-                    checkGrass.Priority = ThreadPriority.Lowest;
-                    foreach (World world in WorldManager.Worlds)
-                    {
-                        if (world.Map != null && world.IsLoaded) //for all loaded worlds
-                        {
-                            if (world.grassPhysics)
-                            {
-                                Map map = world.Map;
-                                for (int x = world.Map.Bounds.XMin; x <= world.Map.Bounds.XMax; x++)
-                                {
-                                    if (world.Map != null && world.IsLoaded)
-                                    {
-                                        for (int y = world.Map.Bounds.YMin; y <= world.Map.Bounds.YMax; y++)
-                                        {
-                                            if (world.Map != null && world.IsLoaded)
-                                            {
-                                                for (int z = world.Map.Bounds.ZMin; z <= world.Map.Bounds.ZMax; z++)
-                                                {
-                                                    if (world.Map != null && world.IsLoaded)
-                                                    {
-                                                        if (world.grassPhysics)
-                                                        {
-                                                            if (Physics.CanPutGrassOn(new Vector3I(x, y, z), world)) //shadow detection
-                                                            {
-                                                                if (new Random().Next(1, 45) > new Random().Next(15, 35)) //random seed generation lolz
-                                                                {
-                                                                    map.QueueUpdate(new BlockUpdate(null,
-                                                                        (short)x,
-                                                                        (short)y,
-                                                                        (short)z,
-                                                                        Block.Grass));
-                                                                }
-                                                                Thread.Sleep(new Random().Next(3, 8)); //throttle, slow down horsey
-                                                            } //0.3 - 0.7% cpu average, better than the original ~17%
-                                                            //has not been tested with more than 5 maps loaded at once
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                })); checkGrass.Start();
-            }
-            catch (Exception ex) {
-                Logger.Log(LogType.SeriousError, "" + ex);
-            }
-        }    
+        }  
     }
 }

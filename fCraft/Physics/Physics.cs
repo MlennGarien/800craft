@@ -37,12 +37,12 @@ namespace fCraft.Physics
         //init
         public static void Load()
         {
-            SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
-            
+            //SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
+
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             Player.PlacingBlock += PlantPhysics.blockSquash;
             Player.PlacingBlock += ExplodingPhysics.TNTDrop;
-            Player.Clicked += ExplodingPhysics.TNTClick;
+            //Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
             Player.PlacingBlock += WaterPhysics.blockFloat;
             Player.PlacingBlock += WaterPhysics.blockSink;
@@ -133,6 +133,10 @@ namespace fCraft.Physics
                 case Block.Sponge:
                 case Block.Sand:
                 case Block.Gravel:
+                case Block.Plant:
+                case Block.TNT:
+                case Block.Dirt:
+                case Block.Grass:
                     return true;
                 default:
                     return false;

@@ -8,6 +8,8 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Threading;
+using fCraft.Physics;
 
 namespace fCraft {
     public sealed class World : IClassy {
@@ -39,6 +41,7 @@ namespace fCraft {
         public bool plantPhysics = false;
         public bool sandPhysics = false;
         public bool grassPhysics = false;
+        private EventWaitHandle start = new EventWaitHandle(false, EventResetMode.ManualReset);
 
         //games
         public ConcurrentDictionary<String, Vector3I> blockCache = new ConcurrentDictionary<String, Vector3I>();
@@ -158,7 +161,8 @@ namespace fCraft {
                                 Name );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
-
+                Physics.BasicPhysics b = new BasicPhysics(this);
+                Scheduler.NewTask(t => b.Update()).RunForever(TimeSpan.FromMilliseconds(201));
                 return Map;
             }
         }
@@ -254,6 +258,7 @@ namespace fCraft {
         }
 
         #endregion
+
 
 
         #region Flush

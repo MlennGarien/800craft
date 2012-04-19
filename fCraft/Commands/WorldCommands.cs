@@ -9,6 +9,7 @@ using fCraft.Drawing;
 using fCraft.Portals;
 using ServiceStack.Text;
 using System.Text;
+using System.Threading;
 
 namespace fCraft {
     /// <summary> Contains commands related to world management. </summary>
@@ -177,6 +178,7 @@ namespace fCraft {
 
                     if (nextOp.ToLower() == "on")
                     {
+
                         world.tntPhysics = true;
                         world.sandPhysics = true;
                         world.fireworkPhysics = true;

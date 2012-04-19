@@ -109,6 +109,7 @@ namespace fCraft {
             Height = height;
             Bounds = new BoundingBox( Vector3I.Zero, Width, Length, Height );
             Volume = Bounds.Volume;
+            Physics.BasicPhysics b = new Physics.BasicPhysics(World);
 
             if( initBlockArray ) {
                 Blocks = new byte[Volume];
