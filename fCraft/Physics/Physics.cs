@@ -37,18 +37,39 @@ namespace fCraft.Physics
         //init
         public static void Load()
         {
-            //SchedulerTask checkGrass = Scheduler.NewBackgroundTask(PlantPhysics.grassChecker).RunForever(TimeSpan.FromSeconds(new Random().Next(1, 4)));
-
             Player.PlacingBlock += PlantPhysics.TreeGrowing;
             Player.PlacingBlock += PlantPhysics.blockSquash;
-            Player.PlacingBlock += ExplodingPhysics.TNTDrop;
-            //Player.Clicked += ExplodingPhysics.TNTClick;
+            //Player.PlacingBlock += ExplodingPhysics.TNTDrop;
+            Player.Clicked += ExplodingPhysics.TNTClick;
             Player.PlacingBlock += ExplodingPhysics.Firework;
             Player.PlacingBlock += WaterPhysics.blockFloat;
             Player.PlacingBlock += WaterPhysics.blockSink;
             SchedulerTask drownCheck = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(3));
             Player.PlacingBlock += WaterPhysics.towerInit;
             Player.Clicking += WaterPhysics.towerRemove;
+            Player.Clicking += PlayerPhysicsClicked;
+        }
+
+        public static void PlayerPhysicsClicked(object sender, PlayerClickingEventArgs e)
+        {
+            if (e.Action == ClickAction.Delete)
+            {
+                if (e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Dirt)
+                {
+                    e.Player.World.Queue(e.Coords.X, e.Coords.Y, e.Coords.Z - 1, Block.Dirt, null);
+                }
+            }
+            if (e.Action == ClickAction.Build)
+            {
+                if (e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Grass)
+                {
+                    e.Player.World.Queue(e.Coords.X, e.Coords.Y, e.Coords.Z - 1, Block.Grass, null);
+                }
+                if (Physics.BasicPhysics(e.Block))
+                {
+                   e.Player.World.Queue(e.Coords.X, e.Coords.Y, e.Coords.Z, e.Block, e.Player);
+                }
+            }
         }
 
         //physics helpers & bools

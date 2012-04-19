@@ -41,7 +41,11 @@ namespace fCraft {
         public bool plantPhysics = false;
         public bool sandPhysics = false;
         public bool grassPhysics = false;
+        private Queue<PhysicsBlock> updateQueue = new Queue<PhysicsBlock>();
+        private object queueLock = new object();
+        public bool lavaSpongeEnabled = false;
         private EventWaitHandle start = new EventWaitHandle(false, EventResetMode.ManualReset);
+        public Thread phyThread;
 
         //games
         public ConcurrentDictionary<String, Vector3I> blockCache = new ConcurrentDictionary<String, Vector3I>();
@@ -110,6 +114,257 @@ namespace fCraft {
             UpdatePlayerList();
         }
 
+        #region Physics
+
+        public void startPhysics()
+        {
+            phyThread = new Thread(new ThreadStart(delegate
+              {
+                  for (; ;)
+                  {
+                      start.Reset();
+                      start.WaitOne(200);
+                      Update();
+                  }
+              })); phyThread.Start();
+        }
+        public void Update()
+        {
+            if (updateQueue.Count == 0)
+            {
+                return;
+            }
+            lock (queueLock)
+            {
+                int n = updateQueue.Count;
+                for (int i = 0; i < n; i++)
+                {
+                    if (this.Map != null && this.IsLoaded)
+                    {
+                        PhysicsBlock block = updateQueue.Dequeue();
+                        if (((TimeSpan)(DateTime.Now - block.startTime)).TotalMilliseconds >= PhysicsTime(block.type))
+                        {
+                            switch (block.type)
+                            {
+                                case Block.Sponge:
+                                    NewSponge(block.x, block.y, block.z);
+                                    break;
+                                case Block.Sand:
+                                case Block.Gravel:
+                                    SandGravelFall(block.x, block.y, block.z, block.type);
+                                    break;
+                                case Block.Water:
+                                case Block.Lava:
+                                    GenericSpread(block.x, block.y, block.z, block.type);
+                                    CheckWaterLavaCollide(block.x, block.y, block.z, block.type);
+                                    break;
+                                case Block.Grass:
+                                    map.QueueUpdate(new BlockUpdate(null, block.x, block.y, block.z, Block.Dirt));
+                                    break;
+                                case Block.TNT:
+                                    int seed = new Random().Next(1, 55);
+                                    ExplodingPhysics.startExplosion(new Vector3I(block.x, block.y, block.z), block.player, this, seed );
+                                    start.WaitOne(300);
+                                    ExplodingPhysics.removeLava(new Vector3I(block.x, block.y, block.z), block.player, this, seed);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            updateQueue.Enqueue(block);
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool Queue(int x, int y, int z, Block type, Player player)
+        {
+            try
+            {
+                if (this.Map != null && this.IsLoaded)
+                {
+                    lock (queueLock)
+                    {
+                        this.updateQueue.Enqueue(new PhysicsBlock((short)x, (short)y, (short)z, type, player));
+                    }
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static int PhysicsTime(Block type)
+        {
+            switch (type)
+            {
+                case Block.Water:
+                    return 200;
+                case Block.Lava:
+                    return 800;
+                default:
+                    return 0;
+            }
+        }
+
+        #region Individual Physics Handlers
+        public void GenericSpread(int x, int y, int z, Block type)
+        {
+            if (this.Map.GetBlock(x, y, z) != type)
+            {
+                return;
+            }
+            if (this.Map.GetBlock(x + 1, y, z) == Block.Air)
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x + 1), (short)y, (short)z, type));
+            }
+            if (this.Map.GetBlock(x - 1, y, z) == Block.Air)
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x - 1), (short)y, (short)z, type));
+            }
+            if (this.Map.GetBlock(x, y - 1, z) == Block.Air)
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)(y - 1), (short)z, type));
+            }
+            if (this.Map.GetBlock(x, y + 1, z) == Block.Air)
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)(y + 1), (short)z, type));
+            }
+            if (this.Map.GetBlock(x, y, z - 1) == Block.Air)
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)(z - 1), type));
+            }
+        }
+
+        public void CheckWaterLavaCollide(short x, short y, short z, Block type)
+        {
+            if (this.Map.GetBlock(x, y, z) != type)
+            {
+                return;
+            }
+            if (LavaWaterCollide(this.Map.GetBlock(x + 1, y, z), type))
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x + 1), y, z, Block.Obsidian));
+            }
+            if (LavaWaterCollide(this.Map.GetBlock(x - 1, y, z), type))
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x - 1), y, z, Block.Obsidian));
+            }
+            if (LavaWaterCollide(this.Map.GetBlock(x, y, z + 1), type))
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, x, (short)(y + 1), z, Block.Obsidian));
+            }
+            if (LavaWaterCollide(this.Map.GetBlock(x, y, z - 1), type))
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, x, y, (short)(z - 1), Block.Obsidian));
+            }
+            if (LavaWaterCollide(this.Map.GetBlock(x, y - 1, z), type))
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, x, (short)(y - 1), z, Block.Obsidian));
+            }
+            if (LavaWaterCollide(this.Map.GetBlock(x, y + 1, z), type))
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, x, y, (short)(z + 1), Block.Obsidian));
+            }
+        }
+
+        public void NewSponge(int x, int y, int z)
+        {
+            for (int dx = -2; dx <= 2; dx++)
+            {
+                for (int dy = -2; dy <= 2; dy++)
+                {
+                    for (int dz = -2; dz <= 2; dz++)
+                    {
+                        if (this.Map != null && this.IsLoaded)
+                        {
+                            if (Physics.Physics.AffectedBySponges(this.Map.GetBlock(x + dx, y + dy, z + dz)))
+                            {
+                                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x + dx), (short)(y + dy), (short)(z + dz), Block.Air));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public bool FindSponge(int x, int y, int z)
+        {
+            for (int dx = -2; dx <= 2; dx++)
+            {
+                for (int dy = -2; dy <= 2; dy++)
+                {
+                    for (int dz = -2; dz <= 2; dz++)
+                    {
+                        if (this.Map != null && this.IsLoaded)
+                        {
+                            if (this.Map.GetBlock(x + dx, y + dy, z + dz) == Block.Sponge)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void DeleteSponge(int x, int y, int z)
+        {
+            for (int dx = -3; dx <= 3; dx++)
+            {
+                for (int dy = -3; dy <= 3; dy++)
+                {
+                    for (int dz = -3; dz <= 3; dz++)
+                    {
+                        if (this.Map != null && this.IsLoaded)
+                        {
+                            if (Physics.Physics.BasicPhysics(this.Map.GetBlock(x + dx, y + dy, z + dz)) && this.Map.GetBlock(x + dx, y + dy, z + dz) != Block.Air)
+                            {
+                                Queue(x + dx, y + dy, z + dz, this.Map.GetBlock(x + dx, y + dy, z + dz), null);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public void SandGravelFall(int x, int y, int z, Block type)
+        {
+            if (this.Map.GetBlock(x, y, z) != type)
+            {
+                return;
+            }
+
+            int dz = z;
+            while (dz > 0 && this.Map.GetBlock(x, y, dz - 1) == Block.Air)
+            {
+                dz--;
+            }
+            if (dz != z)
+            {
+                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
+                Physics.Physics.SetTileNoPhysics(x, y, dz, type, this);
+            }
+        }
+
+        #endregion
+
+        public bool LavaWaterCollide(Block a, Block b)
+        {
+            if ((a == Block.Water && b == Block.Lava) || (a == Block.Lava && b == Block.Water))
+            {
+                return true;
+            }
+            return false;
+        }
+    
+        #endregion
+
 
         #region Map
 
@@ -161,8 +416,7 @@ namespace fCraft {
                                 Name );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
-                Physics.BasicPhysics b = new BasicPhysics(this);
-                Scheduler.NewTask(t => b.Update()).RunForever(TimeSpan.FromMilliseconds(201));
+                this.startPhysics();
                 return Map;
             }
         }
@@ -753,4 +1007,22 @@ namespace fCraft {
             return String.Format( "World({0})", Name );
         }
     }
+    public class PhysicsBlock
+    {
+        public short x, y, z;
+        public Block type;
+        public DateTime startTime;
+        public Player player;
+
+        public PhysicsBlock(short x, short y, short z, Block type, Player player)
+        {
+            this.player = player;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.type = type;
+            this.startTime = DateTime.Now;
+        }
+    }
 }
+
