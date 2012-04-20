@@ -94,6 +94,12 @@ namespace fCraft {
                 CdPhysics.PrintUsage(player);
                 return;
             }
+            string NextOp = cmd.Next();
+            if (NextOp == null)
+            {
+                CdPhysics.PrintUsage(player);
+                return;
+            }
             switch (option.ToLower())
             {
                 case "tnt":
@@ -111,18 +117,15 @@ namespace fCraft {
                     }
                     break;
                 case "grass":
-                    if (world.grassPhysics)
-                    {
-                        world.grassPhysics = false;
-                        Server.Players.Message("{0}&S turned Grass Physics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics off for {1}", player.Name, world.Name);
+                    if (NextOp.ToLower() == "off"){
+                        world.DisableGrassPhysics(player);
+                        return;
                     }
-                    else
+                    if (NextOp.ToLower() == "on")
                     {
-                        world.grassPhysics = true;
-                        Server.Players.Message("{0}&S turned Grass Physics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Grass Physics on for {1}", player.Name, world.Name);
+                        world.EnableGrassPhysics(player);
                     }
+                    
                     break;
                 case "fireworks":
                 case "firework":

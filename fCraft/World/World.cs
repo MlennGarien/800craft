@@ -18,6 +18,9 @@ namespace fCraft {
         [NotNull]
         public string Name { get; internal set; }
 
+        private bool _gunEnabled = false;
+        private GrassTask _grassTask = null;
+        private PhysScheduler _physScheduler;
 
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
@@ -112,257 +115,73 @@ namespace fCraft {
             BuildSecurity = new SecurityController();
             Name = name;
             UpdatePlayerList();
+            _physScheduler = new PhysScheduler(this);
         }
 
         #region Physics
-
-        public void startPhysics()
+        public void EnableGrassPhysics(Player player)
         {
-            phyThread = new Thread(new ThreadStart(delegate
-              {
-                  for (; ;)
-                  {
-                      start.Reset();
-                      start.WaitOne(200);
-                      Update();
-                  }
-              })); phyThread.Start();
-        }
-        public void Update()
-        {
-            if (updateQueue.Count == 0)
+            if (null != _grassTask)
             {
+                player.Message("Already enabled");
                 return;
             }
-            lock (queueLock)
-            {
-                int n = updateQueue.Count;
-                for (int i = 0; i < n; i++)
-                {
-                    if (this.Map != null && this.IsLoaded)
-                    {
-                        PhysicsBlock block = updateQueue.Dequeue();
-                        if (((TimeSpan)(DateTime.Now - block.startTime)).TotalMilliseconds >= PhysicsTime(block.type))
-                        {
-                            switch (block.type)
-                            {
-                                case Block.Sponge:
-                                    NewSponge(block.x, block.y, block.z);
-                                    break;
-                                case Block.Sand:
-                                case Block.Gravel:
-                                    SandGravelFall(block.x, block.y, block.z, block.type);
-                                    break;
-                                case Block.Water:
-                                case Block.Lava:
-                                    GenericSpread(block.x, block.y, block.z, block.type);
-                                    CheckWaterLavaCollide(block.x, block.y, block.z, block.type);
-                                    break;
-                                case Block.Grass:
-                                    map.QueueUpdate(new BlockUpdate(null, block.x, block.y, block.z, Block.Dirt));
-                                    break;
-                                case Block.TNT:
-                                    int seed = new Random().Next(1, 55);
-                                    ExplodingPhysics.startExplosion(new Vector3I(block.x, block.y, block.z), block.player, this, seed );
-                                    start.WaitOne(300);
-                                    ExplodingPhysics.removeLava(new Vector3I(block.x, block.y, block.z), block.player, this, seed);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            updateQueue.Enqueue(block);
-                        }
-                    }
-                }
-            }
+            CheckIfPhysicsStarted();
+            _grassTask = new GrassTask(this);
+            _physScheduler.AddTask(_grassTask, 0);
         }
-
-        public bool Queue(int x, int y, int z, Block type, Player player)
+        public void DisableGrassPhysics(Player player)
         {
-            try
+            if (null == _grassTask)
             {
-                if (this.Map != null && this.IsLoaded)
-                {
-                    lock (queueLock)
-                    {
-                        this.updateQueue.Enqueue(new PhysicsBlock((short)x, (short)y, (short)z, type, player));
-                    }
-                    return true;
-                }
-                return false;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public static int PhysicsTime(Block type)
-        {
-            switch (type)
-            {
-                case Block.Water:
-                    return 200;
-                case Block.Lava:
-                    return 800;
-                default:
-                    return 0;
-            }
-        }
-
-        #region Individual Physics Handlers
-        public void GenericSpread(int x, int y, int z, Block type)
-        {
-            if (this.Map.GetBlock(x, y, z) != type)
-            {
+                player.Message("Already disabled");
                 return;
             }
-            if (this.Map.GetBlock(x + 1, y, z) == Block.Air)
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x + 1), (short)y, (short)z, type));
-            }
-            if (this.Map.GetBlock(x - 1, y, z) == Block.Air)
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x - 1), (short)y, (short)z, type));
-            }
-            if (this.Map.GetBlock(x, y - 1, z) == Block.Air)
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)(y - 1), (short)z, type));
-            }
-            if (this.Map.GetBlock(x, y + 1, z) == Block.Air)
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)(y + 1), (short)z, type));
-            }
-            if (this.Map.GetBlock(x, y, z - 1) == Block.Air)
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)(z - 1), type));
-            }
+            CheckIfToStopPhysics();
+            _grassTask.Deleted = true;
+            _grassTask = null;
         }
 
-        public void CheckWaterLavaCollide(short x, short y, short z, Block type)
+        public void EnableGunPhysics(Player player)
         {
-            if (this.Map.GetBlock(x, y, z) != type)
+            if (_gunEnabled)
             {
+                player.Message("Already enabled");
                 return;
             }
-            if (LavaWaterCollide(this.Map.GetBlock(x + 1, y, z), type))
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x + 1), y, z, Block.Obsidian));
-            }
-            if (LavaWaterCollide(this.Map.GetBlock(x - 1, y, z), type))
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x - 1), y, z, Block.Obsidian));
-            }
-            if (LavaWaterCollide(this.Map.GetBlock(x, y, z + 1), type))
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, x, (short)(y + 1), z, Block.Obsidian));
-            }
-            if (LavaWaterCollide(this.Map.GetBlock(x, y, z - 1), type))
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, x, y, (short)(z - 1), Block.Obsidian));
-            }
-            if (LavaWaterCollide(this.Map.GetBlock(x, y - 1, z), type))
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, x, (short)(y - 1), z, Block.Obsidian));
-            }
-            if (LavaWaterCollide(this.Map.GetBlock(x, y + 1, z), type))
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, x, y, (short)(z + 1), Block.Obsidian));
-            }
+            _gunEnabled = true;
         }
-
-        public void NewSponge(int x, int y, int z)
+        public void DisableGunPhysics(Player player)
         {
-            for (int dx = -2; dx <= 2; dx++)
+            if (!_gunEnabled)
             {
-                for (int dy = -2; dy <= 2; dy++)
-                {
-                    for (int dz = -2; dz <= 2; dz++)
-                    {
-                        if (this.Map != null && this.IsLoaded)
-                        {
-                            if (Physics.Physics.AffectedBySponges(this.Map.GetBlock(x + dx, y + dy, z + dz)))
-                            {
-                                this.Map.QueueUpdate(new BlockUpdate(null, (short)(x + dx), (short)(y + dy), (short)(z + dz), Block.Air));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public bool FindSponge(int x, int y, int z)
-        {
-            for (int dx = -2; dx <= 2; dx++)
-            {
-                for (int dy = -2; dy <= 2; dy++)
-                {
-                    for (int dz = -2; dz <= 2; dz++)
-                    {
-                        if (this.Map != null && this.IsLoaded)
-                        {
-                            if (this.Map.GetBlock(x + dx, y + dy, z + dz) == Block.Sponge)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
-        public void DeleteSponge(int x, int y, int z)
-        {
-            for (int dx = -3; dx <= 3; dx++)
-            {
-                for (int dy = -3; dy <= 3; dy++)
-                {
-                    for (int dz = -3; dz <= 3; dz++)
-                    {
-                        if (this.Map != null && this.IsLoaded)
-                        {
-                            if (Physics.Physics.BasicPhysics(this.Map.GetBlock(x + dx, y + dy, z + dz)) && this.Map.GetBlock(x + dx, y + dy, z + dz) != Block.Air)
-                            {
-                                Queue(x + dx, y + dy, z + dz, this.Map.GetBlock(x + dx, y + dy, z + dz), null);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public void SandGravelFall(int x, int y, int z, Block type)
-        {
-            if (this.Map.GetBlock(x, y, z) != type)
-            {
+                player.Message("Already disabled");
                 return;
             }
-
-            int dz = z;
-            while (dz > 0 && this.Map.GetBlock(x, y, dz - 1) == Block.Air)
-            {
-                dz--;
-            }
-            if (dz != z)
-            {
-                this.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
-                Physics.Physics.SetTileNoPhysics(x, y, dz, type, this);
-            }
+            CheckIfToStopPhysics();
+            _gunEnabled = false;
         }
-
-        #endregion
-
-        public bool LavaWaterCollide(Block a, Block b)
+        public void AddBullet(Vector3I position, Vector3F direction, Player owner)
         {
-            if ((a == Block.Water && b == Block.Lava) || (a == Block.Lava && b == Block.Water))
+            if (!_gunEnabled)
             {
-                return true;
+                owner.Message("Gun is disabled, cease fire!");
+                return;
             }
-            return false;
+            CheckIfPhysicsStarted();
+            _physScheduler.AddTask(new Bullet(this, position, direction, owner), 0);
         }
-    
+
+        private void CheckIfPhysicsStarted()
+        {
+            if (!_physScheduler.Started)
+                _physScheduler.Start();
+        }
+        private void CheckIfToStopPhysics()
+        {
+            if (!_gunEnabled && null == _grassTask)  //must be extended to firther phys types
+                _physScheduler.Stop();
+        }
         #endregion
 
 
@@ -416,7 +235,6 @@ namespace fCraft {
                                 Name );
                     Map = MapGenerator.GenerateFlatgrass( 128, 128, 64 );
                 }
-                this.startPhysics();
                 return Map;
             }
         }

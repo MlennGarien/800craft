@@ -47,31 +47,8 @@ namespace fCraft.Physics
             SchedulerTask drownCheck = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(3));
             Player.PlacingBlock += WaterPhysics.towerInit;
             Player.Clicking += WaterPhysics.towerRemove;
-            Player.Clicking += PlayerPhysicsClicked;
         }
-
-        public static void PlayerPhysicsClicked(object sender, PlayerClickingEventArgs e)
-        {
-            if (e.Action == ClickAction.Delete)
-            {
-                if (e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Dirt)
-                {
-                    e.Player.World.Queue(e.Coords.X, e.Coords.Y, e.Coords.Z - 1, Block.Dirt, null);
-                }
-            }
-            if (e.Action == ClickAction.Build)
-            {
-                if (e.Player.World.Map.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Grass)
-                {
-                    e.Player.World.Queue(e.Coords.X, e.Coords.Y, e.Coords.Z - 1, Block.Grass, null);
-                }
-                if (Physics.BasicPhysics(e.Block))
-                {
-                   e.Player.World.Queue(e.Coords.X, e.Coords.Y, e.Coords.Z, e.Block, e.Player);
-                }
-            }
-        }
-
+        
         //physics helpers & bools
 
         public static bool MoveSand(Vector3I block, World world)
@@ -116,33 +93,6 @@ namespace fCraft.Physics
             world.Map.Blocks[(z * world.Map.Height + y) * world.Map.Width + x] = (byte)type;
             world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, type));
             return true;
-        }
-
-        public static bool CanPutGrassOn(Vector3I block, World world)
-        {
-            if (world.Map != null)
-            {
-                if (world.Map.InBounds(block.X, block.Y, block.Z))
-                {
-                    if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Dirt)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        for (int z = block.Z; z < world.Map.Bounds.ZMax; z++)
-                        {
-                            Block toCheck = world.Map.GetBlock(new Vector3I(block.X, block.Y, z + 1));
-                            if (makeShadow(toCheck))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
         public static bool BasicPhysics(Block type)
@@ -200,23 +150,7 @@ namespace fCraft.Physics
             }
         }
 
-        public static bool makeShadow(Block block)
-        {
-            switch (block)
-            {
-                case Block.Air:
-                case Block.Glass:
-                case Block.Leaves:
-                case Block.YellowFlower:
-                case Block.RedFlower:
-                case Block.BrownMushroom:
-                case Block.RedMushroom:
-                case Block.Plant:
-                    return false;
-                default:
-                    return true;
-            }
-        }
+        
 
 
         public static bool BlockThrough(Block block)
