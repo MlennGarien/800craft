@@ -1,10 +1,11 @@
-﻿using System;
+﻿/*800Craft Physics; Copyright Jonty800 and LaoTszy 2012*/
+using System;
 using System.Threading;
 using fCraft.Physics;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Util = RandomMaze.MazeUtil;
-
+using fCraft.Drawing;
 
 namespace fCraft
 {
@@ -247,6 +248,69 @@ public class PhysScheduler
             }
         }
 	}
+
+    public class TNT : PhysicsTask
+    {
+        private const int Delay = 3000;
+        private Vector3I _pos; //tnt position
+        private Player _owner;
+
+        public TNT(World world, Vector3I position, Player owner)
+            : base(world)
+        {
+            _pos = position;
+            _owner = owner;
+        }
+        public override int Perform()
+        {
+            lock (_world.SyncRoot)
+            {
+                if (_world.Map.GetBlock(_pos) == Block.TNT)
+                {
+                    _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Air));
+                    int Seed = new Random().Next(1, 50);
+                    startExplosion(_pos, _owner, _world, Seed);
+                    Scheduler.NewTask(t => removeLava(_pos, _owner, _world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
+                }
+                return Delay;
+            }
+        }
+        public static void startExplosion(Vector3I Coords, Player player, World world, int Seed)
+        {
+            if (world.Map != null && world.IsLoaded)
+            {
+                SphereDrawOperation operation = new SphereDrawOperation(player);
+                MarbledBrush brush = new MarbledBrush(Block.Lava, 1);
+                Vector3I secPos = new Vector3I(Coords.X + 4, Coords.Y, Coords.Z);
+                Vector3I[] marks = { Coords, secPos };
+                operation.Brush = brush;
+                brush.Seed = Seed;
+                operation.Prepare(marks);
+                operation.AnnounceCompletion = false;
+                operation.Context = BlockChangeContext.Explosion;
+                operation.Begin();
+            }
+        }
+        
+
+        public static void removeLava(Vector3I Coords, Player player, World world, int Seed)
+        {
+            if (world.Map != null && world.IsLoaded)
+            {
+                SphereDrawOperation operation = new SphereDrawOperation(player);
+                MarbledBrush brush = new MarbledBrush(Block.Air, 1);
+                Vector3I secPos = new Vector3I(Coords.X + 4, Coords.Y, Coords.Z);
+                Vector3I[] marks = { Coords, secPos };
+                operation.Brush = brush;
+                brush.Seed = Seed;
+                operation.Prepare(marks);
+                operation.AnnounceCompletion = false;
+                operation.Context = BlockChangeContext.Explosion;
+                operation.Begin();
+            }
+        }
+    }
+
 
 	public class Bullet : PhysicsTask
 	{

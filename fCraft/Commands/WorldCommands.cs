@@ -10,6 +10,7 @@ using fCraft.Portals;
 using ServiceStack.Text;
 using System.Text;
 using System.Threading;
+using fCraft.Events;
 
 namespace fCraft {
     /// <summary> Contains commands related to world management. </summary>
@@ -58,8 +59,25 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdWorldSearch);
             SchedulerTask TimeCheckR = Scheduler.NewTask(TimeCheck).RunForever(TimeSpan.FromSeconds(120));
             CommandManager.RegisterCommand(CdPhysics);
+            Player.PlacedBlock += PlayerPlacedPhysics;
         }
         #region 800Craft
+
+        public static void PlayerPlacedPhysics(object sender, PlayerPlacedBlockEventArgs e)
+        {
+            if (e.NewBlock == Block.TNT)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    World world = e.Player.World;
+                    lock (world.SyncRoot)
+                    {
+                        world._tntTask = new TNT(e.Player.World, e.Coords, e.Player);
+                        world._physScheduler.AddTask(world._tntTask, 0);
+                    }
+                }
+            }
+        }
         static readonly CommandDescriptor CdPhysics = new CommandDescriptor
         {
             Name = "Physics",

@@ -20,7 +20,8 @@ namespace fCraft {
 
         private bool _gunEnabled = false;
         private GrassTask _grassTask = null;
-        private PhysScheduler _physScheduler;
+        public TNT _tntTask = null;
+        public PhysScheduler _physScheduler;
 
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
@@ -142,6 +143,29 @@ namespace fCraft {
             _grassTask = null;
         }
 
+       /* public void EnableTNTPhysics(Player player)
+        {
+            if (null != _tntTask)
+            {
+                player.Message("Already enabled");
+                return;
+            }
+            CheckIfPhysicsStarted();
+            _tntTask = new TNT(this, );
+            _physScheduler.AddTask(_tntTask, 0);
+        }
+        public void DisableTNTPhysics(Player player)
+        {
+            if (null == _tntTask)
+            {
+                player.Message("Already disabled");
+                return;
+            }
+            CheckIfToStopPhysics();
+            _tntTask.Deleted = true;
+            _tntTask = null;
+        }*/
+
         public void EnableGunPhysics(Player player)
         {
             if (_gunEnabled)
@@ -179,7 +203,7 @@ namespace fCraft {
         }
         private void CheckIfToStopPhysics()
         {
-            if (!_gunEnabled && null == _grassTask)  //must be extended to firther phys types
+            if (!_gunEnabled && null == _grassTask && null == _tntTask)  //must be extended to firther phys types
                 _physScheduler.Stop();
         }
         #endregion
