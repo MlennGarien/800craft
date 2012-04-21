@@ -291,7 +291,7 @@ public class PhysScheduler
                 operation.Begin();
             }
         }
-        
+
 
         public static void removeLava(Vector3I Coords, Player player, World world, int Seed)
         {
@@ -307,6 +307,20 @@ public class PhysScheduler
                 operation.AnnounceCompletion = false;
                 operation.Context = BlockChangeContext.Explosion;
                 operation.Begin();
+            }
+        }
+        public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
+        {
+            World world = e.Player.World;
+            if (world.Map.GetBlock(e.Coords) == Block.TNT)
+            {
+                lock (world.SyncRoot)
+                {
+                    world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
+                    int Seed = new Random().Next(1, 50);
+                    startExplosion(e.Coords, e.Player, world, Seed);
+                    Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
+                }
             }
         }
     }
@@ -473,3 +487,4 @@ public class PhysScheduler
 		}
 	}
 }
+

@@ -194,11 +194,11 @@ namespace fCraft
                                                             {
                                                                 int seed = new Random().Next(1, 6);
                                                                 player.LastTimeKilled = DateTime.Now;
-                                                                Physics.ExplodingPhysics.startExplosion(new Vector3I(pos.X, pos.Y, pos.Z), e.Player, world, seed);
+                                                                TNT.startExplosion(new Vector3I(pos.X, pos.Y, pos.Z), e.Player, world, seed);
                                                                 world.Players.Message("{0}&S was blown up by {1}", player.ClassyName, e.Player.ClassyName);
                                                                 player.TeleportTo(map.Spawn);
                                                                 Thread.Sleep(Physics.Physics.Tick);
-                                                                Physics.ExplodingPhysics.removeLava(new Vector3I(pos.X, pos.Y, pos.Z), e.Player, world, seed);
+                                                                TNT.removeLava(new Vector3I(pos.X, pos.Y, pos.Z), e.Player, world, seed);
                                                                 removal(bullets, map);
                                                                 hit = true;
                                                             }
@@ -234,9 +234,9 @@ namespace fCraft
                                         if (world.tntPhysics && toSend == Block.TNT)
                                         {
                                             int seed = new Random().Next(1, 6);
-                                            Physics.ExplodingPhysics.startExplosion(new Vector3I((int)pos.X, (int)pos.Y, (int)pos.Z), e.Player, world, seed);
+                                            TNT.startExplosion(new Vector3I((int)pos.X, (int)pos.Y, (int)pos.Z), e.Player, world, seed);
                                             Thread.Sleep(Physics.Physics.Tick);
-                                            Physics.ExplodingPhysics.removeLava(new Vector3I((int)pos.X, (int)pos.Y, (int)pos.Z), e.Player, world, seed);
+                                            TNT.removeLava(new Vector3I((int)pos.X, (int)pos.Y, (int)pos.Z), e.Player, world, seed);
                                             removal(bullets, map);
                                             hit = true;
                                         }

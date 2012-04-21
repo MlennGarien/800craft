@@ -72,8 +72,8 @@ namespace fCraft {
                     World world = e.Player.World;
                     lock (world.SyncRoot)
                     {
-                        world._tntTask = new TNT(e.Player.World, e.Coords, e.Player);
-                        world._physScheduler.AddTask(world._tntTask, 0);
+                        TNT task = new TNT(e.Player.World, e.Coords, e.Player);
+                        world._physScheduler.AddTask(task, 0);
                     }
                 }
             }
