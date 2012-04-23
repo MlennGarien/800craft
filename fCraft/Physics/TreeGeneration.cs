@@ -5,7 +5,7 @@ using System.Text;
 using fCraft.Events;
 using fCraft;
 
-namespace fCraft.Physics
+namespace fCraft
 {
     public static class TreeGeneration
     {

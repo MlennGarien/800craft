@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using fCraft.Collections;
 using System.Linq;
 using System.Text;
 using fCraft.Events;
@@ -128,9 +128,9 @@ namespace fCraft
                         {
                             //gunThread.Priority = ThreadPriority.BelowNormal;
                             //start where the player is, not where he clicks
-                            short startX = (short)(p.X / 32);
-                            short startY = (short)(p.Y / 32);
-                            short startZ = (short)(p.Z / 32);
+                            short startX = (short)(e.Coords.X);
+                            short startY = (short)(e.Coords.Y);
+                            short startZ = (short)(e.Coords.Z);
 
                             e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass)); //setblock
 

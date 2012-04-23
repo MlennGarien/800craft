@@ -116,19 +116,18 @@ namespace fCraft {
             request.UserAgent = Updater.UserAgent;
             return request;
         }
-        public static List<string> HbData = new List<string>();
+        public static string HbData;
         public static void HbSave()
         {
-            if (File.Exists("heartbeatsaver.txt"))
-            {
-                File.Delete("heartbeatsaver.txt");
-            }
-            HbData.Add("port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" +
-                Uri.EscapeDataString(ConfigKey.ServerName.GetString()) +
-                "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString());
-
             const string SaverFile = "heartbeatsaver.txt";
-            File.WriteAllLines(SaverFile, HbData, Encoding.ASCII);
+            if (File.Exists(SaverFile))
+            {
+                File.Delete(SaverFile);
+            }
+            HbData = "port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" +
+                Uri.EscapeDataString(ConfigKey.ServerName.GetString()) +
+                "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString();
+            File.WriteAllText(SaverFile, HbData, Encoding.ASCII);
         }
 
 

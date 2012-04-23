@@ -187,8 +187,9 @@ public class PhysScheduler
 		public override int Perform()
 		{
 			lock (_world.SyncRoot)
-			{
-				if (_r.NextDouble() > 0.5) //half
+            {
+                #region Grass
+                if (_r.NextDouble() > 0.5) //half
 					return Delay;
 				Coords c = _rndCoords[_i];
 				if (++_i >= _rndCoords.Length)
@@ -209,10 +210,82 @@ public class PhysScheduler
                             _map.QueueUpdate(new BlockUpdate(null, (short)x2, (short)y2, z, Block.Grass));
                         }
                     }
+                #endregion
+                    #region Trees
+                    if (_world.Map.GetBlock(new Vector3I(c.X, c.Y, z)) == Block.Plant)
+                    {
+                        Random rand = new Random();
+                        int Height = rand.Next(4, 7);
+                        for (int x = c.X; x < c.X + 5; x++)
+                        {
+                            for (int y = c.Y; y < c.Y + 5; y++)
+                            {
+                                for (int z1 = z + 1; z1 < z + Height; z1++)
+                                {
+                                    if (_world.Map.GetBlock(x, y, z1) != Block.Air)
+                                    {
+                                        return Delay;
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int x = c.X; x > c.X - 5; x--)
+                        {
+                            for (int y = c.Y; y > c.Y - 5; y--)
+                            {
+                                for (int z1 = z + 1; z1 < z + Height; z1++)
+                                {
+                                    if (_world.Map.GetBlock(x, y, z1) != Block.Air)
+                                    {
+                                        return Delay;
+                                    }
+                                }
+                            }
+                        }
+                        if (_world.Map.GetBlock(new Vector3I(c.X, c.Y, z)) == Block.Plant)
+                        {
+                            string type = null;
+                            if (_world.Map.GetBlock(c.X, c.Y, z - 1) == Block.Grass ||
+                                _world.Map.GetBlock(c.X, c.Y, z - 1) == Block.Dirt)
+                            {
+                                type = "grass";
+                            }
+                            else if (_world.Map.GetBlock(c.X, c.Y, z - 1) == Block.Sand)
+                            {
+                                type = "sand";
+                            }
+                            else
+                            {
+                                return Delay ;
+                            }
+                            MakeTrunks(_world, new Vector3I(c.X, c.Y, z), Height, type);
+                        }
+                    }
+                #endregion
                 }
 				return Delay;
 			}
 		}
+
+        public static void MakeTrunks(World w, Vector3I Coords, int Height, string type)
+        {
+            for (int i = 0; i < Height; i++)
+            {
+                if (w.Map != null && w.IsLoaded)
+                {
+                    w.Map.QueueUpdate(new BlockUpdate(null, (short)Coords.X, (short)Coords.Y, (short)(Coords.Z + i), Block.Log));
+                }
+            }
+            if (type.Equals("grass"))
+            {
+                TreeGeneration.MakeNormalFoliage(w, Coords, Height + 1);
+            }
+            else if (type.Equals("sand"))
+            {
+                TreeGeneration.MakePalmFoliage(w, Coords, Height);
+            }
+        }
 
         public static bool CanPutGrassOn(Vector3I block, World world)
         {
@@ -324,36 +397,7 @@ public class PhysScheduler
             }
         }
     }
-
-
-	public class Bullet : PhysicsTask
-	{
-		private const int Delay = 50;
-		private Vector3I _pos; //current position
-		private Vector3F _direction;
-		private Player _owner;
-
-		public Bullet(World world, Vector3I position, Vector3F direction, Player owner)
-			: base(world) //under sync root
-		{
-			_pos = position;
-			_direction = direction;
-			_owner = owner;
-		}
-
-		public override int Perform()
-		{
-			//under sync root
-			//move bullet
-
-            /*if reached border
-            if (!_world.Map.InBounds()){
-                return 0;*/
-			//}else{
-			//	return Delay;
-            return 0;
-		}
-	}
+	
 
 	public interface IHeapKey<out T> where T : IComparable
 	{

@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using ServiceStack.Text;
 using System.Collections;
-using System.Runtime.Serialization.Json;
+using System.Runtime.Serialization;
 
 namespace fCraft.Portals
 {

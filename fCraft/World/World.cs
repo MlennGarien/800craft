@@ -7,7 +7,7 @@ using System.Text;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.Collections;
-using System.Collections.Concurrent;
+using fCraft.Collections;
 using System.Threading;
 using fCraft.Physics;
 
@@ -18,9 +18,7 @@ namespace fCraft {
         [NotNull]
         public string Name { get; internal set; }
 
-        private bool _gunEnabled = false;
         private GrassTask _grassTask = null;
-        public TNT _tntTask = null;
         public PhysScheduler _physScheduler;
 
         /// <summary> Whether the world shows up on the /Worlds list.
@@ -143,59 +141,6 @@ namespace fCraft {
             _grassTask = null;
         }
 
-       /* public void EnableTNTPhysics(Player player)
-        {
-            if (null != _tntTask)
-            {
-                player.Message("Already enabled");
-                return;
-            }
-            CheckIfPhysicsStarted();
-            _tntTask = new TNT(this, );
-            _physScheduler.AddTask(_tntTask, 0);
-        }
-        public void DisableTNTPhysics(Player player)
-        {
-            if (null == _tntTask)
-            {
-                player.Message("Already disabled");
-                return;
-            }
-            CheckIfToStopPhysics();
-            _tntTask.Deleted = true;
-            _tntTask = null;
-        }*/
-
-        public void EnableGunPhysics(Player player)
-        {
-            if (_gunEnabled)
-            {
-                player.Message("Already enabled");
-                return;
-            }
-            _gunEnabled = true;
-        }
-        public void DisableGunPhysics(Player player)
-        {
-            if (!_gunEnabled)
-            {
-                player.Message("Already disabled");
-                return;
-            }
-            CheckIfToStopPhysics();
-            _gunEnabled = false;
-        }
-        public void AddBullet(Vector3I position, Vector3F direction, Player owner)
-        {
-            if (!_gunEnabled)
-            {
-                owner.Message("Gun is disabled, cease fire!");
-                return;
-            }
-            CheckIfPhysicsStarted();
-            _physScheduler.AddTask(new Bullet(this, position, direction, owner), 0);
-        }
-
         private void CheckIfPhysicsStarted()
         {
             if (!_physScheduler.Started)
@@ -203,7 +148,7 @@ namespace fCraft {
         }
         private void CheckIfToStopPhysics()
         {
-            if (!_gunEnabled && null == _grassTask && null == _tntTask)  //must be extended to firther phys types
+            if (null == _grassTask )  //must be extended to firther phys types
                 _physScheduler.Stop();
         }
         #endregion

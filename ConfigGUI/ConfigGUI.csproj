@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fCraft.ConfigGUI</RootNamespace>
     <AssemblyName>ConfigGUI</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>ConfigGUI4.ico</ApplicationIcon>
     <StartupObject>fCraft.ConfigGUI.Program</StartupObject>

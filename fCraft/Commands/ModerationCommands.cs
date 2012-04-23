@@ -191,8 +191,8 @@ namespace fCraft {
                 if (player.Can(Permission.Kill, target.Info.Rank))
                 {
                     target.TeleportTo(player.World.Map.Spawn);
-                    Server.Players.CanSee(target).Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
                     player.Info.LastUsedKill = DateTime.Now;
+                    Server.Players.CanSee(target).Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
                     return;
                 }
                 else
@@ -245,8 +245,8 @@ namespace fCraft {
             if (player.Can(Permission.Slap, target.Info.Rank))
             {
                 Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
-                Server.Players.CanSee(target).Message("{0} &swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                 target.TeleportTo(slap);
+                Server.Players.CanSee(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
             }
