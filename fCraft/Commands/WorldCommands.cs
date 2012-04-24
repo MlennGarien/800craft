@@ -65,15 +65,18 @@ namespace fCraft {
 
         public static void PlayerPlacedPhysics(object sender, PlayerPlacedBlockEventArgs e)
         {
-            if (e.NewBlock == Block.TNT)
+            World world = e.Player.World;
+            if (world.tntPhysics)
             {
-                if (e.Context == BlockChangeContext.Manual)
+                if (e.NewBlock == Block.TNT)
                 {
-                    World world = e.Player.World;
-                    lock (world.SyncRoot)
+                    if (e.Context == BlockChangeContext.Manual)
                     {
-                        TNT task = new TNT(e.Player.World, e.Coords, e.Player);
-                        world._physScheduler.AddTask(task, 0);
+                        lock (world.SyncRoot)
+                        {
+                            world._tntTask = new TNT(world, e.Coords, e.Player);
+                            world._physScheduler.AddTask(world._tntTask, 0);
+                        }
                     }
                 }
             }
@@ -121,27 +124,26 @@ namespace fCraft {
             switch (option.ToLower())
             {
                 case "tnt":
-                    if (world.tntPhysics)
+                    if (NextOp.ToLower() == "on")
                     {
-                        world.tntPhysics = false;
-                        Server.Players.Message("{0}&S turned TNT Physics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned TNT Physics off for {1}", player.Name, world.Name);
+                        world.EnableTNTPhysics(player);
+                        return;
                     }
-                    else
+                    if(NextOp.ToLower() == "off")
                     {
-                        world.tntPhysics = true;
-                        Server.Players.Message("{0}&S turned TNT Physics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned TNT Physics on for {1}", player.Name, world.Name);
+                        world.DisableTNTPhysics(player);
+                        return;
                     }
                     break;
                 case "grass":
                     if (NextOp.ToLower() == "off"){
-                        world.DisableGrassPhysics(player);
+                        world.DisablePlantPhysics(player);
                         return;
                     }
                     if (NextOp.ToLower() == "on")
                     {
-                        world.EnableGrassPhysics(player);
+                        world.EnablePlantPhysics(player);
+                        return;
                     }
                     
                     break;

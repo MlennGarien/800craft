@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "fCraftGUI" )]
-[assembly: AssemblyDescription( "Shared graphics-related functionality for fCraft" )]
+[assembly: AssemblyTitle("800CraftGUI")]
+[assembly: AssemblyDescription("Shared graphics-related functionality for 800Craft")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "matvei.org" )]
-[assembly: AssemblyProduct( "fCraftGUI" )]
-[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
+[assembly: AssemblyCompany("au70.net")]
+[assembly: AssemblyProduct("800CraftGUI")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

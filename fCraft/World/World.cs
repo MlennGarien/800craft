@@ -18,8 +18,10 @@ namespace fCraft {
         [NotNull]
         public string Name { get; internal set; }
 
-        private GrassTask _grassTask = null;
+        private PlantTask _plantTask = null;
         public PhysScheduler _physScheduler;
+        public TNT _tntTask;
+        public BlockSink _sinkTask;
 
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
@@ -118,27 +120,56 @@ namespace fCraft {
         }
 
         #region Physics
-        public void EnableGrassPhysics(Player player)
+        public void EnablePlantPhysics(Player player)
         {
-            if (null != _grassTask)
+            if (null != _plantTask)
             {
-                player.Message("Already enabled");
+                player.Message("&WAlready enabled on this world");
+                return;
+            }
+            plantPhysics = true;
+            CheckIfPhysicsStarted();
+            _plantTask = new PlantTask(this);
+            _physScheduler.AddTask(_plantTask, 0);
+            Server.Message("{0}&S enabled Plant Physics on {1}", player.ClassyName, ClassyName);
+        }
+
+        public void EnableTNTPhysics(Player player)
+        {
+            if (tntPhysics == true)
+            {
+                player.Message("&WAlready enabled on this world");
                 return;
             }
             CheckIfPhysicsStarted();
-            _grassTask = new GrassTask(this);
-            _physScheduler.AddTask(_grassTask, 0);
+            tntPhysics = true;
+            Server.Message("{0}&S enabled TNT Physics on {1}", player.ClassyName, ClassyName);
         }
-        public void DisableGrassPhysics(Player player)
+        public void DisablePlantPhysics(Player player)
         {
-            if (null == _grassTask)
+            if (null == _plantTask)
             {
-                player.Message("Already disabled");
+                player.Message("&WAlready disabled on this world");
                 return;
             }
             CheckIfToStopPhysics();
-            _grassTask.Deleted = true;
-            _grassTask = null;
+            _plantTask.Deleted = true;
+            _plantTask = null;
+            plantPhysics = false;
+            Server.Message("{0}&S disabled Plant Physics on {1}", player.ClassyName, ClassyName);
+        }
+        public void DisableTNTPhysics(Player player)
+        {
+            if (tntPhysics == false)
+            {
+                player.Message("&WAlready disabled on this world");
+                return;
+            }
+            CheckIfToStopPhysics();
+            _tntTask.Deleted = true;
+            tntPhysics = false;
+            _tntTask = null;
+            Server.Message("{0}&S disabled TNT Physics on {1}", player.ClassyName, ClassyName);
         }
 
         private void CheckIfPhysicsStarted()
@@ -148,7 +179,7 @@ namespace fCraft {
         }
         private void CheckIfToStopPhysics()
         {
-            if (null == _grassTask )  //must be extended to firther phys types
+            if (null == _plantTask && null == _tntTask )  //must be extended to further phys types
                 _physScheduler.Stop();
         }
         #endregion

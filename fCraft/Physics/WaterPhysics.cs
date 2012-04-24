@@ -144,48 +144,25 @@ namespace fCraft.Physics
 
         public static void blockSink(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
-            try
+            World world = e.Player.World;
+            if (world.waterPhysics)
             {
-                World world = e.Player.World;
-                if (world.waterPhysics)
+                if (e.Context == BlockChangeContext.Manual)
                 {
-                    if (e.Context == BlockChangeContext.Manual)
+                    if (!Physics.CanFloat(e.NewBlock)
+                        && e.NewBlock != Block.Air
+                        && e.NewBlock != Block.Water
+                        && e.NewBlock != Block.Lava
+                        && e.NewBlock != Block.BrownMushroom
+                        && e.NewBlock != Block.RedFlower
+                        && e.NewBlock != Block.RedMushroom
+                        && e.NewBlock != Block.YellowFlower
+                        && e.NewBlock != Block.Plant)
                     {
-                        if (!Physics.CanFloat(e.NewBlock)
-                            && e.NewBlock != Block.Air
-                            && e.NewBlock != Block.Water
-                            && e.NewBlock != Block.Lava
-                            && e.NewBlock != Block.BrownMushroom
-                            && e.NewBlock != Block.RedFlower
-                            && e.NewBlock != Block.RedMushroom
-                            && e.NewBlock != Block.YellowFlower
-                            && e.NewBlock != Block.Plant)
-                        {
-                            if (e.OldBlock == Block.Water)
-                            {
-                                waterThread = new Thread(new ThreadStart(delegate
-                                  {
-                                      for (int z = e.Coords.Z; z > 0; z--)
-                                      {
-                                          Thread.Sleep(Physics.Tick);
-                                          Vector3I oldChange = new Vector3I(e.Coords.X, e.Coords.Y, z);
-                                          Vector3I newChange = new Vector3I(e.Coords.X, e.Coords.Y, z - 1);
-                                          if (world.Map.GetBlock(newChange) != Block.Water)
-                                          {
-                                              break;
-                                          }
-                                          world.Map.QueueUpdate(new BlockUpdate(null, oldChange, Block.Water));
-                                          world.Map.QueueUpdate(new BlockUpdate(null, newChange, e.NewBlock));
-                                      }
-                                  })); waterThread.Start();
-                            }
-                        }
+                        world._sinkTask = new BlockSink(world, e.Coords, e.NewBlock);
+                        world._physScheduler.AddTask(world._sinkTask, 200);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
 

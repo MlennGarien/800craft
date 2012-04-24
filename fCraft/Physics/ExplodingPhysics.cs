@@ -37,91 +37,94 @@ namespace fCraft.Physics
                                     }
                                     explodeThread = new Thread(new ThreadStart(delegate
                                     {
-                                        world.FireworkCount++;
-                                        int upZ = e.Coords.Z;
-                                        int height = new Random().Next(12, 25);
-                                        for (int up = 0; up <= height; up++)
+                                        lock (world.SyncRoot)
                                         {
-                                            if (world.Map != null && world.IsLoaded)
+                                            world.FireworkCount++;
+                                            int upZ = e.Coords.Z;
+                                            int height = new Random().Next(12, 25);
+                                            for (int up = 0; up <= height; up++)
                                             {
-                                                Thread.Sleep(Physics.Tick); //world check after every thread sleep
-                                                if (world.Map != null && world.IsLoaded) //dis
-                                                {
-                                                    if (!Physics.BlockThrough(world.Map.GetBlock(e.Coords.X, e.Coords.Y, upZ + 1)))
-                                                    {
-                                                        Thread.Sleep(1000);
-                                                        break;
-                                                    }
-                                                }
                                                 if (world.Map != null && world.IsLoaded)
                                                 {
-                                                    upZ++;
-                                                    if (upZ == e.Coords.Z)
+                                                    Thread.Sleep(Physics.Tick); //world check after every thread sleep
+                                                    if (world.Map != null && world.IsLoaded) //dis
                                                     {
-                                                        return;
+                                                        if (!Physics.BlockThrough(world.Map.GetBlock(e.Coords.X, e.Coords.Y, upZ + 1)))
+                                                        {
+                                                            Thread.Sleep(1000);
+                                                            break;
+                                                        }
                                                     }
-                                                    if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, (upZ - 2)) == Block.Lava)
+                                                    if (world.Map != null && world.IsLoaded)
                                                     {
-                                                        world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(upZ - 2), Block.Air));
+                                                        upZ++;
+                                                        if (upZ == e.Coords.Z)
+                                                        {
+                                                            return;
+                                                        }
+                                                        if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, (upZ - 2)) == Block.Lava)
+                                                        {
+                                                            world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(upZ - 2), Block.Air));
+                                                        }
+                                                        if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, (upZ - 1)) == Block.Gold)
+                                                        {
+                                                            world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(upZ - 1), Block.Lava));
+                                                        }
+                                                        world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)upZ, Block.Gold));
                                                     }
-                                                    if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, (upZ - 1)) == Block.Gold)
-                                                    {
-                                                        world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(upZ - 1), Block.Lava));
-                                                    }
-                                                    world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)upZ, Block.Gold));
                                                 }
                                             }
-                                        }
-                                        int X2, Y2, Z2;
+                                            int X2, Y2, Z2;
 
-                                        Random rand = new Random();
-                                        int blockId = rand.Next(1, 9);
-                                        Block fBlock = new Block();
-                                        if (blockId == 1)
-                                        {
-                                            fBlock = Block.Lava;
-                                        }
-                                        if (blockId <= 6 && blockId != 1)
-                                        {
-                                            fBlock = (Block)rand.Next(21, 33);
-                                        }
-                                        if (world.Map != null && world.IsLoaded)
-                                        {
-                                            world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)upZ, Block.Air));
-                                            world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(upZ - 1), Block.Air));
-                                        }
-                                        for (X2 = e.Coords.X - (Physics.size + 1); X2 <= e.Coords.X + (Physics.size + 1); X2++)
-                                        {
-                                            for (Y2 = (e.Coords.Y - (Physics.size + 1)); Y2 <= (e.Coords.Y + (Physics.size + 1)); Y2++)
+                                            Random rand = new Random();
+                                            int blockId = rand.Next(1, 9);
+                                            Block fBlock = new Block();
+                                            if (blockId == 1)
                                             {
-                                                for (Z2 = (upZ - (Physics.size + 1)); Z2 <= (upZ + (Physics.size + 1)); Z2++)
+                                                fBlock = Block.Lava;
+                                            }
+                                            if (blockId <= 6 && blockId != 1)
+                                            {
+                                                fBlock = (Block)rand.Next(21, 33);
+                                            }
+                                            if (world.Map != null && world.IsLoaded)
+                                            {
+                                                world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)upZ, Block.Air));
+                                                world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(upZ - 1), Block.Air));
+                                            }
+                                            for (X2 = e.Coords.X - (Physics.size + 1); X2 <= e.Coords.X + (Physics.size + 1); X2++)
+                                            {
+                                                for (Y2 = (e.Coords.Y - (Physics.size + 1)); Y2 <= (e.Coords.Y + (Physics.size + 1)); Y2++)
                                                 {
-                                                    if (rand.Next(1, 50) < 3)
+                                                    for (Z2 = (upZ - (Physics.size + 1)); Z2 <= (upZ + (Physics.size + 1)); Z2++)
                                                     {
-                                                        if (world.Map != null && world.IsLoaded)
+                                                        if (rand.Next(1, 50) < 3)
                                                         {
-                                                            if (!Physics.BlockThrough(world.Map.GetBlock(X2, Y2, Z2)))
-                                                            {
-                                                                break;
-                                                            }
-                                                            if (blockId >= 7)
-                                                            {
-                                                                fBlock = (Block)rand.Next(21, 33);
-                                                            }
                                                             if (world.Map != null && world.IsLoaded)
                                                             {
-                                                                if (world.fireworkPhysics)
+                                                                if (!Physics.BlockThrough(world.Map.GetBlock(X2, Y2, Z2)))
                                                                 {
-                                                                    Explode(world, X2, Y2, Z2, (Block)fBlock);
-                                                                    Removal(world, X2, Y2, Z2);
+                                                                    break;
+                                                                }
+                                                                if (blockId >= 7)
+                                                                {
+                                                                    fBlock = (Block)rand.Next(21, 33);
+                                                                }
+                                                                if (world.Map != null && world.IsLoaded)
+                                                                {
+                                                                    if (world.fireworkPhysics)
+                                                                    {
+                                                                        Explode(world, X2, Y2, Z2, (Block)fBlock);
+                                                                        Removal(world, X2, Y2, Z2);
+                                                                    }
                                                                 }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
+                                            world.FireworkCount--;
                                         }
-                                        world.FireworkCount--;
                                     })); explodeThread.Start();
                                 }
                             }
