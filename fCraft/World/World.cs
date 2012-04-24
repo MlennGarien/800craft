@@ -23,6 +23,7 @@ namespace fCraft {
         public TNT _tntTask;
         public BlockSink _sinkTask;
         public BlockFloat _floatTask;
+        public Bullet _gunTask;
 
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>

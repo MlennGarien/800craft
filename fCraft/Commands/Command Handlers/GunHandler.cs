@@ -84,7 +84,6 @@ namespace fCraft
                 player.Message("&SGunMode activated. Fire at will!");
             }
         }
-        private static Thread gunThread;
 
         public static void playerPlaced(object sender, PlayerPlacingBlockEventArgs e)
         {
@@ -108,224 +107,17 @@ namespace fCraft
         }
         public static void ClickedGlass(object sender, PlayerClickingEventArgs e)
         {
-            try
+            if (e.Player.GunMode)
             {
-                if (e.Player.GunMode)
+                World world = e.Player.World;
+                Map map = e.Player.World.Map;
+                if (e.Player.GunCache.Values.Contains(e.Coords))
                 {
-                    World world = e.Player.World;
-                    Map map = e.Player.World.Map;
-                    if (e.Player.GunCache.Values.Contains(e.Coords))
-                    {
-                        Position p = e.Player.Position;
-                        Pos pos;
+                    e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass));
+                    world._gunTask = new Bullet(world, e.Coords, e.Player.Position, e.Player);
+                    world._physScheduler.AddTask(world._gunTask, 0);
 
-                        double rSin = Math.Sin(((double)(128 - p.R) / 255) * 2 * Math.PI);
-                        double rCos = Math.Cos(((double)(128 - p.R) / 255) * 2 * Math.PI);
-                        double lCos = Math.Cos(((double)(p.L + 64) / 255) * 2 * Math.PI); //yaw = 64
-
-                        ConcurrentDictionary<String, Vector3I> bullets = new ConcurrentDictionary<String, Vector3I>();
-                        gunThread = new Thread(new ThreadStart(delegate
-                        {
-                            //gunThread.Priority = ThreadPriority.BelowNormal;
-                            //start where the player is, not where he clicks
-                            short startX = (short)(e.Coords.X);
-                            short startY = (short)(e.Coords.Y);
-                            short startZ = (short)(e.Coords.Z);
-
-                            e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass)); //setblock
-
-                            pos.R = e.Player.Position.R;
-                            pos.L = e.Player.Position.L;
-                            for (int startB = 4; startB <= map.Volume; startB++)
-                            {
-                                if (world.Map != null && world.IsLoaded)
-                                {
-                                    pos.X = (short)Math.Round((startX + (double)(rSin * startB))); //math.round improves accuracy
-                                    pos.Y = (short)Math.Round((startY + (double)(rCos * startB)));
-                                    pos.Z = (short)Math.Round((startZ + (double)(lCos * startB)));
-                                    bool hit = false;
-
-                                    Block toSend = Block.Admincrete;
-                                    if (e.Player.LastUsedBlockType == Block.Orange)
-                                    {
-                                        toSend = Block.Lava;
-                                    }
-
-                                    if (e.Player.LastUsedBlockType == Block.Blue)
-                                    {
-                                        toSend = Block.Water;
-                                    }
-
-                                    if (e.Player.LastUsedBlockType == Block.TNT)
-                                    {
-                                        toSend = Block.TNT;
-                                    }
-                                    if (!map.InBounds(pos.X, pos.Y, pos.Z))
-                                    {
-                                        break;
-                                    }
-                                    if (e.Player.World.GameOn && Games.MineChallenge.randomBlocks.Values.Contains(new Vector3I(pos.X, pos.Y, pos.Z)))
-                                    {
-                                        world.Map.QueueUpdate(new BlockUpdate(null, new Vector3I(pos.X, pos.Y, pos.Z), Block.Air));
-                                        Vector3I removed;
-                                        Games.MineChallenge.randomBlocks.TryRemove(new Vector3I(pos.X, pos.Y, pos.Z).ToString(), out removed);
-                                        if (world.blueTeam.Contains(e.Player)) world.blueScore++;
-                                        else world.redScore++;
-                                    }
-                                    if (map.GetBlock(pos.X, pos.Y, pos.Z) == Block.Air || map.GetBlock(pos.X, pos.Y, pos.Z) == toSend)
-                                    {
-                                        bullets.TryAdd(new Vector3I(pos.X, pos.Y, pos.Z).ToString(), new Vector3I(pos.X, pos.Y, pos.Z));
-                                        map.QueueUpdate(new BlockUpdate(null,
-                                            (short)pos.X,
-                                            (short)pos.Y,
-                                            (short)pos.Z,
-                                            toSend));
-                                        foreach (Player player in world.Players)
-                                        {
-                                            if ((player.Position.X / 32) == pos.X || (player.Position.X / 32 + 1) == pos.X || (player.Position.X / 32 - 1) == pos.X)
-                                            {
-                                                if ((player.Position.Y / 32) == pos.Y || (player.Position.Y / 32 + 1) == pos.Y || (player.Position.Y / 32 - 1) == pos.Y)
-                                                {
-                                                    if ((player.Position.Z / 32) == pos.Z || (player.Position.Z / 32 + 1) == pos.Z || (player.Position.Z / 32 - 1) == pos.Z)
-                                                    {
-                                                        if (world.tntPhysics && toSend == Block.TNT && toSend != Block.Water && toSend != Block.Lava)
-                                                        {
-                                                            if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
-                                                            {
-                                                                int seed = new Random().Next(1, 6);
-                                                                player.LastTimeKilled = DateTime.Now;
-                                                                TNT.startExplosion(new Vector3I(pos.X, pos.Y, pos.Z), e.Player, world, seed);
-                                                                world.Players.Message("{0}&S was blown up by {1}", player.ClassyName, e.Player.ClassyName);
-                                                                player.TeleportTo(map.Spawn);
-                                                                Thread.Sleep(Physics.Physics.Tick);
-                                                                TNT.removeLava(new Vector3I(pos.X, pos.Y, pos.Z), e.Player, world, seed);
-                                                                removal(bullets, map);
-                                                                hit = true;
-                                                            }
-                                                        }
-
-                                                        else
-                                                        {
-                                                            if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
-                                                            {
-                                                                player.LastTimeKilled = DateTime.Now;
-                                                                world.Players.Message("{0}&S was shot by {1}", player.ClassyName, e.Player.ClassyName);
-                                                                player.TeleportTo(map.Spawn);
-                                                                removal(bullets, map);
-                                                                hit = true;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        Thread.Sleep(50);
-                                        removal(bullets, map);
-                                        if (hit)
-                                        {
-                                            break;
-                                        }
-                                    }
-
-                                    else
-                                    {
-                                        //tnt
-                                        if (world.tntPhysics && toSend == Block.TNT)
-                                        {
-                                            int seed = new Random().Next(1, 6);
-                                            TNT.startExplosion(new Vector3I((int)pos.X, (int)pos.Y, (int)pos.Z), e.Player, world, seed);
-                                            Thread.Sleep(Physics.Physics.Tick);
-                                            TNT.removeLava(new Vector3I((int)pos.X, (int)pos.Y, (int)pos.Z), e.Player, world, seed);
-                                            removal(bullets, map);
-                                            hit = true;
-                                        }
-                                        if (e.Player.bluePortal.Count > 0)
-                                        {
-                                            if (new Vector3I(pos.X, pos.Y, pos.Z) == e.Player.bluePortal[0] ||
-                                                new Vector3I(pos.X, pos.Y, pos.Z) == e.Player.bluePortal[1])
-                                            {
-                                                break;
-                                            }
-                                        }
-                                        if (e.Player.orangePortal.Count > 0)
-                                        {
-                                            if (new Vector3I(pos.X, pos.Y, pos.Z) == e.Player.orangePortal[0] ||
-                                                new Vector3I(pos.X, pos.Y, pos.Z) == e.Player.orangePortal[1])
-                                            {
-                                                break;
-                                            }
-                                        }
-                                        //blue portal
-                                        if (toSend == Block.Water)
-                                        {
-                                            if (CanPlacePortal(pos.X, pos.Y, pos.Z, map))
-                                            {
-                                                if (e.Player.bluePortal.Count > 0)
-                                                {
-                                                    int i = 0;
-                                                    foreach (Vector3I block in e.Player.bluePortal)
-                                                    {
-                                                        map.QueueUpdate(new BlockUpdate(null, block, e.Player.blueOld[i]));
-                                                        i++;
-                                                    }
-                                                    e.Player.blueOld.Clear();
-                                                    e.Player.bluePortal.Clear();
-                                                }
-
-                                                e.Player.blueOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z));
-                                                e.Player.blueOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z + 1));
-                                                e.Player.orangeOut = pos.R;
-                                                for (double z = pos.Z; z < pos.Z + 2; z++)
-                                                {
-                                                    map.QueueUpdate(new BlockUpdate(null, (short)(pos.X), (short)(pos.Y), (short)z, Block.Water));
-                                                    e.Player.bluePortal.Add(new Vector3I((int)pos.X, (int)pos.Y, (int)z));
-                                                }
-                                                break;
-                                            }
-                                        }
-
-                                            //orange portal
-                                        else if (toSend == Block.Lava)
-                                        {
-                                            if (CanPlacePortal(pos.X, pos.Y, pos.Z, map))
-                                            {
-                                                if (e.Player.orangePortal.Count > 0)
-                                                {
-                                                    int i = 0;
-                                                    foreach (Vector3I block in e.Player.orangePortal)
-                                                    {
-                                                        map.QueueUpdate(new BlockUpdate(null, block, e.Player.orangeOld[i]));
-                                                        i++;
-                                                    }
-                                                    e.Player.orangeOld.Clear();
-                                                    e.Player.orangePortal.Clear();
-                                                }
-                                                e.Player.orangeOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z));
-                                                e.Player.orangeOld.Add(map.GetBlock(pos.X, pos.Y, pos.Z + 1));
-                                                e.Player.blueOut = pos.R;
-                                                for (double z = pos.Z; z < pos.Z + 2; z++)
-                                                {
-                                                    map.QueueUpdate(new BlockUpdate(null, (short)(pos.X), (short)(pos.Y), (short)z, Block.Lava));
-                                                    e.Player.orangePortal.Add(new Vector3I((int)pos.X, (int)pos.Y, (int)z));
-                                                }
-                                                break;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        })); gunThread.Start();
-                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
 
@@ -625,11 +417,6 @@ namespace fCraft
             {
                 return false;
             }
-        }
-        public struct Pos
-        {
-            public short X, Y, Z;
-            public byte R, L;
         }
     }
 }
