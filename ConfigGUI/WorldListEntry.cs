@@ -6,12 +6,14 @@ using fCraft.MapConversion;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace fCraft.ConfigGUI {
+namespace fCraft.ConfigGUI
+{
     /// <summary>
     /// A wrapper for per-World metadata, designed to be usable with SortableBindingList.
     /// All these properties map directly to the UI controls.
     /// </summary>
-    sealed class WorldListEntry : ICloneable {
+    sealed class WorldListEntry : ICloneable
+    {
         public const string WorldInfoSignature = "(ConfigGUI)";
         public const string DefaultRankOption = "(everyone)";
         const string MapFileExtension = ".fcm";
@@ -19,14 +21,16 @@ namespace fCraft.ConfigGUI {
         internal bool LoadingFailed { get; private set; }
 
 
-        public WorldListEntry( [NotNull] string newName ) {
-            if( newName == null ) throw new ArgumentNullException( "newName" );
+        public WorldListEntry([NotNull] string newName)
+        {
+            if (newName == null) throw new ArgumentNullException("newName");
             name = newName;
         }
 
 
-        public WorldListEntry( [NotNull] WorldListEntry original ) {
-            if( original == null ) throw new ArgumentNullException( "original" );
+        public WorldListEntry([NotNull] WorldListEntry original)
+        {
+            if (original == null) throw new ArgumentNullException("original");
             name = original.Name;
             Hidden = original.Hidden;
             Backup = original.Backup;
@@ -34,8 +38,8 @@ namespace fCraft.ConfigGUI {
             blockDBIsPreloaded = original.blockDBIsPreloaded;
             blockDBLimit = original.blockDBLimit;
             blockDBTimeLimit = original.blockDBTimeLimit;
-            accessSecurity = new SecurityController( original.accessSecurity );
-            buildSecurity = new SecurityController( original.buildSecurity );
+            accessSecurity = new SecurityController(original.accessSecurity);
+            buildSecurity = new SecurityController(original.buildSecurity);
             LoadedBy = original.LoadedBy;
             LoadedOn = original.LoadedOn;
             MapChangedBy = original.MapChangedBy;
@@ -44,118 +48,160 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        public WorldListEntry( [NotNull] XElement el ) {
-            if( el == null ) throw new ArgumentNullException( "el" );
+        public WorldListEntry([NotNull] XElement el)
+        {
+            if (el == null) throw new ArgumentNullException("el");
             XAttribute temp;
 
-            if( (temp = el.Attribute( "name" )) == null ) {
-                throw new FormatException( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
+            if ((temp = el.Attribute("name")) == null)
+            {
+                throw new FormatException("WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed.");
             }
-            if( !World.IsValidName( temp.Value ) ) {
-                throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
+            if (!World.IsValidName(temp.Value))
+            {
+                throw new FormatException("WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\".");
             }
             name = temp.Value;
 
-            if( (temp = el.Attribute( "hidden" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
+            if ((temp = el.Attribute("hidden")) != null && !String.IsNullOrEmpty(temp.Value))
+            {
                 bool hidden;
-                if( Boolean.TryParse( temp.Value, out hidden ) ) {
+                if (Boolean.TryParse(temp.Value, out hidden))
+                {
                     Hidden = hidden;
-                } else {
-                    throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
                 }
-            } else {
+                else
+                {
+                    throw new FormatException("WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute.");
+                }
+            }
+            else
+            {
                 Hidden = false;
             }
 
-            if( (temp = el.Attribute( "backup" )) != null ) {
+            if ((temp = el.Attribute("backup")) != null)
+            {
                 TimeSpan realBackupTimer;
-                if( temp.Value.ToTimeSpan( out realBackupTimer ) ) {
-                    Backup = BackupNameFromValue( realBackupTimer );
-                } else {
-                    Logger.Log( LogType.Error,
-                                "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default.", name );
+                if (temp.Value.ToTimeSpan(out realBackupTimer))
+                {
+                    Backup = BackupNameFromValue(realBackupTimer);
+                }
+                else
+                {
+                    Logger.Log(LogType.Error,
+                                "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default.", name);
                     Backup = BackupEnumNames[0];
                 }
-            } else {
+            }
+            else
+            {
                 Backup = BackupEnumNames[0];
             }
 
             XElement tempEl;
-            if( (tempEl = el.Element( WorldManager.AccessSecurityXmlTagName )) != null ||
-                (tempEl = el.Element( "accessSecurity" )) != null ) {
-                accessSecurity = new SecurityController( tempEl, false );
+            if ((tempEl = el.Element(WorldManager.AccessSecurityXmlTagName)) != null ||
+                (tempEl = el.Element("accessSecurity")) != null)
+            {
+                accessSecurity = new SecurityController(tempEl, false);
             }
-            if( (tempEl = el.Element( WorldManager.BuildSecurityXmlTagName )) != null ||
-                (tempEl = el.Element( "buildSecurity" )) != null ) {
-                buildSecurity = new SecurityController( tempEl, false );
+            if ((tempEl = el.Element(WorldManager.BuildSecurityXmlTagName)) != null ||
+                (tempEl = el.Element("buildSecurity")) != null)
+            {
+                buildSecurity = new SecurityController(tempEl, false);
             }
 
-            XElement blockEl = el.Element( BlockDB.XmlRootName );
-            if( blockEl == null ) {
+            XElement blockEl = el.Element(BlockDB.XmlRootName);
+            if (blockEl == null)
+            {
                 BlockDBEnabled = YesNoAuto.Auto;
-            } else {
-                if( (temp = blockEl.Attribute( "enabled" )) != null ) {
+            }
+            else
+            {
+                if ((temp = blockEl.Attribute("enabled")) != null)
+                {
                     YesNoAuto enabledStateTemp;
-                    if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
+                    if (EnumUtil.TryParse(temp.Value, out enabledStateTemp, true))
+                    {
                         BlockDBEnabled = enabledStateTemp;
-                    } else {
-                        Logger.Log( LogType.Warning,
+                    }
+                    else
+                    {
+                        Logger.Log(LogType.Warning,
                                     "WorldListEntity: Could not parse BlockDB \"enabled\" attribute of world \"{0}\", assuming \"Auto\".",
-                                    name );
+                                    name);
                         BlockDBEnabled = YesNoAuto.Auto;
                     }
                 }
 
-                if( (temp = blockEl.Attribute( "preload" )) != null ) {
+                if ((temp = blockEl.Attribute("preload")) != null)
+                {
                     bool isPreloaded;
-                    if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
+                    if (Boolean.TryParse(temp.Value, out isPreloaded))
+                    {
                         blockDBIsPreloaded = isPreloaded;
-                    } else {
-                        Logger.Log( LogType.Warning,
+                    }
+                    else
+                    {
+                        Logger.Log(LogType.Warning,
                                     "WorldListEntity: Could not parse BlockDB \"preload\" attribute of world \"{0}\", assuming NOT preloaded.",
-                                    name );
+                                    name);
                     }
                 }
-                if( (temp = blockEl.Attribute( "limit" )) != null ) {
+                if ((temp = blockEl.Attribute("limit")) != null)
+                {
                     int limit;
-                    if( Int32.TryParse( temp.Value, out limit ) ) {
+                    if (Int32.TryParse(temp.Value, out limit))
+                    {
                         blockDBLimit = limit;
-                    } else {
-                        Logger.Log( LogType.Warning,
+                    }
+                    else
+                    {
+                        Logger.Log(LogType.Warning,
                                     "WorldListEntity: Could not parse BlockDB \"limit\" attribute of world \"{0}\", assuming NO limit.",
-                                    name );
+                                    name);
                     }
                 }
-                if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
+                if ((temp = blockEl.Attribute("timeLimit")) != null)
+                {
                     int timeLimitSeconds;
-                    if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
-                        blockDBTimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
-                    } else {
-                        Logger.Log( LogType.Warning,
+                    if (Int32.TryParse(temp.Value, out timeLimitSeconds))
+                    {
+                        blockDBTimeLimit = TimeSpan.FromSeconds(timeLimitSeconds);
+                    }
+                    else
+                    {
+                        Logger.Log(LogType.Warning,
                                     "WorldListEntity: Could not parse BlockDB \"timeLimit\" attribute of world \"{0}\", assuming NO time limit.",
-                                    name );
+                                    name);
                     }
                 }
             }
 
-            if( (tempEl = el.Element( "LoadedBy" )) != null ) {
+            if ((tempEl = el.Element("LoadedBy")) != null)
+            {
                 LoadedBy = tempEl.Value;
             }
-            if( (tempEl = el.Element( "MapChangedBy" )) != null ) {
+            if ((tempEl = el.Element("MapChangedBy")) != null)
+            {
                 MapChangedBy = tempEl.Value;
             }
 
-            if( (tempEl = el.Element( "LoadedOn" )) != null ) {
-                if( !tempEl.Value.ToDateTime( ref LoadedOn ) ) {
+            if ((tempEl = el.Element("LoadedOn")) != null)
+            {
+                if (!tempEl.Value.ToDateTime(ref LoadedOn))
+                {
                     LoadedOn = DateTime.MinValue;
                 }
             }
-            if( (tempEl = el.Element( "MapChangedOn" )) != null ) {
-                if( !tempEl.Value.ToDateTime( ref MapChangedOn ) ) {
+            if ((tempEl = el.Element("MapChangedOn")) != null)
+            {
+                if (!tempEl.Value.ToDateTime(ref MapChangedOn))
+                {
                     MapChangedOn = DateTime.MinValue;
                 }
             }
-            environmentEl = el.Element( WorldManager.EnvironmentXmlTagName );
+            environmentEl = el.Element(WorldManager.EnvironmentXmlTagName);
         }
 
         public string LoadedBy, MapChangedBy;
@@ -166,57 +212,76 @@ namespace fCraft.ConfigGUI {
         #region List Properties
 
         string name;
-        [SortableProperty( typeof( WorldListEntry ), "Compare" )]
-        public string Name {
-            get {
+        [SortableProperty(typeof(WorldListEntry), "Compare")]
+        public string Name
+        {
+            get
+            {
                 return name;
             }
-            set {
-                if( name == value ) return;
-                if( !World.IsValidName( value ) ) {
-                    throw new FormatException( "Invalid world name" );
+            set
+            {
+                if (name == value) return;
+                if (!World.IsValidName(value))
+                {
+                    throw new FormatException("Invalid world name");
 
-                } else if( !value.Equals( name, StringComparison.OrdinalIgnoreCase ) && MainForm.IsWorldNameTaken( value ) ) {
-                    throw new FormatException( "Duplicate world names are not allowed." );
+                }
+                else if (!value.Equals(name, StringComparison.OrdinalIgnoreCase) && MainForm.IsWorldNameTaken(value))
+                {
+                    throw new FormatException("Duplicate world names are not allowed.");
 
-                } else {
+                }
+                else
+                {
                     string oldName = name;
-                    string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                    string newFileName = Path.Combine( Paths.MapPath, value + ".fcm" );
-                    if( File.Exists( oldFileName ) ) {
+                    string oldFileName = Path.Combine(Paths.MapPath, oldName + ".fcm");
+                    string newFileName = Path.Combine(Paths.MapPath, value + ".fcm");
+                    if (File.Exists(oldFileName))
+                    {
                         bool isSameFile;
-                        if( MonoCompat.IsCaseSensitive ) {
-                            isSameFile = newFileName.Equals( oldFileName, StringComparison.Ordinal );
-                        } else {
-                            isSameFile = newFileName.Equals( oldFileName, StringComparison.OrdinalIgnoreCase );
+                        if (MonoCompat.IsCaseSensitive)
+                        {
+                            isSameFile = newFileName.Equals(oldFileName, StringComparison.Ordinal);
                         }
-                        if( File.Exists( newFileName ) && !isSameFile ) {
-                            string messageText = String.Format( "Map file \"{0}\" already exists. Overwrite?", value + ".fcm" );
-                            var result = MessageBox.Show( messageText, "", MessageBoxButtons.OKCancel );
-                            if( result == DialogResult.Cancel ) return;
+                        else
+                        {
+                            isSameFile = newFileName.Equals(oldFileName, StringComparison.OrdinalIgnoreCase);
                         }
-                        Paths.ForceRename( oldFileName, newFileName );
+                        if (File.Exists(newFileName) && !isSameFile)
+                        {
+                            string messageText = String.Format("Map file \"{0}\" already exists. Overwrite?", value + ".fcm");
+                            var result = MessageBox.Show(messageText, "", MessageBoxButtons.OKCancel);
+                            if (result == DialogResult.Cancel) return;
+                        }
+                        Paths.ForceRename(oldFileName, newFileName);
                     }
                     name = value;
-                    if( oldName != null ) {
-                        MainForm.HandleWorldRename( oldName, name );
+                    if (oldName != null)
+                    {
+                        MainForm.HandleWorldRename(oldName, name);
                     }
                 }
             }
         }
 
 
-        [SortableProperty( typeof( WorldListEntry ), "Compare" )]
-        public string Description {
-            get {
+        [SortableProperty(typeof(WorldListEntry), "Compare")]
+        public string Description
+        {
+            get
+            {
                 Map mapHeader = MapHeader;
-                if( LoadingFailed ) {
+                if (LoadingFailed)
+                {
                     return "(cannot load file)";
-                } else {
-                    return String.Format( "{0} × {1} × {2}",
+                }
+                else
+                {
+                    return String.Format("{0} × {1} × {2}",
                                           mapHeader.Width,
                                           mapHeader.Length,
-                                          mapHeader.Height );
+                                          mapHeader.Height);
                 }
             }
         }
@@ -227,17 +292,25 @@ namespace fCraft.ConfigGUI {
 
         readonly SecurityController accessSecurity = new SecurityController();
         string accessRankString;
-        public string AccessPermission {
-            get {
-                if( accessSecurity.HasRankRestriction ) {
-                    return MainForm.ToComboBoxOption( accessSecurity.MinRank );
-                } else {
+        public string AccessPermission
+        {
+            get
+            {
+                if (accessSecurity.HasRankRestriction)
+                {
+                    return MainForm.ToComboBoxOption(accessSecurity.MinRank);
+                }
+                else
+                {
                     return DefaultRankOption;
                 }
             }
-            set {
-                foreach( Rank rank in RankManager.Ranks ) {
-                    if( MainForm.ToComboBoxOption(rank) == value ) {
+            set
+            {
+                foreach (Rank rank in RankManager.Ranks)
+                {
+                    if (MainForm.ToComboBoxOption(rank) == value)
+                    {
                         accessSecurity.MinRank = rank;
                         accessRankString = rank.FullName;
                         return;
@@ -251,17 +324,25 @@ namespace fCraft.ConfigGUI {
 
         readonly SecurityController buildSecurity = new SecurityController();
         string buildRankString;
-        public string BuildPermission {
-            get {
-                if( buildSecurity.HasRankRestriction ) {
+        public string BuildPermission
+        {
+            get
+            {
+                if (buildSecurity.HasRankRestriction)
+                {
                     return MainForm.ToComboBoxOption(buildSecurity.MinRank);
-                } else {
+                }
+                else
+                {
                     return DefaultRankOption;
                 }
             }
-            set {
-                foreach( Rank rank in RankManager.Ranks ) {
-                    if( MainForm.ToComboBoxOption(rank) == value ) {
+            set
+            {
+                foreach (Rank rank in RankManager.Ranks)
+                {
+                    if (MainForm.ToComboBoxOption(rank) == value)
+                    {
                         buildSecurity.MinRank = rank;
                         buildRankString = rank.FullName;
                         return;
@@ -278,80 +359,96 @@ namespace fCraft.ConfigGUI {
         #endregion
 
 
-        internal XElement Serialize() {
-            XElement element = new XElement( "World" );
-            element.Add( new XAttribute( "name", Name ) );
-            element.Add( new XAttribute( "hidden", Hidden ) );
-            if( Backup != BackupEnumNames[0] ) {
-                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToTickString() ) );
+        internal XElement Serialize()
+        {
+            XElement element = new XElement("World");
+            element.Add(new XAttribute("name", Name));
+            element.Add(new XAttribute("hidden", Hidden));
+            if (Backup != BackupEnumNames[0])
+            {
+                element.Add(new XAttribute("backup", BackupValueFromName(Backup).ToTickString()));
             }
-            element.Add( accessSecurity.Serialize( WorldManager.AccessSecurityXmlTagName ) );
-            element.Add( buildSecurity.Serialize( WorldManager.BuildSecurityXmlTagName ) );
-            XElement blockDB = new XElement( BlockDB.XmlRootName );
-            blockDB.Add( new XAttribute( "enabled", BlockDBEnabled ) );
-            blockDB.Add( new XAttribute( "preload", blockDBIsPreloaded ) );
-            blockDB.Add( new XAttribute( "limit", blockDBLimit ) );
-            blockDB.Add( new XAttribute( "timeLimit", (int)blockDBTimeLimit.TotalSeconds ) );
-            element.Add( blockDB );
+            element.Add(accessSecurity.Serialize(WorldManager.AccessSecurityXmlTagName));
+            element.Add(buildSecurity.Serialize(WorldManager.BuildSecurityXmlTagName));
+            XElement blockDB = new XElement(BlockDB.XmlRootName);
+            blockDB.Add(new XAttribute("enabled", BlockDBEnabled));
+            blockDB.Add(new XAttribute("preload", blockDBIsPreloaded));
+            blockDB.Add(new XAttribute("limit", blockDBLimit));
+            blockDB.Add(new XAttribute("timeLimit", (int)blockDBTimeLimit.TotalSeconds));
+            element.Add(blockDB);
 
-            if( environmentEl != null ) element.Add( environmentEl );
+            if (environmentEl != null) element.Add(environmentEl);
 
-            if( !String.IsNullOrEmpty( LoadedBy ) ) element.Add( new XElement( "LoadedBy", LoadedBy ) );
-            if( !String.IsNullOrEmpty( MapChangedBy ) ) element.Add( new XElement( "MapChangedBy", MapChangedBy ) );
-            if( LoadedOn != DateTime.MinValue ) element.Add( new XElement( "LoadedOn", LoadedOn ) );
-            if( MapChangedOn != DateTime.MinValue ) element.Add( new XElement( "MapChangedOn", MapChangedOn ) );
+            if (!String.IsNullOrEmpty(LoadedBy)) element.Add(new XElement("LoadedBy", LoadedBy));
+            if (!String.IsNullOrEmpty(MapChangedBy)) element.Add(new XElement("MapChangedBy", MapChangedBy));
+            if (LoadedOn != DateTime.MinValue) element.Add(new XElement("LoadedOn", LoadedOn));
+            if (MapChangedOn != DateTime.MinValue) element.Add(new XElement("MapChangedOn", MapChangedOn));
             return element;
         }
 
 
-        public void ReparseRanks() {
-            Rank accessMinRank = Rank.Parse( accessRankString );
-            if( accessMinRank != null ) {
+        public void ReparseRanks()
+        {
+            Rank accessMinRank = Rank.Parse(accessRankString);
+            if (accessMinRank != null)
+            {
                 accessSecurity.MinRank = accessMinRank;
-            } else {
+            }
+            else
+            {
                 accessSecurity.ResetMinRank();
             }
 
-            Rank buildMinRank = Rank.Parse( buildRankString );
-            if( buildMinRank != null ) {
+            Rank buildMinRank = Rank.Parse(buildRankString);
+            if (buildMinRank != null)
+            {
                 buildSecurity.MinRank = buildMinRank;
-            } else {
+            }
+            else
+            {
                 buildSecurity.ResetMinRank();
             }
         }
 
 
         Map cachedMapHeader;
-        internal Map MapHeader {
-            get {
-                if( cachedMapHeader == null && !LoadingFailed ) {
-                    string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
-                    LoadingFailed = !MapUtility.TryLoadHeader( fullFileName, out cachedMapHeader );
+        internal Map MapHeader
+        {
+            get
+            {
+                if (cachedMapHeader == null && !LoadingFailed)
+                {
+                    string fullFileName = Path.Combine(Paths.MapPath, name + ".fcm");
+                    LoadingFailed = !MapUtility.TryLoadHeader(fullFileName, out cachedMapHeader);
                 }
                 return cachedMapHeader;
             }
         }
 
 
-        internal string FileName {
+        internal string FileName
+        {
             get { return Name + MapFileExtension; }
         }
 
 
-        internal string FullFileName {
-            get { return Path.Combine( Paths.MapPath, Name + MapFileExtension ); }
+        internal string FullFileName
+        {
+            get { return Path.Combine(Paths.MapPath, Name + MapFileExtension); }
         }
 
 
         #region Backup
 
-        public static string BackupNameFromValue( TimeSpan value ) {
-            TimeSpan closestMatch = BackupEnumValues.OrderBy( t => Math.Abs( value.Subtract( t ).Ticks ) ).First();
-            return BackupEnumNames[Array.IndexOf( BackupEnumValues, closestMatch )];
+        public static string BackupNameFromValue(TimeSpan value)
+        {
+            TimeSpan closestMatch = BackupEnumValues.OrderBy(t => Math.Abs(value.Subtract(t).Ticks)).First();
+            return BackupEnumNames[Array.IndexOf(BackupEnumValues, closestMatch)];
         }
 
-        public static TimeSpan BackupValueFromName( string name ) {
-            return BackupEnumValues[Array.IndexOf( BackupEnumNames, name )];
+        public static TimeSpan BackupValueFromName(string name)
+        {
+            return BackupEnumValues[Array.IndexOf(BackupEnumNames, name)];
         }
 
         public static readonly string[] BackupEnumNames = new[] {
@@ -403,26 +500,29 @@ namespace fCraft.ConfigGUI {
         TimeSpan blockDBTimeLimit;
 
 
-        public object Clone() {
-            return new WorldListEntry( this );
+        public object Clone()
+        {
+            return new WorldListEntry(this);
         }
 
 
         // Comparison method used to customize sorting
         [UsedImplicitly]
-        public static object Compare( string propertyName, object a, object b ) {
+        public static object Compare(string propertyName, object a, object b)
+        {
             WorldListEntry entry1 = (WorldListEntry)a;
             WorldListEntry entry2 = (WorldListEntry)b;
-            switch( propertyName ) {
+            switch (propertyName)
+            {
                 case "Description":
-                    if( entry1.MapHeader == null && entry2.MapHeader == null ) return null;
-                    if( entry1.MapHeader == null ) return -1;
-                    if( entry2.MapHeader == null ) return 1;
+                    if (entry1.MapHeader == null && entry2.MapHeader == null) return 0;
+                    if (entry1.MapHeader == null) return -1;
+                    if (entry2.MapHeader == null) return 1;
                     int volumeDifference = entry1.MapHeader.Volume - entry2.MapHeader.Volume;
-                    return Math.Min( 1, Math.Max( -1, volumeDifference ) );
+                    return Math.Min(1, Math.Max(-1, volumeDifference));
 
                 case "Name":
-                    return StringComparer.OrdinalIgnoreCase.Compare( entry1.name, entry2.name );
+                    return StringComparer.OrdinalIgnoreCase.Compare(entry1.name, entry2.name);
 
                 default:
                     throw new NotImplementedException();

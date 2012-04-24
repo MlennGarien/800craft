@@ -92,53 +92,17 @@ namespace fCraft.Physics
 
         public static void blockFloat(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
-            try
+            World world = e.Player.World;
+            if (world.waterPhysics)
             {
-                World world = e.Player.World;
-                if (world.waterPhysics)
+                if (e.Context == BlockChangeContext.Manual)
                 {
-                    if (e.Context == BlockChangeContext.Manual)
+                    if (Physics.CanFloat(e.NewBlock))
                     {
-                        if (e.NewBlock == Block.TNT && world.tntPhysics)
-                        {
-                            return;
-                        }
-                        if (e.NewBlock == Block.Red && world.fireworkPhysics)
-                        {
-                            return;
-                        }
-                        if (Physics.CanFloat(e.NewBlock))
-                        {
-                            waterThread = new Thread(new ThreadStart(delegate
-                            {
-                                for (int z = e.Coords.Z; z <= world.Map.Height; z++)
-                                {
-                                    if (world.Map != null && world.IsLoaded)
-                                    {
-                                        if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z) != Block.Water)
-                                        {
-                                            break;
-                                        }
-                                        else if (world.Map.GetBlock(e.Coords.X, e.Coords.Y, z) == Block.Water)
-                                        {
-                                            Thread.Sleep(Physics.Tick);
-                                            if (z - 1 != e.Coords.Z - 1)
-                                            {
-                                                e.Player.WorldMap.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z - 1), Block.Water)); //remove when water physics is done
-                                            }
-                                            e.Player.WorldMap.QueueUpdate(new BlockUpdate
-                                                (null, (short)e.Coords.X, (short)e.Coords.Y, (short)(z), e.NewBlock));
-                                        }
-                                    }
-                                }
-                            })); waterThread.Start();
-                        }
+                        world._floatTask = new BlockFloat(world, e.Coords, e.NewBlock);
+                        world._physScheduler.AddTask(world._floatTask, 200);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
 

@@ -42,7 +42,7 @@ namespace fCraft.Physics
             //Player.PlacingBlock += ExplodingPhysics.TNTDrop;
             //Player.Clicked += ExplodingPhysics.TNTClick;
             //Player.PlacingBlock += ExplodingPhysics.Firework;
-            //Player.PlacingBlock += WaterPhysics.blockFloat;
+            Player.PlacingBlock += WaterPhysics.blockFloat;
             Player.PlacingBlock += WaterPhysics.blockSink;
             SchedulerTask drownCheck = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(3));
             Player.PlacingBlock += WaterPhysics.towerInit;

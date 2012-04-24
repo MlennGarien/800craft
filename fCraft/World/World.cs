@@ -22,6 +22,7 @@ namespace fCraft {
         public PhysScheduler _physScheduler;
         public TNT _tntTask;
         public BlockSink _sinkTask;
+        public BlockFloat _floatTask;
 
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>

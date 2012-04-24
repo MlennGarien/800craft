@@ -1106,7 +1106,7 @@ namespace fCraft {
                         undoState.Buffer.Count,
                         playerWorld.Name );
 
-            msg += String.Format( "Undo: Restoring {0} blocks. Type &H/Redo&S to reverse.",
+            msg += String.Format( "Restoring {0} blocks. Type &H/Redo&S to reverse.",
                                   undoState.Buffer.Count );
             player.MessageNow( msg );
 
@@ -1155,7 +1155,7 @@ namespace fCraft {
                         redoState.Buffer.Count,
                         playerWorld.Name );
 
-            msg += String.Format( "Redo: Restoring {0} blocks. Type &H/Undo&S to reverse.",
+            msg += String.Format( "Restoring {0} blocks. Type &H/Undo&S to reverse.",
                                   redoState.Buffer.Count );
             player.MessageNow( msg );
 

@@ -135,7 +135,7 @@ namespace fCraft {
                         return;
                     }
                     break;
-                case "grass":
+                case "plant":
                     if (NextOp.ToLower() == "off"){
                         world.DisablePlantPhysics(player);
                         return;
@@ -175,20 +175,6 @@ namespace fCraft {
                         world.waterPhysics = true;
                         Server.Players.Message("{0}&S turned Water Physics on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned Water Physics on for {1}", player.Name, world.Name);
-                    }
-                    break;
-                case "plant":
-                    if (world.plantPhysics)
-                    {
-                        world.plantPhysics = false;
-                        Server.Players.Message("{0}&S turned Plant Physics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Plant Physics off for {1}", player.Name, world.Name);
-                    }
-                    else
-                    {
-                        world.plantPhysics = true;
-                        Server.Players.Message("{0}&S turned Plant Physics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Plant Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 case "all":

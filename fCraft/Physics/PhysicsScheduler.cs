@@ -462,6 +462,56 @@ public class PhysScheduler
             return Delay;
         }
     }
+
+    public class BlockFloat : PhysicsTask
+    {
+        private const int Delay = 200;
+        private Vector3I _pos; //tnt position
+        private int _nextPos;
+        private bool _firstMove = true;
+        private Block type;
+
+        public BlockFloat(World world, Vector3I position, Block Type)
+            : base(world)
+        {
+            _pos = position;
+            _nextPos = position.Z + 1;
+            type = Type;
+        }
+
+        public override int Perform()
+        {
+            if (_world.waterPhysics)
+            {
+                if (_firstMove)
+                {
+                    if (_world.Map.GetBlock(_pos) != type)
+                    {
+                        return 0;
+                    }
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                    {
+                        _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                        _nextPos++;
+                        _firstMove = false;
+                        return Delay;
+                    }
+                }
+                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos - 1) != type)
+                {
+                    return 0;
+                }
+                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                {
+                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos - 1), Block.Water));
+                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                    _nextPos++;
+                }
+            }
+            return Delay;
+        }
+    }
 	
 
 	public interface IHeapKey<out T> where T : IComparable

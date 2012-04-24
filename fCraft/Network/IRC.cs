@@ -36,17 +36,20 @@ using System.Threading;
 using fCraft.Events;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft
+{
 
     /// <summary> IRC control class. </summary>
-    public static class IRC {
+    public static class IRC
+    {
 
         /// <summary> Class represents an IRC connection/thread.
         /// There is an undocumented option (IRCThreads) to "load balance" the outgoing
         /// messages between multiple bots. If that's the case, several IRCThread objects
         /// are created. The bots grab messages from IRC.outputQueue whenever they are
         /// not on cooldown (a bit of an intentional race condition). </summary>
-        sealed class IRCThread : IDisposable {
+        sealed class IRCThread : IDisposable
+        {
             TcpClient client;
             StreamReader reader;
             StreamWriter writer;
@@ -61,138 +64,163 @@ namespace fCraft {
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
-            public bool Start( [NotNull] string botNick, bool parseInput ) {
-                if( botNick == null ) throw new ArgumentNullException( "botNick" );
+            public bool Start([NotNull] string botNick, bool parseInput)
+            {
+                if (botNick == null) throw new ArgumentNullException("botNick");
                 desiredBotNick = botNick;
                 ResponsibleForInputParsing = parseInput;
-                try {
+                try
+                {
                     // start the machinery!
-                    thread = new Thread( IoThread ) {
-                        Name = "800Craft.IRC",
+                    thread = new Thread(IoThread)
+                    {
+                        Name = "fCraft.IRC",
                         IsBackground = true
                     };
                     thread.Start();
                     return true;
-                } catch( Exception ex ) {
-                    Logger.Log( LogType.Error,
-                                "IRC: Could not start the bot: {0}", ex );
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(LogType.Error,
+                                "IRC: Could not start the bot: {0}", ex);
                     return false;
                 }
             }
 
 
-            void Connect() {
+            void Connect()
+            {
                 // initialize the client
-                IPAddress ipToBindTo = IPAddress.Parse( ConfigKey.IP.GetString() );
-                IPEndPoint localEndPoint = new IPEndPoint( ipToBindTo, 0 );
-                client = new TcpClient( localEndPoint ) {
+                IPAddress ipToBindTo = IPAddress.Parse(ConfigKey.IP.GetString());
+                IPEndPoint localEndPoint = new IPEndPoint(ipToBindTo, 0);
+                client = new TcpClient(localEndPoint)
+                {
                     NoDelay = true,
                     ReceiveTimeout = Timeout,
                     SendTimeout = Timeout
                 };
-                client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1 );
+                client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
 
                 // connect
-                client.Connect( hostName, port );
+                client.Connect(hostName, port);
 
                 // prepare to read/write
-                reader = new StreamReader( client.GetStream() );
-                writer = new StreamWriter( client.GetStream() );
+                reader = new StreamReader(client.GetStream());
+                writer = new StreamWriter(client.GetStream());
                 isConnected = true;
             }
 
 
-            void Send( [NotNull] string msg ) {
-                if( msg == null ) throw new ArgumentNullException( "msg" );
-                localQueue.Enqueue( msg );
+            void Send([NotNull] string msg)
+            {
+                if (msg == null) throw new ArgumentNullException("msg");
+                localQueue.Enqueue(msg);
             }
 
 
             // runs in its own thread, started from Connect()
-            void IoThread() {
+            void IoThread()
+            {
                 string outputLine = "";
                 lastMessageSent = DateTime.UtcNow;
 
-                do {
-                    try {
+                do
+                {
+                    try
+                    {
                         ActualBotNick = desiredBotNick;
                         reconnect = false;
-                        Logger.Log( LogType.IRC,
+                        Logger.Log(LogType.IRC,
                                     "Connecting to {0}:{1} as {2}",
-                                    hostName, port, ActualBotNick );
+                                    hostName, port, ActualBotNick);
                         Connect();
 
                         // register
-                        Send( IRCCommands.User( ActualBotNick, 8, ConfigKey.ServerName.GetString() ) );
-                        Send( IRCCommands.Nick( ActualBotNick ) );
+                        Send(IRCCommands.User(ActualBotNick, 8, ConfigKey.ServerName.GetString()));
+                        Send(IRCCommands.Nick(ActualBotNick));
 
-                        while( isConnected && !reconnect ) {
-                            Thread.Sleep( 10 );
+                        while (isConnected && !reconnect)
+                        {
+                            Thread.Sleep(10);
 
-                            if( localQueue.Length > 0 &&
-                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                localQueue.Dequeue( ref outputLine ) ) {
+                            if (localQueue.Length > 0 &&
+                                DateTime.UtcNow.Subtract(lastMessageSent).TotalMilliseconds >= SendDelay &&
+                                localQueue.Dequeue(ref outputLine))
+                            {
 
-                                writer.Write( outputLine + "\r\n" );
+                                writer.Write(outputLine + "\r\n");
                                 lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();
                             }
 
-                            if( OutputQueue.Length > 0 &&
-                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                OutputQueue.Dequeue( ref outputLine ) ) {
+                            if (OutputQueue.Length > 0 &&
+                                DateTime.UtcNow.Subtract(lastMessageSent).TotalMilliseconds >= SendDelay &&
+                                OutputQueue.Dequeue(ref outputLine))
+                            {
 
-                                writer.Write( outputLine + "\r\n" );
+                                writer.Write(outputLine + "\r\n");
                                 lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();
                             }
 
-                            if( client.Client.Available > 0 ) {
+                            if (client.Client.Available > 0)
+                            {
                                 string line = reader.ReadLine();
-                                if( line == null ) break;
-                                HandleMessage( line );
+                                if (line == null) break;
+                                HandleMessage(line);
                             }
                         }
 
-                    } catch( SocketException ) {
-                        Logger.Log( LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
-                                    ReconnectDelay / 1000 );
+                    }
+                    catch (SocketException)
+                    {
+                        Logger.Log(LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
+                                    ReconnectDelay / 1000);
                         reconnect = true;
 
-                    } catch( IOException ) {
-                        Logger.Log( LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
-                                    ReconnectDelay / 1000 );
+                    }
+                    catch (IOException)
+                    {
+                        Logger.Log(LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
+                                    ReconnectDelay / 1000);
                         reconnect = true;
 #if !DEBUG
-                    } catch( Exception ex ) {
-                        Logger.Log( LogType.Error, "IRC: {0}", ex );
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(LogType.Error, "IRC: {0}", ex);
                         reconnect = true;
 #endif
                     }
 
-                    if( reconnect ) Thread.Sleep( ReconnectDelay );
-                } while( reconnect );
+                    if (reconnect) Thread.Sleep(ReconnectDelay);
+                } while (reconnect);
             }
 
 
-            void HandleMessage( [NotNull] string message ) {
-                if( message == null ) throw new ArgumentNullException( "message" );
+            void HandleMessage([NotNull] string message)
+            {
+                if (message == null) throw new ArgumentNullException("message");
 
-                IRCMessage msg = MessageParser( message, ActualBotNick );
+                IRCMessage msg = MessageParser(message, ActualBotNick);
 #if DEBUG_IRC
                 Logger.Log( LogType.IRC,
                             "[{0}]: {1}",
                             msg.Type, msg.RawMessage );
 #endif
 
-                switch( msg.Type ) {
+                switch (msg.Type)
+                {
                     case IRCMessageType.Login:
-                        if( ConfigKey.IRCRegisteredNick.Enabled() ) {
-                            Send( IRCCommands.Privmsg( ConfigKey.IRCNickServ.GetString(),
-                                                       ConfigKey.IRCNickServMessage.GetString() ) );
+                        if (ConfigKey.IRCRegisteredNick.Enabled())
+                        {
+                            Send(IRCCommands.Privmsg(ConfigKey.IRCNickServ.GetString(),
+                                                       ConfigKey.IRCNickServMessage.GetString()));
                         }
-                        foreach( string channel in channelNames ) {
-                            Send( IRCCommands.Join( channel ) );
+                        foreach (string channel in channelNames)
+                        {
+                            Send(IRCCommands.Join(channel));
                         }
                         IsReady = true;
                         AssignBotForInputParsing(); // bot should be ready to receive input after joining
@@ -201,37 +229,48 @@ namespace fCraft {
 
                     case IRCMessageType.Ping:
                         // ping-pong
-                        Send( IRCCommands.Pong( msg.RawMessageArray[1].Substring( 1 ) ) );
+                        Send(IRCCommands.Pong(msg.RawMessageArray[1].Substring(1)));
                         return;
 
 
                     case IRCMessageType.ChannelAction:
                     case IRCMessageType.ChannelMessage:
                         // channel chat
-                        if( !ResponsibleForInputParsing ) return;
-                        if( !IsBotNick( msg.Nick ) ) {
+                        if (!ResponsibleForInputParsing) return;
+                        if (!IsBotNick(msg.Nick))
+                        {
                             string processedMessage = msg.Message;
-                            if( msg.Type == IRCMessageType.ChannelAction ) {
-                                if( processedMessage.StartsWith( "\u0001ACTION" ) ) {
-                                    processedMessage = processedMessage.Substring( 8 );
-                                } else {
+                            if (msg.Type == IRCMessageType.ChannelAction)
+                            {
+                                if (processedMessage.StartsWith("\u0001ACTION"))
+                                {
+                                    processedMessage = processedMessage.Substring(8);
+                                }
+                                else
+                                {
                                     return;
                                 }
                             }
-                            processedMessage = NonPrintableChars.Replace( processedMessage, "" );
-                            processedMessage = Color.EscapeAmpersands( processedMessage ).Trim();
-                            if( processedMessage.Length > 0 ) {
-                                if( ConfigKey.IRCBotForwardFromIRC.Enabled() ) {
-                                    if( msg.Type == IRCMessageType.ChannelAction ) {
-                                        Server.Message( "&i(IRC) * {0} {1}",
-                                                        msg.Nick, processedMessage );
-                                    } else {
-                                        Server.Message( "&i(IRC) {0}{1}: {2}",
-                                                        msg.Nick, Color.White, processedMessage );
+                            processedMessage = NonPrintableChars.Replace(processedMessage, "");
+                            if (processedMessage.Length > 0)
+                            {
+                                if (ConfigKey.IRCBotForwardFromIRC.Enabled())
+                                {
+                                    if (msg.Type == IRCMessageType.ChannelAction)
+                                    {
+                                        Server.Message("&i(IRC) * {0} {1}",
+                                                        msg.Nick, processedMessage);
                                     }
-                                } else if( msg.Message.StartsWith( "#" ) ) {
-                                    Server.Message( "&i(IRC) {0}{1}: {2}",
-                                                    msg.Nick, Color.White, processedMessage.Substring( 1 ) );
+                                    else
+                                    {
+                                        Server.Message("&i(IRC) {0}{1}: {2}",
+                                                        msg.Nick, Color.White, processedMessage);
+                                    }
+                                }
+                                else if (msg.Message.StartsWith("#"))
+                                {
+                                    Server.Message("&i(IRC) {0}{1}: {2}",
+                                                    msg.Nick, Color.White, processedMessage.Substring(1));
                                 }
                             }
                         }
@@ -239,84 +278,91 @@ namespace fCraft {
 
 
                     case IRCMessageType.Join:
-                        if( !ResponsibleForInputParsing ) return;
-                        if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
-                            Server.Message( "&i(IRC) {0} joined {1}",
-                                            msg.Nick, msg.Channel );
+                        if (!ResponsibleForInputParsing) return;
+                        if (ConfigKey.IRCBotAnnounceIRCJoins.Enabled())
+                        {
+                            Server.Message("&i(IRC) {0} joined {1}",
+                                            msg.Nick, msg.Channel);
                         }
                         return;
 
 
                     case IRCMessageType.Kick:
                         string kicked = msg.RawMessageArray[3];
-                        if( kicked == ActualBotNick ) {
-                            Logger.Log( LogType.IRC,
+                        if (kicked == ActualBotNick)
+                        {
+                            Logger.Log(LogType.IRC,
                                         "Bot was kicked from {0} by {1} ({2}), rejoining.",
-                                        msg.Channel, msg.Nick, msg.Message );
-                            Thread.Sleep( ReconnectDelay );
-                            Send( IRCCommands.Join( msg.Channel ) );
-                        } else {
-                            if( !ResponsibleForInputParsing ) return;
-                            Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
-                                            msg.Nick, kicked, msg.Channel, msg.Message );
+                                        msg.Channel, msg.Nick, msg.Message);
+                            Thread.Sleep(ReconnectDelay);
+                            Send(IRCCommands.Join(msg.Channel));
+                        }
+                        else
+                        {
+                            if (!ResponsibleForInputParsing) return;
+                            Server.Message("&i(IRC) {0} kicked {1} from {2} ({3})",
+                                            msg.Nick, kicked, msg.Channel, msg.Message);
                         }
                         return;
 
 
                     case IRCMessageType.Part:
                     case IRCMessageType.Quit:
-                        if( !ResponsibleForInputParsing ) return;
-                        if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
-                            Server.Message( "&i(IRC) {0} left {1}",
-                                            msg.Nick, msg.Channel );
+                        if (!ResponsibleForInputParsing) return;
+                        if (ConfigKey.IRCBotAnnounceIRCJoins.Enabled())
+                        {
+                            Server.Message("&i(IRC) {0} left {1}",
+                                            msg.Nick, msg.Channel);
                         }
                         return;
 
 
                     case IRCMessageType.NickChange:
-                        if( !ResponsibleForInputParsing ) return;
-                        Server.Message( "&i(IRC) {0} is now known as {1}",
-                                        msg.Nick, msg.Message );
+                        if (!ResponsibleForInputParsing) return;
+                        Server.Message("&i(IRC) {0} is now known as {1}",
+                                        msg.Nick, msg.Message);
                         return;
 
 
                     case IRCMessageType.ErrorMessage:
                     case IRCMessageType.Error:
                         bool die = false;
-                        switch( msg.ReplyCode ) {
+                        switch (msg.ReplyCode)
+                        {
                             case IRCReplyCode.ErrorNicknameInUse:
                             case IRCReplyCode.ErrorNicknameCollision:
-                                Logger.Log( LogType.IRC,
+                                Logger.Log(LogType.IRC,
                                             "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"",
-                                            ActualBotNick );
+                                            ActualBotNick);
                                 ActualBotNick += "_";
-                                Send( IRCCommands.Nick( ActualBotNick ) );
+                                Send(IRCCommands.Nick(ActualBotNick));
                                 break;
 
                             case IRCReplyCode.ErrorBannedFromChannel:
                             case IRCReplyCode.ErrorNoSuchChannel:
-                                Logger.Log( LogType.IRC,
+                                Logger.Log(LogType.IRC,
                                             "Error: {0} ({1})",
-                                            msg.ReplyCode, msg.Channel );
+                                            msg.ReplyCode, msg.Channel);
                                 die = true;
                                 break;
 
                             case IRCReplyCode.ErrorBadChannelKey:
-                                Logger.Log( LogType.IRC,
-                                            "Error: Channel password required for {0}. 800Craft does not currently support passworded channels.",
-                                            msg.Channel );
+                                Logger.Log(LogType.IRC,
+                                            "Error: Channel password required for {0}. fCraft does not currently support passworded channels.",
+                                            msg.Channel);
                                 die = true;
                                 break;
 
                             default:
-                                Logger.Log( LogType.IRC,
+                                Logger.Log(LogType.IRC,
                                             "Error ({0}): {1}",
-                                            msg.ReplyCode, msg.RawMessage );
+                                            msg.ReplyCode, msg.RawMessage);
                                 break;
                         }
 
-                        if( die ) {
-                            Logger.Log( LogType.IRC, "Error: Disconnecting." );
+                        if (die)
+                        {
+                            Logger.Log(LogType.IRC, "Error: Disconnecting.");
                             reconnect = false;
                             DisconnectThread();
                         }
@@ -326,15 +372,15 @@ namespace fCraft {
 
                     case IRCMessageType.QueryAction:
                         // TODO: PMs
-                        Logger.Log( LogType.IRC,
-                                    "Query: {0}", msg.RawMessage );
+                        Logger.Log(LogType.IRC,
+                                    "Query: {0}", msg.RawMessage);
                         break;
 
 
                     case IRCMessageType.Kill:
-                        Logger.Log( LogType.IRC,
+                        Logger.Log(LogType.IRC,
                                     "Bot was killed from {0} by {1} ({2}), reconnecting.",
-                                    hostName, msg.Nick, msg.Message );
+                                    hostName, msg.Nick, msg.Message);
                         reconnect = true;
                         isConnected = false;
                         return;
@@ -342,44 +388,61 @@ namespace fCraft {
             }
 
 
-            public void DisconnectThread() {
+            public void DisconnectThread()
+            {
                 IsReady = false;
                 AssignBotForInputParsing();
                 isConnected = false;
-                if( thread != null && thread.IsAlive ) {
-                    thread.Join( 1000 );
-                    if( thread.IsAlive ) {
+                if (thread != null && thread.IsAlive)
+                {
+                    thread.Join(1000);
+                    if (thread.IsAlive)
+                    {
                         thread.Abort();
                     }
                 }
-                try {
-                    if( reader != null ) reader.Close();
-                } catch( ObjectDisposedException ) { }
-                try {
-                    if( writer != null ) writer.Close();
-                } catch( ObjectDisposedException ) { }
-                try {
-                    if( client != null ) client.Close();
-                } catch( ObjectDisposedException ) { }
+                try
+                {
+                    if (reader != null) reader.Close();
+                }
+                catch (ObjectDisposedException) { }
+                try
+                {
+                    if (writer != null) writer.Close();
+                }
+                catch (ObjectDisposedException) { }
+                try
+                {
+                    if (client != null) client.Close();
+                }
+                catch (ObjectDisposedException) { }
             }
 
 
             #region IDisposable members
 
-            public void Dispose() {
-                try {
-                    if( reader != null ) reader.Dispose();
-                } catch( ObjectDisposedException ) { }
+            public void Dispose()
+            {
+                try
+                {
+                    if (reader != null) reader.Dispose();
+                }
+                catch (ObjectDisposedException) { }
 
-                try {
-                    if( reader != null ) writer.Dispose();
-                } catch( ObjectDisposedException ) { }
+                try
+                {
+                    if (reader != null) writer.Dispose();
+                }
+                catch (ObjectDisposedException) { }
 
-                try {
-                    if( client != null && client.Connected ) {
+                try
+                {
+                    if (client != null && client.Connected)
+                    {
                         client.Close();
                     }
-                } catch( ObjectDisposedException ) { }
+                }
+                catch (ObjectDisposedException) { }
             }
 
             #endregion
@@ -400,40 +463,49 @@ namespace fCraft {
         static readonly ConcurrentQueue<string> OutputQueue = new ConcurrentQueue<string>();
 
 
-        static void AssignBotForInputParsing() {
+        static void AssignBotForInputParsing()
+        {
             bool needReassignment = false;
-            for( int i = 0; i < threads.Length; i++ ) {
-                if( threads[i].ResponsibleForInputParsing && !threads[i].IsReady ) {
+            for (int i = 0; i < threads.Length; i++)
+            {
+                if (threads[i].ResponsibleForInputParsing && !threads[i].IsReady)
+                {
                     threads[i].ResponsibleForInputParsing = false;
                     needReassignment = true;
                 }
             }
-            if( needReassignment ) {
-                for( int i = 0; i < threads.Length; i++ ) {
-                    if( threads[i].IsReady ) {
+            if (needReassignment)
+            {
+                for (int i = 0; i < threads.Length; i++)
+                {
+                    if (threads[i].IsReady)
+                    {
                         threads[i].ResponsibleForInputParsing = true;
-                        Logger.Log( LogType.IRC,
+                        Logger.Log(LogType.IRC,
                                     "Bot \"{0}\" is now responsible for parsing input.",
-                                    threads[i].ActualBotNick );
+                                    threads[i].ActualBotNick);
                         return;
                     }
                 }
-                Logger.Log( LogType.IRC, "All IRC bots have disconnected." );
+                Logger.Log(LogType.IRC, "All IRC bots have disconnected.");
             }
         }
 
         // includes IRC color codes and non-printable ASCII
-        static readonly Regex NonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
+        static readonly Regex NonPrintableChars = new Regex("\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled);
 
-        public static void Init() {
-            if( !ConfigKey.IRCBotEnabled.Enabled() ) return;
+        public static void Init()
+        {
+            if (!ConfigKey.IRCBotEnabled.Enabled()) return;
 
             hostName = ConfigKey.IRCBotNetwork.GetString();
             port = ConfigKey.IRCBotPort.GetInt();
-            channelNames = ConfigKey.IRCBotChannels.GetString().Split( ',' );
-            for( int i = 0; i < channelNames.Length; i++ ) {
+            channelNames = ConfigKey.IRCBotChannels.GetString().Split(',');
+            for (int i = 0; i < channelNames.Length; i++)
+            {
                 channelNames[i] = channelNames[i].Trim();
-                if( !channelNames[i].StartsWith( "#" ) ) {
+                if (!channelNames[i].StartsWith("#"))
+                {
                     channelNames[i] = '#' + channelNames[i].Trim();
                 }
             }
@@ -441,85 +513,111 @@ namespace fCraft {
         }
 
 
-        public static bool Start() {
+        public static bool Start()
+        {
             int threadCount = ConfigKey.IRCThreads.GetInt();
 
-            if( threadCount == 1 ) {
+            if (threadCount == 1)
+            {
                 IRCThread thread = new IRCThread();
-                if( thread.Start( botNick, true ) ) {
+                if (thread.Start(botNick, true))
+                {
                     threads = new[] { thread };
                 }
 
-            } else {
+            }
+            else
+            {
                 List<IRCThread> threadTemp = new List<IRCThread>();
-                for( int i = 0; i < threadCount; i++ ) {
+                for (int i = 0; i < threadCount; i++)
+                {
                     IRCThread temp = new IRCThread();
-                    if( temp.Start( botNick + (i + 1), (threadTemp.Count == 0) ) ) {
-                        threadTemp.Add( temp );
+                    if (temp.Start(botNick + (i + 1), (threadTemp.Count == 0)))
+                    {
+                        threadTemp.Add(temp);
                     }
                 }
                 threads = threadTemp.ToArray();
             }
 
-            if( threads.Length > 0 ) {
+            if (threads.Length > 0)
+            {
                 HookUpHandlers();
                 return true;
-            } else {
-                Logger.Log( LogType.IRC, "IRC functionality disabled." );
+            }
+            else
+            {
+                Logger.Log(LogType.IRC, "IRC functionality disabled.");
                 return false;
             }
         }
 
 
-        public static void SendChannelMessage( [NotNull] string line ) {
-            if( line == null ) throw new ArgumentNullException( "line" );
-            if( channelNames == null ) return; // in case IRC bot is disabled.
-            if( ConfigKey.IRCUseColor.Enabled() ) {
-                line = Color.ToIRCColorCodes( line );
-            } else {
-                line = NonPrintableChars.Replace( line, "" ).Trim();
+        public static void SendChannelMessage([NotNull] string line)
+        {
+            if (line == null) throw new ArgumentNullException("line");
+            if (channelNames == null) return; // in case IRC bot is disabled.
+            if (ConfigKey.IRCUseColor.Enabled())
+            {
+                line = Color.ToIRCColorCodes(line);
             }
-            for( int i = 0; i < channelNames.Length; i++ ) {
-                SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
+            else
+            {
+                line = NonPrintableChars.Replace(line, "").Trim();
             }
-        }
-
-
-        public static void SendAction( [NotNull] string line ) {
-            if( line == null ) throw new ArgumentNullException( "line" );
-            SendChannelMessage( String.Format( "\u0001ACTION {0}\u0001", line ) );
-        }
-
-
-        public static void SendNotice( [NotNull] string line ) {
-            if( line == null ) throw new ArgumentNullException( "line" );
-            if( channelNames == null ) return; // in case IRC bot is disabled.
-            if( ConfigKey.IRCUseColor.Enabled() ) {
-                line = Color.ToIRCColorCodes( line );
-            } else {
-                line = NonPrintableChars.Replace( line, "" ).Trim();
-            }
-            for( int i = 0; i < channelNames.Length; i++ ) {
-                SendRawMessage( IRCCommands.Notice( channelNames[i], line ) );
+            for (int i = 0; i < channelNames.Length; i++)
+            {
+                SendRawMessage(IRCCommands.Privmsg(channelNames[i], line));
             }
         }
 
 
-        public static void SendRawMessage( [NotNull] string line ) {
-            if( line == null ) throw new ArgumentNullException( "line" );
-            OutputQueue.Enqueue( line );
+        public static void SendAction([NotNull] string line)
+        {
+            if (line == null) throw new ArgumentNullException("line");
+            SendChannelMessage(String.Format("\u0001ACTION {0}\u0001", line));
         }
 
 
-        static bool IsBotNick( [NotNull] string str ) {
-            if( str == null ) throw new ArgumentNullException( "str" );
-            return threads.Any( t => t.ActualBotNick == str );
+        public static void SendNotice([NotNull] string line)
+        {
+            if (line == null) throw new ArgumentNullException("line");
+            if (channelNames == null) return; // in case IRC bot is disabled.
+            if (ConfigKey.IRCUseColor.Enabled())
+            {
+                line = Color.ToIRCColorCodes(line);
+            }
+            else
+            {
+                line = NonPrintableChars.Replace(line, "").Trim();
+            }
+            for (int i = 0; i < channelNames.Length; i++)
+            {
+                SendRawMessage(IRCCommands.Notice(channelNames[i], line));
+            }
         }
 
 
-        public static void Disconnect() {
-            if( threads != null && threads.Length > 0 ) {
-                foreach( IRCThread thread in threads ) {
+        public static void SendRawMessage([NotNull] string line)
+        {
+            if (line == null) throw new ArgumentNullException("line");
+            OutputQueue.Enqueue(line);
+        }
+
+
+        static bool IsBotNick([NotNull] string str)
+        {
+            if (str == null) throw new ArgumentNullException("str");
+            return threads.Any(t => t.ActualBotNick == str);
+        }
+
+
+        public static void Disconnect()
+        {
+            if (threads != null && threads.Length > 0)
+            {
+                foreach (IRCThread thread in threads)
+                {
                     thread.DisconnectThread();
                 }
             }
@@ -528,7 +626,8 @@ namespace fCraft {
 
         #region Server Event Handlers
 
-        static void HookUpHandlers() {
+        static void HookUpHandlers()
+        {
             Chat.Sent += ChatSentHandler;
             Player.Ready += PlayerReadyHandler;
             Player.Disconnected += PlayerDisconnectedHandler;
@@ -538,89 +637,110 @@ namespace fCraft {
         }
 
 
-        internal static void ChatSentHandler( object sender, ChatSentEventArgs args ) {
+        internal static void ChatSentHandler(object sender, ChatSentEventArgs args)
+        {
             bool enabled = ConfigKey.IRCBotForwardFromServer.Enabled();
-            switch( args.MessageType ) {
+            switch (args.MessageType)
+            {
                 case ChatMessageType.Global:
-                    if( enabled ) {
-                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message );
-                    } else if( args.Message.StartsWith( "#" ) ) {
-                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message.Substring( 1 ) );
+                    if (enabled)
+                    {
+                        SendChannelMessage(args.Player.ClassyName + Color.IRCReset + ": " + args.Message);
+                    }
+                    else if (args.Message.StartsWith("#"))
+                    {
+                        SendChannelMessage(args.Player.ClassyName + Color.IRCReset + ": " + args.Message.Substring(1));
                     }
                     break;
 
                 case ChatMessageType.Me:
                 case ChatMessageType.Say:
-                    if( enabled ) SendAction( args.FormattedMessage );
+                    if (enabled) SendAction(args.FormattedMessage);
                     break;
             }
         }
 
 
-        internal static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
-            if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
-                string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
+        internal static void PlayerReadyHandler(object sender, IPlayerEvent e)
+        {
+            if (ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden)
+            {
+                string message = String.Format("\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                                 Color.IRCBold,
-                                                e.Player.ClassyName );
-                SendChannelMessage( message );
+                                                e.Player.ClassyName);
+                SendChannelMessage(message);
             }
         }
 
 
-        internal static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
-            if( e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && (e.IsFake || !e.Player.Info.IsHidden) ) {
-                string message = String.Format( "{0}&S* {1}&S left the server ({2})",
+        internal static void PlayerDisconnectedHandler(object sender, PlayerDisconnectedEventArgs e)
+        {
+            if (e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && (e.IsFake || !e.Player.Info.IsHidden))
+            {
+                string message = String.Format("{0}&S* {1}&S left the server ({2})",
                                  Color.IRCBold,
                                  e.Player.ClassyName,
-                                 e.LeaveReason );
-                SendAction( message );
+                                 e.LeaveReason);
+                SendAction(message);
             }
         }
 
 
-        static void PlayerKickedHandler( object sender, PlayerKickedEventArgs e ) {
-            if( e.Announce && e.Context == LeaveReason.Kick ) {
-                PlayerSomethingMessage( e.Kicker, "kicked", e.Player.Info, e.Reason );
+        static void PlayerKickedHandler(object sender, PlayerKickedEventArgs e)
+        {
+            if (e.Announce && e.Context == LeaveReason.Kick)
+            {
+                PlayerSomethingMessage(e.Kicker, "kicked", e.Player.Info, e.Reason);
             }
         }
 
 
-        static void PlayerInfoBanChangedHandler( object sender, PlayerInfoBanChangedEventArgs e ) {
-            if( e.Announce ) {
-                if( e.IsBeingUnbanned ) {
-                    PlayerSomethingMessage( e.Banner, "unbanned", e.PlayerInfo, e.Reason );
-                } else {
-                    PlayerSomethingMessage( e.Banner, "banned", e.PlayerInfo, e.Reason );
+        static void PlayerInfoBanChangedHandler(object sender, PlayerInfoBanChangedEventArgs e)
+        {
+            if (e.Announce)
+            {
+                if (e.IsBeingUnbanned)
+                {
+                    PlayerSomethingMessage(e.Banner, "unbanned", e.PlayerInfo, e.Reason);
+                }
+                else
+                {
+                    PlayerSomethingMessage(e.Banner, "banned", e.PlayerInfo, e.Reason);
                 }
             }
         }
 
 
-        static void PlayerInfoRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
-            if( e.Announce ) {
-                string actionString = String.Format( "{0} from {1}&W to {2}&W",
+        static void PlayerInfoRankChangedHandler(object sender, PlayerInfoRankChangedEventArgs e)
+        {
+            if (e.Announce)
+            {
+                string actionString = String.Format("{0} from {1}&W to {2}&W",
                                                      e.RankChangeType,
                                                      e.OldRank.ClassyName,
-                                                     e.NewRank.ClassyName );
-                PlayerSomethingMessage( e.RankChanger, actionString, e.PlayerInfo, e.Reason );
+                                                     e.NewRank.ClassyName);
+                PlayerSomethingMessage(e.RankChanger, actionString, e.PlayerInfo, e.Reason);
             }
         }
 
 
-        static void PlayerSomethingMessage( [NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [CanBeNull] string reason ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( action == null ) throw new ArgumentNullException( "action" );
-            if( target == null ) throw new ArgumentNullException( "target" );
-            string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W",
+        static void PlayerSomethingMessage([NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [CanBeNull] string reason)
+        {
+            if (player == null) throw new ArgumentNullException("player");
+            if (action == null) throw new ArgumentNullException("action");
+            if (target == null) throw new ArgumentNullException("target");
+            string message = String.Format("{0}&W* {1}&W was {2} by {3}&W",
                     Color.IRCBold,
                     target.ClassyName,
                     action,
-                    player.ClassyName );
-            if( !String.IsNullOrEmpty( reason ) ) {
+                    player.ClassyName);
+            if (!String.IsNullOrEmpty(reason))
+            {
                 message += " Reason: " + reason;
             }
-            if( ConfigKey.IRCBotAnnounceServerEvents.Enabled() ) {
-                SendAction( message );
+            if (ConfigKey.IRCBotAnnounceServerEvents.Enabled())
+            {
+                SendAction(message);
             }
         }
 
@@ -629,24 +749,28 @@ namespace fCraft {
 
         #region Parsing
 
-        static readonly IRCReplyCode[] ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
+        static readonly IRCReplyCode[] ReplyCodes = (IRCReplyCode[])Enum.GetValues(typeof(IRCReplyCode));
 
 
-        static IRCMessageType GetMessageType( [NotNull] string rawline, [NotNull] string actualBotNick ) {
-            if( rawline == null ) throw new ArgumentNullException( "rawline" );
-            if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
+        static IRCMessageType GetMessageType([NotNull] string rawline, [NotNull] string actualBotNick)
+        {
+            if (rawline == null) throw new ArgumentNullException("rawline");
+            if (actualBotNick == null) throw new ArgumentNullException("actualBotNick");
 
-            Match found = ReplyCodeRegex.Match( rawline );
-            if( found.Success ) {
+            Match found = ReplyCodeRegex.Match(rawline);
+            if (found.Success)
+            {
                 string code = found.Groups[1].Value;
-                IRCReplyCode replycode = (IRCReplyCode)int.Parse( code );
+                IRCReplyCode replycode = (IRCReplyCode)int.Parse(code);
 
                 // check if this replycode is known in the RFC
-                if( Array.IndexOf( ReplyCodes, replycode ) == -1 ) {
+                if (Array.IndexOf(ReplyCodes, replycode) == -1)
+                {
                     return IRCMessageType.Unknown;
                 }
 
-                switch( replycode ) {
+                switch (replycode)
+                {
                     case IRCReplyCode.Welcome:
                     case IRCReplyCode.YourHost:
                     case IRCReplyCode.Created:
@@ -695,28 +819,35 @@ namespace fCraft {
                     case IRCReplyCode.ChannelModeIs:
                         return IRCMessageType.ChannelMode;
                     default:
-                        if( ((int)replycode >= 400) &&
-                            ((int)replycode <= 599) ) {
+                        if (((int)replycode >= 400) &&
+                            ((int)replycode <= 599))
+                        {
                             return IRCMessageType.ErrorMessage;
-                        } else {
+                        }
+                        else
+                        {
                             return IRCMessageType.Unknown;
                         }
                 }
             }
 
-            found = PingRegex.Match( rawline );
-            if( found.Success ) {
+            found = PingRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.Ping;
             }
 
-            found = ErrorRegex.Match( rawline );
-            if( found.Success ) {
+            found = ErrorRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.Error;
             }
 
-            found = ActionRegex.Match( rawline );
-            if( found.Success ) {
-                switch( found.Groups[1].Value ) {
+            found = ActionRegex.Match(rawline);
+            if (found.Success)
+            {
+                switch (found.Groups[1].Value)
+                {
                     case "#":
                     case "!":
                     case "&":
@@ -727,14 +858,17 @@ namespace fCraft {
                 }
             }
 
-            found = CtcpRequestRegex.Match( rawline );
-            if( found.Success ) {
+            found = CtcpRequestRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.CtcpRequest;
             }
 
-            found = MessageRegex.Match( rawline );
-            if( found.Success ) {
-                switch( found.Groups[1].Value ) {
+            found = MessageRegex.Match(rawline);
+            if (found.Success)
+            {
+                switch (found.Groups[1].Value)
+                {
                     case "#":
                     case "!":
                     case "&":
@@ -745,14 +879,17 @@ namespace fCraft {
                 }
             }
 
-            found = CtcpReplyRegex.Match( rawline );
-            if( found.Success ) {
+            found = CtcpReplyRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.CtcpReply;
             }
 
-            found = NoticeRegex.Match( rawline );
-            if( found.Success ) {
-                switch( found.Groups[1].Value ) {
+            found = NoticeRegex.Match(rawline);
+            if (found.Success)
+            {
+                switch (found.Groups[1].Value)
+                {
                     case "#":
                     case "!":
                     case "&":
@@ -763,58 +900,70 @@ namespace fCraft {
                 }
             }
 
-            found = InviteRegex.Match( rawline );
-            if( found.Success ) {
+            found = InviteRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.Invite;
             }
 
-            found = JoinRegex.Match( rawline );
-            if( found.Success ) {
+            found = JoinRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.Join;
             }
 
-            found = TopicRegex.Match( rawline );
-            if( found.Success ) {
+            found = TopicRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.TopicChange;
             }
 
-            found = NickRegex.Match( rawline );
-            if( found.Success ) {
+            found = NickRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.NickChange;
             }
 
-            found = KickRegex.Match( rawline );
-            if( found.Success ) {
+            found = KickRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.Kick;
             }
 
-            found = PartRegex.Match( rawline );
-            if( found.Success ) {
+            found = PartRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.Part;
             }
 
-            found = ModeRegex.Match( rawline );
-            if( found.Success ) {
-                if( found.Groups[1].Value == actualBotNick ) {
+            found = ModeRegex.Match(rawline);
+            if (found.Success)
+            {
+                if (found.Groups[1].Value == actualBotNick)
+                {
                     return IRCMessageType.UserModeChange;
-                } else {
+                }
+                else
+                {
                     return IRCMessageType.ChannelModeChange;
                 }
             }
 
-            found = QuitRegex.Match( rawline );
-            if( found.Success ) {
+            found = QuitRegex.Match(rawline);
+            if (found.Success)
+            {
                 return IRCMessageType.Quit;
             }
 
-            found = KillRegex.Match( rawline );
+            found = KillRegex.Match(rawline);
             return found.Success ? IRCMessageType.Kill : IRCMessageType.Unknown;
         }
 
 
-        static IRCMessage MessageParser( [NotNull] string rawline, [NotNull] string actualBotNick ) {
-            if( rawline == null ) throw new ArgumentNullException( "rawline" );
-            if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
+        static IRCMessage MessageParser([NotNull] string rawline, [NotNull] string actualBotNick)
+        {
+            if (rawline == null) throw new ArgumentNullException("rawline");
+            if (actualBotNick == null) throw new ArgumentNullException("actualBotNick");
 
             string line;
             string nick = null;
@@ -824,46 +973,58 @@ namespace fCraft {
             string message = null;
             IRCReplyCode replycode;
 
-            if( rawline[0] == ':' ) {
-                line = rawline.Substring( 1 );
-            } else {
+            if (rawline[0] == ':')
+            {
+                line = rawline.Substring(1);
+            }
+            else
+            {
                 line = rawline;
             }
 
-            string[] linear = line.Split( new[] { ' ' } );
+            string[] linear = line.Split(new[] { ' ' });
 
             // conform to RFC 2812
             string from = linear[0];
             string messagecode = linear[1];
-            int exclamationpos = from.IndexOf( "!" );
-            int atpos = from.IndexOf( "@" );
-            int colonpos = line.IndexOf( " :" );
-            if( colonpos != -1 ) {
+            int exclamationpos = from.IndexOf("!");
+            int atpos = from.IndexOf("@");
+            int colonpos = line.IndexOf(" :");
+            if (colonpos != -1)
+            {
                 // we want the exact position of ":" not beginning from the space
                 colonpos += 1;
             }
-            if( exclamationpos != -1 ) {
-                nick = from.Substring( 0, exclamationpos );
+            if (exclamationpos != -1)
+            {
+                nick = from.Substring(0, exclamationpos);
             }
-            if( (atpos != -1) &&
-                (exclamationpos != -1) ) {
-                ident = from.Substring( exclamationpos + 1, (atpos - exclamationpos) - 1 );
+            if ((atpos != -1) &&
+                (exclamationpos != -1))
+            {
+                ident = from.Substring(exclamationpos + 1, (atpos - exclamationpos) - 1);
             }
-            if( atpos != -1 ) {
-                host = from.Substring( atpos + 1 );
+            if (atpos != -1)
+            {
+                host = from.Substring(atpos + 1);
             }
 
-            try {
-                replycode = (IRCReplyCode)int.Parse( messagecode );
-            } catch( FormatException ) {
+            try
+            {
+                replycode = (IRCReplyCode)int.Parse(messagecode);
+            }
+            catch (FormatException)
+            {
                 replycode = IRCReplyCode.Null;
             }
-            IRCMessageType type = GetMessageType( rawline, actualBotNick );
-            if( colonpos != -1 ) {
-                message = line.Substring( colonpos + 1 );
+            IRCMessageType type = GetMessageType(rawline, actualBotNick);
+            if (colonpos != -1)
+            {
+                message = line.Substring(colonpos + 1);
             }
 
-            switch( type ) {
+            switch (type)
+            {
                 case IRCMessageType.Join:
                 case IRCMessageType.Kick:
                 case IRCMessageType.Part:
@@ -886,32 +1047,33 @@ namespace fCraft {
                     break;
             }
 
-            if( (channel != null) &&
-                (channel[0] == ':') ) {
-                channel = channel.Substring( 1 );
+            if ((channel != null) &&
+                (channel[0] == ':'))
+            {
+                channel = channel.Substring(1);
             }
 
-            return new IRCMessage( from, nick, ident, host, channel, message, rawline, type, replycode );
+            return new IRCMessage(from, nick, ident, host, channel, message, rawline, type, replycode);
         }
 
 
-        static readonly Regex ReplyCodeRegex = new Regex( "^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled );
-        static readonly Regex PingRegex = new Regex( "^PING :.*", RegexOptions.Compiled );
-        static readonly Regex ErrorRegex = new Regex( "^ERROR :.*", RegexOptions.Compiled );
-        static readonly Regex ActionRegex = new Regex( "^:.*? PRIVMSG (.).* :" + "\x1" + "ACTION .*" + "\x1" + "$", RegexOptions.Compiled );
-        static readonly Regex CtcpRequestRegex = new Regex( "^:.*? PRIVMSG .* :" + "\x1" + ".*" + "\x1" + "$", RegexOptions.Compiled );
-        static readonly Regex MessageRegex = new Regex( "^:.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled );
-        static readonly Regex CtcpReplyRegex = new Regex( "^:.*? NOTICE .* :" + "\x1" + ".*" + "\x1" + "$", RegexOptions.Compiled );
-        static readonly Regex NoticeRegex = new Regex( "^:.*? NOTICE (.).* :.*$", RegexOptions.Compiled );
-        static readonly Regex InviteRegex = new Regex( "^:.*? INVITE .* .*$", RegexOptions.Compiled );
-        static readonly Regex JoinRegex = new Regex( "^:.*? JOIN .*$", RegexOptions.Compiled );
-        static readonly Regex TopicRegex = new Regex( "^:.*? TOPIC .* :.*$", RegexOptions.Compiled );
-        static readonly Regex NickRegex = new Regex( "^:.*? NICK .*$", RegexOptions.Compiled );
-        static readonly Regex KickRegex = new Regex( "^:.*? KICK .* .*$", RegexOptions.Compiled );
-        static readonly Regex PartRegex = new Regex( "^:.*? PART .*$", RegexOptions.Compiled );
-        static readonly Regex ModeRegex = new Regex( "^:.*? MODE (.*) .*$", RegexOptions.Compiled );
-        static readonly Regex QuitRegex = new Regex( "^:.*? QUIT :.*$", RegexOptions.Compiled );
-        static readonly Regex KillRegex = new Regex( "^:.*? KILL (.*) :.*$", RegexOptions.Compiled );
+        static readonly Regex ReplyCodeRegex = new Regex("^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled);
+        static readonly Regex PingRegex = new Regex("^PING :.*", RegexOptions.Compiled);
+        static readonly Regex ErrorRegex = new Regex("^ERROR :.*", RegexOptions.Compiled);
+        static readonly Regex ActionRegex = new Regex("^:.*? PRIVMSG (.).* :" + "\x1" + "ACTION .*" + "\x1" + "$", RegexOptions.Compiled);
+        static readonly Regex CtcpRequestRegex = new Regex("^:.*? PRIVMSG .* :" + "\x1" + ".*" + "\x1" + "$", RegexOptions.Compiled);
+        static readonly Regex MessageRegex = new Regex("^:.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled);
+        static readonly Regex CtcpReplyRegex = new Regex("^:.*? NOTICE .* :" + "\x1" + ".*" + "\x1" + "$", RegexOptions.Compiled);
+        static readonly Regex NoticeRegex = new Regex("^:.*? NOTICE (.).* :.*$", RegexOptions.Compiled);
+        static readonly Regex InviteRegex = new Regex("^:.*? INVITE .* .*$", RegexOptions.Compiled);
+        static readonly Regex JoinRegex = new Regex("^:.*? JOIN .*$", RegexOptions.Compiled);
+        static readonly Regex TopicRegex = new Regex("^:.*? TOPIC .* :.*$", RegexOptions.Compiled);
+        static readonly Regex NickRegex = new Regex("^:.*? NICK .*$", RegexOptions.Compiled);
+        static readonly Regex KickRegex = new Regex("^:.*? KICK .* .*$", RegexOptions.Compiled);
+        static readonly Regex PartRegex = new Regex("^:.*? PART .*$", RegexOptions.Compiled);
+        static readonly Regex ModeRegex = new Regex("^:.*? MODE (.*) .*$", RegexOptions.Compiled);
+        static readonly Regex QuitRegex = new Regex("^:.*? QUIT :.*$", RegexOptions.Compiled);
+        static readonly Regex KillRegex = new Regex("^:.*? KILL (.*) :.*$", RegexOptions.Compiled);
 
         #endregion
     }
@@ -919,7 +1081,8 @@ namespace fCraft {
 
     // ReSharper disable UnusedMember.Global
     /// <summary> IRC protocol reply codes. </summary>
-    public enum IRCReplyCode {
+    public enum IRCReplyCode
+    {
         Null = 000,
         Welcome = 001,
         YourHost = 002,
@@ -1063,7 +1226,8 @@ namespace fCraft {
 
 
     /// <summary> IRC message types. </summary>
-    public enum IRCMessageType {
+    public enum IRCMessageType
+    {
         Ping,
         Info,
         Login,
