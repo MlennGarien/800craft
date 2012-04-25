@@ -23,23 +23,18 @@ namespace fCraft.Utils
             {
                 instance = new FlyHandler();
                 Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
-                Player.PlacedBlock += new EventHandler<Events.PlayerPlacedBlockEventArgs>(Player_Clicked);
+                Player.PlacingBlock += new EventHandler<Events.PlayerPlacingBlockEventArgs>(Player_Clicked);
             }
 
             return instance;
         }
-        private static void Player_Clicked(object sender, Events.PlayerPlacedBlockEventArgs e)
+        private static void Player_Clicked(object sender, Events.PlayerPlacingBlockEventArgs e) //placing air
         {
             if (e.Player.IsFlying)
             {
                 if (e.Player.FlyCache.Values.Contains(e.Coords))
                 {
-                    foreach (Vector3I block in e.Player.FlyCache.Values)
-                    {
-                        e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
-                        Vector3I removed;
-                        e.Player.FlyCache.TryRemove(block.ToString(), out removed);
-                    }
+                    e.Result = CanPlaceResult.Revert; //nothing saves to blockcount or blockdb
                 }
             }
         }
@@ -50,28 +45,37 @@ namespace fCraft.Utils
             {
                 if (e.Player.IsFlying)
                 {
-                    // We need to have block positions, so we divide by 32
                     Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
                     Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
-
-                    // Check if the player actually moved and not just rotated
+                    //Checking e.Old vs e.New increases accuracy, checking old vs new uses a lot less updates
                     if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
                     {
-                        // Create new blocks part
-                        for (int i = -2; i <= 2; i++)
+                        //finally, /fly decends
+                        if((e.OldPosition.Z > e.NewPosition.Z))
                         {
-                            for (int j = -2; j <= 2; j++)
+                            foreach (Vector3I block in e.Player.FlyCache.Values)
                             {
-                                Vector3I layer = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - 2);
-
-                                if (e.Player.World.Map.GetBlock(layer) == Block.Air)
-                                {
-                                    e.Player.Send(PacketWriter.MakeSetBlock(layer, Block.Glass));
-                                    e.Player.FlyCache.TryAdd(layer.ToString(), layer);
-                                }
+                                e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                                Vector3I removed;
+                                e.Player.FlyCache.TryRemove(block.ToString(), out removed);
                             }
                         }
-
+                        // Create new block parts
+                        for (int i = -1; i <= 1; i++) //reduced width and length by 1
+                        {
+                            for (int j = -1; j <= 1; j++)
+                            {
+                                for (int k = 2; k <= 3; k++) //added a 2nd layer
+                                {
+                                    Vector3I layer = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - k);
+                                    if (e.Player.World.Map.GetBlock(layer) == Block.Air)
+                                    {
+                                        e.Player.Send(PacketWriter.MakeSetBlock(layer, Block.Glass));
+                                        e.Player.FlyCache.TryAdd(layer.ToString(), layer);
+                                    }
+                                }
+                            }
+                        } //18 blocks per update
 
                         // Remove old blocks
                         foreach (Vector3I block in e.Player.FlyCache.Values)
@@ -123,15 +127,14 @@ namespace fCraft.Utils
             int y = block.Y - newPos.Y;
             int z = block.Z - newPos.Z;
 
-            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -3 && z <= 3))
+            if (!(x >= -1 && x <= 1) || !(y >= -1 && y <= 1) || !(z >= -3 && z <= 4))
             {
                 return true;
             }
-            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -2 && z <= 2))
+            if (!(x >= -1 && x <= 1) || !(y >= -1 && y <= 1) || !(z >= -3 && z <= 4))
             {
                 return true;
             }
-
             return false;
         }
     }
