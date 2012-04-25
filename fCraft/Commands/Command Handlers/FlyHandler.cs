@@ -75,7 +75,8 @@ namespace fCraft.Utils
                                     }
                                 }
                             }
-                        } //18 blocks per update
+                        }
+
 
                         // Remove old blocks
                         foreach (Vector3I block in e.Player.FlyCache.Values)

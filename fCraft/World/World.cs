@@ -18,7 +18,7 @@ namespace fCraft {
         [NotNull]
         public string Name { get; internal set; }
 
-        private PlantTask _plantTask = null;
+        private GrassTask _plantTask = null;
         public PhysScheduler _physScheduler;
         public TNT _tntTask;
         public BlockSink _sinkTask;
@@ -50,8 +50,8 @@ namespace fCraft {
         private Queue<PhysicsBlock> updateQueue = new Queue<PhysicsBlock>();
         private object queueLock = new object();
         public bool lavaSpongeEnabled = false;
-        private EventWaitHandle start = new EventWaitHandle(false, EventResetMode.ManualReset);
-        public Thread phyThread;
+        //private EventWaitHandle start = new EventWaitHandle(false, EventResetMode.ManualReset);
+       // public Thread phyThread;
 
         //games
         public ConcurrentDictionary<String, Vector3I> blockCache = new ConcurrentDictionary<String, Vector3I>();
@@ -131,7 +131,7 @@ namespace fCraft {
             }
             plantPhysics = true;
             CheckIfPhysicsStarted();
-            _plantTask = new PlantTask(this);
+            _plantTask = new GrassTask(this);
             _physScheduler.AddTask(_plantTask, 0);
             Server.Message("{0}&S enabled Plant Physics on {1}", player.ClassyName, ClassyName);
         }

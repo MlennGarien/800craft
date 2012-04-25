@@ -119,218 +119,243 @@ public class PhysScheduler
 	/// <summary>
 	/// Base class for physic tasks
 	/// </summary>
-    public abstract class PhysicsTask : IHeapKey<Int64>
+public abstract class PhysicsTask : IHeapKey<Int64>
+{
+    /// <summary>
+    /// the task due time in milliseconds since some start moment
+    /// </summary>
+    public Int64 DueTime;
+
+    /// <summary>
+    /// The flag indicating that task must not be performed when due.
+    /// This flag is introduced because the heap doesnt allow deletion of elements.
+    /// It is possible to implement but far too complicated than just marking elements like that.
+    /// </summary>
+    public bool Deleted = false;
+
+    protected World _world;
+    protected Map _map;
+
+    protected PhysicsTask(World world) //a task must be created under the map syn root
     {
-		/// <summary>
-		/// the task due time in milliseconds since some start moment
-		/// </summary>
-		public Int64 DueTime;
-
-		/// <summary>
-		/// The flag indicating that task must not be performed when due.
-		/// This flag is introduced because the heap doesnt allow deletion of elements.
-		/// It is possible to implement but far too complicated than just marking elements like that.
-		/// </summary>
-		public bool Deleted=false;
-
-		protected World _world;
-		protected Map _map;
-		
-		protected PhysicsTask(World world) //a task must be created under the map syn root
+        if (null == world)
+            throw new ArgumentNullException("world");
+        //if the map is null the task will not be rescheduled
+        //if (null == world.Map)
+        //    throw new ArgumentException("world has no map");
+        lock (world.SyncRoot)
         {
-			lock (world.SyncRoot)
-			{
-				_world = world;
-				_map = world.Map;
-			}
+            _world = world;
+            _map = world.Map;
         }
-		
-		public Int64 GetHeapKey()
-		{
-			return DueTime;
-		}
-
-		/// <summary>
-		/// Performs the action. The returned value is used as the rescadule delay. If 0 - the task is completed and
-		/// should not be rescheduled
-		/// </summary>
-		/// <returns></returns>
-		public abstract int Perform(); 
     }
 
-	public class PlantTask : PhysicsTask //one per world
+    public Int64 GetHeapKey()
+    {
+        return DueTime;
+    }
+
+    /// <summary>
+    /// Performs the action. The returned value is used as the reschedule delay. If 0 - the task is completed and
+    /// should not be rescheduled
+    /// </summary>
+    /// <returns></returns>
+    public int Perform()
+    {
+        lock (_world.SyncRoot)
+        {
+            if (null == _map || !ReferenceEquals(_map, _world.Map))
+                return 0;
+            return PerformInternal();
+        }
+    }
+    /// <summary>
+    /// The real implementation of the action
+    /// </summary>
+    /// <returns></returns>
+    protected abstract int PerformInternal();
+}
+
+	public class GrassTask : PhysicsTask //one per world
 	{
-		private struct Coords //Tuple class is a class thus imposing a significant overhead
+		private struct Coords //System.Tuple is a class and comparing to this struct causes a significant overhead, thus not used here
 		{
 			public short X;
 			public short Y;
 		}
-		private const int Delay = 25;
+		private const int Delay = 150; //not too often, since it has to scan the whole column at some (x, y)
 		private short _i = 0; //current position
-		private Random _r = new Random();
-
+		
 		private Coords[] _rndCoords;
 
-		public PlantTask(World world) : base(world)
+		public GrassTask(World world)
+			: base(world)
 		{
+			int w, l;
 			lock (world.SyncRoot)
 			{
-				_rndCoords = new Coords[_map.Width * _map.Length]; //up to 250K per world with grass physics
-				for (short i = 0; i < _map.Width; ++i)
-					for (short j = 0; j < _map.Length; ++j)
-						_rndCoords[i*_map.Length + j] = new Coords() {X = i, Y = j};
-				Util.RndPermutate(_rndCoords);
+				w = _map.Width;
+				l = _map.Length;
 			}
+			_rndCoords = new Coords[w * l]; //up to 250K per world with grass physics
+			for (short i = 0; i < w; ++i)
+				for (short j = 0; j < l; ++j)
+					_rndCoords[i *l + j] = new Coords() { X = i, Y = j };
+			Util.RndPermutate(_rndCoords);
 		}
 
-        public override int Perform()
-        {
-            lock (_world.SyncRoot)
-            {
-                if (_world.plantPhysics)
-                {
-                    #region Grass
-                    if (_r.NextDouble() > 0.5) //half
-                        return Delay;
-                    Coords c = _rndCoords[_i];
-                    if (++_i >= _rndCoords.Length)
-                        _i = 0;
-                    for (short z = (short)_map.Height; z >= 0; --z)
-                    {
-                        if (_world != null)
-                        {
-                            if (_world.Map.GetBlock(c.X, c.Y, z) == Block.Dirt)
-                            {
-                                for (int z1 = z; z1 < _world.Map.Bounds.ZMax; z1++)
-                                {
-                                    Block toCheck = _world.Map.GetBlock(new Vector3I(c.X, c.Y, z1 + 1));
-                                    if (makeShadow(toCheck))
-                                    {
-                                        return Delay;
-                                    }
-                                    _map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Grass));
-                                }
-                            }
-                        }
-                        //Spread to 4 random blocks
-                        /*for (int i = 0; i < 4; i++)
-                        {
-                            int x2 = _r.Next(c.X - 1, c.X + 2);
-                            int y2 = _r.Next(c.Y - 1, c.Y + 2);
-                            if (_world.Map.GetBlock(x2, y2, z) == Block.Dirt)
-                            {
-                                for (int z1 = z; z1 < _world.Map.Bounds.ZMax; z1++)
-                                {
-                                    if (_world != null)
-                                    {
-                                        Block toCheck = _world.Map.GetBlock(new Vector3I(x2, y2, z1 + 1));
-                                        if (makeShadow(toCheck))
-                                        {
-                                            return Delay;
-                                        }
-                                        _map.QueueUpdate(new BlockUpdate(null, (short)x2, (short)y2, z, Block.Grass));
-                                    }
-                                }
-                            }
-                        }*/
-                    #endregion
-                        #region Trees
-                        if (_world.Map.GetBlock(new Vector3I(c.X, c.Y, z)) == Block.Plant)
-                        {
-                            Random rand = new Random();
-                            int Height = rand.Next(4, 7);
-                            for (int x = c.X; x < c.X + 5; x++)
-                            {
-                                for (int y = c.Y; y < c.Y + 5; y++)
-                                {
-                                    for (int z1 = z + 1; z1 < z + Height; z1++)
-                                    {
-                                        if (_world.Map.GetBlock(x, y, z1) != Block.Air)
-                                        {
-                                            return Delay;
-                                        }
-                                    }
-                                }
-                            }
+		protected override int PerformInternal()
+		{
+			if (!_world.plantPhysics)
+				return 0;
 
-                            for (int x = c.X; x > c.X - 5; x--)
-                            {
-                                for (int y = c.Y; y > c.Y - 5; y--)
-                                {
-                                    for (int z1 = z + 1; z1 < z + Height; z1++)
-                                    {
-                                        if (_world.Map.GetBlock(x, y, z1) != Block.Air)
-                                        {
-                                            return Delay;
-                                        }
-                                    }
-                                }
-                            }
-                            if (_world.Map.GetBlock(new Vector3I(c.X, c.Y, z)) == Block.Plant)
-                            {
-                                string type = null;
-                                if (_world.Map.GetBlock(c.X, c.Y, z - 1) == Block.Grass ||
-                                    _world.Map.GetBlock(c.X, c.Y, z - 1) == Block.Dirt)
-                                {
-                                    type = "grass";
-                                }
-                                else if (_world.Map.GetBlock(c.X, c.Y, z - 1) == Block.Sand)
-                                {
-                                    type = "sand";
-                                }
-                                else
-                                {
-                                    return Delay;
-                                }
-                                MakeTrunks(_world, new Vector3I(c.X, c.Y, z), Height, type);
-                            }
-                        }
-                        #endregion
-                    }
-                    return Delay;
-                }
-                return 0; //do nothing
-            }
-        }
+			Coords c = _rndCoords[_i];
+			if (++_i >= _rndCoords.Length)
+				_i = 0;
 
-        public static void MakeTrunks(World w, Vector3I Coords, int Height, string type)
-        {
-            for (int i = 0; i < Height; i++)
-            {
-                if (w.Map != null && w.IsLoaded)
-                {
-                    w.Map.QueueUpdate(new BlockUpdate(null, (short)Coords.X, (short)Coords.Y, (short)(Coords.Z + i), Block.Log));
-                }
-            }
-            if (type.Equals("grass"))
-            {
-                TreeGeneration.MakeNormalFoliage(w, Coords, Height + 1);
-            }
-            else if (type.Equals("sand"))
-            {
-                TreeGeneration.MakePalmFoliage(w, Coords, Height);
-            }
-        }
+			bool shadowed = false;
+			for (short z = (short)(_map.Height-1); z >= 0; --z)
+			{
+				Block b = _map.GetBlock(c.X, c.Y, z);
 
-        
-        public static bool makeShadow(Block block)
-        {
-            switch (block)
-            {
-                case Block.Air:
-                case Block.Glass:
-                case Block.Leaves:
-                case Block.YellowFlower:
-                case Block.RedFlower:
-                case Block.BrownMushroom:
-                case Block.RedMushroom:
-                case Block.Plant:
-                    return false;
-                default:
-                    return true;
-            }
-        }
+				if (!shadowed && Block.Dirt == b) //we have found dirt and there were nothing casting shadows above, so change it to grass and return
+				{
+					_map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Grass));
+					shadowed = true;
+					continue;
+				}
+
+				//since we scan the whole world anyway add the plant task for each not shadowed plant found - it will not harm
+				if (!shadowed && Block.Plant == b)
+				{
+					_world._physScheduler.AddTask(new PlantTask(_world, c.X, c.Y, z), 0);
+					continue;
+				}
+
+				if (shadowed && Block.Grass==b) //grass should die when shadowed
+				{
+					_map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Dirt));
+					continue;
+				}
+
+				if (!shadowed)
+					shadowed=CastsShadow(b); //check if the rest of the column is under a block which casts shadow and thus prevents plants from growing and makes grass to die
+			}
+			return Delay;
+		}
+
+		public static bool CastsShadow(Block block)
+		{
+			switch (block)
+			{
+				case Block.Air:
+				case Block.Glass:
+				case Block.Leaves:
+				case Block.YellowFlower:
+				case Block.RedFlower:
+				case Block.BrownMushroom:
+				case Block.RedMushroom:
+				case Block.Plant:
+					return false;
+				default:
+					return true;
+			}
+		}
 	}
+
+    public class PlantTask : PhysicsTask
+    {
+        private const int MinDelay = 3000;
+        private const int MaxDelay = 8000;
+        private static Random _r = new Random();
+
+        private enum TreeType
+        {
+            NoGrow,
+            Normal,
+            Palm,
+        }
+
+        private short _x, _y, _z;
+
+        public PlantTask(World w, short x, short y, short z)
+            : base(w)
+        {
+            _x = x;
+            _y = y;
+            _z = z;
+        }
+
+        static public int GetRandomDelay()
+        {
+            return (_r.Next(MinDelay, MaxDelay));
+        }
+
+        protected override int PerformInternal()
+        {
+            if (_map.GetBlock(_x, _y, _z) != Block.Plant) //superflous task added by grass scanner or deleted plant. just forget it
+                return 0;
+
+            TreeType type = TypeByBlock(_map.GetBlock(_x, _y, _z - 1));
+            if (TreeType.NoGrow == type)
+                return 0;
+
+            short height = (short)_r.Next(4, 7);
+            if (CanGrow(height))
+                MakeTrunks(height, type);
+
+            return 0; //non-repeating task
+        }
+
+        private bool CanGrow(int height) //no shadows and enough space
+        {
+            for (int z = _z + 1; z < _map.Height; ++z)
+            {
+                if (GrassTask.CastsShadow(_map.GetBlock(_x, _y, z)))
+                    return false;
+            }
+
+            for (int x = _x - 5; x < _x + 5; ++x)
+            {
+                for (int y = _y - 5; y < _y + 5; ++y)
+                {
+                    for (int z = _z + 1; z < _z + height; ++z)
+                    {
+                        Block b = _map.GetBlock(x, y, z);
+                        if (Block.Air != b && Block.Leaves != b)
+                            return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static TreeType TypeByBlock(Block b)
+        {
+            switch (b)
+            {
+                case Block.Grass:
+                case Block.Dirt:
+                    return TreeType.Normal;
+                case Block.Sand:
+                    return TreeType.Palm;
+            }
+            return TreeType.NoGrow;
+        }
+
+        private void MakeTrunks(short height, TreeType type)
+        {
+            for (short i = 0; i < height; ++i)
+            {
+                _map.QueueUpdate(new BlockUpdate(null, _x, _y, (short)(_z + i), Block.Log));
+            }
+            if (TreeType.Normal == type)
+                TreeGeneration.MakeNormalFoliage(_world, new Vector3I(_x, _y, _z), height + 1);
+            else
+                TreeGeneration.MakePalmFoliage(_world, new Vector3I(_x, _y, _z), height);
+        }
+    }
 
     public class TNT : PhysicsTask
     {
@@ -344,7 +369,7 @@ public class PhysScheduler
             _pos = position;
             _owner = owner;
         }
-        public override int Perform()
+        protected override int PerformInternal()
         {
             lock (_world.SyncRoot)
             {
@@ -414,7 +439,7 @@ public class PhysScheduler
             type = Type;
         }
 
-        public override int Perform()
+        protected override int PerformInternal()
         {
             lock (_world.SyncRoot)
             {
@@ -467,7 +492,7 @@ public class PhysScheduler
             type = Type;
         }
 
-        public override int Perform()
+        protected override int PerformInternal()
         {
             lock (_world.SyncRoot)
             {
@@ -532,7 +557,7 @@ public class PhysScheduler
             nextPos.L = playerPos.L;
         }
 
-        public override int Perform()
+        protected override int PerformInternal()
         {
             lock (_world.SyncRoot)
             {
@@ -581,11 +606,9 @@ public class PhysScheduler
                                         {
                                             int seed = new Random().Next(1, 6);
                                             player.LastTimeKilled = DateTime.Now;
-                                            TNT.startExplosion(new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, _world, seed);
-                                            _world.Players.Message("{0}&S was blown up by {1}", player.ClassyName, _sender.ClassyName);
+                                            _world._physScheduler.AddTask(new TNT(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender), 0);
                                             player.TeleportTo(_world.Map.Spawn);
-                                            Thread.Sleep(Physics.Physics.Tick);
-                                            TNT.removeLava(new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, _world, seed);
+                                            _world.Players.Message("{0}&S was blown up by {1}", player.ClassyName, _sender.ClassyName);
                                             removal(bullets, _world.Map);
                                             hit = true;
                                         }
