@@ -8,7 +8,7 @@ Special thanks to fragmer, what a bro!
 
 === Installation (Windows) ====================================================
 
-80Craft requires Microsoft .NET Framework 4.0. Your system may already have it
+80Craft requires Microsoft .NET Framework 3.5. Your system may already have it
 installed, and you can download it from microsoft.com
 
 === Installation (Linux, Unix, MacOS X) =======================================

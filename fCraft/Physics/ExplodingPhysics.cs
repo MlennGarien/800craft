@@ -14,6 +14,21 @@ namespace fCraft.Physics
     {
         private static Thread explodeThread;
 
+        public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
+        {
+            World world = e.Player.World;
+            if (world.Map.GetBlock(e.Coords) == Block.TNT)
+            {
+                lock (world.SyncRoot)
+                {
+                    world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
+                    int Seed = new Random().Next(1, 50);
+                    TNT.startExplosion(e.Coords, e.Player, world, Seed);
+                    Scheduler.NewTask(t => TNT.removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
+                }
+            }
+        }
+
         public static void Firework(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             try

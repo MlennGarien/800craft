@@ -397,20 +397,6 @@ public class PhysScheduler
                 operation.Begin();
             }
         }
-        public static void TNTClick(object sender, Events.PlayerClickedEventArgs e)
-        {
-            World world = e.Player.World;
-            if (world.Map.GetBlock(e.Coords) == Block.TNT)
-            {
-                lock (world.SyncRoot)
-                {
-                    world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
-                    int Seed = new Random().Next(1, 50);
-                    startExplosion(e.Coords, e.Player, world, Seed);
-                    Scheduler.NewTask(t => removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
-                }
-            }
-        }
     }
 
     public class BlockSink : PhysicsTask
@@ -430,35 +416,38 @@ public class PhysScheduler
 
         public override int Perform()
         {
-            if (_world.waterPhysics)
+            lock (_world.SyncRoot)
             {
-                if (_firstMove)
+                if (_world.waterPhysics)
                 {
-                    if (_world.Map.GetBlock(_pos) != type)
+                    if (_firstMove)
+                    {
+                        if (_world.Map.GetBlock(_pos) != type)
+                        {
+                            return 0;
+                        }
+                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                        {
+                            _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
+                            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                            _nextPos--;
+                            _firstMove = false;
+                            return Delay;
+                        }
+                    }
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos + 1) != type)
                     {
                         return 0;
                     }
                     if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
                     {
-                        _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos + 1), Block.Water));
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
                         _nextPos--;
-                        _firstMove = false;
-                        return Delay;
                     }
                 }
-                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos + 1) != type)
-                {
-                    return 0;
-                }
-                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
-                {
-                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos + 1), Block.Water));
-                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
-                    _nextPos--;
-                }
+                return Delay;
             }
-            return Delay;
         }
     }
 
@@ -480,51 +469,54 @@ public class PhysScheduler
 
         public override int Perform()
         {
-            if (_world.waterPhysics)
+            lock (_world.SyncRoot)
             {
-                if (_firstMove)
+                if (_world.waterPhysics)
                 {
-                    if (_world.Map.GetBlock(_pos) != type)
+                    if (_firstMove)
+                    {
+                        if (_world.Map.GetBlock(_pos) != type)
+                        {
+                            return 0;
+                        }
+                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                        {
+                            _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
+                            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                            _nextPos++;
+                            _firstMove = false;
+                            return Delay;
+                        }
+                    }
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos - 1) != type)
                     {
                         return 0;
                     }
                     if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
                     {
-                        _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos - 1), Block.Water));
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
                         _nextPos++;
-                        _firstMove = false;
-                        return Delay;
                     }
                 }
-                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos - 1) != type)
-                {
-                    return 0;
-                }
-                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
-                {
-                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos - 1), Block.Water));
-                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
-                    _nextPos++;
-                }
+                return Delay;
             }
-            return Delay;
         }
     }
 
     public class Bullet : PhysicsTask
     {
         private const int Delay = 50;
-        public Position p;
-        public Block _type = Block.Undefined;
-        public double rSin;
-        public double rCos;
-        public double lCos;
-        public Position nextPos;
-        public short startX;
-        public short startY;
-        public short startZ;
-        public int startB = 4;
+        private Position p;
+        private Block _type = Block.Undefined;
+        private double rSin;
+        private double rCos;
+        private double lCos;
+        private Position nextPos;
+        private short startX;
+        private short startY;
+        private short startZ;
+        private int startB = 4;
         private bool hit = false;
         private Player _sender;
         fCraft.Collections.ConcurrentDictionary<String, Vector3I> bullets = new fCraft.Collections.ConcurrentDictionary<String, Vector3I>();
@@ -583,7 +575,7 @@ public class PhysScheduler
                             {
                                 if ((player.Position.Z / 32) == nextPos.Z || (player.Position.Z / 32 + 1) == nextPos.Z || (player.Position.Z / 32 - 1) == nextPos.Z)
                                 {
-                                    if (_world.tntPhysics && _type == Block.TNT && _type != Block.Water && _type != Block.Lava)
+                                    if (_world.tntPhysics && _type == Block.TNT)
                                     {
                                         if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
                                         {
