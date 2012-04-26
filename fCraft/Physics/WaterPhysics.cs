@@ -10,8 +10,8 @@ namespace fCraft.Physics
     class WaterPhysics
     {
         public static Thread waterThread;
-       
 
+        #region Tower
         public static void towerInit(object sender, Events.PlayerPlacedBlockEventArgs e)
         {
             World world = e.Player.World;
@@ -73,23 +73,21 @@ namespace fCraft.Physics
                 {
                     if (e.Player.TowerCache != null)
                     {
-                        if (world.Map != null && world.IsLoaded)
+                        if (e.Block == Block.Iron)
                         {
-                            if (e.Block == Block.Iron)
+                            e.Player.towerOrigin = new Vector3I();
+                            foreach (Vector3I block in e.Player.TowerCache.Values)
                             {
-                                e.Player.towerOrigin = new Vector3I();
-                                foreach (Vector3I block in e.Player.TowerCache.Values)
-                                {
-                                    e.Player.Send(PacketWriter.MakeSetBlock(block, world.Map.GetBlock(block)));
-                                }
-                                e.Player.TowerCache.Clear();
+                                e.Player.Send(PacketWriter.MakeSetBlock(block, world.Map.GetBlock(block)));
                             }
+                            e.Player.TowerCache.Clear();
                         }
                     }
                 }
             }
         }
-
+        #endregion
+        #region PlacingBlock events
         public static void blockFloat(object sender, Events.PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
@@ -99,8 +97,7 @@ namespace fCraft.Physics
                 {
                     if (Physics.CanFloat(e.NewBlock))
                     {
-                        world._floatTask = new BlockFloat(world, e.Coords, e.NewBlock);
-                        world._physScheduler.AddTask(world._floatTask, 200);
+                        world._physScheduler.AddTask(new BlockFloat(world, e.Coords, e.NewBlock), 200);
                     }
                 }
             }
@@ -123,12 +120,12 @@ namespace fCraft.Physics
                         && e.NewBlock != Block.YellowFlower
                         && e.NewBlock != Block.Plant)
                     {
-                        world._sinkTask = new BlockSink(world, e.Coords, e.NewBlock);
-                        world._physScheduler.AddTask(world._sinkTask, 200);
+                        world._physScheduler.AddTask(new BlockSink(world, e.Coords, e.NewBlock), 200);
                     }
                 }
             }
         }
+        #endregion
 
         public static void drownCheck(SchedulerTask task)
         {

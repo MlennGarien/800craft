@@ -37,13 +37,11 @@ namespace fCraft.Physics
         //init
         public static void Load()
         {
-            //Player.PlacingBlock += PlantPhysics.TreeGrowing;
-            //Player.PlacingBlock += PlantPhysics.blockSquash;
-            //Player.PlacingBlock += ExplodingPhysics.TNTDrop;
-            //Player.Clicked += ExplodingPhysics.TNTClick;
+            Player.PlacingBlock += PlantPhysics.blockSquash;
+            Player.Clicked += ExplodingPhysics.TNTClick;
             //Player.PlacingBlock += ExplodingPhysics.Firework;
-            //Player.PlacingBlock += WaterPhysics.blockFloat;
-            //Player.PlacingBlock += WaterPhysics.blockSink;
+            Player.PlacingBlock += WaterPhysics.blockFloat;
+            Player.PlacingBlock += WaterPhysics.blockSink;
             SchedulerTask drownCheck = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(3));
             Player.PlacingBlock += WaterPhysics.towerInit;
             Player.Clicking += WaterPhysics.towerRemove;
@@ -53,21 +51,18 @@ namespace fCraft.Physics
 
         public static bool MoveSand(Vector3I block, World world)
         {
-            if (world.Map != null)
+            if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Sand)
             {
-                if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Sand)
+                return false;
+            }
+            else
+            {
+                Block thisBlock = world.Map.GetBlock(block.X, block.Y, block.Z - 1);
+                if (BlockThrough(thisBlock))
                 {
                     return false;
                 }
-                else
-                {
-                    Block thisBlock = world.Map.GetBlock(block.X, block.Y, block.Z - 1);
-                    if (!BlockThrough(thisBlock))
-                    {
-                        return false;
-                    }
-                    return true;
-                }
+
             }
 
             return false;

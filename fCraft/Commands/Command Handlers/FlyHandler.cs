@@ -32,9 +32,12 @@ namespace fCraft.Utils
         {
             if (e.Player.IsFlying)
             {
-                if (e.Player.FlyCache.Values.Contains(e.Coords))
+                if (e.Context == BlockChangeContext.Manual)//ignore all other things
                 {
-                    e.Result = CanPlaceResult.Revert; //nothing saves to blockcount or blockdb
+                    if (e.Player.FlyCache.Values.Contains(e.Coords))
+                    {
+                        e.Result = CanPlaceResult.Revert; //nothing saves to blockcount or blockdb
+                    }
                 }
             }
         }

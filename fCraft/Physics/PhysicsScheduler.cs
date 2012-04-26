@@ -176,92 +176,149 @@ public abstract class PhysicsTask : IHeapKey<Int64>
     protected abstract int PerformInternal();
 }
 
-	public class GrassTask : PhysicsTask //one per world
-	{
-		private struct Coords //System.Tuple is a class and comparing to this struct causes a significant overhead, thus not used here
-		{
-			public short X;
-			public short Y;
-		}
-		private const int Delay = 150; //not too often, since it has to scan the whole column at some (x, y)
-		private short _i = 0; //current position
-		
-		private Coords[] _rndCoords;
+#region Sand Physics
+public class SandTask : PhysicsTask
+{
+    private const int Delay = 200;
+    private Vector3I _pos;
+    private int _nextPos;
+    private bool _firstMove = true;
+    private Block type;
+    public SandTask(World world, Vector3I position, Block Type)
+        : base(world)
+    {
+        _pos = position;
+        _nextPos = position.Z - 1;
+        type = Type;
+    }
 
-		public GrassTask(World world)
-			: base(world)
-		{
-			int w, l;
-			lock (world.SyncRoot)
-			{
-				w = _map.Width;
-				l = _map.Length;
-			}
-			_rndCoords = new Coords[w * l]; //up to 250K per world with grass physics
-			for (short i = 0; i < w; ++i)
-				for (short j = 0; j < l; ++j)
-					_rndCoords[i *l + j] = new Coords() { X = i, Y = j };
-			Util.RndPermutate(_rndCoords);
-		}
+    protected override int PerformInternal()
+    {
+        lock (_world.SyncRoot)
+        {
+            if (_world.sandPhysics)
+            {
+                Block nblock = _world.Map.GetBlock(_pos.X, _pos.Y, _nextPos);
+                if (_firstMove)
+                {
+                    if (_world.Map.GetBlock(_pos) != type)
+                    {
+                        return 0;
+                    }
+                    if (Physics.Physics.BlockThrough(nblock))
+                    {
+                        _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Air));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                        _nextPos--;
+                        _firstMove = false;
+                        return Delay;
+                    }
+                }
+                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos + 1) != type)
+                {
+                    return 0;
+                }
+                if (Physics.Physics.BlockThrough(nblock))
+                {
+                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos + 1), Block.Air));
+                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                    _nextPos--;
+                }
+            }
+            return Delay;
+        }
+    }
+}
+    
+#endregion
 
-		protected override int PerformInternal()
-		{
-			if (!_world.plantPhysics)
-				return 0;
+#region Plant Physics
+public class GrassTask : PhysicsTask //one per world
+{
+    private struct Coords //System.Tuple is a class and comparing to this struct causes a significant overhead, thus not used here
+    {
+        public short X;
+        public short Y;
+    }
+    private const int Delay = 150; //not too often, since it has to scan the whole column at some (x, y)
+    private short _i = 0; //current position
 
-			Coords c = _rndCoords[_i];
-			if (++_i >= _rndCoords.Length)
-				_i = 0;
+    private Coords[] _rndCoords;
 
-			bool shadowed = false;
-			for (short z = (short)(_map.Height-1); z >= 0; --z)
-			{
-				Block b = _map.GetBlock(c.X, c.Y, z);
+    public GrassTask(World world)
+        : base(world)
+    {
+        int w, l;
+        lock (world.SyncRoot)
+        {
+            w = _map.Width;
+            l = _map.Length;
+        }
+        _rndCoords = new Coords[w * l]; //up to 250K per world with grass physics
+        for (short i = 0; i < w; ++i)
+            for (short j = 0; j < l; ++j)
+                _rndCoords[i * l + j] = new Coords() { X = i, Y = j };
+        Util.RndPermutate(_rndCoords);
+    }
 
-				if (!shadowed && Block.Dirt == b) //we have found dirt and there were nothing casting shadows above, so change it to grass and return
-				{
-					_map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Grass));
-					shadowed = true;
-					continue;
-				}
+    protected override int PerformInternal()
+    {
+        if (!_world.plantPhysics)
+            return 0;
 
-				//since we scan the whole world anyway add the plant task for each not shadowed plant found - it will not harm
-				if (!shadowed && Block.Plant == b)
-				{
-					_world._physScheduler.AddTask(new PlantTask(_world, c.X, c.Y, z), 0);
-					continue;
-				}
+        Coords c = _rndCoords[_i];
+        if (++_i >= _rndCoords.Length)
+            _i = 0;
 
-				if (shadowed && Block.Grass==b) //grass should die when shadowed
-				{
-					_map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Dirt));
-					continue;
-				}
+        bool shadowed = false;
+        for (short z = (short)(_map.Height - 1); z >= 0; --z)
+        {
+            Block b = _map.GetBlock(c.X, c.Y, z);
 
-				if (!shadowed)
-					shadowed=CastsShadow(b); //check if the rest of the column is under a block which casts shadow and thus prevents plants from growing and makes grass to die
-			}
-			return Delay;
-		}
+            if (!shadowed && Block.Dirt == b) //we have found dirt and there were nothing casting shadows above, so change it to grass and return
+            {
+                _map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Grass));
+                shadowed = true;
+                continue;
+            }
 
-		public static bool CastsShadow(Block block)
-		{
-			switch (block)
-			{
-				case Block.Air:
-				case Block.Glass:
-				case Block.Leaves:
-				case Block.YellowFlower:
-				case Block.RedFlower:
-				case Block.BrownMushroom:
-				case Block.RedMushroom:
-				case Block.Plant:
-					return false;
-				default:
-					return true;
-			}
-		}
-	}
+            //since we scan the whole world anyway add the plant task for each not shadowed plant found - it will not harm
+            if (!shadowed && Block.Plant == b)
+            {
+                _world._physScheduler.AddTask(new PlantTask(_world, c.X, c.Y, z), 0);
+                continue;
+            }
+
+            if (shadowed && Block.Grass == b) //grass should die when shadowed
+            {
+                _map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Dirt));
+                continue;
+            }
+
+            if (!shadowed)
+                shadowed = CastsShadow(b); //check if the rest of the column is under a block which casts shadow and thus prevents plants from growing and makes grass to die
+        }
+        return Delay;
+    }
+
+    public static bool CastsShadow(Block block)
+    {
+        switch (block)
+        {
+            case Block.Air:
+            case Block.Glass:
+            case Block.Leaves:
+            case Block.YellowFlower:
+            case Block.RedFlower:
+            case Block.BrownMushroom:
+            case Block.RedMushroom:
+            case Block.Plant:
+                return false;
+            default:
+                return true;
+        }
+    }
+}
 
     public class PlantTask : PhysicsTask
     {
@@ -356,7 +413,55 @@ public abstract class PhysicsTask : IHeapKey<Int64>
                 TreeGeneration.MakePalmFoliage(_world, new Vector3I(_x, _y, _z), height);
         }
     }
+#endregion
 
+    #region Exploding Physics
+
+    public class Firework : PhysicsTask
+    {
+        private const int Delay = 150;
+        private Vector3I _pos;
+        private int _z;
+        private bool _notSent = true;
+
+        public Firework(World world, Vector3I position)
+            : base(world)
+        {
+            _pos = position;
+            _z = position.Z + 1;
+        }
+        protected override int PerformInternal()
+        {
+            lock (_world.SyncRoot)
+            {
+                if (_world.fireworkPhysics)
+                {
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _z) != Block.Air)
+                    {
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_z, Block.Air));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 1), Block.Air));
+                        Explode(_pos.X, _pos.Y, _z);
+                        return 0;
+                    }
+                    if (_notSent)
+                    {
+                        if (_world.Map.GetBlock(_pos) != Block.Gold)
+                            return 0;
+                    }
+                    _notSent = false;
+                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_z, Block.Gold));
+                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 1), Block.Lava));
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _z - 2) == Block.Lava)
+                    {
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 2), Block.Air));
+                    }
+                    _z++;
+                    return Delay;
+                }
+                return 0;
+            }
+        }
+    }
     public class TNT : PhysicsTask
     {
         private const int Delay = 3000;
@@ -476,10 +581,14 @@ public abstract class PhysicsTask : IHeapKey<Int64>
         }
     }
 
+#endregion
+
+    #region Water Physics
+
     public class BlockFloat : PhysicsTask
     {
         private const int Delay = 200;
-        private Vector3I _pos; //tnt position
+        private Vector3I _pos;
         private int _nextPos;
         private bool _firstMove = true;
         private Block type;
@@ -528,6 +637,10 @@ public abstract class PhysicsTask : IHeapKey<Int64>
             }
         }
     }
+
+    #endregion
+
+    #region Gun Physics
 
     public class Bullet : PhysicsTask
     {
@@ -759,9 +872,10 @@ public abstract class PhysicsTask : IHeapKey<Int64>
             }
         }
     }
-	
+    #endregion
 
-	public interface IHeapKey<out T> where T : IComparable
+
+    public interface IHeapKey<out T> where T : IComparable
 	{
 		T GetHeapKey();
 	}

@@ -66,29 +66,52 @@ namespace fCraft {
         public static void PlayerPlacedPhysics(object sender, PlayerPlacedBlockEventArgs e)
         {
             World world = e.Player.World;
-            if (world.tntPhysics)
+            if (e.NewBlock == Block.TNT)
             {
-                if (e.NewBlock == Block.TNT)
+                if (world.tntPhysics)
                 {
                     if (e.Context == BlockChangeContext.Manual)
                     {
                         lock (world.SyncRoot)
                         {
-                            world._tntTask = new TNT(world, e.Coords, e.Player);
-                            world._physScheduler.AddTask(world._tntTask, 0);
+                            world._physScheduler.AddTask(new TNT(world, e.Coords, e.Player), 0);
                         }
                     }
                 }
             }
+            if (e.NewBlock == Block.Sand || e.NewBlock == Block.Gravel)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    if (world.sandPhysics)
+                    {
+                        lock (world.SyncRoot)
+                        {
+                            world._physScheduler.AddTask(new SandTask(world, e.Coords, e.NewBlock), 150);
+                        }
+                    }
+                }
+            }
+            if (e.NewBlock == Block.Gold)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    if (e.Player.fireworkMode && world.fireworkPhysics)
+                    {
+                        world._physScheduler.AddTask(new Firework(world, e.Coords), 300);
+                    }
+                }
+            }
         }
+        
         static readonly CommandDescriptor CdPhysics = new CommandDescriptor
         {
             Name = "Physics",
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.Physics },
             IsConsoleSafe = false,
-            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | All > <On / Off>",
-            Help = "Enables / disables a type of Physics for the current world. Physics use more server resources.",
+            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | Sand | All> <On / Off>",
+            Help = "Enables / disables a type of Physics for the current world. Physics may use more server resources.",
             HelpSections = new Dictionary<string, string>() {
                 { "tnt",     "&H/Physics tnt on/off \n&S" +
                                 "Turns TNT exploding physics on / off in the current world"},
@@ -100,6 +123,8 @@ namespace fCraft {
                                 "Turns plant physics on / off in the current world"},
                 { "grass",       "&H/Physics grass on/off \n&S" +
                                 "Turns grass regrowing physics on / off in the current world"},
+                { "sand",       "&H/Physics sand on/off \n&S" +
+                                "Turns sand and gravel physics on / off in the current world"},
                 { "all",     "&H/Physics all on/off \n&S" +
                                 "Turns all physics on / off in the current world"},
             },
@@ -160,6 +185,21 @@ namespace fCraft {
                         world.fireworkPhysics = true;
                         Server.Players.Message("{0}&S turned Firework Physics on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics on for {1}", player.Name, world.Name);
+                    }
+                    break;
+
+                case "sand":
+                    if (world.sandPhysics)
+                    {
+                        world.sandPhysics = false;
+                        Server.Players.Message("{0}&S turned sand Physics off for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned sand Physics off for {1}", player.Name, world.Name);
+                    }
+                    else
+                    {
+                        world.sandPhysics = true;
+                        Server.Players.Message("{0}&S turned sand Physics on for {1}", player.ClassyName, world.ClassyName);
+                        Logger.Log(LogType.SystemActivity, "{0} turned sand Physics on for {1}", player.Name, world.Name);
                     }
                     break;
                 
