@@ -126,6 +126,7 @@
     <Compile Include="Games\MineChallenge.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
+    <Compile Include="Physics\ParticleSystem.cs" />
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Physics\PhysicsScheduler.cs" />
     <Compile Include="Physics\PlantPhysics.cs" />

@@ -176,7 +176,10 @@ namespace fCraft {
         public DateTime DrownTime;
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
-        public bool IsStaticStaff;
+        public bool CanBeKilled()
+        {
+            return ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15);
+        }
 
 
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
@@ -1027,6 +1030,13 @@ namespace fCraft {
         public void RevertBlock( Vector3I coords ) {
             SendLowPriority( PacketWriter.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
         }
+
+        public void Kill(World inWorld, string message)
+        {
+            LastTimeKilled = DateTime.UtcNow;
+            inWorld.Players.Message(message);
+            TeleportTo(inWorld.Map.Spawn);
+        } 
 
 
         /// <summary>  Gets the block from given location in player's world, and sends it (sync) to the player.

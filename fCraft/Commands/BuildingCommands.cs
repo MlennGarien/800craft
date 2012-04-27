@@ -352,7 +352,7 @@ namespace fCraft {
                             player.LastUsedPlayerName = target.Name;
                             target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
                         }
-                        Server.Players.Message("{0}&S was BanX'd by {1}&S(with auto-demote): {2}", target.ClassyName, player.ClassyName, reason);
+                        Server.Players.Message("{0}&S was BanX'd by {1}&S(with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
                         return;
                     }
                     else

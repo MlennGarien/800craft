@@ -122,6 +122,15 @@ namespace fCraft {
         }
 
         #region Physics
+
+        internal void AddTask(PhysicsTask task, int Delay)
+        {
+            _physScheduler.AddTask(task, Delay);
+        }
+        internal void AddPlantTask(short x, short y, short z)
+        {
+            _physScheduler.AddTask(new PlantTask(this, x, y, z), PlantTask.GetRandomDelay());
+        }
         public void EnablePlantPhysics(Player player)
         {
             if (null != _plantTask)

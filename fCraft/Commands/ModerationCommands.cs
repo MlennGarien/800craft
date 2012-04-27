@@ -498,7 +498,7 @@ namespace fCraft {
                 target.Info.IsHidden = false;
                 if (target.Info.Warn(player.Name))
                 {
-                    Server.Message("{0}&S has been Warned by {1}",
+                    Server.Message("{0}&S has been warned by {1}",
                                       target.ClassyName, player.ClassyName);
                     Scheduler.NewTask(t => target.Info.UnWarn()).RunOnce(TimeSpan.FromMinutes(15));
                 }

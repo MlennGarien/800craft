@@ -183,13 +183,14 @@ public class SandTask : PhysicsTask
     private Vector3I _pos;
     private int _nextPos;
     private bool _firstMove = true;
-    private Block type;
+    private Block _type;
+    private Block _toReplace;
     public SandTask(World world, Vector3I position, Block Type)
         : base(world)
     {
         _pos = position;
         _nextPos = position.Z - 1;
-        type = Type;
+        _type = Type;
     }
 
     protected override int PerformInternal()
@@ -199,29 +200,30 @@ public class SandTask : PhysicsTask
             if (_world.sandPhysics)
             {
                 Block nblock = _world.Map.GetBlock(_pos.X, _pos.Y, _nextPos);
+                _toReplace = _world.Map.GetBlock(_pos.X, _pos.Y, _nextPos - 1);
                 if (_firstMove)
                 {
-                    if (_world.Map.GetBlock(_pos) != type)
+                    if (_world.Map.GetBlock(_pos) != _type)
                     {
                         return 0;
                     }
-                    if (Physics.Physics.BlockThrough(nblock))
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Air)
                     {
                         _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Air));
-                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, _type));
                         _nextPos--;
                         _firstMove = false;
                         return Delay;
                     }
                 }
-                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos + 1) != type)
+                if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Air)
                 {
                     return 0;
                 }
                 if (Physics.Physics.BlockThrough(nblock))
                 {
                     _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos + 1), Block.Air));
-                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                    _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, _type));
                     _nextPos--;
                 }
             }
@@ -233,6 +235,7 @@ public class SandTask : PhysicsTask
 #endregion
 
 #region Plant Physics
+
 public class GrassTask : PhysicsTask //one per world
 {
     private struct Coords //System.Tuple is a class and comparing to this struct causes a significant overhead, thus not used here
@@ -285,7 +288,7 @@ public class GrassTask : PhysicsTask //one per world
             //since we scan the whole world anyway add the plant task for each not shadowed plant found - it will not harm
             if (!shadowed && Block.Plant == b)
             {
-                _world._physScheduler.AddTask(new PlantTask(_world, c.X, c.Y, z), 0);
+                _world.AddPlantTask(c.X, c.Y, z);
                 continue;
             }
 
@@ -440,7 +443,7 @@ public class GrassTask : PhysicsTask //one per world
                     {
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_z, Block.Air));
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 1), Block.Air));
-                        Explode(_pos.X, _pos.Y, _z);
+                        //Explode(_pos.X, _pos.Y, _z);
                         return 0;
                     }
                     if (_notSent)
