@@ -459,13 +459,12 @@ public class GrassTask : PhysicsTask //one per world
                         {
                             for (int Y2 = (_pos.Y - 5); Y2 <= (_pos.Y + 5); Y2++)
                             {
-                                for (int Z2 = (_z - 5); Z2 <= (_z + 5); Z2 += Y2++)
+                                for (int Z2 = (_z - 5); Z2 <= (_z + 5); Z2++)
                                 {
                                     if (blockId >= 7)
                                     {
                                         fBlock = (Block)rand.Next(21, 33);
                                     }
-                                    Server.Message("Added");
                                     _world._physScheduler.AddTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), 0);
                                 }
                             }

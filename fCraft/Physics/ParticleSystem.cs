@@ -20,12 +20,12 @@ namespace fCraft
 
     public class FireworkParticle : PhysicsTask
     {
-        private int _stepDelay = 100;
+        private int _stepDelay = 250;
         private Vector3I _startingPos;
         private int _nextZ;
         private Block _block;
         private bool _first = true;
-        private int _maxFall = new Random().Next(8, 10);
+        private int _maxFall = new Random().Next(5, 8);
         private int Count = 0;
 
         public FireworkParticle(World world, Vector3I pos, Block block)
@@ -38,11 +38,9 @@ namespace fCraft
 
         protected override int PerformInternal()
         {
-            if (_first)
-            {
-                if (_world.Map.GetBlock(_startingPos.X, _startingPos.Y, _nextZ) != Block.Air || Count > _maxFall)
-                {
-                    Server.Message("First break");
+            if (_first){
+                if (_world.Map.GetBlock(_startingPos.X, _startingPos.Y, _nextZ) != Block.Air || 
+                    Count > _maxFall){
                     return 0;
                 }
                 _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, _block));
@@ -52,12 +50,11 @@ namespace fCraft
             _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, Block.Air));
             Count++;
             _nextZ--;
-            if (_world.Map.GetBlock(_startingPos.X, _startingPos.Y, _nextZ) != Block.Air || Count > _maxFall)
-            {
-                Server.Message("Second break");
+            if (_world.Map.GetBlock(_startingPos.X, _startingPos.Y, _nextZ) != Block.Air || 
+                Count > _maxFall){
                 return 0;
             } 
-            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, Block.Air));
+            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, _block));
             return _stepDelay;
         }
 
