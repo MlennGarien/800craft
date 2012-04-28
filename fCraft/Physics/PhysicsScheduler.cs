@@ -441,11 +441,38 @@ public class GrassTask : PhysicsTask //one per world
                 {
                     if (_world.Map.GetBlock(_pos.X, _pos.Y, _z) != Block.Air)
                     {
-                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_z, Block.Air));
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 1), Block.Air));
-                        //Explode(_pos.X, _pos.Y, _z);
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 2), Block.Air));
+
+                        Random rand = new Random();
+                        int blockId = new Random().Next(1, 9);
+                        Block fBlock = new Block();
+                        if (blockId == 1)
+                        {
+                            fBlock = Block.Lava;
+                        }
+                        if (blockId <= 6 && blockId != 1)
+                        {
+                            fBlock = (Block)rand.Next(21, 33);
+                        }
+                        for (int X2 = _pos.X - 5; X2 <= _pos.X + 5; X2++)
+                        {
+                            for (int Y2 = (_pos.Y - 5); Y2 <= (_pos.Y + 5); Y2++)
+                            {
+                                for (int Z2 = (_z - 5); Z2 <= (_z + 5); Z2 += Y2++)
+                                {
+                                    if (blockId >= 7)
+                                    {
+                                        fBlock = (Block)rand.Next(21, 33);
+                                    }
+                                    Server.Message("Added");
+                                    _world._physScheduler.AddTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), 0);
+                                }
+                            }
+                        }
                         return 0;
                     }
+
                     if (_notSent)
                     {
                         if (_world.Map.GetBlock(_pos) != Block.Gold)
@@ -461,8 +488,8 @@ public class GrassTask : PhysicsTask //one per world
                     _z++;
                     return Delay;
                 }
-                return 0;
             }
+            return 0;
         }
     }
     public class TNT : PhysicsTask

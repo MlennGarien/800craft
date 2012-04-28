@@ -8,28 +8,31 @@ using System.IO;
 
 namespace fCraft
 {
-    public class HeartbeatSaverUtil
+    class HeartbeatSaverUtil
     {
         public static void Init()
         {
-            Server.ShutdownBegan += HbCrashEvent;
+            EventHandler<CrashedEventArgs> Crash = new EventHandler<CrashedEventArgs>(HbCrashEvent);
         }
-        public static void HbCrashEvent(object sender, ShutdownEventArgs e)
+        public static void HbCrashEvent(object sender, CrashedEventArgs e)
         {
-            if( e.ShutdownParams.Reason == ShutdownReason.Crashed)
+            if (e.ShutdownImminent.Equals(true))
             {
                 if (ConfigKey.HbSaverKey.Enabled())
                 {
-                    if (!File.Exists("heartbeatsaver.exe"))
+                    if (ConfigKey.HbSaverKey.Enabled())
                     {
-                        Logger.Log(LogType.Warning, "heartbeatsaver.exe does not exist and failed to launch");
-                        return;
-                    }
+                        if (!File.Exists("heartbeatsaver.exe"))
+                        {
+                            Logger.Log(LogType.Warning, "heartbeatsaver.exe does not exist and failed to launch");
+                            return;
+                        }
 
-                    //start the heartbeat saver
-                    Process HeartbeatSaver = new Process();
-                    HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
-                    HeartbeatSaver.Start();
+                        //start the heartbeat saver
+                        Process HeartbeatSaver = new Process();
+                        HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
+                        HeartbeatSaver.Start();
+                    }
                 }
             }
         }

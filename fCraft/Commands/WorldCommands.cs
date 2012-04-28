@@ -182,6 +182,7 @@ namespace fCraft {
                     }
                     else
                     {
+                        world._physScheduler.Start();
                         world.fireworkPhysics = true;
                         Server.Players.Message("{0}&S turned Firework Physics on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics on for {1}", player.Name, world.Name);

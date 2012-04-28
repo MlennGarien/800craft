@@ -305,7 +305,7 @@ namespace fCraft {
             Aliases = new[] { "tban" },
             Permissions = new[] { Permission.TempBan },
             Help = "Bans a player for a selected amount of time. Example: 10s | 10 m | 10h ",
-            Usage = "/Tempban Player Seconds",
+            Usage = "/Tempban Player Duration",
             Handler = Tempban
         };
 

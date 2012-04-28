@@ -122,6 +122,7 @@ namespace fCraft {
                 shape == Forester.TreeShape.Procedural)
             {
                 CdTree.PrintUsage(player);
+                player.Message("Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove.");
                 return;
             }
 
@@ -140,6 +141,8 @@ namespace fCraft {
                 Map = map,
                 Shape = shape,
                 TreeCount = 1,
+                RootButtresses = false,
+                Roots = Forester.RootMode.None,
                 Rand = new Random()
             };
             player.SelectionStart(1, TreeCallback, args, CdTree.Permissions);

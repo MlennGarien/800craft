@@ -18,6 +18,52 @@ namespace fCraft
         void HitPlayer(World world, Player hitted, Player by, ref int restDistance);
     }
 
+    public class FireworkParticle : PhysicsTask
+    {
+        private int _stepDelay = 100;
+        private Vector3I _startingPos;
+        private int _nextZ;
+        private Block _block;
+        private bool _first = true;
+        private int _maxFall = new Random().Next(8, 10);
+        private int Count = 0;
+
+        public FireworkParticle(World world, Vector3I pos, Block block)
+            : base(world)
+        {
+            _startingPos = pos;
+            _nextZ = pos.Z - 1;
+            _block = block;
+        }
+
+        protected override int PerformInternal()
+        {
+            if (_first)
+            {
+                if (_world.Map.GetBlock(_startingPos.X, _startingPos.Y, _nextZ) != Block.Air || Count > _maxFall)
+                {
+                    Server.Message("First break");
+                    return 0;
+                }
+                _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, _block));
+                _first = false;
+                return _stepDelay;
+            }
+            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, Block.Air));
+            Count++;
+            _nextZ--;
+            if (_world.Map.GetBlock(_startingPos.X, _startingPos.Y, _nextZ) != Block.Air || Count > _maxFall)
+            {
+                Server.Message("Second break");
+                return 0;
+            } 
+            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, Block.Air));
+            return _stepDelay;
+        }
+
+
+    }
+
     public class Particle : PhysicsTask
     {
         private int _stepDelay;

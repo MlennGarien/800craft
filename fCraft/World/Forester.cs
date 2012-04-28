@@ -112,6 +112,9 @@ namespace fCraft {
                 case TreeShape.Rainforest:
                     PlantRainForestTrees(args, treeList);
                     break;
+                case TreeShape.Mangrove:
+                    PlantMangroves(args, treeList);
+                    break;
                 default:
                     PlantTrees(args, treeList);
                     break;
