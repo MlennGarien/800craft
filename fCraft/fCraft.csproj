@@ -142,6 +142,7 @@
     <Compile Include="Portals\PortalHandler.cs" />
     <Compile Include="Portals\PortalRange.cs" />
     <Compile Include="Utils\CocurrentDictionary.cs" />
+    <Compile Include="Utils\HeartbeatSaverUtil.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector3F.cs" />

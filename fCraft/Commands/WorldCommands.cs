@@ -1566,8 +1566,7 @@ namespace fCraft {
 
             if (variable.ToLower() == "terrain")
             {
-                string option = cmd.Next();
-                switch (option)
+                switch (valueText.ToLower())
                 {
                     case "normal":
                         world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
@@ -2414,7 +2413,7 @@ namespace fCraft {
             if( param == null || Int32.TryParse( param, out offset ) ) {
                 listName = "available worlds";
                 extraParam = "";
-                worlds = WorldManager.Worlds.Where( player.CanSee ).ToArray();
+                worlds = WorldManager.Worlds.Where( w => !w.IsRealm).Where(player.CanSee).ToArray();
 
             } else {
                 switch( Char.ToLower( param[0] ) ) {

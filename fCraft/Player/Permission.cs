@@ -161,56 +161,79 @@ namespace fCraft {
         UsePortal,
         /// <summary> Ability to create or delete a portal. </summary>
         ManagePortal,
+
         /// <summary> Ability to high five someone. </summary>
         HighFive,
+
         /// <summary> Ability to chat in capital letters. </summary>
         ChatWithCaps,
+
         /// <summary> Ability to swear. </summary>
         Swear,
+
         /// <summary> Ability to Make votes in /vote </summary>
         MakeVotes,
+
         /// <summary> Ability to start VoteKicks in /vote kick</summary>
         MakeVoteKicks,
+
         /// <summary> Ability to start bromode. </summary>
         BroMode,
+
         /// <summary> Ability to impersonate other players (Power Abusable Tool). </summary>
         Troll,
+
         /// <summary> Ability to hide selected ranks. </summary>
         HideRanks,
-        /// <summary> Ability to spawn skins to your position. </summary>
-        MakeDummys,
+
         /// <summary> Ability to read admin chat. </summary>
         ReadAdminChat,
+
         /// <summary> Ability to read from the custom chat channel. </summary>
         ReadCustomChat,
+
         /// <summary> Ability to use realms. </summary>
         Realm,
+
         /// <summary> Ability to possess other players. </summary>
         Possess,
+
         /// <summary> Ability to manually disconnect other players. </summary>
         Gtfo,
+
         /// <summary> Ability to Ragequit from the server. </summary>
         RageQuit,
+
         /// <summary> Ability to tower safely with invisible water towers that cannot harm builds. </summary>
         Tower,
+
         /// <summary> Ability to tempban. </summary>
         TempBan,
+
         /// <summary> Ability to warn other players. </summary>
         Warn,
+
         /// <summary> Ability to slap players to the sky. </summary>
         Slap,
+
         /// <summary> Ability to kill other players. </summary>
         Kill,
+
         /// <summary> Ability to blast players out of the server (kick). </summary>
         Basscannon,
+
         /// <summary> Ability to turn physics on and off. </summary>
         Physics,
+
         /// <summary> Ability to turn turn firework mode on/off. </summary>
         Fireworks,
+
         /// <summary> Ability to use the /Gun for killing, exploding TNT and Portals. </summary>
         Gun,
+
         /// <summary> Ability to use the manage game modes. </summary>
         Games,
+
         /// <summary> Permission to create a server-wide silence, muting all players, and to voice players while the moderation is in affect. </summary>
         Moderation
 

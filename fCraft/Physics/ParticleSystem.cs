@@ -182,7 +182,6 @@ namespace fCraft
         public void HitPlayer(World world, Player hitted, Player by, ref int restDistance)
         {
             hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, by.ClassyName));
-
         }
     }
 }
