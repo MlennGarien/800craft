@@ -465,7 +465,10 @@ public class GrassTask : PhysicsTask //one per world
                                     {
                                         fBlock = (Block)rand.Next(21, 33);
                                     }
-                                    _world._physScheduler.AddTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), 0);
+                                    if (rand.Next(1, 50) < 3)
+                                    {
+                                        _world._physScheduler.AddTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), 0);
+                                    }
                                 }
                             }
                         }

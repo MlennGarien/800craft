@@ -996,11 +996,11 @@ namespace fCraft {
             }
 
             if( MonoCompat.IsMono ) {
-                player.Message( "  Running 800Craft {0}, under Mono {1}",
+                player.Message( "  Running &9800&CCraft&S {0}, under Mono {1}",
                                 Updater.CurrentRelease.VersionString,
                                 MonoCompat.MonoVersionString );
             } else {
-                player.Message( "  Running 800Craft {0}, under .NET {1}",
+                player.Message( "  Running &9800&CCraft&S {0}, under .NET {1}",
                                 Updater.CurrentRelease.VersionString,
                                 Environment.Version );
             }

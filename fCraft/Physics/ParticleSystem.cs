@@ -20,13 +20,13 @@ namespace fCraft
 
     public class FireworkParticle : PhysicsTask
     {
-        private int _stepDelay = 250;
         private Vector3I _startingPos;
         private int _nextZ;
         private Block _block;
         private bool _first = true;
-        private int _maxFall = new Random().Next(5, 8);
+        private int _maxFall = new Random().Next(2, 4);
         private int Count = 0;
+        private Random _rand = new Random();
 
         public FireworkParticle(World world, Vector3I pos, Block block)
             : base(world)
@@ -45,7 +45,7 @@ namespace fCraft
                 }
                 _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, _block));
                 _first = false;
-                return _stepDelay;
+                return _rand.Next(100, 401);
             }
             _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, Block.Air));
             Count++;
@@ -55,7 +55,7 @@ namespace fCraft
                 return 0;
             } 
             _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, _block));
-            return _stepDelay;
+            return _rand.Next(100, 401);
         }
 
 
