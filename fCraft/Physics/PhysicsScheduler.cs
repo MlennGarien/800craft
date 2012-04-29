@@ -426,6 +426,8 @@ public class GrassTask : PhysicsTask //one per world
         private Vector3I _pos;
         private int _z;
         private bool _notSent = true;
+        private int _height = new Random().Next(13, 20);
+        private int _count = 0;
 
         public Firework(World world, Vector3I position)
             : base(world)
@@ -439,55 +441,47 @@ public class GrassTask : PhysicsTask //one per world
             {
                 if (_world.fireworkPhysics)
                 {
-                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _z) != Block.Air)
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _z) != Block.Air || _count >= _height )
                     {
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 1), Block.Air));
-                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 2), Block.Air));
+                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _z - 2) == Block.Lava){
+                            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 2), Block.Air));
+                        }
 
                         Random rand = new Random();
                         int blockId = new Random().Next(1, 9);
                         Block fBlock = new Block();
-                        if (blockId == 1)
-                        {
+                        if (blockId == 1){
                             fBlock = Block.Lava;
                         }
-                        if (blockId <= 6 && blockId != 1)
-                        {
+                        if (blockId <= 6 && blockId != 1){
                             fBlock = (Block)rand.Next(21, 33);
                         }
-                        for (int X2 = _pos.X - 5; X2 <= _pos.X + 5; X2++)
-                        {
-                            for (int Y2 = (_pos.Y - 5); Y2 <= (_pos.Y + 5); Y2++)
-                            {
-                                for (int Z2 = (_z - 5); Z2 <= (_z + 5); Z2++)
-                                {
-                                    if (blockId >= 7)
-                                    {
+                        for (int X2 = _pos.X - 5; X2 <= _pos.X + 5; X2++){
+                            for (int Y2 = (_pos.Y - 5); Y2 <= (_pos.Y + 5); Y2++){
+                                for (int Z2 = (_z - 5); Z2 <= (_z + 5); Z2++){
+                                    if (blockId >= 7){
                                         fBlock = (Block)rand.Next(21, 33);
                                     }
-                                    if (rand.Next(1, 50) < 3)
-                                    {
-                                        _world._physScheduler.AddTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), 0);
+                                    if (rand.Next(1, 50) < 3){
+                                        _world._physScheduler.AddTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), rand.Next(1, 50));
                                     }
                                 }
                             }
                         }
                         return 0;
                     }
-
-                    if (_notSent)
-                    {
+                    if (_notSent) {
                         if (_world.Map.GetBlock(_pos) != Block.Gold)
                             return 0;
                     }
                     _notSent = false;
                     _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_z, Block.Gold));
                     _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 1), Block.Lava));
-                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _z - 2) == Block.Lava)
-                    {
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _z - 2) == Block.Lava){
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 2), Block.Air));
                     }
-                    _z++;
+                    _z++; _count++;
                     return Delay;
                 }
             }

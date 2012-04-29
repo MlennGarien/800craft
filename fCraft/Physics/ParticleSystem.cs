@@ -26,7 +26,6 @@ namespace fCraft
         private bool _first = true;
         private int _maxFall = new Random().Next(2, 4);
         private int Count = 0;
-        private Random _rand = new Random();
 
         public FireworkParticle(World world, Vector3I pos, Block block)
             : base(world)
@@ -38,6 +37,7 @@ namespace fCraft
 
         protected override int PerformInternal()
         {
+            Random _rand = new Random();
             if (_first){
                 if (_world.Map.GetBlock(_startingPos.X, _startingPos.Y, _nextZ) != Block.Air || 
                     Count > _maxFall){
