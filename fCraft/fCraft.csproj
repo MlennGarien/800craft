@@ -98,6 +98,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Tuples, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\System.Tuples.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -107,9 +111,19 @@
     <Compile Include="Commands\Command Handlers\BroModeHandler.cs" />
     <Compile Include="Commands\Command Handlers\FlyHandler.cs" />
     <Compile Include="Commands\Command Handlers\GunHandler.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\EqualityDrawOperation.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\Expression.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\FuncDrawOperation.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\FuncDrawOperationPSF.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\InequalityDrawOperation.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\ManifoldDrawOperation.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\PrepareParametrizedManifold.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\Scaler.cs" />
+    <Compile Include="Commands\Command Handlers\Math Handlers\SimpleParser.cs" />
     <Compile Include="Commands\Command Handlers\RealmHandler.cs" />
     <Compile Include="Commands\Command Handlers\VoteHandler.cs" />
     <Compile Include="Commands\FunCommands.cs" />
+    <Compile Include="Commands\MathCommands.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />

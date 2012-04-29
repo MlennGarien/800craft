@@ -881,6 +881,16 @@ public class GrassTask : PhysicsTask //one per world
                 return false;
             }
         }
+
+        public static Vector3F FromAngle(float rotationAngle, float axisAngle, float r)
+        {
+            float f = (float)Math.Sin(axisAngle);
+            return new Vector3F(
+                (float)Math.Cos(rotationAngle) * f * r,
+                (float)Math.Sin(rotationAngle) * f * r,
+                (float)Math.Cos(axisAngle) * r
+                );
+        }
         public void removal(fCraft.Collections.ConcurrentDictionary<String, Vector3I> bullets, Map map)
         {
             if(bullets.Values.Count > 0)

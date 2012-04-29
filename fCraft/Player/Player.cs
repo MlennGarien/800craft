@@ -166,6 +166,10 @@ namespace fCraft {
 
         public DateTime LastTimeKilled;
 
+        //general purpose state storage for plugins
+        private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
+        public IDictionary<string, object> PublicAuxStateObjects { get { return _publicAuxStateObjects; } }
+
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
         public String PortalWorld;

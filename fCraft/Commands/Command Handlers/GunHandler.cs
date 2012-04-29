@@ -391,7 +391,7 @@ namespace fCraft
                 return true;
             }
 
-            if (!(r >= -2 && r <= 2) || !(l >= -2 && l <= 2))
+            if (!(r >= -5 && r <= 5) || !(l >= -5 && l <= 5))
             {
                 return true;
             }
