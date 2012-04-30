@@ -67,6 +67,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(CdDisconnect);
             CommandManager.RegisterCommand(CdModerate);
+            CommandManager.RegisterCommand(CdImpersonate);
         }
         #region 800Craft
         public static List<string> BassText = new List<string>();
@@ -296,6 +297,42 @@ namespace fCraft {
             }
         }
 
+        static readonly CommandDescriptor CdImpersonate = new CommandDescriptor
+        {
+            Name = "Impersonate",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            IsHidden = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Help = "Changes to players skin to a desired name. Note: The name above your head changes too",
+            Usage = "/Impersonate PlayerName",
+            Handler = ImpersonateHandler
+        };
+
+        static void ImpersonateHandler(Player player, Command cmd)
+        {
+            string iName = cmd.Next();
+            if (iName == null && player.iName == null){
+                CdImpersonate.PrintUsage(player);
+                return;
+            }
+            if (iName == null){
+                player.iName = null;
+                player.Message("&SAll changes have been removed. "
+                    + "Change worlds, then rejoin the current world to update changes.");
+                return;
+            }
+            //ignore isvalidname for percent codes to work
+            if (player.iName == null){
+                player.Message("&SYour name has changed from '" + player.ClassyName + "&S' to '" + iName 
+                    + "&S'.\n Change worlds, then rejoin the current world to update changes.");
+            }
+            if (player.iName != null){
+                player.Message("&SYour name has changed from '" + player.iName + "&S' to '" + iName 
+                    + "&S'.\n Change worlds, then rejoin the current world to update changes.");
+            }
+            player.iName = iName;
+        }
 
         static readonly CommandDescriptor CdTempBan = new CommandDescriptor
         {

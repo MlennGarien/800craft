@@ -117,10 +117,11 @@ namespace fCraft {
         public string ListName {
             get {
                 string displayedName = Name;
+                if (iName != null) displayedName = Color.ReplacePercentCodes(iName); //impersonate
                 if( ConfigKey.RankPrefixesInList.Enabled() ) {
                     displayedName = Info.Rank.Prefix + displayedName;
                 }
-                if( ConfigKey.RankColorsInChat.Enabled() && Info.Rank.Color != Color.White ) {
+                if( ConfigKey.RankColorsInChat.Enabled() && Info.Rank.Color != Color.White && iName == null ) {
                     displayedName = Info.Rank.Color + displayedName;
                 }
                 return displayedName;
@@ -184,6 +185,7 @@ namespace fCraft {
         {
             return ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15);
         }
+        public string iName = null;
 
 
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
