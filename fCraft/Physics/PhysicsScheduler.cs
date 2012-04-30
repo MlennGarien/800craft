@@ -174,6 +174,12 @@ public abstract class PhysicsTask : IHeapKey<Int64>
     /// </summary>
     /// <returns></returns>
     protected abstract int PerformInternal();
+
+	protected void UpdateMap(BlockUpdate upd)
+	{
+		_map.SetBlock(upd.X, upd.Y, upd.Z, upd.BlockType);
+		_map.QueueUpdate(upd);
+	}
 }
 
 #region Sand Physics
@@ -497,7 +503,7 @@ public class GrassTask : PhysicsTask //one per world
             public Block PrevBlock;
         }
         public const int ExplosionDelay = 3000;
-        private const int StepDelay = 50;
+        private const int StepDelay = 80;
         private static ExplosionParticleBehavior _particleBehavior = new ExplosionParticleBehavior();
 
         private const int R = 5;
@@ -515,7 +521,7 @@ public class GrassTask : PhysicsTask //one per world
         }
 
         private Stage _stage;
-        private int _currentR = 1;
+        private int _currentR = 0;
 
         public TNTTask(World world, Vector3I position, Player owner)
             : base(world)
@@ -535,7 +541,7 @@ public class GrassTask : PhysicsTask //one per world
                         if (!_world.tntPhysics || _map.GetBlock(_pos) != Block.TNT) //TNT was removed for some reason, forget the xplosion
                             return 0; //remove task
 
-                        _map.QueueUpdate(new BlockUpdate(null, _pos, Block.Air));
+                        UpdateMap(new BlockUpdate(null, _pos, Block.Air));
 
                         _stage = Stage.Exploding; //switch to expansion stage
                         CreateParticles();
@@ -558,13 +564,15 @@ public class GrassTask : PhysicsTask //one per world
                 double phi = _r.NextDouble() * 2 * Math.PI;
                 double ksi = _r.NextDouble() * Math.PI - Math.PI / 2.0;
 
-                Vector3F direction = (new Vector3F((float)Math.Sin(phi), (float)Math.Cos(phi), (float)Math.Sin(ksi))).Normalize();
+				Vector3F direction = (new Vector3F((float)(Math.Sin(phi) * Math.Cos(ksi)), (float)(Math.Cos(phi) * Math.Cos(ksi)), (float)Math.Sin(ksi))).Normalize();
                 _world.AddTask(new Particle(_world, (_pos + 2 * direction).Round(), direction, _owner, Block.Obsidian, _particleBehavior), 0);
             }
         }
 
         private bool Explosion()
         {
+			List<BData> toClean = _explosion;
+
             if (++_currentR <= R)
             {
                 _explosion = new List<BData>();
@@ -582,20 +590,22 @@ public class GrassTask : PhysicsTask //one per world
                 }
                 
                 Util.RndPermutate(_explosion);
-                foreach (BData pt in _explosion){
-                    _map.QueueUpdate(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z, Block.Lava));
-                    }
+                foreach (BData pt in _explosion)
+					UpdateMap(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z, Block.Lava));
             }
-            List<BData> toClean = _explosion;
+            
+			if (null!=toClean)
+			{
+				foreach (BData pt in toClean)
+				{
+					//if (_map.GetBlock(pt.X, pt.Y, pt.Z) != Block.Lava)
+					//    continue;
+					UpdateMap(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z,
+						pt.PrevBlock == Block.Water ? Block.Water : Block.Air));
+				}
+			}
 
-            foreach (BData pt in toClean)
-            {
-                if (_map.GetBlock(pt.X, pt.Y, pt.Z) != Block.Lava)
-                    continue;
-                _map.QueueUpdate(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z,
-                    pt.PrevBlock != Block.Water && pt.PrevBlock != Block.Water ? Block.Air : pt.PrevBlock));
-            }
-            return ++_currentR <= R;
+            return _currentR <= R;
         }
 
         private void TryAddPoint(int x, int y, int z)
@@ -604,14 +614,19 @@ public class GrassTask : PhysicsTask //one per world
                 || y < 0 || y >= _map.Length
                 || z < 0 || z >= _map.Height)
                 return;
-            if (0.2 + 0.8 * (R - _currentR) / R < _r.NextDouble())
-                return;
-            Block prevBlock = _map.GetBlock(x, y, z);
-            //chain explosion
-            if (Block.TNT == prevBlock)
-                _world.AddTask(new TNTTask(_world, new Vector3I(x, y, z), _owner), 0);
+			
+			Block prevBlock = _map.GetBlock(x, y, z);
+			//chain explosion
+			if (Block.TNT == prevBlock)
+			{
+				_world.AddTask(new TNTTask(_world, new Vector3I(x, y, z), _owner), _r.Next(20, 50));
+				return;
+			}
 
-            _explosion.Add(new BData() { X = x, Y = y, Z = z, PrevBlock = _map.GetBlock(x, y, z) });
+            if (0.45 + 0.55 * (R - _currentR) / R < _r.NextDouble())
+                return;
+            
+			_explosion.Add(new BData() { X = x, Y = y, Z = z, PrevBlock = _map.GetBlock(x, y, z) });
         }
 
         public int ProcessingStepsPerSecond

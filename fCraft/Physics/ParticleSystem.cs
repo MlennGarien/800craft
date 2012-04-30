@@ -109,7 +109,7 @@ namespace fCraft
                 {
                     _prevBlock = _map.GetBlock(pos);
                     if (Block.Undefined != _prevBlock) //out of bounds!
-                        _map.QueueUpdate(new BlockUpdate(null, pos, block));
+                        UpdateMap(new BlockUpdate(null, pos, block));
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace fCraft
                     : Block.Undefined; //no, it was removed by some other process, do nothing then
 
             if (Block.Undefined != _prevBlock)
-                _map.QueueUpdate(new BlockUpdate(null, _pos, _prevBlock));
+                UpdateMap(new BlockUpdate(null, _pos, _prevBlock));
 
             List<BlockUpdate> updates = new List<BlockUpdate>();
             for (int i = 0; i < _behavior.MovesPerProcessingStep && _restDistance > 0; ++i)
@@ -158,10 +158,12 @@ namespace fCraft
                 {
                     updates[idx] = new BlockUpdate(null, _pos, _block);
                 }
+                else
+					updates.Add(new BlockUpdate(null, _pos, _block));
             }
 
             for (int i = 0; i < updates.Count; ++i)
-                _map.QueueUpdate(updates[i]);
+                UpdateMap(updates[i]);
 
             return cont ? _stepDelay : 0;
         }
@@ -185,19 +187,21 @@ namespace fCraft
 
     internal class ExplosionParticleBehavior : IParticleBehavior
     {
+		private static Random _r=new Random();
+
         public int ProcessingStepsPerSecond
         {
-            get { return 20; }
+            get { return 15; }
         }
 
         public int MaxDistance
         {
-            get { return 10; }
+            get { return _r.Next(6, 10); }
         }
 
         public int MovesPerProcessingStep
         {
-            get { return 2; }
+            get { return 1; }
         }
 
         public void ModifyDirection(ref Vector3F direction, Block currentBlock)
