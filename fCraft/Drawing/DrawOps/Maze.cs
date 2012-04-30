@@ -25,9 +25,9 @@ namespace RandomMaze
     internal static class MazeUtil
     {
         static private Random _r = new Random();
-        public static void RndPermutate<T>(this T[] a)
+        public static void RndPermutate<T>(this IList<T> a)
         {
-            for (int i = a.Length - 1; i > 0; --i)
+            for (int i = a.Count - 1; i > 0; --i)
             {
                 int idx = _r.Next(i + 1);
                 T t = a[idx];

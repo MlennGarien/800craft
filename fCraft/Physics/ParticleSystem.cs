@@ -109,7 +109,7 @@ namespace fCraft
                 {
                     _prevBlock = _map.GetBlock(pos);
                     if (Block.Undefined != _prevBlock) //out of bounds!
-                        _map.QueueUpdate(new BlockUpdate(owner, pos, block));
+                        _map.QueueUpdate(new BlockUpdate(null, pos, block));
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace fCraft
                     : Block.Undefined; //no, it was removed by some other process, do nothing then
 
             if (Block.Undefined != _prevBlock)
-                _map.QueueUpdate(new BlockUpdate(_owner, _pos, _prevBlock));
+                _map.QueueUpdate(new BlockUpdate(null, _pos, _prevBlock));
 
             List<BlockUpdate> updates = new List<BlockUpdate>();
             for (int i = 0; i < _behavior.MovesPerProcessingStep && _restDistance > 0; ++i)
@@ -156,7 +156,7 @@ namespace fCraft
                     && updates[idx].Y == _pos.Y
                     && updates[idx].Z == _pos.Z)
                 {
-                    updates[idx] = new BlockUpdate(_owner, _pos, _block);
+                    updates[idx] = new BlockUpdate(null, _pos, _block);
                 }
             }
 
@@ -209,11 +209,11 @@ namespace fCraft
         {
             if (Block.TNT == block) //explode it
             {
-                world.AddTask(new TNT(world, pos, owner), 0);
+                world.AddTask(new TNTTask(world, pos, owner), 0);
                 return true;
             }
             if (Block.Air != block && Block.Water != block && Block.Lava != block)
-                updates.Add(new BlockUpdate(owner, pos, Block.Air));
+                updates.Add(new BlockUpdate(null, pos, Block.Air));
             return true;
         }
 

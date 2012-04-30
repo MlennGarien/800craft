@@ -20,7 +20,7 @@ namespace fCraft {
 
         private GrassTask _plantTask = null;
         public PhysScheduler _physScheduler;
-        public TNT _tntTask;
+        public TNTTask _tntTask;
         public BlockSink _sinkTask;
         public BlockFloat _floatTask;
         public Bullet _gunTask;
@@ -177,7 +177,6 @@ namespace fCraft {
                 return;
             }
             CheckIfToStopPhysics();
-            _tntTask.Deleted = true;
             tntPhysics = false;
             _tntTask = null;
             Server.Message("{0}&S disabled TNT Physics on {1}", player.ClassyName, ClassyName);

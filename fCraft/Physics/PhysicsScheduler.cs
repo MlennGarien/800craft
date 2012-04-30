@@ -488,72 +488,176 @@ public class GrassTask : PhysicsTask //one per world
             return 0;
         }
     }
-    public class TNT : PhysicsTask
+
+    public class TNTTask : PhysicsTask
     {
-        private const int Delay = 3000;
+        private struct BData
+        {
+            public int X, Y, Z;
+            public Block PrevBlock;
+        }
+        public const int ExplosionDelay = 3000;
+        private const int StepDelay = 50;
+        private static ExplosionParticleBehavior _particleBehavior = new ExplosionParticleBehavior();
+
+        private const int R = 5;
+
         private Vector3I _pos; //tnt position
         private Player _owner;
 
-        public TNT(World world, Vector3I position, Player owner)
+        private Random _r = new Random();
+        private List<BData> _explosion;
+
+        private enum Stage
+        {
+            Waiting,
+            Exploding,
+        }
+
+        private Stage _stage;
+        private int _currentR = 1;
+
+        public TNTTask(World world, Vector3I position, Player owner)
             : base(world)
         {
             _pos = position;
             _owner = owner;
+            _stage = Stage.Waiting;
         }
+
         protected override int PerformInternal()
         {
             lock (_world.SyncRoot)
             {
-                if (_world.tntPhysics)
+                switch (_stage)
                 {
-                    if (_world.Map.GetBlock(_pos) == Block.TNT)
-                    {
-                        _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Air));
-                        int Seed = new Random().Next(1, 50);
-                        startExplosion(_pos, _owner, _world, Seed);
-                        Scheduler.NewTask(t => removeLava(_pos, _owner, _world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
-                        _world._tntTask = null;
-                    }
-                    return Delay;
+                    case Stage.Waiting:
+                        if (!_world.tntPhysics || _map.GetBlock(_pos) != Block.TNT) //TNT was removed for some reason, forget the xplosion
+                            return 0; //remove task
+
+                        _map.QueueUpdate(new BlockUpdate(null, _pos, Block.Air));
+
+                        _stage = Stage.Exploding; //switch to expansion stage
+                        CreateParticles();
+                        Explosion();
+                        return StepDelay;
+                    case Stage.Exploding:
+                        return Explosion() ? StepDelay : 0;//when done remove task
+                    default:
+                        throw new Exception("state machine ist kaputt! tnt panic!");
                 }
-                return 0;  //do nothing
-            }
-        }
-        public static void startExplosion(Vector3I Coords, Player player, World world, int Seed)
-        {
-            if (world.Map != null && world.IsLoaded)
-            {
-                SphereDrawOperation operation = new SphereDrawOperation(player);
-                MarbledBrush brush = new MarbledBrush(Block.Lava, 1);
-                Vector3I secPos = new Vector3I(Coords.X + 4, Coords.Y, Coords.Z);
-                Vector3I[] marks = { Coords, secPos };
-                operation.Brush = brush;
-                brush.Seed = Seed;
-                operation.Prepare(marks);
-                operation.AnnounceCompletion = false;
-                operation.Context = BlockChangeContext.Explosion;
-                operation.Begin();
+
             }
         }
 
-
-        public static void removeLava(Vector3I Coords, Player player, World world, int Seed)
+        private void CreateParticles()
         {
-            if (world.Map != null && world.IsLoaded)
+            int n = _r.Next(5, 8);
+            for (int i = 0; i < n; ++i)
             {
-                SphereDrawOperation operation = new SphereDrawOperation(player);
-                MarbledBrush brush = new MarbledBrush(Block.Air, 1);
-                Vector3I secPos = new Vector3I(Coords.X + 4, Coords.Y, Coords.Z);
-                Vector3I[] marks = { Coords, secPos };
-                operation.Brush = brush;
-                brush.Seed = Seed;
-                operation.Prepare(marks);
-                operation.AnnounceCompletion = false;
-                operation.Context = BlockChangeContext.Explosion;
-                operation.Begin();
+                double phi = _r.NextDouble() * 2 * Math.PI;
+                double ksi = _r.NextDouble() * Math.PI - Math.PI / 2.0;
+
+                Vector3F direction = (new Vector3F((float)Math.Sin(phi), (float)Math.Cos(phi), (float)Math.Sin(ksi))).Normalize();
+                _world.AddTask(new Particle(_world, (_pos + 2 * direction).Round(), direction, _owner, Block.Obsidian, _particleBehavior), 0);
             }
+        }
+
+        private bool Explosion()
+        {
+            if (++_currentR <= R)
+            {
+                _explosion = new List<BData>();
+                for (int z = 0; z <= _currentR; ++z)
+                {
+                    double r2 = _currentR * _currentR - z * z;
+                    for (int x = 0; x <= _currentR; ++x)
+                    {
+                        int y = (int)Math.Round(Math.Sqrt(r2 - x * x));
+                        for (int mx = -1; mx < 2; mx += 2)
+                            for (int my = -1; my < 2; my += 2)
+                                for (int mz = -1; mz < 2; mz += 2)
+                                    TryAddPoint(mx * x + _pos.X, my * y + _pos.Y, mz * z + _pos.Z);
+                    }
+                }
+                
+                Util.RndPermutate(_explosion);
+                foreach (BData pt in _explosion){
+                    _map.QueueUpdate(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z, Block.Lava));
+                    }
+            }
+            List<BData> toClean = _explosion;
+
+            foreach (BData pt in toClean)
+            {
+                if (_map.GetBlock(pt.X, pt.Y, pt.Z) != Block.Lava)
+                    continue;
+                _map.QueueUpdate(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z,
+                    pt.PrevBlock != Block.Water && pt.PrevBlock != Block.Water ? Block.Air : pt.PrevBlock));
+            }
+            return ++_currentR <= R;
+        }
+
+        private void TryAddPoint(int x, int y, int z)
+        {
+            if (x < 0 || x >= _map.Width
+                || y < 0 || y >= _map.Length
+                || z < 0 || z >= _map.Height)
+                return;
+            if (0.2 + 0.8 * (R - _currentR) / R < _r.NextDouble())
+                return;
+            Block prevBlock = _map.GetBlock(x, y, z);
+            //chain explosion
+            if (Block.TNT == prevBlock)
+                _world.AddTask(new TNTTask(_world, new Vector3I(x, y, z), _owner), 0);
+
+            _explosion.Add(new BData() { X = x, Y = y, Z = z, PrevBlock = _map.GetBlock(x, y, z) });
+        }
+
+        public int ProcessingStepsPerSecond
+        {
+            get { return 20; }
+        }
+
+        public int MaxDistance
+        {
+            get { return _r.Next(4, 10); }
+
+        }
+
+        public int MovesPerProcessingStep
+        {
+            get { return 2; }
+        }
+
+        public void ModifyDirection(ref Vector3F direction, Block currentBlock)
+        {
+
+        }
+
+        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates)
+        {
+            if (Block.TNT == block) //explode it
+            {
+                world.AddTask(new TNTTask(world, pos, owner), 0);
+                return true;
+            }
+            if (Block.Air != block && Block.Water != block && Block.Lava != block)
+                updates.Add(new BlockUpdate(null, pos, Block.Air));
+            return true;
+        }
+
+        public bool CanKillPlayer
+        {
+            get { return true; }
+        }
+
+        public void HitPlayer(World world, Player hitted, Player by, ref int restDistance)
+        {
+            hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, by.ClassyName));
         }
     }
+
 
     public class BlockSink : PhysicsTask
     {
@@ -745,7 +849,7 @@ public class GrassTask : PhysicsTask //one per world
                                         {
                                             int seed = new Random().Next(1, 6);
                                             player.LastTimeKilled = DateTime.Now;
-                                            _world._physScheduler.AddTask(new TNT(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender), 0);
+                                            _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender), 0);
                                             player.TeleportTo(_world.Map.Spawn);
                                             _world.Players.Message("{0}&S was blown up by {1}", player.ClassyName, _sender.ClassyName);
                                             removal(bullets, _world.Map);
@@ -775,9 +879,7 @@ public class GrassTask : PhysicsTask //one per world
                     if (_world.tntPhysics && _type == Block.TNT)
                     {
                         int seed = new Random().Next(1, 6);
-                        TNT.startExplosion(new Vector3I((int)nextPos.X, (int)nextPos.Y, (int)nextPos.Z), _sender, _world, seed);
-                        Thread.Sleep(Physics.Physics.Tick);
-                        TNT.removeLava(new Vector3I((int)nextPos.X, (int)nextPos.Y, (int)nextPos.Z), _sender, _world, seed);
+                        _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender), 0);
                         removal(bullets, _world.Map);
                         hit = true;
                     }

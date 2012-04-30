@@ -74,7 +74,7 @@ namespace fCraft {
                     {
                         lock (world.SyncRoot)
                         {
-                            world._physScheduler.AddTask(new TNT(world, e.Coords, e.Player), 0);
+                           world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player), 5000);
                         }
                     }
                 }

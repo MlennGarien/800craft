@@ -23,8 +23,7 @@ namespace fCraft.Physics
                 {
                     world.Map.QueueUpdate(new BlockUpdate(null, e.Coords, Block.Air));
                     int Seed = new Random().Next(1, 50);
-                    TNT.startExplosion(e.Coords, e.Player, world, Seed);
-                    Scheduler.NewTask(t => TNT.removeLava(e.Coords, e.Player, world, Seed)).RunOnce(TimeSpan.FromMilliseconds(300));
+                    world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player), 0);
                 }
             }
         }
