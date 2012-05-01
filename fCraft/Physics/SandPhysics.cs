@@ -13,7 +13,6 @@ namespace fCraft
         private int _nextPos;
         private bool _firstMove = true;
         private Block _type;
-        private Block _toReplace;
         public SandTask(World world, Vector3I position, Block Type)
             : base(world)
         {
@@ -29,7 +28,6 @@ namespace fCraft
                 if (_world.sandPhysics)
                 {
                     Block nblock = _world.Map.GetBlock(_pos.X, _pos.Y, _nextPos);
-                    _toReplace = _world.Map.GetBlock(_pos.X, _pos.Y, _nextPos - 1);
                     if (_firstMove)
                     {
                         if (_world.Map.GetBlock(_pos) != _type)
@@ -45,7 +43,7 @@ namespace fCraft
                             return Delay;
                         }
                     }
-                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Air)
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) != Block.Air)
                     {
                         return 0;
                     }

@@ -61,13 +61,14 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdPhysics);
         }
         #region 800Craft
+        #region Physics
         static readonly CommandDescriptor CdPhysics = new CommandDescriptor
         {
             Name = "Physics",
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.Physics },
             IsConsoleSafe = false,
-            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | Sand | All> <On / Off>",
+            Usage = "/Physics <TNT | Fireworks | Water | Plant | Grass | Sand | Gun | All> <On / Off>",
             Help = "Enables / disables a type of Physics for the current world. Physics may use more server resources.",
             HelpSections = new Dictionary<string, string>() {
                 { "tnt",     "&H/Physics tnt on/off \n&S" +
@@ -117,6 +118,18 @@ namespace fCraft {
                         return;
                     }
                     break;
+                case "gun":
+                    if (NextOp.ToLower() == "on")
+                    {
+                        world.EnableGunPhysics(player);
+                        return;
+                    }
+                    if (NextOp.ToLower() == "off")
+                    {
+                        world.DisableGunPhysics(player);
+                        return;
+                    }
+                    break;
                 case "plant":
                     if (NextOp.ToLower() == "off"){
                         world.DisablePlantPhysics(player);
@@ -127,83 +140,80 @@ namespace fCraft {
                         world.EnablePlantPhysics(player);
                         return;
                     }
-                    
                     break;
                 case "fireworks":
                 case "firework":
-                    if (world.fireworkPhysics)
+                    if (NextOp.ToLower() == "on")
                     {
-                        world.fireworkPhysics = false;
-                        Server.Players.Message("{0}&S turned Firework Physics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics off for {1}", player.Name, world.Name);
+                        world.EnableFireworkPhysics(player);
+                        return;
                     }
-                    else
+                    if (NextOp.ToLower() == "off")
                     {
-                        world._physScheduler.Start();
-                        world.fireworkPhysics = true;
-                        Server.Players.Message("{0}&S turned Firework Physics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Firework Physics on for {1}", player.Name, world.Name);
+                        world.DisableFireworkPhysics(player);
+                        return;
                     }
                     break;
 
                 case "sand":
-                    if (world.sandPhysics)
+                    if (NextOp.ToLower() == "on")
                     {
-                        world.sandPhysics = false;
-                        Server.Players.Message("{0}&S turned sand Physics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned sand Physics off for {1}", player.Name, world.Name);
+                        world.EnableSandPhysics(player);
+                        return;
                     }
-                    else
+                    if (NextOp.ToLower() == "off")
                     {
-                        world.sandPhysics = true;
-                        Server.Players.Message("{0}&S turned sand Physics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned sand Physics on for {1}", player.Name, world.Name);
+                        world.DisableSandPhysics(player);
+                        return;
                     }
                     break;
-                
                 case "water":
-                    if (world.waterPhysics)
+                    if (NextOp.ToLower() == "on")
                     {
-                        world.waterPhysics = false;
-                        Server.Players.Message("{0}&S turned Water Physics off for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Water Physics off for {1}", player.Name, world.Name);
+                        world.EnableWaterPhysics(player);
+                        return;
                     }
-                    else
+                    if (NextOp.ToLower() == "off")
                     {
-                        world.waterPhysics = true;
-                        Server.Players.Message("{0}&S turned Water Physics on for {1}", player.ClassyName, world.ClassyName);
-                        Logger.Log(LogType.SystemActivity, "{0} turned Water Physics on for {1}", player.Name, world.Name);
+                        world.DisableWaterPhysics(player);
+                        return;
                     }
                     break;
                 case "all":
-                    string nextOp = cmd.Next();
-                    if (nextOp == null)
+                    if (NextOp.ToLower() == "on")
                     {
-                        CdPhysics.PrintUsage(player);
-                        return;
-                    }
-
-                    if (nextOp.ToLower() == "on")
-                    {
-
-                        world.tntPhysics = true;
-                        world.sandPhysics = true;
-                        world.fireworkPhysics = true;
-                        world.waterPhysics = true;
-                        world.plantPhysics = true;
-                        world.grassPhysics = true;
+                        if (!world.tntPhysics){
+                            world.EnableTNTPhysics(player);
+                        }if (!world.sandPhysics){
+                            world.EnableSandPhysics(player);
+                        }if (!world.fireworkPhysics){
+                            world.EnableFireworkPhysics(player);
+                        }if (!world.waterPhysics){
+                            world.EnableWaterPhysics(player);
+                        }if (!world.plantPhysics){
+                            world.EnablePlantPhysics(player);
+                        }if (!world.gunPhysics){
+                            world.EnableGunPhysics(player);
+                        }
                         Server.Players.Message("{0}&S turned ALL Physics on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics on for {1}", player.Name, world.Name);
                     }
 
-                    else if (nextOp.ToLower() == "off")
+                    else if (NextOp.ToLower() == "off")
                     {
-                        world.tntPhysics = false;
-                        world.fireworkPhysics = false;
-                        world.sandPhysics = false;
-                        world.waterPhysics = false;
-                        world.plantPhysics = false;
-                        world.grassPhysics = false;
+                        if (world.tntPhysics){
+                            world.DisableTNTPhysics(player);
+                        }if (world.sandPhysics){
+                            world.DisableSandPhysics(player);
+                        }if (world.fireworkPhysics){
+                            world.DisableFireworkPhysics(player);
+                        }if (world.waterPhysics){
+                            world.DisableWaterPhysics(player);
+                        }if (world.plantPhysics){
+                            world.DisablePlantPhysics(player);
+                        }if (world.gunPhysics){
+                            world.DisableGunPhysics(player);
+                        }
                         Server.Players.Message("{0}&S turned ALL Physics off for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics off for {1}", player.Name, world.Name);
                     }
@@ -213,6 +223,7 @@ namespace fCraft {
                     break;
             }
         }
+        #endregion
 
         #region portals
 

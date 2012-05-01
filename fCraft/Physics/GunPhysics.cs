@@ -38,6 +38,7 @@ namespace fCraft
         {
             lock (_world.SyncRoot)
             {
+                if (!_world.gunPhysics) return 0;
                 removal(bullets, _world.Map);
                 if (hit)
                 {

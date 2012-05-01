@@ -52,20 +52,58 @@ namespace fCraft.Physics
             {
                 lock (world.SyncRoot)
                 {
-                    world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player, false), 0);
+                    world.AddTask(new TNTTask(world, e.Coords, e.Player, false), 0);
                 }
             }
         }
         public static void PlayerPlacedPhysics(object sender, PlayerPlacedBlockEventArgs e)
         {
             World world = e.Player.World;
+            if (e.NewBlock == Block.Gold)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    if (e.Player.fireworkMode && world.fireworkPhysics)
+                    {
+                        world.AddTask(new Firework(world, e.Coords), 300);
+                    }
+                }
+            }
+            if (e.NewBlock == Block.TNT)
+            {
+                if (world.tntPhysics)
+                {
+                    if (e.Context == BlockChangeContext.Manual)
+                    {
+                        lock (world.SyncRoot)
+                        {
+                            world.AddTask(new TNTTask(world, e.Coords, e.Player, false), 3000);
+                            return;
+                        }
+                    }
+                }
+            }
+            if (e.NewBlock == Block.Sand || e.NewBlock == Block.Gravel)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    if (world.sandPhysics)
+                    {
+                        lock (world.SyncRoot)
+                        {
+                            world.AddTask(new SandTask(world, e.Coords, e.NewBlock), 150);
+                            return;
+                        }
+                    }
+                }
+            }
             if (Physics.CanFloat(e.NewBlock))
             {
                 if (world.waterPhysics)
                 {
                     if (e.Context == BlockChangeContext.Manual)
                     {
-                        world._physScheduler.AddTask(new BlockFloat(world, e.Coords, e.NewBlock), 200);
+                        world.AddTask(new BlockFloat(world, e.Coords, e.NewBlock), 200);
                         return;
                     }
                 }
@@ -84,44 +122,8 @@ namespace fCraft.Physics
                 {
                     if (world.waterPhysics)
                     {
-                        world._physScheduler.AddTask(new BlockSink(world, e.Coords, e.NewBlock), 200);
+                        world.AddTask(new BlockSink(world, e.Coords, e.NewBlock), 200);
                         return;
-                    }
-                }
-            }
-            if (e.NewBlock == Block.TNT)
-            {
-                if (world.tntPhysics)
-                {
-                    if (e.Context == BlockChangeContext.Manual)
-                    {
-                        lock (world.SyncRoot)
-                        {
-                            world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player, false), 3000);
-                        }
-                    }
-                }
-            }
-            if (e.NewBlock == Block.Sand || e.NewBlock == Block.Gravel)
-            {
-                if (e.Context == BlockChangeContext.Manual)
-                {
-                    if (world.sandPhysics)
-                    {
-                        lock (world.SyncRoot)
-                        {
-                            world._physScheduler.AddTask(new SandTask(world, e.Coords, e.NewBlock), 150);
-                        }
-                    }
-                }
-            }
-            if (e.NewBlock == Block.Gold)
-            {
-                if (e.Context == BlockChangeContext.Manual)
-                {
-                    if (e.Player.fireworkMode && world.fireworkPhysics)
-                    {
-                        world._physScheduler.AddTask(new Firework(world, e.Coords), 300);
                     }
                 }
             }

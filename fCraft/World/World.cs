@@ -20,10 +20,6 @@ namespace fCraft {
 
         private GrassTask _plantTask = null;
         public PhysScheduler _physScheduler;
-        public TNTTask _tntTask;
-        public BlockSink _sinkTask;
-        public BlockFloat _floatTask;
-        public Bullet _gunTask;
 
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
@@ -46,7 +42,7 @@ namespace fCraft {
         public bool waterPhysics = false;
         public bool plantPhysics = false;
         public bool sandPhysics = false;
-        public bool grassPhysics = false;
+        public bool gunPhysics = false;
         private Queue<PhysicsBlock> updateQueue = new Queue<PhysicsBlock>();
         private object queueLock = new object();
         public bool lavaSpongeEnabled = false;
@@ -127,6 +123,7 @@ namespace fCraft {
         {
             _physScheduler.AddTask(task, Delay);
         }
+        #region Plant
         internal void AddPlantTask(short x, short y, short z)
         {
             _physScheduler.AddTask(new PlantTask(this, x, y, z), PlantTask.GetRandomDelay());
@@ -144,7 +141,21 @@ namespace fCraft {
             _physScheduler.AddTask(_plantTask, 0);
             Server.Message("{0}&S enabled Plant Physics on {1}", player.ClassyName, ClassyName);
         }
-
+        public void DisablePlantPhysics(Player player)
+        {
+            if (null == _plantTask)
+            {
+                player.Message("&WAlready disabled on this world");
+                return;
+            }
+            _plantTask.Deleted = true;
+            _plantTask = null;
+            CheckIfToStopPhysics();
+            plantPhysics = false;
+            Server.Message("{0}&S disabled Plant Physics on {1}", player.ClassyName, ClassyName);
+        }
+        #endregion
+        #region TNT
         public void EnableTNTPhysics(Player player)
         {
             if (tntPhysics == true)
@@ -156,19 +167,7 @@ namespace fCraft {
             tntPhysics = true;
             Server.Message("{0}&S enabled TNT Physics on {1}", player.ClassyName, ClassyName);
         }
-        public void DisablePlantPhysics(Player player)
-        {
-            if (null == _plantTask)
-            {
-                player.Message("&WAlready disabled on this world");
-                return;
-            }
-            CheckIfToStopPhysics();
-            _plantTask.Deleted = true;
-            _plantTask = null;
-            plantPhysics = false;
-            Server.Message("{0}&S disabled Plant Physics on {1}", player.ClassyName, ClassyName);
-        }
+        
         public void DisableTNTPhysics(Player player)
         {
             if (tntPhysics == false)
@@ -176,12 +175,111 @@ namespace fCraft {
                 player.Message("&WAlready disabled on this world");
                 return;
             }
-            CheckIfToStopPhysics();
             tntPhysics = false;
-            _tntTask = null;
+            CheckIfToStopPhysics();
             Server.Message("{0}&S disabled TNT Physics on {1}", player.ClassyName, ClassyName);
         }
+        #endregion
+        #region Fireworks
+        public void EnableFireworkPhysics(Player player)
+        {
+            if (fireworkPhysics == true)
+            {
+                player.Message("&WAlready enabled on this world");
+                return;
+            }
+            CheckIfPhysicsStarted();
+            fireworkPhysics = true;
+            Server.Message("{0}&S enabled Firework Physics on {1}", player.ClassyName, ClassyName);
+        }
 
+        public void DisableFireworkPhysics(Player player)
+        {
+            if (fireworkPhysics == false)
+            {
+                player.Message("&WAlready disabled on this world");
+                return;
+            }
+            fireworkPhysics = false;
+            CheckIfToStopPhysics();
+            Server.Message("{0}&S disabled Firework Physics on {1}", player.ClassyName, ClassyName);
+        }
+        #endregion
+        #region Gun
+        public void EnableGunPhysics(Player player)
+        {
+            if (gunPhysics == true)
+            {
+                player.Message("&WAlready enabled on this world");
+                return;
+            }
+            CheckIfPhysicsStarted();
+            gunPhysics = true;
+            Server.Message("{0}&S enabled Gun Physics on {1}", player.ClassyName, ClassyName);
+        }
+
+        public void DisableGunPhysics(Player player)
+        {
+            if (gunPhysics == false)
+            {
+                player.Message("&WAlready disabled on this world");
+                return;
+            }
+            gunPhysics = false;
+            CheckIfToStopPhysics();
+            Server.Message("{0}&S disabled Gun Physics on {1}", player.ClassyName, ClassyName);
+        }
+        #endregion
+        #region Water
+        public void EnableWaterPhysics(Player player)
+        {
+            if (waterPhysics == true)
+            {
+                player.Message("&WAlready enabled on this world");
+                return;
+            }
+            CheckIfPhysicsStarted();
+            waterPhysics = true;
+            Server.Message("{0}&S enabled Water Physics on {1}", player.ClassyName, ClassyName);
+        }
+
+        public void DisableWaterPhysics(Player player)
+        {
+            if (waterPhysics == false)
+            {
+                player.Message("&WAlready disabled on this world");
+                return;
+            }
+            waterPhysics = false;
+            CheckIfToStopPhysics();
+            Server.Message("{0}&S disabled Water Physics on {1}", player.ClassyName, ClassyName);
+        }
+        #endregion
+        #region Sand
+        public void EnableSandPhysics(Player player)
+        {
+            if (sandPhysics == true)
+            {
+                player.Message("&WAlready enabled on this world");
+                return;
+            }
+            CheckIfPhysicsStarted();
+            sandPhysics = true;
+            Server.Message("{0}&S enabled Sand Physics on {1}", player.ClassyName, ClassyName);
+        }
+
+        public void DisableSandPhysics(Player player)
+        {
+            if (sandPhysics == false)
+            {
+                player.Message("&WAlready disabled on this world");
+                return;
+            }
+            sandPhysics = false;
+            CheckIfToStopPhysics();
+            Server.Message("{0}&S disabled Sand Physics on {1}", player.ClassyName, ClassyName);
+        }
+        #endregion
         private void CheckIfPhysicsStarted()
         {
             if (!_physScheduler.Started)
@@ -189,7 +287,10 @@ namespace fCraft {
         }
         private void CheckIfToStopPhysics()
         {
-            if (null == _plantTask && null == _tntTask )  //must be extended to further phys types
+            if (null == _plantTask && !tntPhysics 
+                && !gunPhysics && !plantPhysics 
+                && !sandPhysics && !fireworkPhysics
+                && !waterPhysics)  //must be extended to further phys types
                 _physScheduler.Stop();
         }
         #endregion
