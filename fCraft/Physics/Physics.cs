@@ -52,7 +52,7 @@ namespace fCraft.Physics
             {
                 lock (world.SyncRoot)
                 {
-                    world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player), 0);
+                    world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player, false), 0);
                 }
             }
         }
@@ -97,7 +97,7 @@ namespace fCraft.Physics
                     {
                         lock (world.SyncRoot)
                         {
-                            world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player), 3000);
+                            world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player, false), 3000);
                         }
                     }
                 }

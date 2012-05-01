@@ -81,16 +81,11 @@ namespace fCraft
                                     {
                                         if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
                                         {
-                                            int seed = new Random().Next(1, 6);
-                                            player.LastTimeKilled = DateTime.Now;
-                                            _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender), 0);
-                                            player.TeleportTo(_world.Map.Spawn);
-                                            _world.Players.Message("{0}&S was blown up by {1}", player.ClassyName, _sender.ClassyName);
+                                            _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, true), 0);
                                            // removal(bullets, _world.Map); no need, physics removes this
                                             hit = true;
                                         }
                                     }
-
                                     else
                                     {
                                         if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
@@ -113,7 +108,7 @@ namespace fCraft
                     if (_world.tntPhysics && _type == Block.TNT)
                     {
                         int seed = new Random().Next(1, 6);
-                        _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender), 0);
+                        _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, true), 0);
                         removal(bullets, _world.Map);
                         hit = true;
                     }

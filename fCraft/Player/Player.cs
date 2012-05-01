@@ -183,7 +183,15 @@ namespace fCraft {
         public bool PortalsEnabled = true;
         public bool CanBeKilled()
         {
-            return ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15);
+            if (LastTimeKilled != null)
+            {
+                if ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15)
+                {
+                    return false;
+                }
+                return true;
+            }
+            return true;
         }
         public string iName = null;
 

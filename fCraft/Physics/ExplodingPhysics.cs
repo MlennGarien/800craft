@@ -23,6 +23,7 @@ namespace fCraft
 
         private Vector3I _pos; //tnt position
         private Player _owner;
+        private bool _gun;
 
         private Random _r = new Random();
         private List<BData> _explosion;
@@ -36,9 +37,10 @@ namespace fCraft
         private Stage _stage;
         private int _currentR = 0;
 
-        public TNTTask(World world, Vector3I position, Player owner)
+        public TNTTask(World world, Vector3I position, Player owner, bool gun)
             : base(world)
         {
+            _gun = gun;
             _pos = position;
             _owner = owner;
             _stage = Stage.Waiting;
@@ -51,8 +53,11 @@ namespace fCraft
                 switch (_stage)
                 {
                     case Stage.Waiting:
-                        if (!_world.tntPhysics || _map.GetBlock(_pos) != Block.TNT) //TNT was removed for some reason, forget the xplosion
-                            return 0; //remove task
+                        if (!_gun)
+                        {
+                            if (!_world.tntPhysics || _map.GetBlock(_pos) != Block.TNT) //TNT was removed for some reason, forget the xplosion
+                                return 0; //remove task
+                        }
 
                         UpdateMap(new BlockUpdate(null, _pos, Block.Air));
 
@@ -103,15 +108,30 @@ namespace fCraft
 
                 Util.RndPermutate(_explosion);
                 foreach (BData pt in _explosion)
+                {
                     UpdateMap(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z, Block.Lava));
+                    foreach (Player p in _world.Players)
+                    {
+                        if ((p.Position.X / 32) == pt.X || (p.Position.X / 32 + 1) == pt.X || (p.Position.X / 32 - 1) == pt.X)
+                        {
+                            if ((p.Position.Y / 32) == pt.Y || (p.Position.Y / 32 + 1) == pt.Y || (p.Position.Y / 32 - 1) == pt.Y)
+                            {
+                                if ((p.Position.Z / 32) == pt.Z || (p.Position.Z / 32 + 1) == pt.Z || (p.Position.Z / 32 - 1) == pt.Z)
+                                {
+                                   if (p.CanBeKilled()) //less or equal than a block
+                                        HitPlayer(_world, p, _owner);
+                                }
+                            }
+                        }
+                    }
+
+                }
             }
 
             if (null != toClean)
             {
                 foreach (BData pt in toClean)
                 {
-                    //if (_map.GetBlock(pt.X, pt.Y, pt.Z) != Block.Lava)
-                    //    continue;
                     UpdateMap(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z,
                         pt.PrevBlock == Block.Water ? Block.Water : Block.Air));
                 }
@@ -128,10 +148,11 @@ namespace fCraft
                 return;
 
             Block prevBlock = _map.GetBlock(x, y, z);
+            
             //chain explosion
             if (Block.TNT == prevBlock)
             {
-                _world.AddTask(new TNTTask(_world, new Vector3I(x, y, z), _owner), _r.Next(20, 50));
+                _world.AddTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false), _r.Next(50, 100));
                 return;
             }
 
@@ -162,24 +183,13 @@ namespace fCraft
 
         }
 
-        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates)
-        {
-            if (Block.TNT == block) //explode it
-            {
-                world.AddTask(new TNTTask(world, pos, owner), 0);
-                return true;
-            }
-            if (Block.Air != block && Block.Water != block && Block.Lava != block)
-                updates.Add(new BlockUpdate(null, pos, Block.Air));
-            return true;
-        }
-
+        
         public bool CanKillPlayer
         {
             get { return true; }
         }
 
-        public void HitPlayer(World world, Player hitted, Player by, ref int restDistance)
+        public void HitPlayer(World world, Player hitted, Player by)
         {
             hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, by.ClassyName));
         }

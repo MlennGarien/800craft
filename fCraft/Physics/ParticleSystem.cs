@@ -213,7 +213,7 @@ namespace fCraft
         {
             if (Block.TNT == block) //explode it
             {
-                world.AddTask(new TNTTask(world, pos, owner), 0);
+                world.AddTask(new TNTTask(world, pos, owner, false), 0);
                 return true;
             }
             if (Block.Air != block && Block.Water != block && Block.Lava != block)
