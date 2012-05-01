@@ -86,7 +86,7 @@ namespace fCraft
                                             _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender), 0);
                                             player.TeleportTo(_world.Map.Spawn);
                                             _world.Players.Message("{0}&S was blown up by {1}", player.ClassyName, _sender.ClassyName);
-                                            removal(bullets, _world.Map);
+                                           // removal(bullets, _world.Map); no need, physics removes this
                                             hit = true;
                                         }
                                     }

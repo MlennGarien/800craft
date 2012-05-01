@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>fCraft.ServerGUI.Program</StartupObject>
-    <ApplicationIcon>f2k - Copy.ico</ApplicationIcon>
+    <ApplicationIcon>newIcon.ico</ApplicationIcon>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -101,8 +101,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="f2k - Copy.ico" />
-    <Content Include="f2k.ico" />
+    <Content Include="newIcon.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
