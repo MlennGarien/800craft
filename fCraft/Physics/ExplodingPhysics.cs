@@ -81,7 +81,7 @@ namespace fCraft
                 double phi = _r.NextDouble() * 2 * Math.PI;
                 double ksi = _r.NextDouble() * Math.PI - Math.PI / 2.0;
 
-                Vector3F direction = (new Vector3F((float)(Math.Sin(phi) * Math.Cos(ksi)), (float)(Math.Cos(phi) * Math.Cos(ksi)), (float)Math.Sin(ksi))).Normalize();
+                Vector3F direction = (new Vector3F((float)(Math.Cos(phi) * Math.Cos(ksi)), (float)(Math.Sin(phi) * Math.Cos(ksi)), (float)Math.Sin(ksi))).Normalize();
                 _world.AddTask(new Particle(_world, (_pos + 2 * direction).Round(), direction, _owner, Block.Obsidian, _particleBehavior), 0);
             }
         }

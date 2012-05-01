@@ -13,9 +13,11 @@ namespace fCraft
         int MovesPerProcessingStep { get; }
 
         void ModifyDirection(ref Vector3F direction, Block currentBlock /*etc*/);
+
+		//false if stopped
         bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates);
         bool CanKillPlayer { get; }
-        void HitPlayer(World world, Player hitted, Player by, ref int restDistance);
+		void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates);
     }
 
     public class FireworkParticle : PhysicsTask
@@ -145,7 +147,7 @@ namespace fCraft
                 _behavior.ModifyDirection(ref _direction, _prevBlock); //e.g. if you want it to be dependent on gravity or change direction depending on current block etc
 
                 if (_behavior.VisitBlock(_world, _pos, _prevBlock, _owner, ref _restDistance, updates) && _behavior.CanKillPlayer)
-                    CheckHitPlayers();
+                    CheckHitPlayers(updates);
             }
 
             bool cont = _restDistance > 0;
@@ -175,12 +177,12 @@ namespace fCraft
             return (_startingPos + _currentStep * _direction).Round();
         }
 
-        private void CheckHitPlayers()
+		private void CheckHitPlayers(List<BlockUpdate> updates)
         {
             foreach (Player p in _world.Players)
             {
                 if (p.CanBeKilled() && p.Position.DistanceSquaredTo(_pos.ToPlayerCoords()) <= 33 * 33) //less or equal than a block
-                    _behavior.HitPlayer(_world, p, _owner, ref _restDistance);
+                    _behavior.HitPlayer(_world, _pos, p, _owner, ref _restDistance, updates);
             }
         }
     }
@@ -209,16 +211,17 @@ namespace fCraft
 
         }
 
+		//true if not stopped
         public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates)
         {
-            if (Block.TNT == block) //explode it
-            {
-                world.AddTask(new TNTTask(world, pos, owner, false), 0);
-                return true;
-            }
-            if (Block.Air != block && Block.Water != block && Block.Lava != block)
-                updates.Add(new BlockUpdate(null, pos, Block.Air));
-            return true;
+			if (Block.TNT == block) //explode it
+			{
+				world.AddTask(new TNTTask(world, pos, owner, false), 0);
+				return true;
+			}
+			if (Block.Air != block && Block.Water != block && Block.Lava != block)
+				updates.Add(new BlockUpdate(null, pos, Block.Air));
+			return true;
         }
 
         public bool CanKillPlayer
@@ -226,10 +229,65 @@ namespace fCraft
             get { return true; }
         }
 
-        public void HitPlayer(World world, Player hitted, Player by, ref int restDistance)
+		public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
         {
 			hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "self" : by.ClassyName));
         }
     }
+
+	internal class TntBulletBehavior : IParticleBehavior
+	{
+		private static Random _r = new Random();
+
+		public int ProcessingStepsPerSecond
+		{
+			get { return 20; }
+		}
+
+		public int MaxDistance
+		{
+			get { return 1024; }
+		}
+
+		public int MovesPerProcessingStep
+		{
+			get { return 1; }
+		}
+
+
+		private const double G = 10; //blocks per second per second
+		public void ModifyDirection(ref Vector3F direction, Block currentBlock)
+		{
+			double t = 1.0/(ProcessingStepsPerSecond*MovesPerProcessingStep);
+			Vector3F v = direction*(ProcessingStepsPerSecond*MovesPerProcessingStep);
+			Vector3F dv=new Vector3F(0, 0, (float)(-G*t));
+			direction = (v + dv).Normalize();
+		}
+
+		public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates)
+		{
+			if (Block.Air != block && Block.Water != block) //explode it
+			{
+				updates.Add(new BlockUpdate(null, pos, Block.TNT));
+				world.AddTask(new TNTTask(world, pos, owner, false), 0);
+				restDistance = 0;
+				return false;
+			}
+			return true;
+		}
+
+		public bool CanKillPlayer
+		{
+			get { return true; }
+		}
+
+		public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
+		{
+			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "self" : by.ClassyName));
+			updates.Add(new BlockUpdate(null, pos, Block.TNT));
+			world.AddTask(new TNTTask(world, pos, by, false), 0);
+			restDistance = 0;
+		}
+	}
 }
 
