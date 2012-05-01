@@ -682,6 +682,16 @@ namespace fCraft {
                      itemType, nameList );
         }
 
+        public void MessageManyDisplayedNamesMatches([NotNull] string itemType, [NotNull] PlayerInfo[] names)
+        {
+            if (itemType == null) throw new ArgumentNullException("itemType");
+            if (names == null) throw new ArgumentNullException("names");
+
+            string nameList = names.JoinToString(", ", p => p.Name + "&S("+ p.DisplayedName + "&S)");
+            Message("More than one {0} matched: {1}",
+                     itemType, nameList);
+        }
+
 
         public void MessageNoAccess( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );

@@ -183,11 +183,33 @@ namespace fCraft {
                 case "dn":
                     var DisplayedNames = PlayerDB.PlayerInfoList
                                              .Where(r => r.DisplayedName != null).ToArray();
-                    if (DisplayedNames.Count() > 0)
-                        player.Message("Listing all DisplayedNames: {0}",
-                                        DisplayedNames.JoinToString(r => String.Format("{0}&S({1})", r.ClassyName, r.Name)));
-                    else player.Message("No players with DisplayedNames were found in the Player Database");
-                    break;
+
+                    if (DisplayedNames.Length <= 15)
+                {
+                    player.MessageManyDisplayedNamesMatches("DisplayedNames", DisplayedNames);
+                }
+
+                else
+                {
+                    int offset;
+
+                    if (!cmd.NextInt(out offset)) offset = 0;
+
+                    if (offset >= DisplayedNames.Count())
+                        offset = Math.Max(0, DisplayedNames.Length - 15);
+
+                    PlayerInfo[] DnPart = DisplayedNames.Skip(offset).Take(15).ToArray();
+                    player.MessageManyDisplayedNamesMatches("DisplayedNames", DnPart); //here
+
+                    if (offset + DisplayedNames.Length < DisplayedNames.Length)
+                        player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                        offset + 1, offset + DnPart.Length, DisplayedNames.Length,
+                                        "DisplayedNames", offset + DnPart.Length);
+                    else
+                        player.Message("Showing matches {0}-{1} (out of {2}).",
+                                        offset + 1, offset + DnPart.Length, DisplayedNames.Length);
+                }
+                break;
             }
         }
 

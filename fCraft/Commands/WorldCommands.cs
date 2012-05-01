@@ -561,16 +561,37 @@ namespace fCraft {
             else
             {
                 worldName = worldName.ToLower();
-                player.Message("Worlds found: ");
-                foreach (World w in WorldManager.Worlds)
+                var WorldNames = WorldManager.Worlds
+                                         .Where(w => w.Name.ToLower().Contains(worldName)).ToArray();
+
+                if (WorldNames.Length <= 30)
                 {
-                    if (w.Name.ToLower().Contains(worldName))
-                        player.Message("{0} ", w.ClassyName);
+                    player.MessageManyMatches("worlds", WorldNames);
                 }
-                return;
+
+                else
+                {
+                    int offset;
+
+                    if (!cmd.NextInt(out offset)) offset = 0;
+
+                    if (offset >= WorldNames.Count())
+                        offset = Math.Max(0, WorldNames.Length - 30);
+
+                    World[] WorldPart = WorldNames.Skip(offset).Take(30).ToArray();
+                    player.MessageManyMatches("worlds", WorldPart);
+
+                    if (offset + WorldNames.Length < WorldNames.Length)
+                        player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                        offset + 1, offset + WorldPart.Length, WorldNames.Length,
+                                        "worlds", offset + WorldPart.Length);
+                    else
+                        player.Message("Showing matches {0}-{1} (out of {2}).",
+                                        offset + 1, offset + WorldPart.Length, WorldNames.Length);
+                    return;
+                }
             }
         }
-
 
 
         static readonly CommandDescriptor CdRankHide = new CommandDescriptor
