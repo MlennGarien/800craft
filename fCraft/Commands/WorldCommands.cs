@@ -546,33 +546,22 @@ namespace fCraft {
         static void WorldSearchHandler(Player player, Command cmd)
         {
             string worldName = cmd.Next();
-            if (worldName == null)
-            {
+            if (worldName == null){
                 CdWorldSearch.PrintUsage(player);
                 return;
             }
-
-            if (worldName.Length < 2)
-            {
+            if (worldName.Length < 2){
                 CdWorldSearch.PrintUsage(player);
                 return;
-            }
-
-            else
-            {
+            }else{
                 worldName = worldName.ToLower();
                 var WorldNames = WorldManager.Worlds
                                          .Where(w => w.Name.ToLower().Contains(worldName)).ToArray();
 
-                if (WorldNames.Length <= 30)
-                {
+                if (WorldNames.Length <= 30){
                     player.MessageManyMatches("worlds", WorldNames);
-                }
-
-                else
-                {
+                }else{
                     int offset;
-
                     if (!cmd.NextInt(out offset)) offset = 0;
 
                     if (offset >= WorldNames.Count())
@@ -584,7 +573,7 @@ namespace fCraft {
                     if (offset + WorldNames.Length < WorldNames.Length)
                         player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
                                         offset + 1, offset + WorldPart.Length, WorldNames.Length,
-                                        "worlds", offset + WorldPart.Length);
+                                        "worldsearch", offset + WorldPart.Length);
                     else
                         player.Message("Showing matches {0}-{1} (out of {2}).",
                                         offset + 1, offset + WorldPart.Length, WorldNames.Length);

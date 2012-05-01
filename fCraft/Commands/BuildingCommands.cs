@@ -88,7 +88,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdStatic );
 
             CommandManager.RegisterCommand(CdTree);
-            // CommandManager.RegisterCommand(CdDrawScheme);
             CommandManager.RegisterCommand(CdWalls);
             CommandManager.RegisterCommand(CdBanx);
             CommandManager.RegisterCommand(CdFly);
@@ -276,7 +275,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdFly = new CommandDescriptor
         {
             Name = "Fly",
-            Category = CommandCategory.Building,
+            Category = CommandCategory.Building | CommandCategory.Fun,
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/fly",

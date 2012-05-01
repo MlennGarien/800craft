@@ -71,7 +71,7 @@ namespace fCraft {
         {
             Name = "Ragequit",
             Aliases = new[] { "rq" },
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Chat | CommandCategory.Fun,
             IsConsoleSafe = false,
             Permissions = new[] { Permission.RageQuit },
             Usage = "/Ragequit [reason]",
@@ -102,7 +102,7 @@ namespace fCraft {
         {
             Name = "Bromode",
             Aliases = new string[] { "bm" },
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Chat | CommandCategory.Fun,
             Permissions = new[] { Permission.BroMode },
             IsConsoleSafe = true,
             Usage = "/Bromode",
@@ -153,7 +153,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdVote = new CommandDescriptor
         {
             Name = "Vote",
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Chat | CommandCategory.Fun,
             Permissions = new[] { Permission.Chat },
             IsConsoleSafe = false,
             NotRepeatable = true,
@@ -177,10 +177,10 @@ namespace fCraft {
             NotRepeatable = true,
             Usage = "/Customname Message",
             Help = "Broadcasts your message to all players allowed to read the CustomChatChannel.",
-            Handler = EngineerHandler
+            Handler = CustomChatHandler
         };
 
-        static void EngineerHandler(Player player, Command cmd)
+        static void CustomChatHandler(Player player, Command cmd)
         {
             if (player.Info.IsMuted)
             {
@@ -206,107 +206,66 @@ namespace fCraft {
         static readonly CommandDescriptor CdTroll = new CommandDescriptor
         {
             Name = "Troll",
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Chat | CommandCategory.Fun,
             Permissions = new[] { Permission.Troll },
             IsConsoleSafe = true,
             NotRepeatable = false,
             Usage = "/troll player option [Message]",
-            Help = "Does a little somthin'-somethin'.",
+            Help = "Does a little somthin'-somethin'.\n" +
+            " Available options: st, ac, pm, message or leave",
             Handler = TrollHandler
         };
 
         static void TrollHandler(Player player, Command cmd)
         {
             string Name = cmd.Next();
-            if (Name == null)
-            {
+            if (Name == null){
                 player.Message("Player not found. Please specify valid name.");
                 return;
             }
-
-            if (!Player.IsValidName(Name)) return;
-
+            if (!Player.IsValidName(Name)) 
+                return;
             Player target = Server.FindPlayerOrPrintMatches(player, Name, true, true);
-            Player refuse = Server.FindPlayerOrPrintMatches(player, "xanderortiz", false, true);
-
             if (target == null)
                 return;
-            if (target == refuse)
-            {
-                player.Message("&SImpersonating this name is forbidden");
+            string options = cmd.Next();
+            if (options == null){
+                CdTroll.PrintUsage(player);
                 return;
             }
-            string options = cmd.Next();
-            switch (options)
-            {
+            string Message = cmd.NextAll();
+            if (Message.Length < 1 && options.ToLower() != "leave"){
+                player.Message("&WError: Please enter a message for {0}.", target.ClassyName);
+                return;
+            }
+            switch (options.ToLower()){
                 case "pm":
-                    string msg = cmd.NextAll().Trim();
-
-                    if (msg.Length < 1)
-                    {
-                        player.Message("Error: Please enter a message for {0}.", target.ClassyName);
-                        return;
+                    if (player.Can(Permission.UseColorCodes) && Message.Contains("%")){
+                        Message = Color.ReplacePercentCodes(Message);
                     }
-
-                    else
-                    {
-                        if (player.Can(Permission.UseColorCodes) && msg.Contains("%"))
-                        {
-                            msg = Color.ReplacePercentCodes(msg);
-                        }
-                        Server.Players.Message("&Pfrom {0}: {1}", target.Name, msg);
-                    }
+                    Server.Players.Message("&Pfrom {0}: {1}", 
+                        target.Name, Message);
                     break;
                 case "ac":
-                    string msgAc = cmd.NextAll().Trim();
-
-
-                    if (msgAc.Length < 1)
-                    {
-                        player.Message("Error: Please enter a message for {0}.", target.ClassyName);
-                        return;
-                    }
-                    else
-                    {
-                        Chat.SendAdmin(target, msgAc);
-                    }
+                    Chat.SendAdmin(target, Message);
                     break;
-
                 case "st":
                 case "staff":
-                    string msgSc = cmd.NextAll().Trim();
-
-                    if (msgSc.Length < 1)
-                    {
-                        player.Message("Error: Please enter a message for {0}.", target.ClassyName);
-                        return;
-                    }
-                    else
-                    {
-                        Chat.SendStaff(target, msgSc);
-                    }
+                    Chat.SendStaff(target, Message);
                     break;
                 case "i":
                 case "impersonate":
                 case "msg":
                 case "message":
                 case "m":
-                    string msg2 = cmd.NextAll().Trim();
-
-                    if (msg2.Length > 0)
-                    {
-                        Server.Message("{0}&S&F: {1}",
-                                          target.ClassyName, msg2);
-                        return;
-                    }
-
-                    else
-                        player.Message("&SYou need to enter a message");
+                    Server.Message("{0}&S&F: {1}",
+                                      target.ClassyName, Message);
                     break;
                 case "leave":
                 case "disconnect":
                 case "gtfo":
-                    Server.Players.Message("&SPlayer {0}&S left the server.", target.ClassyName);
+                    Server.Players.Message("&SPlayer {0}&S left the server.", 
+                        target.ClassyName);
                     break;
                 default: player.Message("Invalid option. Please choose st, ac, pm, message or leave");
                     break;
@@ -330,21 +289,16 @@ namespace fCraft {
         internal static void Away(Player player, Command cmd)
         {
             string msg = cmd.NextAll().Trim();
-
-            if (player.Info.IsMuted)
-            {
+            if (player.Info.IsMuted){
                 player.MessageMuted();
                 return;
             }
-            if (msg.Length > 0)
-            {
+            if (msg.Length > 0){
                 Server.Message("{0}&S &Eis away &9({1})",
                                   player.ClassyName, msg);
                 player.IsAway = true;
                 return;
-            }
-            else
-            {
+            }else{
                 Server.Players.Message("&S{0} &Eis away &9(Away From Keyboard)", player.ClassyName);
                 player.IsAway = true;
             }
@@ -355,7 +309,7 @@ namespace fCraft {
         {
             Name = "High5",
             Aliases = new string[] { "h5" },
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Chat | CommandCategory.Fun,
             Permissions = new Permission[] { Permission.HighFive },
             IsConsoleSafe = true,
             Usage = "/High5 playername",
@@ -367,22 +321,16 @@ namespace fCraft {
         internal static void High5Handler(Player player, Command cmd)
         {
             string targetName = cmd.Next();
-
-            if (targetName == null)
-            {
+            if (targetName == null){
                 cdHigh5.PrintUsage(player);
                 return;
             }
-
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
-
-            if (target == null)
-            {
+            if (target == null){
                 player.MessageNoPlayer(targetName);
                 return;
             }
-            if (target == player)
-            {
+            if (target == player) {
                 player.Message("You cannot high five yourself.");
                 return;
             }
@@ -393,7 +341,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdPoke = new CommandDescriptor
         {
             Name = "Poke",
-            Category = CommandCategory.Chat,
+            Category = CommandCategory.Chat | CommandCategory.Fun,
             IsConsoleSafe = true,
             Usage = "/poke playername",
             Help = "Pokes a Player.",
@@ -404,34 +352,22 @@ namespace fCraft {
         internal static void PokeHandler(Player player, Command cmd)
         {
             string targetName = cmd.Next();
-            if (targetName == null)
-            {
+            if (targetName == null){
                 CdPoke.PrintUsage(player);
                 return;
             }
-
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
-
-            if (target == null)
-            {
+            if (target == null){
                 player.Message("Please enter the name of the player you want to poke.");
                 return;
             }
-
-            if (target == player)
-            {
+            if (target == player){
                 player.Message("You cannot poke yourself.");
                 return;
             }
-
-            if (!Player.IsValidName(targetName))
-            {
-                player.Message("Player not found. Please specify valid name.");
+            if (!Player.IsValidName(targetName)){
                 return;
-            }
-
-            else
-            {
+            }else{
                 target.Message("&8You were just poked by {0}",
                                   player.ClassyName);
                 player.Message("&8Successfully poked {0}", target.ClassyName);
@@ -451,12 +387,10 @@ namespace fCraft {
 
         internal static void Review(Player player, Command cmd)
         {
-            if (player.Info.IsMuted)
-            {
+            if (player.Info.IsMuted){
                 player.MessageMuted();
                 return;
             }
-
             var recepientList = Server.Players.Can(Permission.ReadStaffChat)
                                               .NotIgnoring(player)
                                               .Union(player);
@@ -465,8 +399,7 @@ namespace fCraft {
             var ReviewerNames = Server.Players
                                          .CanBeSeen(player)
                                          .Where(r => r.Can(Permission.Promote, player.Info.Rank));
-            if (ReviewerNames.Count() > 0)
-            {
+            if (ReviewerNames.Count() > 0){
                 player.Message("&WOnline players who can review you: {0}", ReviewerNames.JoinToString(r => String.Format("{0}&S", r.ClassyName)));
                 return;
             }
@@ -489,24 +422,18 @@ namespace fCraft {
 
         internal static void AdminChat(Player player, Command cmd)
         {
-            if (player.Info.IsMuted)
-            {
+            if (player.Info.IsMuted){
                 player.MessageMuted();
                 return;
             }
-
-            if (DateTime.UtcNow < player.Info.MutedUntil)
-            {
+            if (DateTime.UtcNow < player.Info.MutedUntil){
                 player.Message("You are muted for another {0:0} seconds.",
                                 player.Info.MutedUntil.Subtract(DateTime.UtcNow).TotalSeconds);
                 return;
             }
-
             string message = cmd.NextAll().Trim();
-            if (message.Length > 0)
-            {
-                if (player.Can(Permission.UseColorCodes) && message.Contains("%"))
-                {
+            if (message.Length > 0){
+                if (player.Can(Permission.UseColorCodes) && message.Contains("%")){
                     message = Color.ReplacePercentCodes(message);
                 }
                 Chat.SendAdmin(player, message);

@@ -79,56 +79,40 @@ namespace fCraft {
                                         Idles.JoinToString(r => String.Format("{0}", r.ClassyName)));
                     else player.Message("No players have been idle for more than 5 minutes");
                     break;
-
                 case "portals":
-                    if (player.World == null)
-                    {
+                    if (player.World == null){
                         player.Message("/List portals cannot be used from Console");
                         return;
                     }
-
-                    if (player.World.Portals == null || player.World.Portals.Count == 0)
-                    {
+                    if (player.World.Portals == null || 
+                        player.World.Portals.Count == 0){
                         player.Message("There are no portals in {0}&S.", player.World.ClassyName);
-                    }
-                    else
-                    {
+                    }else{
                         String[] portalNames = new String[player.World.Portals.Count];
                         StringBuilder output = new StringBuilder("There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: ");
 
-                        for (int i = 0; i < player.World.Portals.Count; i++)
-                        {
+                        for (int i = 0; i < player.World.Portals.Count; i++){
                             portalNames[i] = ((fCraft.Portals.Portal)player.World.Portals[i]).Name;
                         }
                         output.Append(portalNames.JoinToString(", "));
                         player.Message(output.ToString());
                     }
                     break;
-
                 case "staff":
                     var StaffNames = PlayerDB.PlayerInfoList
                                          .Where(r => r.Rank.Can(Permission.ReadStaffChat) &&
                                              r.Rank.Can(Permission.Ban) &&
                                              r.Rank.Can(Permission.Promote))
                                              .ToArray();
-
-                    if (StaffNames.Length <= PlayersPerPage)
-                    {
+                    if (StaffNames.Length <= PlayersPerPage){
                         player.MessageManyMatches("staff", StaffNames);
-                    }
-
-                    else
-                    {
+                    }else{
                         int offset;
-
                         if (!cmd.NextInt(out offset)) offset = 0;
-
                         if (offset >= StaffNames.Length)
                             offset = Math.Max(0, StaffNames.Length - PlayersPerPage);
-
                         PlayerInfo[] StaffPart = StaffNames.Skip(offset).Take(PlayersPerPage).ToArray();
                         player.MessageManyMatches("staff", StaffPart);
-
                         if (offset + StaffPart.Length < StaffNames.Length)
                             player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
                                             offset + 1, offset + StaffPart.Length, StaffNames.Length,
@@ -141,34 +125,23 @@ namespace fCraft {
 
                 case "rank":
                     string rankName = cmd.Next();
-                    if (rankName == null)
-                    {
+                    if (rankName == null){
                         player.Message("Usage: /List rank rankName");
                         return;
                     }
                     Rank rank = RankManager.FindRank(rankName);
-
                     var RankNames = PlayerDB.PlayerInfoList
                                          .Where(r => r.Rank == rank)
                                              .ToArray();
-
-                    if (RankNames.Length <= PlayersPerPage)
-                    {
+                    if (RankNames.Length <= PlayersPerPage){
                         player.MessageManyMatches("players", RankNames);
-                    }
-
-                    else
-                    {
+                    }else{
                         int offset;
-
                         if (!cmd.NextInt(out offset)) offset = 0;
-
                         if (offset >= RankNames.Length)
                             offset = Math.Max(0, RankNames.Length - PlayersPerPage);
-
                         PlayerInfo[] RankPart = RankNames.Skip(offset).Take(PlayersPerPage).ToArray();
                         player.MessageManyMatches("rank list", RankPart);
-
                         if (offset + RankPart.Length < RankNames.Length)
                             player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
                                             offset + 1, offset + RankPart.Length, RankNames.Length,
@@ -184,23 +157,15 @@ namespace fCraft {
                     var DisplayedNames = PlayerDB.PlayerInfoList
                                              .Where(r => r.DisplayedName != null).ToArray();
 
-                    if (DisplayedNames.Length <= 15)
-                {
+                 if (DisplayedNames.Length <= 15){
                     player.MessageManyDisplayedNamesMatches("DisplayedNames", DisplayedNames);
-                }
-
-                else
-                {
+                }else{
                     int offset;
-
                     if (!cmd.NextInt(out offset)) offset = 0;
-
                     if (offset >= DisplayedNames.Count())
                         offset = Math.Max(0, DisplayedNames.Length - 15);
-
                     PlayerInfo[] DnPart = DisplayedNames.Skip(offset).Take(15).ToArray();
-                    player.MessageManyDisplayedNamesMatches("DisplayedNames", DnPart); //here
-
+                    player.MessageManyDisplayedNamesMatches("DisplayedNames", DnPart);
                     if (offset + DisplayedNames.Length < DisplayedNames.Length)
                         player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
                                         offset + 1, offset + DnPart.Length, DisplayedNames.Length,

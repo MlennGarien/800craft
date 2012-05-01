@@ -43,7 +43,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdDoor = new CommandDescriptor
         {
-            Name = "door",
+            Name = "Door",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.Build },
             Help = "Creates door zone. Left click to open doors.",
@@ -66,7 +66,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor cdDoorRemove = new CommandDescriptor
         {
-            Name = "removedoor",
+            Name = "Removedoor",
             Aliases = new[] { "rd" },
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.Build },

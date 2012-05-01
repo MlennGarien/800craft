@@ -148,7 +148,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdKill = new CommandDescriptor
         {
             Name = "Kill",
-            Category = CommandCategory.Moderation,
+            Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = false,
             Permissions = new[] { Permission.Kill },
             Help = "Kills a player.",
@@ -160,8 +160,7 @@ namespace fCraft {
         internal static void KillHandler(Player player, Command cmd)
         {
             string name = cmd.Next();
-            if (name == null)
-            {
+            if (name == null){
                 player.Message("Please enter a name");
                 return;
             }
@@ -169,35 +168,24 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
 
-            if (target == player)
-            {
+            if (target == player){
                 player.Message("You suicidal bro?");
                 return;
             }
-
-            if ((DateTime.Now - player.Info.LastUsedKill).TotalSeconds < 10)
-            {
+            if ((DateTime.Now - player.Info.LastUsedKill).TotalSeconds < 10){
                 player.Message("&CYou can only kill once every 10 seconds. Slow down.");
                 return;
             }
-
-            if (target == null)
-            {
+            if (target == null){
                 player.Message("You need to enter a player name to Kill");
                 return;
-            }
-            else
-            {
-
-                if (player.Can(Permission.Kill, target.Info.Rank))
-                {
+            }else {
+                if (player.Can(Permission.Kill, target.Info.Rank)){
                     target.TeleportTo(player.World.Map.Spawn);
                     player.Info.LastUsedKill = DateTime.Now;
                     Server.Players.CanSee(target).Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
                     return;
-                }
-                else
-                {
+                }else{
                     player.Message("You can only Kill players ranked {0}&S or lower",
                                     player.Info.Rank.GetLimit(Permission.Kill).ClassyName);
                     player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
@@ -211,7 +199,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             NotRepeatable = true,
             Aliases = new[] { "sky" },
-            Category = CommandCategory.Moderation,
+            Category = CommandCategory.Moderation | CommandCategory.Fun,
             Permissions = new[] { Permission.Slap },
             Help = "Slaps a player to the sky.",
             Handler = Slap
@@ -220,40 +208,27 @@ namespace fCraft {
         static void Slap(Player player, Command cmd)
         {
             string name = cmd.Next();
-
-            if (name == null)
-            {
+            if (name == null){
                 player.Message("Please enter a name");
                 return;
             }
-
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-
             if (target == null) return;
-
-            if (target == player)
-            {
+            if (target == player){
                 player.Message("&sYou can't slap yourself.... What's wrong with you???");
                 return;
             }
-
-            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 10)
-            {
+            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 10){
                 player.Message("&CYou can only use /Slap once every 10 seconds. Slow down.");
                 return;
             }
-
-            if (player.Can(Permission.Slap, target.Info.Rank))
-            {
+            if (player.Can(Permission.Slap, target.Info.Rank)){
                 Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
                 target.TeleportTo(slap);
                 Server.Players.CanSee(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
-            }
-
-            else
-            {
+            }else{
                 player.Message("&sYou can only Slap players ranked {0}&S or lower",
                                player.Info.Rank.GetLimit(Permission.Slap).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
@@ -275,17 +250,12 @@ namespace fCraft {
         static void TPZone(Player player, Command cmd)
         {
             string zoneName = cmd.Next();
-            if (zoneName == null)
-            {
+            if (zoneName == null){
                 player.Message("No zone name specified. See &W/Help tpzone");
                 return;
-            }
-
-            else
-            {
+            }else{
                 Zone zone = player.World.Map.Zones.Find(zoneName);
-                if (zone == null)
-                {
+                if (zone == null){
                     player.MessageNoZone(zoneName);
                     return;
                 }
@@ -300,7 +270,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdImpersonate = new CommandDescriptor
         {
             Name = "Impersonate",
-            Category = CommandCategory.Moderation,
+            Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
@@ -357,86 +327,75 @@ namespace fCraft {
             string targetName = cmd.Next();
             string timeString = cmd.Next();
             TimeSpan duration;
-
-            try
-            {
-                // validate command parameters
-                if (targetName == null || !Player.IsValidName(targetName) ||
-                    timeString == null || !timeString.TryParseMiniTimespan(out duration) ||
-                    duration <= TimeSpan.Zero)
+            try{
+                if (String.IsNullOrEmpty(targetName) || String.IsNullOrEmpty(timeString) ||
+                !timeString.TryParseMiniTimespan(out duration) || duration <= TimeSpan.Zero)
                 {
-                    player.Message("Invalid input");
+                    CdTempBan.PrintUsage(player);
                     return;
                 }
-            }
-            catch (OverflowException)
-            {
+            }catch (OverflowException){
                 player.Message("TempBan: Given duration is too long.");
                 return;
             }
 
             // find the target
-            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetName);
 
-            if (target == null)
-            {
+            if (target == null){
                 player.MessageNoPlayer(targetName);
                 return;
             };
 
-            if (target == player)
-            {
+            if (target.Name == player.Name){
                 player.Message("Trying to T-Ban yourself? Fail!");
                 return;
             }
 
             // check permissions
-            if (!player.Can(Permission.BanIP, target.Info.Rank))
-            {
+            if (!player.Can(Permission.BanIP, target.Rank)){
                 player.Message("You can only Temp-Ban players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
-                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
+                player.Message("{0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName);
                 return;
             }
 
             // do the banning
-            if (target.Info.Tempban(player.Name, duration))
-            {
-                PlayerInfo targets = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetName);
-                if (targets == null) return;
+            if (target.Tempban(player.Name, duration)){
                 string reason = cmd.NextAll();
-                try
-                {
-                    Player targetPlayer = targets.PlayerObject;
-                    targets.Ban(player, "You were Banned for " + timeString, false, true);
+                try{
+                    Player targetPlayer = target.PlayerObject;
+                    target.Ban(player, "You were Banned for " + timeString, false, true);
                     Server.TempBans.Add(targetPlayer);
                 }
-                catch (PlayerOpException ex)
-                {
+                catch (PlayerOpException ex){
                     player.Message(ex.MessageColored);
                 }
-                Scheduler.NewTask(t => target.Info.Unban(player, "Tempban Expired", true, true)).RunOnce(duration);
-                Server.Message(target,
-                                "&SPlayer {0}&S was Banned by {1}&S for {2}",
+                Scheduler.NewTask(t => Untempban(player, target)).RunOnce(duration);
+                Server.Message("&SPlayer {0}&S was Banned by {1}&S for {2}",
                                 target.ClassyName, player.ClassyName, duration.ToMiniString());
                 if (reason.Length > 0) Server.Message("&Wreason: {0}", reason);
                 Logger.Log(LogType.UserActivity, "Player {0} was Banned by {1} for {2}",
                             target.Name, player.Name, duration.ToMiniString());
-            }
-
-            else
-            {
+            }else{
                 player.Message("Player {0}&S is already Banned by {1}&S for {2:0} more.",
                                 target.ClassyName,
-                                target.Info.MutedBy,
-                                target.Info.MutedUntil.Subtract(DateTime.UtcNow).ToMiniString());
+                                target.BannedBy,
+                                target.BannedUntil.Subtract(DateTime.UtcNow).ToMiniString());
             }
+        }
+
+        public static void Untempban(Player player, PlayerInfo target)
+        {
+            if (!target.IsBanned) return;
+            else
+                target.Unban(player, "Tempban Expired", true, true);
         }
 
         static readonly CommandDescriptor CdBasscannon = new CommandDescriptor
         {
             Name = "Basscannon",
-            Category = CommandCategory.Moderation,
+            Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
             Aliases = new[] { "bc" },
             IsHidden = false,
