@@ -221,20 +221,11 @@ namespace fCraft {
                                     worldName );
                     }
                 }
-                try
+                if ((tempAttr = envEl.Attribute("terrain")) != null)
                 {
-                    if (world.Terrain != null)
-                    {
-                        world.Terrain = envEl.Attribute("terrain").Value;
-                    }
+                    world.Terrain = envEl.Attribute("terrain").Value;
                 }
-                catch (WorldOpException ex)
-                {
-                    Logger.Log(LogType.Error,
-                                "WorldManager: Error adding terrain to \"{0}\": {1}",
-                                worldName, ex.Message);
-                    return;
-                }
+                
                 if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
                         world.FogColor = -1;
@@ -259,6 +250,7 @@ namespace fCraft {
                                     worldName );
                     }
                 }
+
                 if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
                     Block block = Map.GetBlockByName( tempAttr.Value );
                     if( block == Block.Undefined ) {
