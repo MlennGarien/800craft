@@ -38,10 +38,16 @@ namespace fCraft
 			: base(player)
 		{
 			string strFunc = cmd.Next();
-			if (IsNullOrWhiteSpace(strFunc))
-				throw new ArgumentException("empty equality expression");
-			if (strFunc.Length < 3)
-				throw new ArgumentException("expression is too short (should be like f(x,y,z)=g(x,y,z))");
+            if (IsNullOrWhiteSpace(strFunc))
+            {
+                player.Message("empty equality expression");
+                return;
+            }
+            if (strFunc.Length < 3)
+            {
+                player.Message("expression is too short (should be like f(x,y,z)=g(x,y,z))");
+                return;
+            }
 
 			strFunc = strFunc.ToLower();
 
