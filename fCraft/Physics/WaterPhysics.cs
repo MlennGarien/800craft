@@ -2,11 +2,114 @@
 using System.Linq;
 using System.Text;
 using fCraft.Events;
-using fCraft.Physics;
 using System.Threading;
+using Util = RandomMaze.MazeUtil;
 
-namespace fCraft.Physics
+namespace fCraft
 {
+    public class BlockSink : PhysicsTask
+    {
+        private const int Delay = 200;
+        private Vector3I _pos; //tnt position
+        private int _nextPos;
+        private bool _firstMove = true;
+        private Block type;
+        public BlockSink(World world, Vector3I position, Block Type)
+            : base(world)
+        {
+            _pos = position;
+            _nextPos = position.Z - 1;
+            type = Type;
+        }
+
+        protected override int PerformInternal()
+        {
+            lock (_world.SyncRoot)
+            {
+                if (_world.waterPhysics)
+                {
+                    if (_firstMove)
+                    {
+                        if (_world.Map.GetBlock(_pos) != type)
+                        {
+                            return 0;
+                        }
+                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                        {
+                            _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
+                            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                            _nextPos--;
+                            _firstMove = false;
+                            return Delay;
+                        }
+                    }
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos + 1) != type)
+                    {
+                        return 0;
+                    }
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                    {
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos + 1), Block.Water));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                        _nextPos--;
+                    }
+                }
+                return Delay;
+            }
+        }
+    }
+    public class BlockFloat : PhysicsTask
+    {
+        private const int Delay = 200;
+        private Vector3I _pos;
+        private int _nextPos;
+        private bool _firstMove = true;
+        private Block type;
+
+        public BlockFloat(World world, Vector3I position, Block Type)
+            : base(world)
+        {
+            _pos = position;
+            _nextPos = position.Z + 1;
+            type = Type;
+        }
+
+        protected override int PerformInternal()
+        {
+            lock (_world.SyncRoot)
+            {
+                if (_world.waterPhysics)
+                {
+                    if (_firstMove)
+                    {
+                        if (_world.Map.GetBlock(_pos) != type)
+                        {
+                            return 0;
+                        }
+                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                        {
+                            _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
+                            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                            _nextPos++;
+                            _firstMove = false;
+                            return Delay;
+                        }
+                    }
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos - 1) != type)
+                    {
+                        return 0;
+                    }
+                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
+                    {
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos - 1), Block.Water));
+                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                        _nextPos++;
+                    }
+                }
+                return Delay;
+            }
+        }
+    }
     class WaterPhysics
     {
         public static Thread waterThread;
@@ -82,45 +185,6 @@ namespace fCraft.Physics
                             }
                             e.Player.TowerCache.Clear();
                         }
-                    }
-                }
-            }
-        }
-        #endregion
-        #region PlacingBlock events
-        public static void blockFloat(object sender, Events.PlayerPlacingBlockEventArgs e)
-        {
-            World world = e.Player.World;
-            if (world.waterPhysics)
-            {
-                if (e.Context == BlockChangeContext.Manual)
-                {
-                    if (Physics.CanFloat(e.NewBlock))
-                    {
-                        world._physScheduler.AddTask(new BlockFloat(world, e.Coords, e.NewBlock), 200);
-                    }
-                }
-            }
-        }
-
-        public static void blockSink(object sender, Events.PlayerPlacingBlockEventArgs e)
-        {
-            World world = e.Player.World;
-            if (world.waterPhysics)
-            {
-                if (e.Context == BlockChangeContext.Manual)
-                {
-                    if (!Physics.CanFloat(e.NewBlock)
-                        && e.NewBlock != Block.Air
-                        && e.NewBlock != Block.Water
-                        && e.NewBlock != Block.Lava
-                        && e.NewBlock != Block.BrownMushroom
-                        && e.NewBlock != Block.RedFlower
-                        && e.NewBlock != Block.RedMushroom
-                        && e.NewBlock != Block.YellowFlower
-                        && e.NewBlock != Block.Plant)
-                    {
-                        world._physScheduler.AddTask(new BlockSink(world, e.Coords, e.NewBlock), 200);
                     }
                 }
             }

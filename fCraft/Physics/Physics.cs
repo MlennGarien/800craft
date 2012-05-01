@@ -38,36 +38,96 @@ namespace fCraft.Physics
         public static void Load()
         {
             Player.PlacingBlock += PlantPhysics.blockSquash;
-            Player.Clicked += ExplodingPhysics.TNTClick;
-            //Player.PlacingBlock += ExplodingPhysics.Firework;
-            Player.PlacingBlock += WaterPhysics.blockFloat;
-            Player.PlacingBlock += WaterPhysics.blockSink;
             SchedulerTask drownCheck = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(3));
             Player.PlacingBlock += WaterPhysics.towerInit;
             Player.Clicking += WaterPhysics.towerRemove;
+            Player.PlacedBlock += PlayerPlacedPhysics;
+            Player.Clicked += PlayerClickedPhysics;
         }
-        
-        //physics helpers & bools
 
-        public static bool MoveSand(Vector3I block, World world)
+        public static void PlayerClickedPhysics(object sender, Events.PlayerClickedEventArgs e)
         {
-            if (world.Map.GetBlock(new Vector3I(block.X, block.Y, block.Z)) != Block.Sand)
+            World world = e.Player.World;
+            if (world.Map.GetBlock(e.Coords) == Block.TNT)
             {
-                return false;
-            }
-            else
-            {
-                Block thisBlock = world.Map.GetBlock(block.X, block.Y, block.Z - 1);
-                if (BlockThrough(thisBlock))
+                lock (world.SyncRoot)
                 {
-                    return false;
+                    world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player), 0);
                 }
-
             }
-
-            return false;
+        }
+        public static void PlayerPlacedPhysics(object sender, PlayerPlacedBlockEventArgs e)
+        {
+            World world = e.Player.World;
+            if (Physics.CanFloat(e.NewBlock))
+            {
+                if (world.waterPhysics)
+                {
+                    if (e.Context == BlockChangeContext.Manual)
+                    {
+                        world._physScheduler.AddTask(new BlockFloat(world, e.Coords, e.NewBlock), 200);
+                        return;
+                    }
+                }
+            }
+            if (!Physics.CanFloat(e.NewBlock)
+                && e.NewBlock != Block.Air
+                && e.NewBlock != Block.Water
+                && e.NewBlock != Block.Lava
+                && e.NewBlock != Block.BrownMushroom
+                && e.NewBlock != Block.RedFlower
+                && e.NewBlock != Block.RedMushroom
+                && e.NewBlock != Block.YellowFlower
+                && e.NewBlock != Block.Plant)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    if (world.waterPhysics)
+                    {
+                        world._physScheduler.AddTask(new BlockSink(world, e.Coords, e.NewBlock), 200);
+                        return;
+                    }
+                }
+            }
+            if (e.NewBlock == Block.TNT)
+            {
+                if (world.tntPhysics)
+                {
+                    if (e.Context == BlockChangeContext.Manual)
+                    {
+                        lock (world.SyncRoot)
+                        {
+                            world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player), 3000);
+                        }
+                    }
+                }
+            }
+            if (e.NewBlock == Block.Sand || e.NewBlock == Block.Gravel)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    if (world.sandPhysics)
+                    {
+                        lock (world.SyncRoot)
+                        {
+                            world._physScheduler.AddTask(new SandTask(world, e.Coords, e.NewBlock), 150);
+                        }
+                    }
+                }
+            }
+            if (e.NewBlock == Block.Gold)
+            {
+                if (e.Context == BlockChangeContext.Manual)
+                {
+                    if (e.Player.fireworkMode && world.fireworkPhysics)
+                    {
+                        world._physScheduler.AddTask(new Firework(world, e.Coords), 300);
+                    }
+                }
+            }
         }
 
+        //physics helpers & bools
         public static bool CanSquash(Block block)
         {
             switch (block)
@@ -81,72 +141,6 @@ namespace fCraft.Physics
             }
             return false;
         }
-
-        //check
-        public static bool SetTileNoPhysics(int x, int y, int z, Block type, World world)
-        {
-            world.Map.Blocks[(z * world.Map.Height + y) * world.Map.Width + x] = (byte)type;
-            world.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, type));
-            return true;
-        }
-
-        public static bool BasicPhysics(Block type)
-        {
-            switch (type)
-            {
-                case Block.Water:
-                case Block.Lava:
-                case Block.Sponge:
-                case Block.Sand:
-                case Block.Gravel:
-                case Block.Plant:
-                case Block.TNT:
-                case Block.Dirt:
-                case Block.Grass:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public static bool Liquid(Block type)
-        {
-            switch (type)
-            {
-                case Block.Lava:
-                case Block.Water:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public static bool AffectedBySponges(Block type)
-        {
-            switch (type)
-            {
-                case Block.Water:
-                    return true;
-                case Block.Lava:
-                default:
-                    return false;
-            }
-        }
-
-        public static bool AffectedByGravity(Block type)
-        {
-            switch (type)
-            {
-                case Block.Sand:
-                case Block.Gravel:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        
-
 
         public static bool BlockThrough(Block block)
         {

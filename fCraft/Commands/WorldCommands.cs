@@ -59,51 +59,8 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdWorldSearch);
             SchedulerTask TimeCheckR = Scheduler.NewTask(TimeCheck).RunForever(TimeSpan.FromSeconds(120));
             CommandManager.RegisterCommand(CdPhysics);
-            Player.PlacedBlock += PlayerPlacedPhysics;
         }
         #region 800Craft
-
-        public static void PlayerPlacedPhysics(object sender, PlayerPlacedBlockEventArgs e)
-        {
-            World world = e.Player.World;
-            if (e.NewBlock == Block.TNT)
-            {
-                if (world.tntPhysics)
-                {
-                    if (e.Context == BlockChangeContext.Manual)
-                    {
-                        lock (world.SyncRoot)
-                        {
-                           world._physScheduler.AddTask(new TNTTask(world, e.Coords, e.Player), 5000);
-                        }
-                    }
-                }
-            }
-            if (e.NewBlock == Block.Sand || e.NewBlock == Block.Gravel)
-            {
-                if (e.Context == BlockChangeContext.Manual)
-                {
-                    if (world.sandPhysics)
-                    {
-                        lock (world.SyncRoot)
-                        {
-                            world._physScheduler.AddTask(new SandTask(world, e.Coords, e.NewBlock), 150);
-                        }
-                    }
-                }
-            }
-            if (e.NewBlock == Block.Gold)
-            {
-                if (e.Context == BlockChangeContext.Manual)
-                {
-                    if (e.Player.fireworkMode && world.fireworkPhysics)
-                    {
-                        world._physScheduler.AddTask(new Firework(world, e.Coords), 300);
-                    }
-                }
-            }
-        }
-        
         static readonly CommandDescriptor CdPhysics = new CommandDescriptor
         {
             Name = "Physics",

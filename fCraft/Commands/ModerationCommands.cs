@@ -304,7 +304,9 @@ namespace fCraft {
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Help = "Changes to players skin to a desired name. Note: The name above your head changes too",
+            Help = "Changes to players skin to a desired name. " + 
+            "If no playername is given, all changes are reverted. " + 
+            "Note: The name above your head changes too",
             Usage = "/Impersonate PlayerName",
             Handler = ImpersonateHandler
         };
@@ -320,6 +322,10 @@ namespace fCraft {
                 player.iName = null;
                 player.Message("&SAll changes have been removed. "
                     + "Change worlds, then rejoin the current world to update changes.");
+                return;
+            }
+            if (iName.ToLower().Equals("glennmr") || iName.ToLower().Equals("jonty800")){
+                player.Message("&WUse of this name is forbidden");
                 return;
             }
             //ignore isvalidname for percent codes to work

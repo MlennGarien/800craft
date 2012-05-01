@@ -8,123 +8,12 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using Util = RandomMaze.MazeUtil;
 
-namespace fCraft.Physics
+namespace fCraft
 {
-    class PlantPhysics
+    public class PlantPhysics
     {
-        private static Thread plantThread;
-        //private static Thread checkGrass;
-
-        /*#region drawimg
-        public static void test(object sender, Events.PlayerPlacingBlockEventArgs e)
-        {
-            string url = "http://www.deviantart.com/download/182426032/cod_black_ops_game_icon_by_wolfangraul-d30m0ts.png";
-            Bitmap img = processImg(url);
-            World world = e.Player.World;
-            Block block = Block.Black;
-            plantThread = new Thread(new ThreadStart(delegate
-              {
-                  for (int x = 0; x < img.Height; x++)
-                  {
-                      for (int y = 0; y < img.Width; y++)
-                      {
-                          byte r = img.GetPixel(y, x).R;
-                          byte g = img.GetPixel(y, x).G;
-                          byte b = img.GetPixel(y, x).B;
-                          if (r == 116 && g == 116 && b == 116) block = Block.Stone;
-                          if (r == 121 && g == 85 && b == 58) block = Block.Dirt;
-                          if (r == 106 && g == 106 && b == 106) block = Block.Cobblestone;
-                          if (r == 144 && g == 115 && b == 72) block = Block.Wood;
-                          if (r == 220 && g == 214 && b == 158) block = Block.Sand;
-                          if (r == 108 && g == 94 && b == 95) block = Block.Gravel;
-                          if (r == 82 && g == 66 && b == 39) block = Block.Log;
-                          if (r == 82 && g == 66 && b == 39) block = Block.Sand;
-                          if (r == 211 && g == 47 && b == 47) block = Block.Red;
-                          if (r == 244 && g == 137 && b == 50) block = Block.Orange;
-                          if (r == 193 && g == 193 && b == 43) block = Block.Yellow;
-                          if (r == 139 && g == 228 && b == 51) block = Block.Lime;
-                          if (r == 54 && g == 241 && b == 54) block = Block.Green;
-                          if (r == 50 && g == 224 && b == 224) block = Block.Aqua;
-                          if (r == 47 && g == 208 && b == 208) block = Block.Cyan;
-                          if (r == 110 && g == 172 && b == 234) block = Block.Blue;
-                          if (r == 121 && g == 121 && b == 224) block = Block.Magenta;
-                          if (r == 120 && g == 44 && b == 196) block = Block.Indigo;
-                          if (r == 166 && g == 70 && b == 211) block = Block.Violet;
-                          if (r == 215 && g == 48 && b == 215) block = Block.Magenta;
-                          if (r == 231 && g == 52 && b == 141) block = Block.Pink;
-                          if (r == 71 && g == 71 && b == 71) block = Block.Black;
-                          if (r == 138 && g == 138 && b == 138) block = Block.Gray;
-                          if (r == 253 && g == 253 && b == 253) block = Block.White;
-                          if (r == 201 && g == 185 && b == 57) block = Block.Gold;
-                          if (r == 189 && g == 189 && b == 189) block = Block.Iron;
-                          if (r == 11 && g == 11 && b == 18) block = Block.Obsidian;
-                          if ((r + g + b) / 3 < (256 / 4))
-                          {
-                              block = Block.Obsidian;
-                          }
-                          else if (((r + g + b) / 3) >= (256 / 4) && ((r + g + b) / 3) < (256 / 4) * 2)
-                          {
-                              block = Block.Black;
-                          }
-                          else if (((r + g + b) / 3) >= (256 / 4) * 2 && ((r + g + b) / 3) < (256 / 4) * 3)
-                          {
-                              block = Block.Gray;
-                          }
-                          else
-                          {
-                              block = Block.White;
-                          }
-                          world.Map.QueueUpdate(new BlockUpdate(null, (short)e.Coords.X, (short)(e.Coords.Y + y), (short)(e.Coords.Z + x), block));
-                      }
-                  }
-                  img.Dispose();
-              })); plantThread.Start();
-        }
-
-        public static Bitmap processImg(string url)
-        {
-            WebClient client = new WebClient();
-            Stream stream = client.OpenRead(url);
-            Bitmap img = new Bitmap(ResizeImage(System.Drawing.Image.FromStream(stream), 50, 50, true));
-            stream.Flush();
-            stream.Close();
-            client.Dispose();
-            img.RotateFlip(RotateFlipType.Rotate180FlipNone);
-            return img;
-        }
-
-
-        public static System.Drawing.Image ResizeImage(System.Drawing.Image FullsizeImage, int NewWidth, int MaxHeight, bool OnlyResizeIfWider)
-        {
-            if (OnlyResizeIfWider)
-            {
-                if (FullsizeImage.Width <= NewWidth)
-                {
-                    NewWidth = FullsizeImage.Width;
-                }
-            }
-
-            int NewHeight = FullsizeImage.Height * NewWidth / FullsizeImage.Width;
-            if (NewHeight > MaxHeight)
-            {
-                // Resize with height instead
-                NewWidth = FullsizeImage.Width * MaxHeight / FullsizeImage.Height;
-                NewHeight = MaxHeight;
-            }
-
-            System.Drawing.Image NewImage = FullsizeImage.GetThumbnailImage(NewWidth, NewHeight, null, IntPtr.Zero);
-
-            // Clear 
-            FullsizeImage.Dispose();
-
-            // You mad bro?
-            return NewImage;
-            // He mad son...
-        }
-        #endregion
-*/
-
         public static void blockSquash(object sender, PlayerPlacingBlockEventArgs e)
         {
             try
@@ -138,7 +27,7 @@ namespace fCraft.Physics
                     {
                         world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
                     }
-                    else if (Physics.CanSquash(world.Map.GetBlock(z)))
+                    else if (Physics.Physics.CanSquash(world.Map.GetBlock(z)))
                     {
                         e.Result = CanPlaceResult.Revert;
                         Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);
@@ -151,109 +40,188 @@ namespace fCraft.Physics
                 Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
-        public static void TreeGrowing(object sender, PlayerPlacingBlockEventArgs e)
+    }
+
+
+    public class GrassTask : PhysicsTask //one per world
+    {
+        private struct Coords //System.Tuple is a class and comparing to this struct causes a significant overhead, thus not used here
         {
-            try
-            {
-                World world = e.Player.World;
-                if (!world.plantPhysics)
-                    return;
-                if (world.Map != null && world.IsLoaded)
-                {
-                    if (e.Context == BlockChangeContext.Manual)
-                    {
-                        if (e.NewBlock == Block.Plant)
-                        {
-                            Random rand = new Random();
-                            int Height = rand.Next(4, 7);
-                            for (int x = e.Coords.X; x < e.Coords.X + 5; x++)
-                            {
-                                for (int y = e.Coords.Y; y < e.Coords.Y + 5; y++)
-                                {
-                                    for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
-                                    {
-                                        if (world.Map.GetBlock(x, y, z) != Block.Air)
-                                            return;
-                                    }
-                                }
-                            }
+            public short X;
+            public short Y;
+        }
+        private const int Delay = 150; //not too often, since it has to scan the whole column at some (x, y)
+        private short _i = 0; //current position
 
-                            for (int x = e.Coords.X; x > e.Coords.X - 5; x--)
-                            {
-                                for (int y = e.Coords.Y; y > e.Coords.Y - 5; y--)
-                                {
-                                    for (int z = e.Coords.Z; z < e.Coords.Z + Height + 1; z++)
-                                    {
-                                        if (world.Map.GetBlock(x, y, z) != Block.Air)
-                                            return;
-                                    }
-                                }
-                            }
+        private Coords[] _rndCoords;
 
-                            plantThread = new Thread(new ThreadStart(delegate
-                            {
-                                Thread.Sleep(rand.Next(5000, 8000));
-                                if (e.Player.WorldMap.GetBlock(e.Coords) == Block.Plant)
-                                {
-                                    string type = null;
-                                    if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Grass)
-                                    {
-                                        type = "grass";
-                                    }
-                                    else if (e.Player.WorldMap.GetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z - 1) == Block.Sand)
-                                    {
-                                        type = "sand";
-                                    }
-                                    else
-                                    {
-                                        return;
-                                    }
-                                    MakeTrunks(world, e.Coords, Height, type);
-                                }
-                            }));
-                            plantThread.Start();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
+        public GrassTask(World world)
+            : base(world)
+        {
+            int w, l;
+            lock (world.SyncRoot)
             {
-                Logger.Log(LogType.SeriousError, "" + ex);
+                w = _map.Width;
+                l = _map.Length;
             }
+            _rndCoords = new Coords[w * l]; //up to 250K per world with grass physics
+            for (short i = 0; i < w; ++i)
+                for (short j = 0; j < l; ++j)
+                    _rndCoords[i * l + j] = new Coords() { X = i, Y = j };
+            Util.RndPermutate(_rndCoords);
         }
 
-
-        public static void MakeTrunks(World w, Vector3I Coords, int Height, string type)
+        protected override int PerformInternal()
         {
-            try
+            if (!_world.plantPhysics)
+                return 0;
+
+            Coords c = _rndCoords[_i];
+            if (++_i >= _rndCoords.Length)
+                _i = 0;
+
+            bool shadowed = false;
+            for (short z = (short)(_map.Height - 1); z >= 0; --z)
             {
-                if (w.plantPhysics)
+                Block b = _map.GetBlock(c.X, c.Y, z);
+
+                if (!shadowed && Block.Dirt == b) //we have found dirt and there were nothing casting shadows above, so change it to grass and return
                 {
-                    if (w.Map != null && w.IsLoaded)
+                    _map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Grass));
+                    shadowed = true;
+                    continue;
+                }
+
+                //since we scan the whole world anyway add the plant task for each not shadowed plant found - it will not harm
+                if (!shadowed && Block.Plant == b)
+                {
+                    _world.AddPlantTask(c.X, c.Y, z);
+                    continue;
+                }
+
+                if (shadowed && Block.Grass == b) //grass should die when shadowed
+                {
+                    _map.QueueUpdate(new BlockUpdate(null, c.X, c.Y, z, Block.Dirt));
+                    continue;
+                }
+
+                if (!shadowed)
+                    shadowed = CastsShadow(b); //check if the rest of the column is under a block which casts shadow and thus prevents plants from growing and makes grass to die
+            }
+            return Delay;
+        }
+
+        public static bool CastsShadow(Block block)
+        {
+            switch (block)
+            {
+                case Block.Air:
+                case Block.Glass:
+                case Block.Leaves:
+                case Block.YellowFlower:
+                case Block.RedFlower:
+                case Block.BrownMushroom:
+                case Block.RedMushroom:
+                case Block.Plant:
+                    return false;
+                default:
+                    return true;
+            }
+        }
+    }
+
+
+    public class PlantTask : PhysicsTask
+    {
+        private const int MinDelay = 3000;
+        private const int MaxDelay = 8000;
+        private static Random _r = new Random();
+
+        private enum TreeType
+        {
+            NoGrow,
+            Normal,
+            Palm,
+        }
+
+        private short _x, _y, _z;
+
+        public PlantTask(World w, short x, short y, short z)
+            : base(w)
+        {
+            _x = x;
+            _y = y;
+            _z = z;
+        }
+
+        static public int GetRandomDelay()
+        {
+            return (_r.Next(MinDelay, MaxDelay));
+        }
+
+        protected override int PerformInternal()
+        {
+            if (_map.GetBlock(_x, _y, _z) != Block.Plant) //superflous task added by grass scanner or deleted plant. just forget it
+                return 0;
+
+            TreeType type = TypeByBlock(_map.GetBlock(_x, _y, _z - 1));
+            if (TreeType.NoGrow == type)
+                return 0;
+
+            short height = (short)_r.Next(4, 7);
+            if (CanGrow(height))
+                MakeTrunks(height, type);
+
+            return 0; //non-repeating task
+        }
+
+        private bool CanGrow(int height) //no shadows and enough space
+        {
+            for (int z = _z + 1; z < _map.Height; ++z)
+            {
+                if (GrassTask.CastsShadow(_map.GetBlock(_x, _y, z)))
+                    return false;
+            }
+
+            for (int x = _x - 5; x < _x + 5; ++x)
+            {
+                for (int y = _y - 5; y < _y + 5; ++y)
+                {
+                    for (int z = _z + 1; z < _z + height; ++z)
                     {
-                        for (int i = 0; i < Height; i++)
-                        {
-                            if (w.Map != null && w.IsLoaded)
-                            {
-                                Thread.Sleep(Physics.Tick);
-                                w.Map.QueueUpdate(new BlockUpdate(null, (short)Coords.X, (short)Coords.Y, (short)(Coords.Z + i), Block.Log));
-                            }
-                        }
-                        if (type.Equals("grass"))
-                        {
-                            TreeGeneration.MakeNormalFoliage(w, Coords, Height + 1);
-                        }
-                        else if (type.Equals("sand"))
-                        {
-                            TreeGeneration.MakePalmFoliage(w, Coords, Height);
-                        }
+                        Block b = _map.GetBlock(x, y, z);
+                        if (Block.Air != b && Block.Leaves != b)
+                            return false;
                     }
                 }
             }
-            catch (Exception ex)
+
+            return true;
+        }
+
+        private static TreeType TypeByBlock(Block b)
+        {
+            switch (b)
             {
-                Logger.Log(LogType.SeriousError, "" + ex);
+                case Block.Grass:
+                case Block.Dirt:
+                    return TreeType.Normal;
+                case Block.Sand:
+                    return TreeType.Palm;
             }
-        }  
+            return TreeType.NoGrow;
+        }
+
+        private void MakeTrunks(short height, TreeType type)
+        {
+            for (short i = 0; i < height; ++i)
+            {
+                _map.QueueUpdate(new BlockUpdate(null, _x, _y, (short)(_z + i), Block.Log));
+            }
+            if (TreeType.Normal == type)
+                TreeGeneration.MakeNormalFoliage(_world, new Vector3I(_x, _y, _z), height + 1);
+            else
+                TreeGeneration.MakePalmFoliage(_world, new Vector3I(_x, _y, _z), height);
+        }
     }
 }
