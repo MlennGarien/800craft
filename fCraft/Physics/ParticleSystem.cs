@@ -179,7 +179,7 @@ namespace fCraft
         {
             foreach (Player p in _world.Players)
             {
-                if (p.CanBeKilled() && p.Position.DistanceSquaredTo(_pos.ToPlayerCoords()) <= 32 * 32) //less or equal than a block
+                if (p.CanBeKilled() && p.Position.DistanceSquaredTo(_pos.ToPlayerCoords()) <= 33 * 33) //less or equal than a block
                     _behavior.HitPlayer(_world, p, _owner, ref _restDistance);
             }
         }
@@ -228,7 +228,7 @@ namespace fCraft
 
         public void HitPlayer(World world, Player hitted, Player by, ref int restDistance)
         {
-            hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, by.ClassyName));
+			hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "self" : by.ClassyName));
         }
     }
 }

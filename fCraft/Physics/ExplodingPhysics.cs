@@ -112,19 +112,9 @@ namespace fCraft
                     UpdateMap(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z, Block.Lava));
                     foreach (Player p in _world.Players)
                     {
-                        if ((p.Position.X / 32) == pt.X || (p.Position.X / 32 + 1) == pt.X || (p.Position.X / 32 - 1) == pt.X)
-                        {
-                            if ((p.Position.Y / 32) == pt.Y || (p.Position.Y / 32 + 1) == pt.Y || (p.Position.Y / 32 - 1) == pt.Y)
-                            {
-                                if ((p.Position.Z / 32) == pt.Z || (p.Position.Z / 32 + 1) == pt.Z || (p.Position.Z / 32 - 1) == pt.Z)
-                                {
-                                   if (p.CanBeKilled()) //less or equal than a block
-                                        HitPlayer(_world, p, _owner);
-                                }
-                            }
-                        }
+						if (p.CanBeKilled() && p.Position.DistanceSquaredTo((new Vector3I(pt.X, pt.Y, pt.Z)).ToPlayerCoords()) <= 64 * 64) //less or equal than 2 blocks
+							HitPlayer(_world, p, _owner);
                     }
-
                 }
             }
 
@@ -162,36 +152,9 @@ namespace fCraft
             _explosion.Add(new BData() { X = x, Y = y, Z = z, PrevBlock = _map.GetBlock(x, y, z) });
         }
 
-        public int ProcessingStepsPerSecond
-        {
-            get { return 20; }
-        }
-
-        public int MaxDistance
-        {
-            get { return _r.Next(4, 10); }
-
-        }
-
-        public int MovesPerProcessingStep
-        {
-            get { return 2; }
-        }
-
-        public void ModifyDirection(ref Vector3F direction, Block currentBlock)
-        {
-
-        }
-
-        
-        public bool CanKillPlayer
-        {
-            get { return true; }
-        }
-
         public void HitPlayer(World world, Player hitted, Player by)
         {
-            hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, by.ClassyName));
+			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName==by.ClassyName?"self":by.ClassyName));
         }
     }
 

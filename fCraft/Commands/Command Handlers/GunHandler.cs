@@ -119,8 +119,8 @@ namespace fCraft
                 if (e.Player.GunCache.Values.Contains(e.Coords))
                 {
                     e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass));
-                    world._physScheduler.AddTask(new Bullet(world, e.Coords, e.Player.Position, e.Player), 0);
-
+					if (e.Player.LastUsedBlockType!=Block.TNT || e.Player.CanFireTNT()) 
+						world._physScheduler.AddTask(new Bullet(world, e.Coords, e.Player.Position, e.Player), 0);
                 }
             }
         }
