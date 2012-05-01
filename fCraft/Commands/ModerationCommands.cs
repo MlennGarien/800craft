@@ -68,10 +68,34 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdDisconnect);
             CommandManager.RegisterCommand(CdModerate);
             CommandManager.RegisterCommand(CdImpersonate);
+            CommandManager.RegisterCommand(CdImmortal);
         }
         #region 800Craft
         public static List<string> BassText = new List<string>();
 
+        static readonly CommandDescriptor CdImmortal = new CommandDescriptor
+        {
+            Name = "Immortal",
+            Aliases = new [] { "Invincible", "God" },
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Immortal },
+            Help = "Stops death by all things.",
+            NotRepeatable = true,
+            Usage = "/Immortal",
+            Handler = ImmortalHandler
+        };
+
+        internal static void ImmortalHandler(Player player, Command cmd)
+        {
+            if (player.Immortal){
+                player.Immortal = false;
+                Server.Players.Message("{0}&S is no longer Immortal", player.ClassyName);
+                return;
+            }
+            player.Immortal = true;
+            Server.Players.Message("{0}&S is now Immortal", player.ClassyName);
+        }
         static readonly CommandDescriptor CdModerate = new CommandDescriptor
         {
             Name = "Moderate",
@@ -149,6 +173,7 @@ namespace fCraft {
         {
             Name = "Kill",
             Category = CommandCategory.Moderation | CommandCategory.Fun,
+            Aliases = new[] { "Slay" },
             IsConsoleSafe = false,
             Permissions = new[] { Permission.Kill },
             Help = "Kills a player.",
@@ -167,6 +192,11 @@ namespace fCraft {
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
+            if (target.Immortal)
+            {
+                player.Message("&SYou failed to kill {0}&S, they are immortal", target.ClassyName);
+                return;
+            }
 
             if (target == player){
                 player.Message("You suicidal bro?");
@@ -198,7 +228,7 @@ namespace fCraft {
             Name = "Slap",
             IsConsoleSafe = true,
             NotRepeatable = true,
-            Aliases = new[] { "sky" },
+            Aliases = new[] { "Sky" },
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             Permissions = new[] { Permission.Slap },
             Help = "Slaps a player to the sky.",
@@ -214,6 +244,11 @@ namespace fCraft {
             }
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
+            if (target.Immortal)
+            {
+                player.Message("&SYou failed to slap {0}&S, they are immortal", target.ClassyName);
+                return;
+            }
             if (target == player){
                 player.Message("&sYou can't slap yourself.... What's wrong with you???");
                 return;

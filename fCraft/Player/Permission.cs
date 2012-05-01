@@ -235,7 +235,10 @@ namespace fCraft {
         Games,
 
         /// <summary> Permission to create a server-wide silence, muting all players, and to voice players while the moderation is in affect. </summary>
-        Moderation
+        Moderation,
+
+        /// <summary> Allows a player to become immortal, immune to all damage </summary>
+        Immortal
 
     }
 }

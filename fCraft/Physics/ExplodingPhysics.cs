@@ -219,8 +219,10 @@ namespace fCraft
                     if (_world.Map.GetBlock(_pos.X, _pos.Y, _z) != Block.Air || _count >= _height)
                     {
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 1), Block.Air));
+                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _z - 2) == Block.Lava)
+                        {
                             _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_z - 2), Block.Air));
-                        
+                        }
 
                         Random rand = new Random();
                         int blockId = new Random().Next(1, 9);

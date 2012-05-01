@@ -82,20 +82,26 @@ namespace fCraft
                                     {
                                         if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
                                         {
-                                            _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, true), 0);
-                                           // removal(bullets, _world.Map); no need, physics removes this
-                                            hit = true;
+                                            if (player.CanBeKilled()) //keep going if not
+                                            {
+                                                _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, true), 0);
+                                                // removal(bullets, _world.Map); no need, physics removes this
+                                                hit = true;
+                                            }
                                         }
                                     }
                                     else
                                     {
                                         if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
                                         {
-                                            player.LastTimeKilled = DateTime.Now;
-                                            _world.Players.Message("{0}&S was shot by {1}", player.ClassyName, _sender.ClassyName);
-                                            player.TeleportTo(_world.Map.Spawn);
-                                            removal(bullets, _world.Map);
-                                            hit = true;
+                                            if (player.CanBeKilled())
+                                            {
+                                                player.LastTimeKilled = DateTime.Now;
+                                                _world.Players.Message("{0}&S was shot by {1}", player.ClassyName, _sender.ClassyName);
+                                                player.TeleportTo(_world.Map.Spawn);
+                                                removal(bullets, _world.Map);
+                                                hit = true;
+                                            }
                                         }
                                     }
                                 }

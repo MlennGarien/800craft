@@ -358,7 +358,11 @@ namespace fCraft {
             }
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
             if (target == null){
-                player.Message("Please enter the name of the player you want to poke.");
+                return;
+            }
+            if (target.Immortal)
+            {
+                player.Message("&SYou failed to poke {0}&S, they are immortal", target.ClassyName);
                 return;
             }
             if (target == player){

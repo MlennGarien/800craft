@@ -166,6 +166,7 @@ namespace fCraft {
         public bool fireworkMode = false;
 
         public DateTime LastTimeKilled;
+        public bool Immortal = false;
 
         //general purpose state storage for plugins
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
@@ -183,6 +184,7 @@ namespace fCraft {
         public bool PortalsEnabled = true;
         public bool CanBeKilled()
         {
+            if (Immortal) return false;
             if (LastTimeKilled != null)
             {
                 if ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15)
@@ -1061,7 +1063,6 @@ namespace fCraft {
             inWorld.Players.Message(message);
             TeleportTo(inWorld.Map.Spawn);
         } 
-
 
         /// <summary>  Gets the block from given location in player's world, and sends it (sync) to the player.
         /// Used to undo player's attempted block placement/deletion.

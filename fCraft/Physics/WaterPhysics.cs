@@ -195,7 +195,7 @@ namespace fCraft
         {
             try
             {
-                foreach (Player p in Server.Players)
+                foreach (Player p in Server.Players.Where(p=> !p.Immortal))
                 {
                     if (p.World != null) //ignore console
                     {
