@@ -141,10 +141,6 @@ namespace fCraft
             List<BlockUpdate> updates = new List<BlockUpdate>();
             for (int i = 0; i < _behavior.MovesPerProcessingStep && _restDistance > 0; ++i)
             {
-                if (i == 3)
-                {
-                   _block = _owner.LastUsedBlockType;
-                }
                 _pos = Move();
                 _prevBlock = _map.GetBlock(_pos);
 
@@ -241,7 +237,7 @@ namespace fCraft
 
 		public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
         {
-			hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "self" : by.ClassyName));
+			hitted.Kill(world, String.Format("{0}&S was blown up by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "theirself" : by.ClassyName));
         }
     }
 

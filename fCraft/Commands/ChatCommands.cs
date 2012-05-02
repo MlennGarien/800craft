@@ -85,14 +85,14 @@ namespace fCraft {
 
             if (reason.Length < 1)
             {
-                Server.Players.Message("{0} &4RageQuit from the server", player.ClassyName);
-                player.Kick(Player.Console, "RageQuit", LeaveReason.RageQuit, false, false, false);
+                Server.Players.Message("{0} &4Ragequit from the server", player.ClassyName);
+                player.Kick(Player.Console, "Ragequit", LeaveReason.RageQuit, false, false, false);
                 return;
             }
 
             else
             {
-                Server.Players.Message("{0} &4RageQuit from the server: &C{1}",
+                Server.Players.Message("{0} &4Ragequit from the server: &C{1}",
                                 player.ClassyName, reason);
                 player.Kick(Player.Console, reason, LeaveReason.RageQuit, false, false, false);
             }

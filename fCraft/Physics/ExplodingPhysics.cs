@@ -154,7 +154,7 @@ namespace fCraft
 
         public void HitPlayer(World world, Player hitted, Player by)
         {
-			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName==by.ClassyName?"self":by.ClassyName));
+			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName==by.ClassyName?"theirself":by.ClassyName));
         }
     }
 
