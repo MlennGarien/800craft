@@ -182,19 +182,25 @@ namespace fCraft {
         public DateTime DrownTime;
         public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
+    	public DateTime LastTimeTNTFired=DateTime.MinValue;
         public bool CanBeKilled()
         {
             if (Immortal) return false;
-            if (LastTimeKilled != null)
+			if ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15)
             {
-                if ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15)
-                {
-                    return false;
-                }
-                return true;
+                return false;
             }
             return true;
         }
+		//note that this method updates the fired time, assuming that following this check the TNT will be fired
+		//this is a bad design generally, but sometimes its tempting to dont give a fuck
+		public bool CanFireTNT()
+		{
+			bool ret= (DateTime.UtcNow - LastTimeTNTFired) > TimeSpan.FromSeconds(1);
+			if (ret)
+				LastTimeTNTFired = DateTime.UtcNow;
+			return ret;
+		}
         public string iName = null;
 
 

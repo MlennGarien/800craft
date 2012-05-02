@@ -32,6 +32,14 @@ namespace fCraft
             startZ = (short)startPos.Z;
             nextPos.R = playerPos.R;
             nextPos.L = playerPos.L;
+
+			_type = Block.Admincrete;
+			if (_sender.LastUsedBlockType == Block.Orange)
+				_type = Block.Lava;
+			if (_sender.LastUsedBlockType == Block.Blue)
+				_type = Block.Water;
+			if (_sender.LastUsedBlockType == Block.TNT)
+				_type = Block.TNT;
         }
 
         protected override int PerformInternal()
@@ -44,17 +52,6 @@ namespace fCraft
                 {
                     return 0;
                 }
-                if (_type == Block.Undefined)
-                {
-                    _type = Block.Admincrete;
-                    if (_sender.LastUsedBlockType == Block.Orange)
-                        _type = Block.Lava;
-                    if (_sender.LastUsedBlockType == Block.Blue)
-                        _type = Block.Water;
-                    if (_sender.LastUsedBlockType == Block.TNT)
-                        _type = Block.TNT;
-                }
-                hit = false;
                 rSin = Math.Sin(((double)(128 - p.R) / 255) * 2 * Math.PI);
                 rCos = Math.Cos(((double)(128 - p.R) / 255) * 2 * Math.PI);
                 lCos = Math.Cos(((double)(p.L + 64) / 255) * 2 * Math.PI);
@@ -72,39 +69,19 @@ namespace fCraft
                         _type));
                     foreach (Player player in _world.Players)
                     {
-                        if ((player.Position.X / 32) == nextPos.X || (player.Position.X / 32 + 1) == nextPos.X || (player.Position.X / 32 - 1) == nextPos.X)
-                        {
-                            if ((player.Position.Y / 32) == nextPos.Y || (player.Position.Y / 32 + 1) == nextPos.Y || (player.Position.Y / 32 - 1) == nextPos.Y)
+                        if (player.CanBeKilled() && player.Position.DistanceSquaredTo((new Vector3I(nextPos.X, nextPos.Y, nextPos.Z)).ToPlayerCoords()) <= 48 * 48) //less or equal than a 1.5 block
+						{
+							if (_world.tntPhysics && _type == Block.TNT)
                             {
-                                if ((player.Position.Z / 32) == nextPos.Z || (player.Position.Z / 32 + 1) == nextPos.Z || (player.Position.Z / 32 - 1) == nextPos.Z)
-                                {
-                                    if (_world.tntPhysics && _type == Block.TNT)
-                                    {
-                                        if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
-                                        {
-                                            if (player.CanBeKilled()) //keep going if not
-                                            {
-                                                _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, true), 0);
-                                                // removal(bullets, _world.Map); no need, physics removes this
-                                                hit = true;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (player.LastTimeKilled == null || (DateTime.Now - player.LastTimeKilled).TotalSeconds > 15)
-                                        {
-                                            if (player.CanBeKilled())
-                                            {
-                                                player.LastTimeKilled = DateTime.Now;
-                                                _world.Players.Message("{0}&S was shot by {1}", player.ClassyName, _sender.ClassyName);
-                                                player.TeleportTo(_world.Map.Spawn);
-                                                removal(bullets, _world.Map);
-                                                hit = true;
-                                            }
-                                        }
-                                    }
-                                }
+								_world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, true), 0);
+                                // removal(bullets, _world.Map); no need, physics removes this
+                                hit = true;
+                            }
+                            else
+                            {
+                                player.Kill(_world, String.Format("{0}&S was shot by {1}", player.ClassyName, _sender.ClassyName));
+                                removal(bullets, _world.Map);
+                                hit = true;
                             }
                         }
                     }

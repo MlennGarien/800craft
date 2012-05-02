@@ -110,6 +110,9 @@ namespace fCraft
                 Logger.Log(LogType.SeriousError, "" + ex);
             }
         }
+
+		private static TntBulletBehavior _tntBulletBehavior=new TntBulletBehavior();
+
         public static void ClickedGlass(object sender, PlayerClickingEventArgs e)
         {
             if (e.Player.GunMode)
@@ -119,8 +122,19 @@ namespace fCraft
                 if (e.Player.GunCache.Values.Contains(e.Coords))
                 {
                     e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass));
-                    world._physScheduler.AddTask(new Bullet(world, e.Coords, e.Player.Position, e.Player), 0);
-
+					if (e.Player.LastUsedBlockType == Block.TNT)
+					{
+						if (e.Player.CanFireTNT())
+						{
+							double ksi = 2.0*Math.PI*(-e.Player.Position.L)/256.0;
+							double r = Math.Cos(ksi);
+							double phi = 2.0*Math.PI*(e.Player.Position.R - 64)/256.0;
+							Vector3F dir = new Vector3F((float) (r*Math.Cos(phi)), (float) (r*Math.Sin(phi)), (float) (Math.Sin(ksi)));
+							world.AddTask(new Particle(world, e.Coords, dir, e.Player, Block.TNT, _tntBulletBehavior), 0);
+						}
+					}
+					else
+						world.AddTask(new Bullet(world, e.Coords, e.Player.Position, e.Player), 0);
                 }
             }
         }
