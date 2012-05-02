@@ -122,7 +122,7 @@ namespace fCraft
                 if (e.Player.GunCache.Values.Contains(e.Coords))
                 {
                     e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass));
-					if (e.Player.LastUsedBlockType == Block.TNT)
+					if (e.Player.LastUsedBlockType == Block.TNT && world.tntPhysics)
 					{
 						if (e.Player.CanFireTNT())
 						{
@@ -130,7 +130,8 @@ namespace fCraft
 							double r = Math.Cos(ksi);
 							double phi = 2.0*Math.PI*(e.Player.Position.R - 64)/256.0;
 							Vector3F dir = new Vector3F((float) (r*Math.Cos(phi)), (float) (r*Math.Sin(phi)), (float) (Math.Sin(ksi)));
-							world.AddTask(new Particle(world, e.Coords, dir, e.Player, Block.TNT, _tntBulletBehavior), 0);
+                            Vector3I start = new Vector3I((short)(e.Coords.X +(r * Math.Cos(phi)) * 3), (short)(e.Coords.Y +(r * Math.Sin(phi)) * 3), (short)(e.Coords.Z+ (Math.Sin(ksi) * 3)));
+							world.AddTask(new Particle(world, start, dir, e.Player, Block.TNT, _tntBulletBehavior), 0);
 						}
 					}
 					else

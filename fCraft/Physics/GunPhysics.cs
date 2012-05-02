@@ -91,7 +91,6 @@ namespace fCraft
                     //tnt
                     if (_world.tntPhysics && _type == Block.TNT)
                     {
-                        int seed = new Random().Next(1, 6);
                         _world._physScheduler.AddTask(new TNTTask(_world, new Vector3I(nextPos.X, nextPos.Y, nextPos.Z), _sender, true), 0);
                         removal(bullets, _world.Map);
                         hit = true;
