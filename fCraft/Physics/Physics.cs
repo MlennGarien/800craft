@@ -41,7 +41,7 @@ namespace fCraft.Physics
             SchedulerTask drownCheck = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(3));
             Player.PlacingBlock += WaterPhysics.towerInit;
             Player.Clicking += WaterPhysics.towerRemove;
-            Player.PlacedBlock += PlayerPlacedPhysics;
+            Player.PlacingBlock += PlayerPlacingPhysics;
             Player.Clicked += PlayerClickedPhysics;
         }
 
@@ -56,7 +56,7 @@ namespace fCraft.Physics
                 }
             }
         }
-        public static void PlayerPlacedPhysics(object sender, PlayerPlacedBlockEventArgs e)
+        public static void PlayerPlacingPhysics(object sender, PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
             if (e.NewBlock == Block.Gold)
@@ -65,6 +65,13 @@ namespace fCraft.Physics
                 {
                     if (e.Player.fireworkMode && world.fireworkPhysics)
                     {
+                        if (world.FireworkCount > 10)
+                        {
+                            e.Result = CanPlaceResult.Revert;
+                            e.Player.Message("&WThere are too many active fireworks on this world");
+                            return;
+                        }
+                        world.FireworkCount++;
                         world.AddTask(new Firework(world, e.Coords), 300);
                     }
                 }

@@ -14,8 +14,7 @@
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>ServerGUI.ico</ApplicationIcon>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -141,7 +140,6 @@
     <Compile Include="Games\MineChallenge.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
-    <Compile Include="Physics\GunPhysics.cs" />
     <Compile Include="Physics\ParticleSystem.cs" />
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Physics\PhysicsScheduler.cs" />
@@ -325,7 +323,9 @@
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="ServerGUI.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

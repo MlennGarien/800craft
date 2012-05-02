@@ -15,7 +15,7 @@ namespace fCraft
         void ModifyDirection(ref Vector3F direction, Block currentBlock /*etc*/);
 
 		//false if stopped
-        bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates);
+        bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates, Block Sending);
         bool CanKillPlayer { get; }
 		void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates);
     }
@@ -115,13 +115,19 @@ namespace fCraft
                 }
             }
         }
-
         protected override int PerformInternal()
         {
             //lock is done already
             if (Block.Undefined == _prevBlock) //created out of bounds, dont continue
                 return 0;
-
+            //fix for portal gun
+            if (_owner.orangePortal.Count > 0){
+                if (_pos == _owner.orangePortal[0] || _pos == _owner.orangePortal[1])
+                    return 0;
+            }if (_owner.bluePortal.Count > 0){
+                if (_pos == _owner.bluePortal[0] || _pos == _owner.bluePortal[1])
+                    return 0;
+            }
 
             //delete at the previous position, restore water unconditionally, lava only when bullet is still there to prevent restoration of explosion lava
             if (_prevBlock != Block.Water)
@@ -135,6 +141,10 @@ namespace fCraft
             List<BlockUpdate> updates = new List<BlockUpdate>();
             for (int i = 0; i < _behavior.MovesPerProcessingStep && _restDistance > 0; ++i)
             {
+                if (i == 3)
+                {
+                   _block = _owner.LastUsedBlockType;
+                }
                 _pos = Move();
                 _prevBlock = _map.GetBlock(_pos);
 
@@ -146,7 +156,7 @@ namespace fCraft
 
                 _behavior.ModifyDirection(ref _direction, _prevBlock); //e.g. if you want it to be dependent on gravity or change direction depending on current block etc
 
-                if (_behavior.VisitBlock(_world, _pos, _prevBlock, _owner, ref _restDistance, updates) && _behavior.CanKillPlayer)
+                if (_behavior.VisitBlock(_world, _pos, _prevBlock, _owner, ref _restDistance, updates, _block) && _behavior.CanKillPlayer)
                     CheckHitPlayers(updates);
             }
 
@@ -212,7 +222,7 @@ namespace fCraft
         }
 
 		//true if not stopped
-        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates)
+        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates, Block sending)
         {
 			if (Block.TNT == block) //explode it
 			{
@@ -235,9 +245,8 @@ namespace fCraft
         }
     }
 
-	internal class TntBulletBehavior : IParticleBehavior
+	internal class BulletBehavior : IParticleBehavior
 	{
-		private static Random _r = new Random();
 
 		public int ProcessingStepsPerSecond
 		{
@@ -246,7 +255,7 @@ namespace fCraft
 
 		public int MaxDistance
 		{
-			get { return 1024; }
+			get { return 100; }
 		}
 
 		public int MovesPerProcessingStep
@@ -258,23 +267,118 @@ namespace fCraft
 		private const double G = 10; //blocks per second per second
 		public void ModifyDirection(ref Vector3F direction, Block currentBlock)
 		{
-			double t = 1.0/(ProcessingStepsPerSecond*MovesPerProcessingStep);
-			Vector3F v = direction*(ProcessingStepsPerSecond*MovesPerProcessingStep);
-			Vector3F dv=new Vector3F(0, 0, (float)(-G*t));
-			direction = (v + dv).Normalize();
-		}
 
-		public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates)
-		{
-			if (Block.Air != block && Block.Water != block) //explode it
-			{
-				updates.Add(new BlockUpdate(null, pos, Block.TNT));
-				world.AddTask(new TNTTask(world, pos, owner, false), 0);
-				restDistance = 0;
-				return false;
-			}
-			return true;
 		}
+        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates, Block sending)
+        {
+            if (Block.Air != block) //hit a building
+            {
+                if (owner.bluePortal.Count > 0)
+                {
+                    if (pos == owner.bluePortal[0] || pos == owner.bluePortal[1])
+                    {
+                        return false;
+                    }
+                }
+                if (owner.orangePortal.Count > 0)
+                {
+                    if (pos == owner.orangePortal[0] || pos == owner.orangePortal[1])
+                    {
+                        return false;
+                    }
+                }
+                //blue portal
+                if (sending == Block.Water)
+                {
+                    if (CanPlacePortal(pos.X, pos.Y, pos.Z, world.Map))
+                    {
+                        if (owner.bluePortal.Count > 0)
+                        {
+                            int i = 0;
+                            foreach (Vector3I b in owner.bluePortal)
+                            {
+                                world.Map.QueueUpdate(new BlockUpdate(null, b, owner.blueOld[i]));
+                                i++;
+                            }
+                            owner.blueOld.Clear();
+                            owner.bluePortal.Clear();
+                        }
+
+                        owner.blueOld.Add(world.Map.GetBlock(pos));
+                        owner.blueOld.Add(world.Map.GetBlock(pos.X, pos.Y, pos.Z + 1));
+                        owner.orangeOut = owner.Position.R;
+                        for (double z = pos.Z; z < pos.Z + 2; z++)
+                        {
+                            world.Map.QueueUpdate(new BlockUpdate(null, (short)(pos.X), (short)(pos.Y), (short)z, Block.Water));
+                            owner.bluePortal.Add(new Vector3I((int)pos.X, (int)pos.Y, (int)z));
+                        }
+                        return false;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                    //orange portal
+                else if (sending == Block.Lava)
+                {
+                    if (CanPlacePortal(pos.X, pos.Y, pos.Z, world.Map))
+                    {
+                        if (owner.orangePortal.Count > 0)
+                        {
+                            int i = 0;
+                            foreach (Vector3I b in owner.orangePortal)
+                            {
+                                world.Map.QueueUpdate(new BlockUpdate(null, b, owner.orangeOld[i]));
+                                i++;
+                            }
+                            owner.orangeOld.Clear();
+                            owner.orangePortal.Clear();
+                        }
+                        owner.orangeOld.Add(world.Map.GetBlock(pos));
+                        owner.orangeOld.Add(world.Map.GetBlock(pos.X, pos.Y, pos.Z + 1));
+                        owner.blueOut = owner.Position.R;
+                        for (double z = pos.Z; z < pos.Z + 2; z++)
+                        {
+                            world.Map.QueueUpdate(new BlockUpdate(null, (short)(pos.X), (short)(pos.Y), (short)z, Block.Lava));
+                            owner.orangePortal.Add(new Vector3I((int)pos.X, (int)pos.Y, (int)z));
+                        }
+                        return false;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                updates.Add(new BlockUpdate(null, pos, world.Map.GetBlock(pos))); //restore
+                restDistance = 0;
+                return false;
+            }
+            return true;
+        }
+        
+
+    public static bool CanPlacePortal(int x, int y, int z, Map map)
+        {
+            int Count = 0;
+            for (int Z = z; Z < z + 2; Z++)
+            {
+                Block check = map.GetBlock(x, y, Z);
+                if (check != Block.Air && check != Block.Water && check != Block.Lava)
+                {
+                    Count++;
+                }
+            }
+            if (Count == 2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
 		public bool CanKillPlayer
 		{
@@ -283,11 +387,65 @@ namespace fCraft
 
 		public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
 		{
-			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "self" : by.ClassyName));
-			updates.Add(new BlockUpdate(null, pos, Block.TNT));
-			world.AddTask(new TNTTask(world, pos, by, false), 0);
+            hitted.Kill(world, String.Format("{0}&S was shot by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "theirself" : by.ClassyName));
+			updates.Add(new BlockUpdate(null, pos, Block.Air));
 			restDistance = 0;
 		}
 	}
+
+    internal class TntBulletBehavior : IParticleBehavior
+    {
+        private static Random _r = new Random();
+
+        public int ProcessingStepsPerSecond
+        {
+            get { return 20; }
+        }
+
+        public int MaxDistance
+        {
+            get { return 1024; }
+        }
+
+        public int MovesPerProcessingStep
+        {
+            get { return 1; }
+        }
+
+
+        private const double G = 10; //blocks per second per second
+        public void ModifyDirection(ref Vector3F direction, Block currentBlock)
+        {
+            double t = 1.0 / (ProcessingStepsPerSecond * MovesPerProcessingStep);
+            Vector3F v = direction * (ProcessingStepsPerSecond * MovesPerProcessingStep);
+            Vector3F dv = new Vector3F(0, 0, (float)(-G * t));
+            direction = (v + dv).Normalize();
+        }
+
+        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates, Block sending)
+        {
+            if (Block.Air != block && Block.Water != block) //explode it
+            {
+                updates.Add(new BlockUpdate(null, pos, Block.TNT));
+                world.AddTask(new TNTTask(world, pos, owner, false), 0);
+                restDistance = 0;
+                return false;
+            }
+            return true;
+        }
+
+        public bool CanKillPlayer
+        {
+            get { return true; }
+        }
+
+        public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
+        {
+            hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "theirself" : by.ClassyName));
+            updates.Add(new BlockUpdate(null, pos, Block.TNT));
+            world.AddTask(new TNTTask(world, pos, by, false), 0);
+            restDistance = 0;
+        }
+    }
 }
 

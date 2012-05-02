@@ -12,7 +12,6 @@ namespace fCraft
         public static void Init()
         {
             Player.Clicking += ClickedGlass;//
-            Player.Moving += gunMove;//
             Player.JoinedWorld += changedWorld;//
             Player.Moving += movePortal;//
             Player.Disconnected += playerDisconnected;//
@@ -86,6 +85,7 @@ namespace fCraft
                     return;
                 }
                 player.GunMode = true;
+                gunMove(player);
                 player.Message("&SGunMode activated. Fire at will!");
             }
         }
@@ -112,6 +112,7 @@ namespace fCraft
         }
 
 		private static TntBulletBehavior _tntBulletBehavior=new TntBulletBehavior();
+        private static BulletBehavior _bulletBehavior = new BulletBehavior();
 
         public static void ClickedGlass(object sender, PlayerClickingEventArgs e)
         {
@@ -122,20 +123,28 @@ namespace fCraft
                 if (e.Player.GunCache.Values.Contains(e.Coords))
                 {
                     e.Player.Send(PacketWriter.MakeSetBlock(e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass));
-					if (e.Player.LastUsedBlockType == Block.TNT && world.tntPhysics)
-					{
-						if (e.Player.CanFireTNT())
-						{
-							double ksi = 2.0*Math.PI*(-e.Player.Position.L)/256.0;
-							double r = Math.Cos(ksi);
-							double phi = 2.0*Math.PI*(e.Player.Position.R - 64)/256.0;
-							Vector3F dir = new Vector3F((float) (r*Math.Cos(phi)), (float) (r*Math.Sin(phi)), (float) (Math.Sin(ksi)));
-                            Vector3I start = new Vector3I((short)(e.Coords.X +(r * Math.Cos(phi)) * 3), (short)(e.Coords.Y +(r * Math.Sin(phi)) * 3), (short)(e.Coords.Z+ (Math.Sin(ksi) * 3)));
-							world.AddTask(new Particle(world, start, dir, e.Player, Block.TNT, _tntBulletBehavior), 0);
-						}
-					}
-					else
-						world.AddTask(new Bullet(world, e.Coords, e.Player.Position, e.Player), 0);
+                    if (e.Block == Block.TNT && world.tntPhysics)
+                    {
+                        if (e.Player.CanFireTNT())
+                        {
+                            double ksi = 2.0 * Math.PI * (-e.Player.Position.L) / 256.0;
+                            double r = Math.Cos(ksi);
+                            double phi = 2.0 * Math.PI * (e.Player.Position.R - 64) / 256.0;
+                            Vector3F dir = new Vector3F((float)(r * Math.Cos(phi)), (float)(r * Math.Sin(phi)), (float)(Math.Sin(ksi)));
+                            world.AddTask(new Particle(world, e.Coords, dir, e.Player, Block.TNT, _tntBulletBehavior), 0);
+                        }
+                    }
+                    else
+                    {
+                        Block block = e.Block;
+                        if (block == Block.Blue) block = Block.Water;
+                        if (block == Block.Orange) block = Block.Lava;
+                        double ksi = 2.0 * Math.PI * (-e.Player.Position.L) / 256.0;
+                        double r = Math.Cos(ksi);
+                        double phi = 2.0 * Math.PI * (e.Player.Position.R - 64) / 256.0;
+                        Vector3F dir = new Vector3F((float)(r * Math.Cos(phi)), (float)(r * Math.Sin(phi)), (float)(Math.Sin(ksi)));
+                        world.AddTask(new Particle(world, e.Coords, dir, e.Player, block, _bulletBehavior), 0);
+                    }
                 }
             }
         }
@@ -334,66 +343,57 @@ namespace fCraft
                 bullets.TryRemove(bp.ToString(), out removed);
             }
         }
-
-        public static void gunMove(object sender, PlayerMovingEventArgs e)
+        public static Thread GunThread;
+        public static void gunMove(Player player)
         {
-            try
-            {
-                if (e.Player.GunMode)
-                {
-                    Position p = e.Player.Position;
-                    Position pos = new Position();
-                    Map map = e.Player.World.Map;
-                    double rSin = Math.Sin(((double)(128 - p.R) / 255) * 2 * Math.PI);
-                    double rCos = Math.Cos(((double)(128 - p.R) / 255) * 2 * Math.PI);
-                    double lCos = Math.Cos(((double)(p.L + 64) / 255) * 2 * Math.PI);
+            GunThread = new Thread(new ThreadStart(delegate
+             {
+                 while (player.GunMode)
+                 {
+                     Position p = player.Position;
+                     Position pos = new Position();
+                     Map map = player.World.Map;
+                     double rSin = Math.Sin(((double)(128 - p.R) / 255) * 2 * Math.PI);
+                     double rCos = Math.Cos(((double)(128 - p.R) / 255) * 2 * Math.PI);
+                     double lCos = Math.Cos(((double)(p.L + 64) / 255) * 2 * Math.PI);
 
-                    short x = (short)(p.X / 32);
-                    x = (short)Math.Round(x + (double)(rSin * 3));
+                     short x = (short)(p.X / 32);
+                     x = (short)Math.Round(x + (double)(rSin * 3));
 
-                    short y = (short)(p.Y / 32);
-                    y = (short)Math.Round(y + (double)(rCos * 3));
+                     short y = (short)(p.Y / 32);
+                     y = (short)Math.Round(y + (double)(rCos * 3));
 
-                    short z = (short)(p.Z / 32);
-                    z = (short)Math.Round(z + (double)(lCos * 3));
+                     short z = (short)(p.Z / 32);
+                     z = (short)Math.Round(z + (double)(lCos * 3));
 
-                    for (short x2 = (short)(x + 1); x2 >= x - 1; x2--)
-                    {
-                        for (short y2 = (short)(y + 1); y2 >= y - 1; y2--)
-                        {
-                            for (short z2 = z; z2 <= z + 1; z2++)
-                            {
-                                if (map.GetBlock(x2, y2, z2) == Block.Air)
-                                {
-                                    pos = new Position(x2, y2, z2);
-                                    if (!e.Player.GunCache.Values.Contains(new Vector3I(pos.X, pos.Y, pos.Z)))
-                                    {
-                                        e.Player.Send(PacketWriter.MakeSetBlock(pos.X, pos.Y, pos.Z, Block.Glass));
-                                        e.Player.GunCache.TryAdd(pos.ToVector3I().ToString(), pos.ToVector3I());
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if (CanRemoveBlock(e.Player, e.OldPosition, e.NewPosition))
-                    {
-                        foreach (Vector3I block in e.Player.GunCache.Values)
-                        {
-                            e.Player.Send(PacketWriter.MakeSetBlock(block.X, block.Y, block.Z, map.GetBlock(block)));
-                            Vector3I removed;
-                            e.Player.GunCache.TryRemove(block.ToString(), out removed);
-                        }
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.SeriousError, "" + ex);
-            }
+                     for (short x2 = (short)(x + 1); x2 >= x; x2--)
+                     {
+                         for (short y2 = (short)(y + 1); y2 >= y; y2--)
+                         {
+                             for (short z2 = z; z2 <= z + 1; z2++)
+                             {
+                                 if (map.GetBlock(x2, y2, z2) == Block.Air)
+                                 {
+                                     pos = new Position(x2, y2, z2);
+                                     player.Send(PacketWriter.MakeSetBlock(pos.X, pos.Y, pos.Z, Block.Glass));
+                                     player.GunCache.TryAdd(pos.ToVector3I().ToString(), pos.ToVector3I());
+                                 }
+                             }
+                         }
+                     }
+                     Thread.Sleep(125);
+                     foreach (Vector3I block in player.GunCache.Values)
+                     {
+                         player.Send(PacketWriter.MakeSetBlock(block.X, block.Y, block.Z, map.GetBlock(block)));
+                         Vector3I removed;
+                         player.GunCache.TryRemove(block.ToString(), out removed);
+                     }
+                 }
+             })); GunThread.Start();
         }
-        public static bool CanRemoveBlock(Player player, Position oldpos, Position newPos)
+        
+    
+       /* public static bool CanRemoveBlock(Player player, Position oldpos, Position newPos)
         {
             int x = oldpos.X - newPos.X;
             int y = oldpos.Y - newPos.Y;
@@ -409,14 +409,13 @@ namespace fCraft
             {
                 return true;
             }
-
-            if (!(r >= -5 && r <= 5) || !(l >= -5 && l <= 5))
+            if (!(r >= -10 && r <= 10) || !(l >= -10 && l <= 10))
             {
                 return true;
             }
 
             return false;
-        }
+        }*/
         public static bool CanPlacePortal(short x, short y, short z, Map map)
         {
             int Count = 0;

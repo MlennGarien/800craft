@@ -215,6 +215,7 @@ namespace fCraft
                                 }
                             }
                         }
+                        _world.FireworkCount--;
                         return 0;
                     }
                     if (_notSent)

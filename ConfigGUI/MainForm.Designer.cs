@@ -91,6 +91,7 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -301,7 +302,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -1138,6 +1138,13 @@
             this.xRankColorsInChat.TabIndex = 0;
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
+            // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point(7, 256);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 241);
+            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -3602,13 +3609,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 256);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 241);
-            this.chatPreview.TabIndex = 2;
             // 
             // MainForm
             // 
