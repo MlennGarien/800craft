@@ -19,7 +19,6 @@ using System.Linq;
 using System.Text;
 using fCraft;
 using fCraft.Drawing;
-using System.Tuples;
 
 namespace fCraft
 {
@@ -100,18 +99,18 @@ namespace fCraft
 							//decision: we cant onl ytake points with 0 as comparison result as it will happen almost never.
 							//We are reacting on the changes of the comparison result sign 
 							arg3 = int.MaxValue;
-							if (res.First == 0) //exactly equal, wow, such a surprise
+							if (res.Item1 == 0) //exactly equal, wow, such a surprise
 								arg3 = arg3Iterator;
-							else if (res.First * prevComp < 0) //i.e. different signs, but not the prev==0
-								arg3 = res.Second < prevDiff ? arg3Iterator : arg3Iterator - 1; //then choose the closest to 0 difference
+							else if (res.Item1 * prevComp < 0) //i.e. different signs, but not the prev==0
+								arg3 = res.Item2 < prevDiff ? arg3Iterator : arg3Iterator - 1; //then choose the closest to 0 difference
 							
 							if (DrawOneBlock())
 								++_count;
 							if (TimeToEndBatch)
 								return _count;
 
-							prevComp = res.First;
-							prevDiff = res.Second;
+							prevComp = res.Item1;
+                            prevDiff = res.Item2;
 						}
 						catch (Exception)
 						{

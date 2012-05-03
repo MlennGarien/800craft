@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fCraft</RootNamespace>
     <AssemblyName>fCraft</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>
@@ -96,12 +96,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel.Web" />
-    <Reference Include="System.Tuples, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>.\System.Tuples.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -155,7 +149,6 @@
     <Compile Include="Portals\PortalException.cs" />
     <Compile Include="Portals\PortalHandler.cs" />
     <Compile Include="Portals\PortalRange.cs" />
-    <Compile Include="Utils\CocurrentDictionary.cs" />
     <Compile Include="Utils\HeartbeatSaverUtil.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
@@ -183,7 +176,6 @@
     <Compile Include="Network\IRCMessage.cs" />
     <Compile Include="Player\PlayerConstants.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
-    <Compile Include="Utils\ConcurrentQueue.cs" />
     <Compile Include="System\ConfigKey.cs" />
     <Compile Include="Utils\Noise.cs" />
     <Compile Include="Utils\Updater.cs" />

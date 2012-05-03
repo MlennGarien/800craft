@@ -9,7 +9,7 @@ using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
-using fCraft.Collections;
+using System.Collections.Concurrent;
 
 namespace fCraft {
     /// <summary> Callback for a player-made selection of one or more blocks on a map.

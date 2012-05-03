@@ -7,7 +7,7 @@ using System.Text;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.Collections;
-using fCraft.Collections;
+using System.Collections.Concurrent;
 using System.Threading;
 using fCraft.Physics;
 
