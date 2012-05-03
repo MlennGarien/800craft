@@ -34,6 +34,7 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
+using System.Collections.Concurrent;
 using JetBrains.Annotations;
 
 namespace fCraft
@@ -61,7 +62,7 @@ namespace fCraft
             public string ActualBotNick;
             string desiredBotNick;
             DateTime lastMessageSent;
-            readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
+            ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
             public bool Start([NotNull] string botNick, bool parseInput)
@@ -144,9 +145,9 @@ namespace fCraft
                         {
                             Thread.Sleep(10);
 
-                            if (localQueue.Length > 0 &&
+                            if (localQueue.Count > 0 &&
                                 DateTime.UtcNow.Subtract(lastMessageSent).TotalMilliseconds >= SendDelay &&
-                                localQueue.Dequeue(ref outputLine))
+                                localQueue.TryDequeue(out outputLine))
                             {
 
                                 writer.Write(outputLine + "\r\n");
@@ -154,11 +155,10 @@ namespace fCraft
                                 writer.Flush();
                             }
 
-                            if (OutputQueue.Length > 0 &&
+                            if (OutputQueue.Count > 0 &&
                                 DateTime.UtcNow.Subtract(lastMessageSent).TotalMilliseconds >= SendDelay &&
-                                OutputQueue.Dequeue(ref outputLine))
+                                OutputQueue.TryDequeue(out outputLine))
                             {
-
                                 writer.Write(outputLine + "\r\n");
                                 lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();

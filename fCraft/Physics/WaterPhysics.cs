@@ -139,7 +139,7 @@ namespace fCraft
                                     e.Player.TowerCache.Clear();
                                 }
                                 e.Player.towerOrigin = e.Coords;
-                                e.Player.TowerCache = new fCraft.Collections.ConcurrentDictionary<string, Vector3I>();
+                                e.Player.TowerCache = new System.Collections.Concurrent.ConcurrentDictionary<string, Vector3I>();
                                 for (int z = e.Coords.Z; z <= world.Map.Height; z++)
                                 {
                                     Thread.Sleep(250);

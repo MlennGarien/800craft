@@ -13,6 +13,7 @@ using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.Text.RegularExpressions;
+using System.Collections.Concurrent;
 
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
@@ -45,7 +46,7 @@ namespace fCraft {
         readonly NetworkStream stream;
         BinaryReader reader;
         PacketWriter writer;
-        readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
+        ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 
 
@@ -150,9 +151,9 @@ namespace fCraft {
                     }
 
                     // send output to player
-                    while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
-                        if( !priorityOutputQueue.Dequeue( ref packet ) )
-                            if( !outputQueue.Dequeue( ref packet ) ) break;
+                    while (canSend && packetsSent < Server.MaxSessionPacketsPerTick){
+                        if (!priorityOutputQueue.TryDequeue(out packet))
+                            if (!outputQueue.TryDequeue(out packet)) break;
 
                         if( IsDeaf && packet.OpCode == OpCode.Message ) continue;
 
@@ -176,7 +177,7 @@ namespace fCraft {
                     if( canSend ) {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
-                                while( priorityOutputQueue.Dequeue( ref packet ) ) {
+                                while (priorityOutputQueue.TryDequeue(out packet)){
                                     writer.Write( packet.Data );
                                     BytesSent += packet.Data.Length;
                                     packetsSent++;
@@ -1077,13 +1078,17 @@ namespace fCraft {
         }
 
 
-        public void ClearLowPriotityOutputQueue() {
-            outputQueue.Clear();
+        /// <summary> Clears the low priority player queue. </summary>
+        void ClearLowPriotityOutputQueue()
+        {
+            outputQueue = new ConcurrentQueue<Packet>();
         }
 
 
-        public void ClearPriorityOutputQueue() {
-            priorityOutputQueue.Clear();
+        /// <summary> Clears the priority player queue. </summary>
+        void ClearPriorityOutputQueue()
+        {
+            priorityOutputQueue = new ConcurrentQueue<Packet>();
         }
 
 

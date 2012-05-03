@@ -8,6 +8,7 @@ using System.Net;
 using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
+using System.Collections.Concurrent;
 
 namespace fCraft {
     public unsafe sealed class Map {
@@ -260,12 +261,12 @@ namespace fCraft {
         #region Block Updates & Simulation
 
         // Queue of block updates. Updates are applied by ProcessUpdates()
-        readonly ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
+        ConcurrentQueue<BlockUpdate> updates = new ConcurrentQueue<BlockUpdate>();
 
 
         /// <summary> Number of blocks that are waiting to be processed. </summary>
         public int UpdateQueueLength {
-            get { return updates.Length; }
+            get { return updates.Count; }
         }
 
 
@@ -279,7 +280,7 @@ namespace fCraft {
 
         /// <summary> Clears all pending updates. </summary>
         public void ClearUpdateQueue() {
-            updates.Clear();
+            updates = new ConcurrentQueue<BlockUpdate>();
         }
 
 
@@ -299,15 +300,14 @@ namespace fCraft {
             int packetsSent = 0;
             bool canFlush = false;
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( World );
-            BlockUpdate update = new BlockUpdate();
             while( packetsSent < maxPacketsPerUpdate ) {
-                if( !updates.Dequeue( ref update ) ) {
+                BlockUpdate update;
+                if( !updates.TryDequeue( out update ) ) {
                     if( World.IsFlushing ) {
                         canFlush = true;
                     }
                     break;
                 }
-                HasChangedSinceSave = true;
                 if( !InBounds( update.X, update.Y, update.Z ) ) continue;
                 int blockIndex = Index( update.X, update.Y, update.Z );
                 Blocks[blockIndex] = (byte)update.BlockType;
