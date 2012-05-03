@@ -197,7 +197,7 @@ namespace fCraft {
         {
             if (player.LastUsedBlockType != Block.Undefined)
             {
-                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, player.Position.Z / 32);
+                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, (player.Position.Z - 1)/ 32);
 
                 if (player.CanPlace(player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual) != CanPlaceResult.Allowed)
                 {
@@ -327,6 +327,19 @@ namespace fCraft {
                 return;
             }
 
+            //parse
+            if (ban == "-")
+            {
+                if (player.LastUsedPlayerName != null)
+                {
+                    ban = player.LastUsedPlayerName;
+                }
+                else
+                {
+                    player.Message("Cannot repeat player name: you haven't used any names yet.");
+                    return;
+                }
+            }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
             if (target == null) return;
             if (!Player.IsValidName(ban))

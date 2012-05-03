@@ -354,33 +354,25 @@ namespace fCraft
                  while (player.GunMode)
                  {
                      Position p = player.Position;
-                     Position pos = new Position();
                      Map map = player.World.Map;
-                     double rSin = Math.Sin(((double)(128 - p.R) / 255) * 2 * Math.PI);
-                     double rCos = Math.Cos(((double)(128 - p.R) / 255) * 2 * Math.PI);
-                     double lCos = Math.Cos(((double)(p.L + 64) / 255) * 2 * Math.PI);
-
-                     short x = (short)(p.X / 32);
-                     x = (short)Math.Round(x + (double)(rSin * 3));
-
-                     short y = (short)(p.Y / 32);
-                     y = (short)Math.Round(y + (double)(rCos * 3));
-
-                     short z = (short)(p.Z / 32);
-                     z = (short)Math.Round(z + (double)(lCos * 3));
-
-                     for (short x2 = (short)(x + 1); x2 >= x; x2--)
+                     double ksi = 2.0 * Math.PI * (-player.Position.L) / 256.0;
+                     double phi = 2.0 * Math.PI * (player.Position.R - 64) / 256.0; double sphi = Math.Sin(phi);
+                     double cphi = Math.Cos(phi);
+                     double sksi = Math.Sin(ksi);
+                     double cksi = Math.Cos(ksi);
+                     for (int y = -1; y < 2; ++y)
                      {
-                         for (short y2 = (short)(y + 1); y2 >= y; y2--)
+                         for (int z = -1; z < 2; ++z)
                          {
-                             for (short z2 = z; z2 <= z + 1; z2++)
+                             //2 is the distance betwen the player and the glass wall
+                             Vector3I glassBlockPos = new Vector3I((int)(cphi * cksi * 4 - sphi * y - cphi * sksi * z),
+                                   (int)(sphi * cksi * 4 + cphi * y - sphi * sksi * z),
+                                   (int)(sksi * 4 + cksi * z));
+                             glassBlockPos += p.ToBlockCoords();
+                             if (player.World.Map.GetBlock(glassBlockPos) == Block.Air)
                              {
-                                 if (map.GetBlock(x2, y2, z2) == Block.Air)
-                                 {
-                                     pos = new Position(x2, y2, z2);
-                                     player.Send(PacketWriter.MakeSetBlock(pos.X, pos.Y, pos.Z, Block.Glass));
-                                     player.GunCache.TryAdd(pos.ToVector3I().ToString(), pos.ToVector3I());
-                                 }
+                                 player.Send(PacketWriter.MakeSetBlock(glassBlockPos, Block.Glass));
+                                 player.GunCache.TryAdd(glassBlockPos.ToString(), glassBlockPos);
                              }
                          }
                      }
