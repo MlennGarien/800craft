@@ -69,16 +69,10 @@ namespace RandomMaze
             _maze = new Maze(xSize, ySize, zSize);
         }
 
-        public static bool IsNullOrWhiteSpace(string value)
-        {
-            if (value == null) return true;
-            return string.IsNullOrEmpty(value.Trim());
-        }
-
         private static int CommandOrDefault(Command cmd, int defVal)
         {
             string s = cmd.Next();
-            if (!IsNullOrWhiteSpace(s))
+            if (!string.IsNullOrWhiteSpace(s))
             {
                 int n;
                 if (int.TryParse(s, out n))

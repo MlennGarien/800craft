@@ -35,18 +35,12 @@ namespace fCraft
 		private Scaler _scaler;
 		private ValueAxis _vaxis;
 		protected int _count;
-
-        public static bool IsNullOrWhiteSpace(string value)
-        {
-            if (value == null) return true;
-            return string.IsNullOrEmpty(value.Trim());
-        }
 		
 		protected FuncDrawOperation(Player player, Command cmd)
 			: base(player)
         {
 			string strFunc = cmd.Next();
-			if (IsNullOrWhiteSpace(strFunc))
+			if (string.IsNullOrWhiteSpace(strFunc))
 				throw new ArgumentException("empty function expression");
 			if (strFunc.Length<3)
 				throw new ArgumentException("expression is too short (should be like z=f(x,y))");

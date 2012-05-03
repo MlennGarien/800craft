@@ -23,15 +23,10 @@ namespace fCraft
 {
 	public static class PrepareParametrizedManifold
 	{
-        public static bool IsNullOrWhiteSpace(string value)
-        {
-            if (value == null) return true;
-            return string.IsNullOrEmpty(value.Trim());
-        }
 		public static void SetParametrization(Player p, Command cmd)
 		{
 			string strFunc = cmd.Next();
-			if (IsNullOrWhiteSpace(strFunc))
+			if (string.IsNullOrWhiteSpace(strFunc))
 			{
 				p.Message("Error: empty parametrization expression");
 				return;
@@ -64,7 +59,7 @@ namespace fCraft
 		public static void SetParamIteration(Player p, Command cmd)
 		{
 			string strParam = cmd.Next();
-			if (IsNullOrWhiteSpace(strParam))
+			if (string.IsNullOrWhiteSpace(strParam))
 			{
 				p.Message("Error: missing param variable name");
 				return;
@@ -105,7 +100,7 @@ namespace fCraft
 		private static double ReadDoubleParam(Command cmd, string msgParamParamName)
 		{
 			string s = cmd.Next();
-			if (IsNullOrWhiteSpace(s))
+			if (string.IsNullOrWhiteSpace(s))
 				throw new ArgumentException("missing param variable " + msgParamParamName);
 			double d;
 			if (!double.TryParse(s, out d))
@@ -140,12 +135,12 @@ namespace fCraft
 
 		private static void CheckCoordVar(string s)
 		{
-			if (IsNullOrWhiteSpace(s) || (s != "x" && s != "y" && s != "z"))
+			if (string.IsNullOrWhiteSpace(s) || (s != "x" && s != "y" && s != "z"))
 				throw new ArgumentException("expected assignment of x, y, or z (e.g. x=2*t)");
 		}
 		private static void CheckParamVar(string s)
 		{
-			if (IsNullOrWhiteSpace(s) || (s != "t" && s != "u" && s != "v"))
+			if (string.IsNullOrWhiteSpace(s) || (s != "t" && s != "u" && s != "v"))
 				throw new ArgumentException("expected parametrization variable name is t, u, or v");
 		}
 		public static int VarNameToIdx(char varName)

@@ -35,15 +35,10 @@ namespace fCraft
 			DoubleNormalized,
 		}
 		private Scaling _scaling;
-        public static bool IsNullOrWhiteSpace(string value)
-        {
-            if (value == null) return true;
-            return string.IsNullOrEmpty(value.Trim());
-        }
 		
 		public Scaler(string scaling)
 		{
-			if (IsNullOrWhiteSpace(scaling))
+			if (string.IsNullOrWhiteSpace(scaling))
 				_scaling = Scaling.ZeroToMaxBound;
 			else if (scaling.ToLower() == "u")
 				_scaling = Scaling.Normalized;

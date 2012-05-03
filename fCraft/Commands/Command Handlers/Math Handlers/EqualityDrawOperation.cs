@@ -25,11 +25,6 @@ namespace fCraft
 	//draws volume, defined by an inequality 
 	public class EqualityDrawOperation : DrawOperation
 	{
-        public static bool IsNullOrWhiteSpace(string value)
-        {
-            if (value == null) return true;
-            return string.IsNullOrEmpty(value.Trim());
-        }
 		private Expression _expression;
 		private Scaler _scaler;
 		private int _count;
@@ -37,7 +32,7 @@ namespace fCraft
 			: base(player)
 		{
 			string strFunc = cmd.Next();
-            if (IsNullOrWhiteSpace(strFunc))
+            if (string.IsNullOrWhiteSpace(strFunc))
             {
                 player.Message("empty equality expression");
                 return;

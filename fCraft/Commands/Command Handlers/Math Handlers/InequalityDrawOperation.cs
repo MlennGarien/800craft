@@ -29,17 +29,11 @@ namespace fCraft
 		private Scaler _scaler;
 		private int _count;
 
-        public static bool IsNullOrWhiteSpace(string value)
-        {
-            if (value == null) return true;
-            return string.IsNullOrEmpty(value.Trim());
-        }
-
 		public InequalityDrawOperation(Player player, Command cmd)
 			: base(player)
 		{
 			string strFunc = cmd.Next();
-			if (IsNullOrWhiteSpace(strFunc))
+			if (string.IsNullOrWhiteSpace(strFunc))
 				throw new ArgumentException("empty inequality expression");
 			if (strFunc.Length < 3)
 				throw new ArgumentException("expression is too short (should be like f(x,y,z)>g(x,y,z))");
