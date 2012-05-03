@@ -183,10 +183,12 @@ namespace fCraft
             return (_startingPos + _currentStep * _direction).Round();
         }
 
-		private void CheckHitPlayers(List<BlockUpdate> updates)
+        private void CheckHitPlayers(List<BlockUpdate> updates)
         {
             foreach (Player p in _world.Players)
             {
+                if (ReferenceEquals(p, _owner) && (_startingPos - _pos).LengthSquared <= 2 * 2) //do not react on owner within 2 blocks of the starting position
+                    continue;
                 if (p.CanBeKilled() && p.Position.DistanceSquaredTo(_pos.ToPlayerCoords()) <= 33 * 33) //less or equal than a block
                     _behavior.HitPlayer(_world, _pos, p, _owner, ref _restDistance, updates);
             }

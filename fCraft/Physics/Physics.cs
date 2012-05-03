@@ -50,9 +50,12 @@ namespace fCraft.Physics
             World world = e.Player.World;
             if (world.Map.GetBlock(e.Coords) == Block.TNT)
             {
-                lock (world.SyncRoot)
+                if (!e.Player.GunMode)
                 {
-                    world.AddTask(new TNTTask(world, e.Coords, e.Player, false), 0);
+                    lock (world.SyncRoot)
+                    {
+                        world.AddTask(new TNTTask(world, e.Coords, e.Player, false), 0);
+                    }
                 }
             }
         }
