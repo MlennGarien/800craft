@@ -82,7 +82,7 @@ namespace fCraft
                 double ksi = _r.NextDouble() * Math.PI - Math.PI / 2.0;
 
                 Vector3F direction = (new Vector3F((float)(Math.Cos(phi) * Math.Cos(ksi)), (float)(Math.Sin(phi) * Math.Cos(ksi)), (float)Math.Sin(ksi))).Normalize();
-                _world.AddTask(new Particle(_world, (_pos + 2 * direction).Round(), direction, _owner, Block.Obsidian, _particleBehavior), 0);
+                _world.AddPhysicsTask(new Particle(_world, (_pos + 2 * direction).Round(), direction, _owner, Block.Obsidian, _particleBehavior), 0);
             }
         }
 
@@ -142,7 +142,7 @@ namespace fCraft
             //chain explosion
             if (Block.TNT == prevBlock)
             {
-                _world.AddTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false), _r.Next(50, 100));
+                _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false), _r.Next(50, 100));
                 return;
             }
 
@@ -210,7 +210,7 @@ namespace fCraft
                                     }
                                     if (rand.Next(1, 50) < 3)
                                     {
-                                        _world._physScheduler.AddTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), rand.Next(1, 100));
+                                        _world.AddPhysicsTask(new FireworkParticle(_world, new Vector3I(X2, Y2, Z2), fBlock), rand.Next(1, 100));
                                     }
                                 }
                             }

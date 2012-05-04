@@ -19,7 +19,7 @@ namespace fCraft {
         public string Name { get; internal set; }
 
         private GrassTask _plantTask = null;
-        public PhysScheduler _physScheduler;
+		private List<PhysScheduler> _physSchedulers=new List<PhysScheduler>();
 
         /// <summary> Whether the world shows up on the /Worlds list.
         /// Can be assigned directly. </summary>
@@ -114,19 +114,30 @@ namespace fCraft {
             BuildSecurity = new SecurityController();
             Name = name;
             UpdatePlayerList();
-            _physScheduler = new PhysScheduler(this);
+			for (int i = 0; i < Enum.GetValues(typeof(TaskCategory)).Length; ++i)
+				_physSchedulers.Add(new PhysScheduler(this));
         }
 
         #region Physics
 
-        internal void AddTask(PhysicsTask task, int Delay)
+		internal void StartScheduler(TaskCategory cat)
+		{
+			if (!_physSchedulers[(int)cat].Started)
+				_physSchedulers[(int)cat].Start();
+		}
+		internal void AddTask(TaskCategory cat, PhysicsTask task, int Delay)
+		{
+			_physSchedulers[(int)cat].AddTask(task, Delay);
+		}
+
+        internal void AddPhysicsTask(PhysicsTask task, int Delay)
         {
-            _physScheduler.AddTask(task, Delay);
+            _physSchedulers[(int)TaskCategory.Physics].AddTask(task, Delay);
         }
         #region Plant
         internal void AddPlantTask(short x, short y, short z)
         {
-            _physScheduler.AddTask(new PlantTask(this, x, y, z), PlantTask.GetRandomDelay());
+			AddPhysicsTask(new PlantTask(this, x, y, z), PlantTask.GetRandomDelay());
         }
         public void EnablePlantPhysics(Player player)
         {
@@ -138,7 +149,7 @@ namespace fCraft {
             plantPhysics = true;
             CheckIfPhysicsStarted();
             _plantTask = new GrassTask(this);
-            _physScheduler.AddTask(_plantTask, 0);
+			AddPhysicsTask(_plantTask, 0);
             Server.Message("{0}&S enabled Plant Physics on {1}", player.ClassyName, ClassyName);
         }
         public void DisablePlantPhysics(Player player)
@@ -282,8 +293,8 @@ namespace fCraft {
         #endregion
         private void CheckIfPhysicsStarted()
         {
-            if (!_physScheduler.Started)
-                _physScheduler.Start();
+            if (!_physSchedulers[(int)TaskCategory.Physics].Started)
+				_physSchedulers[(int)TaskCategory.Physics].Start();
         }
         private void CheckIfToStopPhysics()
         {
@@ -291,7 +302,7 @@ namespace fCraft {
                 && !gunPhysics && !plantPhysics 
                 && !sandPhysics && !fireworkPhysics
                 && !waterPhysics)  //must be extended to further phys types
-                _physScheduler.Stop();
+				_physSchedulers[(int)TaskCategory.Physics].Stop();
         }
         #endregion
 

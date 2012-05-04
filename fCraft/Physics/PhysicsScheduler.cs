@@ -9,6 +9,12 @@ using fCraft.Drawing;
 
 namespace fCraft
 {
+	public enum TaskCategory
+	{
+		Physics,
+		Scripting,
+	}
+
 public class PhysScheduler
 	{
 		private MinBinaryHeap<PhysicsTask, Int64> _tasks = new MinBinaryHeap<PhysicsTask, Int64>();
@@ -107,7 +113,7 @@ public class PhysScheduler
 
 		public void AddTask(PhysicsTask task, int delay)
 		{
-			task.DueTime += _watch.ElapsedMilliseconds + delay;
+			task.DueTime = _watch.ElapsedMilliseconds + delay;
 			lock (_tasks)
 			{
 				_tasks.Add(task);

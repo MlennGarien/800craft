@@ -80,6 +80,7 @@ namespace fCraft {
 
         /// <summary> All zones within a map. </summary>
         public ZoneCollection Zones { get; private set; }
+		public Dictionary<string, Life2DZone> LifeZones { get; private set; }
 
 
         /// <summary> Creates an empty new map of given dimensions.
@@ -114,6 +115,8 @@ namespace fCraft {
             if( initBlockArray ) {
                 Blocks = new byte[Volume];
             }
+
+        	LifeZones = new Dictionary<string, Life2DZone>();
 
             ResetSpawn();
         }

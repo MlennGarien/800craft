@@ -54,7 +54,7 @@ namespace fCraft.Physics
                 {
                     lock (world.SyncRoot)
                     {
-                        world.AddTask(new TNTTask(world, e.Coords, e.Player, false), 0);
+                        world.AddPhysicsTask(new TNTTask(world, e.Coords, e.Player, false), 0);
                     }
                 }
             }
@@ -75,7 +75,7 @@ namespace fCraft.Physics
                             return;
                         }
                         world.FireworkCount++;
-                        world.AddTask(new Firework(world, e.Coords), 300);
+                        world.AddPhysicsTask(new Firework(world, e.Coords), 300);
                     }
                 }
             }
@@ -87,7 +87,7 @@ namespace fCraft.Physics
                     {
                         lock (world.SyncRoot)
                         {
-                            world.AddTask(new TNTTask(world, e.Coords, e.Player, false), 3000);
+                            world.AddPhysicsTask(new TNTTask(world, e.Coords, e.Player, false), 3000);
                             return;
                         }
                     }
@@ -101,7 +101,7 @@ namespace fCraft.Physics
                     {
                         lock (world.SyncRoot)
                         {
-                            world.AddTask(new SandTask(world, e.Coords, e.NewBlock), 150);
+                            world.AddPhysicsTask(new SandTask(world, e.Coords, e.NewBlock), 150);
                             return;
                         }
                     }
@@ -113,7 +113,7 @@ namespace fCraft.Physics
                 {
                     if (e.Context == BlockChangeContext.Manual)
                     {
-                        world.AddTask(new BlockFloat(world, e.Coords, e.NewBlock), 200);
+                        world.AddPhysicsTask(new BlockFloat(world, e.Coords, e.NewBlock), 200);
                         return;
                     }
                 }
@@ -132,7 +132,7 @@ namespace fCraft.Physics
                 {
                     if (world.waterPhysics)
                     {
-                        world.AddTask(new BlockSink(world, e.Coords, e.NewBlock), 200);
+                        world.AddPhysicsTask(new BlockSink(world, e.Coords, e.NewBlock), 200);
                         return;
                     }
                 }

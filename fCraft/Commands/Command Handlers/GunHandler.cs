@@ -256,7 +256,7 @@ namespace fCraft
                                 double r = Math.Cos(ksi);
                                 double phi = 2.0 * Math.PI * (e.Player.Position.R - 64) / 256.0;
                                 Vector3F dir = new Vector3F((float)(r * Math.Cos(phi)), (float)(r * Math.Sin(phi)), (float)(Math.Sin(ksi)));
-                                world.AddTask(new Particle(world, e.Coords, dir, e.Player, Block.TNT, _tntBulletBehavior), 0);
+                                world.AddPhysicsTask(new Particle(world, e.Coords, dir, e.Player, Block.TNT, _tntBulletBehavior), 0);
                             }
                         }
                         else
@@ -268,7 +268,7 @@ namespace fCraft
                             double r = Math.Cos(ksi);
                             double phi = 2.0 * Math.PI * (e.Player.Position.R - 64) / 256.0;
                             Vector3F dir = new Vector3F((float)(r * Math.Cos(phi)), (float)(r * Math.Sin(phi)), (float)(Math.Sin(ksi)));
-                            world.AddTask(new Particle(world, e.Coords, dir, e.Player, block, _bulletBehavior), 0);
+                            world.AddPhysicsTask(new Particle(world, e.Coords, dir, e.Player, block, _bulletBehavior), 0);
                         }
                     }
                 }
