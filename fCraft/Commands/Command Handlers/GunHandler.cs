@@ -43,8 +43,13 @@ namespace fCraft
         {
             try
             {
-                if (_player.GunMode){
-                    GunClass.gunMove(_player);
+                if (_player.IsOnline && _player != null)
+                {
+                    if (_player.GunMode){
+                        GunClass.gunMove(_player);
+                    }else{
+                        Stop();
+                    }
                 }else{
                     Stop();
                 }
@@ -147,40 +152,55 @@ namespace fCraft
 
         public static void gunMove(Player player)
         {
+            World world = player.World;
             try
             {
-                Position p = player.Position;
-                Map map = player.World.Map;
-                double ksi = 2.0 * Math.PI * (-player.Position.L) / 256.0;
-                double phi = 2.0 * Math.PI * (player.Position.R - 64) / 256.0;
-                double sphi = Math.Sin(phi);
-                double cphi = Math.Cos(phi);
-                double sksi = Math.Sin(ksi);
-                double cksi = Math.Cos(ksi);
+                lock (world.SyncRoot)
+                {
+                    if(player.IsOnline && player != null && world != null)
+                    {
+                        Position p = player.Position;
+                        double ksi = 2.0 * Math.PI * (-player.Position.L) / 256.0;
+                        double phi = 2.0 * Math.PI * (player.Position.R - 64) / 256.0;
+                        double sphi = Math.Sin(phi);
+                        double cphi = Math.Cos(phi);
+                        double sksi = Math.Sin(ksi);
+                        double cksi = Math.Cos(ksi);
 
-                if (player.GunCache.Values.Count > 0)
-                {
-                    foreach (Vector3I block in player.GunCache.Values)
-                    {
-                        player.Send(PacketWriter.MakeSetBlock(block.X, block.Y, block.Z, player.World.Map.GetBlock(block)));
-                        Vector3I removed;
-                        player.GunCache.TryRemove(block.ToString(), out removed);
-                    }
-                }
-                
-                for (int y = -1; y < 2; ++y)
-                {
-                    for (int z = -1; z < 2; ++z)
-                    {
-                        //4 is the distance betwen the player and the glass wall
-                        Vector3I glassBlockPos = new Vector3I((int)(cphi * cksi * 4 - sphi * y - cphi * sksi * z),
-                              (int)(sphi * cksi * 4 + cphi * y - sphi * sksi * z),
-                              (int)(sksi * 4 + cksi * z));
-                        glassBlockPos += p.ToBlockCoords();
-                        if (player.World.Map.GetBlock(glassBlockPos) == Block.Air)
+                        if (player.IsOnline && player != null && world != null)
                         {
-                            player.Send(PacketWriter.MakeSetBlock(glassBlockPos, Block.Glass));
-                            player.GunCache.TryAdd(glassBlockPos.ToString(), glassBlockPos);
+                            if (player.GunCache.Values.Count > 0)
+                            {
+                                foreach (Vector3I block in player.GunCache.Values)
+                                {
+                                    if(player.IsOnline && player != null && world != null)
+                                    {
+                                        player.Send(PacketWriter.MakeSetBlock(block.X, block.Y, block.Z, world.Map.GetBlock(block)));
+                                        Vector3I removed;
+                                        player.GunCache.TryRemove(block.ToString(), out removed);
+                                    }
+                                }
+                            }
+                        }
+
+                        for (int y = -1; y < 2; ++y)
+                        {
+                            for (int z = -1; z < 2; ++z)
+                            {
+                                if (player.IsOnline && player != null && world != null)
+                                {
+                                    //4 is the distance betwen the player and the glass wall
+                                    Vector3I glassBlockPos = new Vector3I((int)(cphi * cksi * 4 - sphi * y - cphi * sksi * z),
+                                          (int)(sphi * cksi * 4 + cphi * y - sphi * sksi * z),
+                                          (int)(sksi * 4 + cksi * z));
+                                    glassBlockPos += p.ToBlockCoords();
+                                    if (player.World.Map.GetBlock(glassBlockPos) == Block.Air)
+                                    {
+                                        player.Send(PacketWriter.MakeSetBlock(glassBlockPos, Block.Glass));
+                                        player.GunCache.TryAdd(glassBlockPos.ToString(), glassBlockPos);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -190,6 +210,7 @@ namespace fCraft
                 Logger.Log(LogType.SeriousError, "GunGlass: " + ex);
             }
         }
+        
 
 
         public static void playerPlaced(object sender, PlayerPlacingBlockEventArgs e)
