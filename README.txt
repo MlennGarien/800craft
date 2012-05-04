@@ -1,14 +1,11 @@
 Thank you for downloading 800Craft, a custom Minecraft server based on fCraft.
 
-If you like 800Craft, feel free to buy me and GlennMR a drink by donating to:
-    http://donate.800craft.net
-
 Special thanks to fragmer, what a bro!
 
 
 === Installation (Windows) ====================================================
 
-80Craft requires Microsoft .NET Framework 3.5. Your system may already have it
+80Craft requires Microsoft .NET Framework 4.0. Your system may already have it
 installed, and you can download it from microsoft.com
 
 === Installation (Linux, Unix, MacOS X) =======================================
@@ -165,7 +162,7 @@ To request features, report bugs, or receive support, please visit:
 licensed and distributed under the permissive MIT License, reproduced here:
 
 ----
-Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+Copyright 2009, 2010, 2011, 2012 Matvei Stefarov <me@matvei.org>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -199,12 +196,14 @@ or any other files from Minecraft... neither does 800Craft.
 
 === Credits ===================================================================
 
-800Craft was developed by Jonty800 and GlennMR.
+800Craft was developed by Jonty800, GlennMR and LaoTszy.
 
 Thanks again to fragmer, what a bro.
 
 Thanks to 800Craft code contributers:
-    Rebelliousdude, boblol0909 and Maicke98 for trying.
+    Rebelliousdude, boblol0909 and Maicke98 for trying. 
+
+With testing from Pure2K12 and Xanderortiz.
 
 Thanks to fCraft code contributors and modders:
     Asiekierka, Dag10, Destroyer, FontPeg, M1_Abrams, Optical-Lza,

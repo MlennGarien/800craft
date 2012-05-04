@@ -7,6 +7,60 @@ using System.Threading;
 
 namespace fCraft
 {
+    public class GunGlassTimer
+    {
+        private Timer _timer;
+        private bool _started;
+        private Player _player;
+        private const int Tick = 125;
+        private object _objectLock = new object();
+        public GunGlassTimer(Player player)
+        {
+            _player = player;
+            _started = false;
+            _timer = new Timer(callback, null, Timeout.Infinite, Timeout.Infinite);
+        }
+        public void Start()
+        {
+            lock (_objectLock)
+            {
+                if (!_started)
+                {
+                    _started = true;
+                    _timer.Change(0, Timeout.Infinite);
+                }
+            }
+        }
+        public void Stop()
+        {
+            lock (_objectLock)
+            {
+                _started = false;
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            }
+        }
+        private void callback(object state)
+        {
+            try
+            {
+                if (_player.GunMode){
+                    GunClass.gunMove(_player);
+                }else{
+                    Stop();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogType.Error, "GunGlassTimer: " + e);
+            }
+            
+            lock (_objectLock)
+            {
+                if (_started)
+                    _timer.Change(Tick, Timeout.Infinite);
+            }
+        }
+    }
     class GunClass
     {
         public static void Init()
@@ -29,7 +83,7 @@ namespace fCraft
             Handler = GunHandler
         };
 
-        static void GunHandler(Player player, Command cmd)
+        public static void GunHandler(Player player, Command cmd)
         {
             if (player.GunMode)
             {
@@ -85,10 +139,58 @@ namespace fCraft
                     return;
                 }
                 player.GunMode = true;
-                gunMove(player);
+                GunGlassTimer timer = new GunGlassTimer(player);
+                timer.Start();
                 player.Message("&SGunMode activated. Fire at will!");
             }
         }
+
+        public static void gunMove(Player player)
+        {
+            try
+            {
+                Position p = player.Position;
+                Map map = player.World.Map;
+                double ksi = 2.0 * Math.PI * (-player.Position.L) / 256.0;
+                double phi = 2.0 * Math.PI * (player.Position.R - 64) / 256.0;
+                double sphi = Math.Sin(phi);
+                double cphi = Math.Cos(phi);
+                double sksi = Math.Sin(ksi);
+                double cksi = Math.Cos(ksi);
+
+                if (player.GunCache.Values.Count > 0)
+                {
+                    foreach (Vector3I block in player.GunCache.Values)
+                    {
+                        player.Send(PacketWriter.MakeSetBlock(block.X, block.Y, block.Z, player.World.Map.GetBlock(block)));
+                        Vector3I removed;
+                        player.GunCache.TryRemove(block.ToString(), out removed);
+                    }
+                }
+                
+                for (int y = -1; y < 2; ++y)
+                {
+                    for (int z = -1; z < 2; ++z)
+                    {
+                        //4 is the distance betwen the player and the glass wall
+                        Vector3I glassBlockPos = new Vector3I((int)(cphi * cksi * 4 - sphi * y - cphi * sksi * z),
+                              (int)(sphi * cksi * 4 + cphi * y - sphi * sksi * z),
+                              (int)(sksi * 4 + cksi * z));
+                        glassBlockPos += p.ToBlockCoords();
+                        if (player.World.Map.GetBlock(glassBlockPos) == Block.Air)
+                        {
+                            player.Send(PacketWriter.MakeSetBlock(glassBlockPos, Block.Glass));
+                            player.GunCache.TryAdd(glassBlockPos.ToString(), glassBlockPos);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.SeriousError, "GunGlass: " + ex);
+            }
+        }
+
 
         public static void playerPlaced(object sender, PlayerPlacingBlockEventArgs e)
         {
@@ -107,7 +209,7 @@ namespace fCraft
             }
             catch (Exception ex)
             {
-                Logger.Log(LogType.SeriousError, "" + ex);
+                Logger.Log(LogType.SeriousError, "PlacingInPortal: " + ex);
             }
         }
 
@@ -116,7 +218,7 @@ namespace fCraft
 
         public static void ClickedGlass(object sender, PlayerClickingEventArgs e)
         {
-            if (e.Player.GunMode)
+            if (e.Player.GunMode && !e.Player.Info.IsHidden && !e.Player.Info.IsFrozen)
             {
                 World world = e.Player.World;
                 Map map = e.Player.World.Map;
@@ -346,47 +448,6 @@ namespace fCraft
                 bullets.TryRemove(bp.ToString(), out removed);
             }
         }
-        public static Thread GunThread;
-        public static void gunMove(Player player)
-        {
-            GunThread = new Thread(new ThreadStart(delegate
-             {
-                 while (player.GunMode)
-                 {
-                     Position p = player.Position;
-                     Map map = player.World.Map;
-                     double ksi = 2.0 * Math.PI * (-player.Position.L) / 256.0;
-                     double phi = 2.0 * Math.PI * (player.Position.R - 64) / 256.0; double sphi = Math.Sin(phi);
-                     double cphi = Math.Cos(phi);
-                     double sksi = Math.Sin(ksi);
-                     double cksi = Math.Cos(ksi);
-                     for (int y = -1; y < 2; ++y)
-                     {
-                         for (int z = -1; z < 2; ++z)
-                         {
-                             //2 is the distance betwen the player and the glass wall
-                             Vector3I glassBlockPos = new Vector3I((int)(cphi * cksi * 4 - sphi * y - cphi * sksi * z),
-                                   (int)(sphi * cksi * 4 + cphi * y - sphi * sksi * z),
-                                   (int)(sksi * 4 + cksi * z));
-                             glassBlockPos += p.ToBlockCoords();
-                             if (player.World.Map.GetBlock(glassBlockPos) == Block.Air)
-                             {
-                                 player.Send(PacketWriter.MakeSetBlock(glassBlockPos, Block.Glass));
-                                 player.GunCache.TryAdd(glassBlockPos.ToString(), glassBlockPos);
-                             }
-                         }
-                     }
-                     Thread.Sleep(125);
-                     foreach (Vector3I block in player.GunCache.Values)
-                     {
-                         player.Send(PacketWriter.MakeSetBlock(block.X, block.Y, block.Z, map.GetBlock(block)));
-                         Vector3I removed;
-                         player.GunCache.TryRemove(block.ToString(), out removed);
-                     }
-                 }
-             })); GunThread.Start();
-        }
-        
     
        /* public static bool CanRemoveBlock(Player player, Position oldpos, Position newPos)
         {
