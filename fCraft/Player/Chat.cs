@@ -107,7 +107,7 @@ namespace fCraft {
             {
                 if (player.World.GameOn)
                 {
-                    if (player.World.CurrentGame == "math1")
+                    if (Games.MineChallenge.mode == Games.MineChallenge.GameMode.math1)
                     {
                         if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
                         {
@@ -123,7 +123,7 @@ namespace fCraft {
                         return false;
                     }
 
-                    if (player.World.CurrentGame == "math2")
+                    if (Games.MineChallenge.mode == Games.MineChallenge.GameMode.math2)
                     {
                         if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
                         {

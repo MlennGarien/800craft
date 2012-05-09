@@ -334,7 +334,7 @@ namespace fCraft
             }
             catch (Exception ex)
             {
-                Logger.Log(LogType.SeriousError, "" + ex);
+                Logger.Log(LogType.SeriousError, "MovePortal: " + ex);
             }
         }
 
@@ -399,7 +399,7 @@ namespace fCraft
             }
             catch (Exception ex)
             {
-                Logger.Log(LogType.SeriousError, "" + ex);
+                Logger.Log(LogType.SeriousError, "GunPortalChangeWorld: " + ex);
             }
         }
 
@@ -453,7 +453,7 @@ namespace fCraft
             }
             catch (Exception ex)
             {
-                Logger.Log(LogType.SeriousError, "" + ex);
+                Logger.Log(LogType.SeriousError, "GunPortalDisconnected: " + ex);
             }
         }
         public static void removal(ConcurrentDictionary<String, Vector3I> bullets, Map map)

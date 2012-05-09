@@ -20,6 +20,17 @@ namespace fCraft.Games
         public static ConcurrentDictionary<String, Vector3I> randomBlocks = new ConcurrentDictionary<string, Vector3I>();
         public static List<Player> completed = new List<Player>();
         public static int answer = 0;
+        public static GameMode mode = GameMode.NULL;
+
+        public enum GameMode
+        {
+            math1,
+            math2,
+            getOffGrass,
+            pinkplatform,
+            shootblack,
+            NULL
+        }
 
         //init
         public static void Init(World world_)
@@ -28,7 +39,7 @@ namespace fCraft.Games
             Player.JoinedWorld += WorldChanging;
             Player.Clicked += playerClicking;
             world.Games = new List<Action>();
-            world.CurrentGame = null;
+            mode = GameMode.NULL;
             redRoundsWon = 0;
             blueRoundsWon = 0;
         }
@@ -40,7 +51,7 @@ namespace fCraft.Games
             world.Games.Remove(math1);
             world.Players.Message("&WKeyboards at the ready...");
             Thread.Sleep(5000);
-            world.CurrentGame = "math1";
+            mode = GameMode.math1;
             int a = new Random().Next(1, 15);
             int b = new Random().Next(1, 15);
             world.Players.Message("&WWhat is... {0} X {1}?", a.ToString(), b.ToString());
@@ -59,7 +70,7 @@ namespace fCraft.Games
             world.Games.Remove(math2);
             world.Players.Message("&WKeyboards at the ready... stuff is about to happen!");
             Thread.Sleep(5000);
-            world.CurrentGame = "math2";
+            mode = GameMode.math2;
             int a = new Random().Next(1, 100);
             int b = new Random().Next(1, 200);
             world.Players.Message("&WWhat is... {0} + {1}?", a.ToString(), b.ToString());
@@ -76,7 +87,7 @@ namespace fCraft.Games
         public static void getOffGrass()
         {
             world.Games.Remove(getOffGrass);
-            world.CurrentGame = "getOffGrass";
+            mode = GameMode.getOffGrass;
             Map map = world.Map;
             world.Players.Message("&WKEEP OFF THE GRASS!!!");
             wait(6000);
@@ -110,7 +121,7 @@ namespace fCraft.Games
         public static void pinkPlatform()
         {
             world.Games.Remove(pinkPlatform);
-            world.CurrentGame = "pinkPlatform";
+            mode = GameMode.pinkplatform;
             Map map = world.Map;
             int startX = ((map.Bounds.XMin + map.Bounds.XMax) / 2) + new Random().Next(10, 50);
             int startY = ((map.Bounds.YMin + map.Bounds.YMax) / 2) + new Random().Next(10, 50);
@@ -144,7 +155,7 @@ namespace fCraft.Games
         public static void shootBlack()
         {
             world.Games.Remove(shootBlack);
-            world.CurrentGame = "shootBlack";
+            mode = GameMode.shootblack;
             GunModeOn();
             foreach (Player p in world.Players)
             {
@@ -179,7 +190,7 @@ namespace fCraft.Games
         {
             if (e.Player.World.GameOn)
             {
-                if (e.Player.World.CurrentGame != null)
+                if (Games.MineChallenge.mode == Games.MineChallenge.GameMode.NULL)
                 {
                     if (platform.Values.Count > 0)
                     {
@@ -268,6 +279,7 @@ namespace fCraft.Games
                 }
             }
         }
+
         public static void GameAdder(World world)
         {
             world.Games.Add(pinkPlatform);
@@ -390,6 +402,7 @@ namespace fCraft.Games
             GameThread.Abort();
         }
 
+        //needs a rewrite for new gun code
         public static void GunModeOn()
         {
             foreach (Player player in world.Players)
@@ -420,7 +433,7 @@ namespace fCraft.Games
             blueRoundsWon = 0;
             redRoundsWon = 0;
             completed.Clear();
-            world.CurrentGame = null;
+            mode = GameMode.NULL;
         }
     }
 }

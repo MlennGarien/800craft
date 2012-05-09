@@ -57,7 +57,6 @@ namespace fCraft {
         public int blueScore = 0;
         public List<Action> Games;
         public bool GameOn = false;
-        public string CurrentGame;
 
 
         /// <summary> Whether this world is currently pending unload 

@@ -30,7 +30,7 @@ namespace fCraft.Games
                 double rSin = Math.Sin(((double)(128 - p.R) / 255) * 2 * Math.PI);
                 double rCos = Math.Cos(((double)(128 - p.R) / 255) * 2 * Math.PI);
 
-                ConcurrentDictionary<String, Vector3I> bullets = new ConcurrentDictionary<String, Vector3I>();
+                ConcurrentDictionary<String, Vector3I> balls = new ConcurrentDictionary<String, Vector3I>();
                 FootThread = new Thread(new ThreadStart(delegate
                 {
                     int startX = footballPos.X;
@@ -50,7 +50,7 @@ namespace fCraft.Games
                             {
                                 break; //needs bounce... hmmm
                             }
-                            foreach (Vector3I bp in bullets.Values)
+                            foreach (Vector3I bp in balls.Values)
                             {
                                 world.Map.QueueUpdate(new BlockUpdate(null,
                                     (short)bp.X,
@@ -58,9 +58,9 @@ namespace fCraft.Games
                                     (short)bp.Z,
                                     Block.Air));
                                 Vector3I removed;
-                                bullets.TryRemove(bp.ToString(), out removed);
+                                balls.TryRemove(bp.ToString(), out removed);
                             }
-                            bullets.TryAdd(new Vector3I(pos.X, pos.Y, pos.Z).ToString(), new Vector3I(pos.X, pos.Y, pos.Z));
+                            balls.TryAdd(new Vector3I(pos.X, pos.Y, pos.Z).ToString(), new Vector3I(pos.X, pos.Y, pos.Z));
                             drawFootball(new Vector3I(pos.X, pos.Y, pos.Z));
                             Thread.Sleep(80);
                         }
