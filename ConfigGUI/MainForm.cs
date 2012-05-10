@@ -1611,5 +1611,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         {
 
         }
+
+        private void lCrashReportDisclaimer_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

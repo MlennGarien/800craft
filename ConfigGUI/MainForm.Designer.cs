@@ -3350,6 +3350,7 @@
             this.lCrashReportDisclaimer.Size = new System.Drawing.Size(521, 39);
             this.lCrashReportDisclaimer.TabIndex = 1;
             this.lCrashReportDisclaimer.Text = resources.GetString("lCrashReportDisclaimer.Text");
+            this.lCrashReportDisclaimer.Click += new System.EventHandler(this.lCrashReportDisclaimer_Click);
             // 
             // xSubmitCrashReports
             // 
