@@ -35,49 +35,54 @@ public class PhysScheduler
 
 		private void ProcessTasks()
 		{
-			try
+			WaitHandle[] handles = new WaitHandle[] { _continue, _stop };
+			int timeout = Timeout.Infinite;
+			for (; ; )
 			{
-				WaitHandle[] handles = new WaitHandle[] { _continue, _stop };
-				int timeout = Timeout.Infinite;
-				for (; ; )
+				int w = WaitHandle.WaitAny(handles, timeout);
+				if (1 == w) //stop
+					break;
+				PhysicsTask task;
+				//check if there is a due task
+				lock (_tasks)
 				{
-					int w = WaitHandle.WaitAny(handles, timeout);
-					if (1 == w) //stop
-						break;
-					PhysicsTask task;
-					lock (_tasks)
+					if (_tasks.Size == 0) //sanity check
 					{
-						if (_tasks.Size == 0) //sanity check
-						{
-							timeout = Timeout.Infinite;
-							continue; //nothing to do
-						}
-						task = _tasks.Head();
-						Int64 now = _watch.ElapsedMilliseconds;
-						if (task.DueTime <= now) //due time!
-							_tasks.RemoveHead();
-						else
-						{
-							timeout = (int)(task.DueTime - now); //here the time difference should not exceed 24 days :)
-							continue;
-						}
+						timeout = Timeout.Infinite;
+						continue; //nothing to do
 					}
-					int delay = task.Deleted ? 0 : task.Perform(); //dont perform deleted tasks 
-					lock (_tasks)
+					task = _tasks.Head();
+					Int64 now = _watch.ElapsedMilliseconds;
+					if (task.DueTime <= now) //due time!
+						_tasks.RemoveHead();
+					else
 					{
-						Int64 now = _watch.ElapsedMilliseconds;
-						if (delay > 0)
-						{
-							task.DueTime = now + delay;
-							_tasks.Add(task);
-						}
-						timeout = _tasks.Size > 0 ? Math.Max((int)(_tasks.Head().DueTime - now), 0) : Timeout.Infinite; //here the time difference should not exceed 24 days :)
+						timeout = (int)(task.DueTime - now); //here the time difference should not exceed 24 days :)
+						continue;
 					}
 				}
-			}
-			catch (Exception e)
-			{
-                Logger.Log(LogType.Error, "ProcessPhysicsTasks: " + e);
+				int delay;
+				//preform it
+				try
+				{
+					delay = task.Deleted ? 0 : task.Perform(); //dont perform deleted tasks 
+				}
+				catch (Exception e)
+				{
+					delay = 0;
+					Logger.Log(LogType.Error, "ProcessPhysicsTasks: " + e);
+				}
+				//decide what's next
+				lock (_tasks)
+				{
+					Int64 now = _watch.ElapsedMilliseconds;
+					if (delay > 0)
+					{
+						task.DueTime = now + delay;
+						_tasks.Add(task);
+					}
+					timeout = _tasks.Size > 0 ? Math.Max((int)(_tasks.Head().DueTime - now), 0) : Timeout.Infinite; //here the time difference should not exceed 24 days :)
+				}
 			}
 		}
 

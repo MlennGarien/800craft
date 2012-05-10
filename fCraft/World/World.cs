@@ -138,7 +138,7 @@ namespace fCraft {
         {
 			AddPhysicsTask(new PlantTask(this, x, y, z), PlantTask.GetRandomDelay());
         }
-        public void EnablePlantPhysics(Player player)
+        public void EnablePlantPhysics(Player player, bool announce)
         {
             if (null != _plantTask)
             {
@@ -149,9 +149,10 @@ namespace fCraft {
             CheckIfPhysicsStarted();
             _plantTask = new GrassTask(this);
 			AddPhysicsTask(_plantTask, 0);
+            if(announce)
             Server.Message("{0}&S enabled Plant Physics on {1}", player.ClassyName, ClassyName);
         }
-        public void DisablePlantPhysics(Player player)
+        public void DisablePlantPhysics(Player player, bool announce)
         {
             if (null == _plantTask)
             {
@@ -162,11 +163,12 @@ namespace fCraft {
             _plantTask = null;
             CheckIfToStopPhysics();
             plantPhysics = false;
+            if (announce)
             Server.Message("{0}&S disabled Plant Physics on {1}", player.ClassyName, ClassyName);
         }
         #endregion
         #region TNT
-        public void EnableTNTPhysics(Player player)
+        public void EnableTNTPhysics(Player player, bool announce)
         {
             if (tntPhysics == true)
             {
@@ -175,10 +177,11 @@ namespace fCraft {
             }
             CheckIfPhysicsStarted();
             tntPhysics = true;
+            if (announce)
             Server.Message("{0}&S enabled TNT Physics on {1}", player.ClassyName, ClassyName);
         }
         
-        public void DisableTNTPhysics(Player player)
+        public void DisableTNTPhysics(Player player, bool announce)
         {
             if (tntPhysics == false)
             {
@@ -187,11 +190,12 @@ namespace fCraft {
             }
             tntPhysics = false;
             CheckIfToStopPhysics();
+            if (announce)
             Server.Message("{0}&S disabled TNT Physics on {1}", player.ClassyName, ClassyName);
         }
         #endregion
         #region Fireworks
-        public void EnableFireworkPhysics(Player player)
+        public void EnableFireworkPhysics(Player player, bool announce)
         {
             if (fireworkPhysics == true)
             {
@@ -200,10 +204,11 @@ namespace fCraft {
             }
             CheckIfPhysicsStarted();
             fireworkPhysics = true;
+            if (announce)
             Server.Message("{0}&S enabled Firework Physics on {1}", player.ClassyName, ClassyName);
         }
 
-        public void DisableFireworkPhysics(Player player)
+        public void DisableFireworkPhysics(Player player, bool announce)
         {
             if (fireworkPhysics == false)
             {
@@ -212,11 +217,12 @@ namespace fCraft {
             }
             fireworkPhysics = false;
             CheckIfToStopPhysics();
+            if (announce)
             Server.Message("{0}&S disabled Firework Physics on {1}", player.ClassyName, ClassyName);
         }
         #endregion
         #region Gun
-        public void EnableGunPhysics(Player player)
+        public void EnableGunPhysics(Player player, bool announce)
         {
             if (gunPhysics == true)
             {
@@ -225,10 +231,11 @@ namespace fCraft {
             }
             CheckIfPhysicsStarted();
             gunPhysics = true;
+            if (announce)
             Server.Message("{0}&S enabled Gun Physics on {1}", player.ClassyName, ClassyName);
         }
 
-        public void DisableGunPhysics(Player player)
+        public void DisableGunPhysics(Player player, bool announce)
         {
             if (gunPhysics == false)
             {
@@ -237,11 +244,12 @@ namespace fCraft {
             }
             gunPhysics = false;
             CheckIfToStopPhysics();
+            if (announce)
             Server.Message("{0}&S disabled Gun Physics on {1}", player.ClassyName, ClassyName);
         }
         #endregion
         #region Water
-        public void EnableWaterPhysics(Player player)
+        public void EnableWaterPhysics(Player player, bool announce)
         {
             if (waterPhysics == true)
             {
@@ -250,10 +258,11 @@ namespace fCraft {
             }
             CheckIfPhysicsStarted();
             waterPhysics = true;
+            if (announce)
             Server.Message("{0}&S enabled Water Physics on {1}", player.ClassyName, ClassyName);
         }
 
-        public void DisableWaterPhysics(Player player)
+        public void DisableWaterPhysics(Player player, bool announce)
         {
             if (waterPhysics == false)
             {
@@ -262,11 +271,12 @@ namespace fCraft {
             }
             waterPhysics = false;
             CheckIfToStopPhysics();
+            if (announce)
             Server.Message("{0}&S disabled Water Physics on {1}", player.ClassyName, ClassyName);
         }
         #endregion
         #region Sand
-        public void EnableSandPhysics(Player player)
+        public void EnableSandPhysics(Player player, bool announce)
         {
             if (sandPhysics == true)
             {
@@ -275,10 +285,11 @@ namespace fCraft {
             }
             CheckIfPhysicsStarted();
             sandPhysics = true;
+            if(announce)
             Server.Message("{0}&S enabled Sand Physics on {1}", player.ClassyName, ClassyName);
         }
 
-        public void DisableSandPhysics(Player player)
+        public void DisableSandPhysics(Player player, bool announce)
         {
             if (sandPhysics == false)
             {
@@ -287,6 +298,7 @@ namespace fCraft {
             }
             sandPhysics = false;
             CheckIfToStopPhysics();
+            if(announce)
             Server.Message("{0}&S disabled Sand Physics on {1}", player.ClassyName, ClassyName);
         }
         #endregion

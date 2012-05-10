@@ -20,20 +20,29 @@ namespace fCraft
             {
                 Player player = e.Player;
                 World world = player.World;
-                if (world != null && world.IsLoaded && world.plantPhysics)
+				if (null==world)
+					return;
+				lock (world.SyncRoot)
                 {
-                    Vector3I z = new Vector3I(e.Coords.X, e.Coords.Y, e.Coords.Z - 1);
-                    if (world.Map.GetBlock(z) == Block.Grass)
-                    {
-                        world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
-                    }
-                    else if (Physics.Physics.CanSquash(world.Map.GetBlock(z)))
-                    {
-                        e.Result = CanPlaceResult.Revert;
-                        Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);
-                        world.Map.QueueUpdate(new BlockUpdate(null, z, e.NewBlock));
-                    }
-                }
+					if (null!=world.Map && world.IsLoaded && world.plantPhysics)
+					{
+						if (e.NewBlock == Block.Plant)
+						{
+							world.AddPhysicsTask(new PlantTask(world, (short)e.Coords.X, (short)e.Coords.Y, (short)e.Coords.Z), PlantTask.GetRandomDelay());
+						}
+                		Vector3I z = new Vector3I(e.Coords.X, e.Coords.Y, e.Coords.Z - 1);
+						if (world.Map.GetBlock(z) == Block.Grass)
+						{
+							world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
+						}
+						else if (Physics.Physics.CanSquash(world.Map.GetBlock(z)))
+						{
+							e.Result = CanPlaceResult.Revert;
+							Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);
+							world.Map.QueueUpdate(new BlockUpdate(null, z, e.NewBlock));
+						}
+					}
+				}
             }
             catch (Exception ex)
             {
@@ -73,12 +82,13 @@ namespace fCraft
 
         protected override int PerformInternal()
         {
-            if (!_world.plantPhysics)
+			if (!_world.plantPhysics || 0 >= _rndCoords.Length) //+sanity check, now we are sure that we have at least 1 element in _rndCoords
                 return 0;
 
-            Coords c = _rndCoords[_i];
-            if (++_i >= _rndCoords.Length)
-                _i = 0;
+			if (_i >= _rndCoords.Length)
+				_i = 0;
+            Coords c = _rndCoords[_i++]; 
+           
 
             bool shadowed = false;
             for (short z = (short)(_map.Height - 1); z >= 0; --z)

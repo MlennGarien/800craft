@@ -107,35 +107,35 @@ namespace fCraft {
                 case "tnt":
                     if (NextOp.ToLower() == "on")
                     {
-                        world.EnableTNTPhysics(player);
+                        world.EnableTNTPhysics(player, true);
                         return;
                     }
                     if(NextOp.ToLower() == "off")
                     {
-                        world.DisableTNTPhysics(player);
+                        world.DisableTNTPhysics(player, true);
                         return;
                     }
                     break;
                 case "gun":
                     if (NextOp.ToLower() == "on")
                     {
-                        world.EnableGunPhysics(player);
+                        world.EnableGunPhysics(player, true);
                         return;
                     }
                     if (NextOp.ToLower() == "off")
                     {
-                        world.DisableGunPhysics(player);
+                        world.DisableGunPhysics(player, true);
                         return;
                     }
                     break;
                 case "plant":
                     if (NextOp.ToLower() == "off"){
-                        world.DisablePlantPhysics(player);
+                        world.DisablePlantPhysics(player, true);
                         return;
                     }
                     if (NextOp.ToLower() == "on")
                     {
-                        world.EnablePlantPhysics(player);
+                        world.EnablePlantPhysics(player, true);
                         return;
                     }
                     break;
@@ -143,12 +143,12 @@ namespace fCraft {
                 case "firework":
                     if (NextOp.ToLower() == "on")
                     {
-                        world.EnableFireworkPhysics(player);
+                        world.EnableFireworkPhysics(player, true);
                         return;
                     }
                     if (NextOp.ToLower() == "off")
                     {
-                        world.DisableFireworkPhysics(player);
+                        world.DisableFireworkPhysics(player, true);
                         return;
                     }
                     break;
@@ -156,24 +156,24 @@ namespace fCraft {
                 case "sand":
                     if (NextOp.ToLower() == "on")
                     {
-                        world.EnableSandPhysics(player);
+                        world.EnableSandPhysics(player, true);
                         return;
                     }
                     if (NextOp.ToLower() == "off")
                     {
-                        world.DisableSandPhysics(player);
+                        world.DisableSandPhysics(player, true);
                         return;
                     }
                     break;
                 case "water":
                     if (NextOp.ToLower() == "on")
                     {
-                        world.EnableWaterPhysics(player);
+                        world.EnableWaterPhysics(player, true);
                         return;
                     }
                     if (NextOp.ToLower() == "off")
                     {
-                        world.DisableWaterPhysics(player);
+                        world.DisableWaterPhysics(player, true);
                         return;
                     }
                     break;
@@ -181,17 +181,17 @@ namespace fCraft {
                     if (NextOp.ToLower() == "on")
                     {
                         if (!world.tntPhysics){
-                            world.EnableTNTPhysics(player);
+                            world.EnableTNTPhysics(player, false);
                         }if (!world.sandPhysics){
-                            world.EnableSandPhysics(player);
+                            world.EnableSandPhysics(player, false);
                         }if (!world.fireworkPhysics){
-                            world.EnableFireworkPhysics(player);
+                            world.EnableFireworkPhysics(player, false);
                         }if (!world.waterPhysics){
-                            world.EnableWaterPhysics(player);
+                            world.EnableWaterPhysics(player, false);
                         }if (!world.plantPhysics){
-                            world.EnablePlantPhysics(player);
+                            world.EnablePlantPhysics(player, false);
                         }if (!world.gunPhysics){
-                            world.EnableGunPhysics(player);
+                            world.EnableGunPhysics(player, false);
                         }
                         Server.Players.Message("{0}&S turned ALL Physics on for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics on for {1}", player.Name, world.Name);
@@ -200,17 +200,17 @@ namespace fCraft {
                     else if (NextOp.ToLower() == "off")
                     {
                         if (world.tntPhysics){
-                            world.DisableTNTPhysics(player);
+                            world.DisableTNTPhysics(player, false);
                         }if (world.sandPhysics){
-                            world.DisableSandPhysics(player);
+                            world.DisableSandPhysics(player, false);
                         }if (world.fireworkPhysics){
-                            world.DisableFireworkPhysics(player);
+                            world.DisableFireworkPhysics(player, false);
                         }if (world.waterPhysics){
-                            world.DisableWaterPhysics(player);
+                            world.DisableWaterPhysics(player, false);
                         }if (world.plantPhysics){
-                            world.DisablePlantPhysics(player);
+                            world.DisablePlantPhysics(player, false);
                         }if (world.gunPhysics){
-                            world.DisableGunPhysics(player);
+                            world.DisableGunPhysics(player, false);
                         }
                         Server.Players.Message("{0}&S turned ALL Physics off for {1}", player.ClassyName, world.ClassyName);
                         Logger.Log(LogType.SystemActivity, "{0} turned ALL Physics off for {1}", player.Name, world.Name);
@@ -636,8 +636,7 @@ namespace fCraft {
             Category = CommandCategory.World,
             Permissions = new[] { Permission.Realm },
             IsConsoleSafe = false,
-            Usage = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
-            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Invite",
+            Usage = "/Realm <Option>. /Help Realm for a list of commands.",
             Help = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
             "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Invite",
             Handler = Realm,
