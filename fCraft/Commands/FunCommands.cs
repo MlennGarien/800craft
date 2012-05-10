@@ -15,7 +15,7 @@ namespace fCraft
             //CommandManager.RegisterCommand(CdGame);
 
             CommandManager.RegisterCommand(CdFirework);
-			/*CommandManager.RegisterCommand(
+			CommandManager.RegisterCommand(
 				new CommandDescriptor()
 				{
 					Name = "Life",
@@ -66,7 +66,7 @@ namespace fCraft
 					Help = "Removes game of life with the given name/n(c) 2012 LaoTszy",
 					UsableByFrozenPlayers = false,
 					Handler = RemoveLifeHandler,
-				});*/
+				});
         }
 
         static readonly CommandDescriptor CdFirework = new CommandDescriptor
