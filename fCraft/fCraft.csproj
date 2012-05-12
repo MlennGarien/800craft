@@ -131,6 +131,24 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Drawing\DrawOps\WallsOp.cs" />
+    <Compile Include="Drawing\nbt\Class1.cs" />
+    <Compile Include="Drawing\nbt\Exceptions\NbtQueryException.cs" />
+    <Compile Include="Drawing\nbt\Queries\TagQuery.cs" />
+    <Compile Include="Drawing\nbt\Queries\TagQueryToken.cs" />
+    <Compile Include="Drawing\nbt\Tags\INbtTagList.cs" />
+    <Compile Include="Drawing\nbt\Tags\INbtTagValue.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtByte.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtByteArray.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtCompound.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtDouble.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtFloat.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtInt.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtList.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtLong.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtShort.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtString.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtTag.cs" />
+    <Compile Include="Drawing\nbt\Tags\NbtTagType.cs" />
     <Compile Include="Games\Football.cs" />
     <Compile Include="Games\MineChallenge.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
