@@ -157,6 +157,7 @@
     <Compile Include="Physics\Life\Life2DZone.cs" />
     <Compile Include="Physics\ParticleSystem.cs" />
     <Compile Include="Physics\Physics.cs" />
+    <Compile Include="Physics\PhysicsHeap.cs" />
     <Compile Include="Physics\PhysicsScheduler.cs" />
     <Compile Include="Physics\PlantPhysics.cs" />
     <Compile Include="Physics\SandPhysics.cs" />
