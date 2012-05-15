@@ -44,6 +44,8 @@ namespace fCraft {
 
         public static List<Player> TempBans = new List<Player>();
 
+        public static LuaPlugin luaPlugin;
+
 
         // networking
         static TcpListener listener;
@@ -294,6 +296,13 @@ namespace fCraft {
             // prepare the list of commands
             CommandManager.Init();
             PluginManager.GetInstance(); //2nd means plugins crash and not 800Craft
+            if (File.Exists("plugins/init.lua"))
+            {
+                luaPlugin = new LuaPlugin("plugins/init.lua");
+                luaPlugin.Start();
+            }else{
+                Logger.Log(LogType.Error, "Cannot start Lua plugin system");
+            }
             // prepare the brushes
             BrushManager.Init();
 
