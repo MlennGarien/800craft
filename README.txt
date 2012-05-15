@@ -158,10 +158,10 @@ To request features, report bugs, or receive support, please visit:
 
 === Licensing =================================================================
 
-800Craft code and binaries are covered by the GPLv3 licence, and distributed using both licences.
+800Craft code and binaries are covered by the GPLv3 license, and distributed using both licences.
 
-800Craft's licence:
-Copyright (C) <2012>  <Jon Baker, Glenn Mariën and Lao Tszy>
+800Craft's license:
+Copyright (C) <2012> <Jon Baker, Glenn Mariën and Lao Tszy>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -203,9 +203,9 @@ THE SOFTWARE.
 ----
 
 If you create 800Craft plugins that do not include any substantial portions of
-fCraft's original code, they belong to you and you are free to do absolutely
+fCraft's original code or 800Craft's code, they belong to you and you are free to do absolutely
 anything with them. However, if you would like to distribute whole modified
-copies of fCraft, please follow the MIT License terms.
+copies of 800Craft, please follow the MIT and the GPLv3 License terms.
 
 Original Minecraft was developed by Markus "Notch" Petersson of Mojang, and is 
 not affiliated with fCraft in any way. fCraft does not use any code, assets,
