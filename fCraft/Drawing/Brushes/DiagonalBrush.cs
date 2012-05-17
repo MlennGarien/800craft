@@ -10,7 +10,7 @@ namespace fCraft.Drawing
         public static readonly DiagonalBrushFactory Instance = new DiagonalBrushFactory();
         DiagonalBrushFactory()
         {
-            Aliases = new[] { "zigzag" };
+            Aliases = new[] { "zigzag" }; 
         }
         public string Name
         {
