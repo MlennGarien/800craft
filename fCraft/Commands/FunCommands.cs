@@ -28,61 +28,64 @@ namespace fCraft
             CommandManager.RegisterCommand(CdRandomMaze);
             CommandManager.RegisterCommand(CdMazeCuboid);
             //CommandManager.RegisterCommand(CdGame);
-
             CommandManager.RegisterCommand(CdFirework);
-			CommandManager.RegisterCommand(
-				new CommandDescriptor()
-				{
-					Name = "Life",
-					Category = CommandCategory.Fun,
-					Permissions = new[] { Permission.DrawAdvanced },
-					IsConsoleSafe = false,
-					NotRepeatable = true,
-					Usage = "/Life <name> [empty block] [normal block] [dead block] [newborn block]",
-					Help = "Google Conwey's Game of Life/n(c) 2012 LaoTszy",
-					UsableByFrozenPlayers = false,
-					Handler = LifeHandler,
-				});
-			CommandManager.RegisterCommand(
-				new CommandDescriptor()
-				{
-					Name = "StopLife",
-					Category = CommandCategory.Fun,
-					Permissions = new[] { Permission.DrawAdvanced },
-					IsConsoleSafe = false,
-					NotRepeatable = true,
-					Usage = "/StopLife <LifeName>",
-					Help = "Stops game of life with the given name/n(c) 2012 LaoTszy",
-					UsableByFrozenPlayers = false,
-					Handler = StopLifeHandler,
-				});
-			CommandManager.RegisterCommand(
-				new CommandDescriptor()
-				{
-					Name = "StartLife",
-					Category = CommandCategory.Fun,
-					Permissions = new[] { Permission.DrawAdvanced },
-					IsConsoleSafe = false,
-					NotRepeatable = true,
-					Usage = "/StartLife <LifeName>",
-					Help = "Starts previously stopped game of life with the given name/n(c) 2012 LaoTszy",
-					UsableByFrozenPlayers = false,
-					Handler = StartLifeHandler,
-				});
-			CommandManager.RegisterCommand(
-				new CommandDescriptor()
-				{
-					Name = "KillLife",
-					Category = CommandCategory.Fun,
-					Permissions = new[] { Permission.DrawAdvanced },
-					IsConsoleSafe = false,
-					NotRepeatable = true,
-					Usage = "/KillLife <LifeName>",
-					Help = "Removes game of life with the given name/n(c) 2012 LaoTszy",
-					UsableByFrozenPlayers = false,
-					Handler = RemoveLifeHandler,
-				});
+            CommandManager.RegisterCommand(CdLife);
+            CommandManager.RegisterCommand(CdStopLife);
+            CommandManager.RegisterCommand(CdStartLife);
+            CommandManager.RegisterCommand(CdKillLife);
         }
+
+        static readonly CommandDescriptor CdLife = new CommandDescriptor
+                {
+                    Name = "Life",
+                    Category = CommandCategory.Fun,
+                    Permissions = new[] { Permission.DrawAdvanced },
+                    IsConsoleSafe = false,
+                    NotRepeatable = true,
+                    Usage = "/Life <name> [empty block] [normal block] [dead block] [newborn block]",
+                    Help = "Google Conwey's Game of Life\n(c) 2012 LaoTszy",
+                    UsableByFrozenPlayers = false,
+                    Handler = LifeHandler,
+                };
+        static readonly CommandDescriptor CdStopLife = new CommandDescriptor
+        {
+            Name = "StopLife",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.DrawAdvanced },
+            IsConsoleSafe = false,
+            NotRepeatable = true,
+            Usage = "/StopLife <LifeName>",
+            Help = "Stops game of life with the given name\n(c) 2012 LaoTszy",
+            UsableByFrozenPlayers = false,
+            Handler = StopLifeHandler,
+        };
+
+        static readonly CommandDescriptor CdStartLife = new CommandDescriptor
+        {
+            Name = "StartLife",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.DrawAdvanced },
+            IsConsoleSafe = false,
+            NotRepeatable = true,
+            Usage = "/StartLife <LifeName>",
+            Help = "Starts previously stopped game of life with the given name\n(c) 2012 LaoTszy",
+            UsableByFrozenPlayers = false,
+            Handler = StartLifeHandler,
+        };
+
+        static readonly CommandDescriptor CdKillLife = new CommandDescriptor
+        {
+            Name = "KillLife",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.DrawAdvanced },
+            IsConsoleSafe = false,
+            NotRepeatable = true,
+            Usage = "/KillLife <LifeName>",
+            Help = "Removes game of life with the given name\n(c) 2012 LaoTszy",
+            UsableByFrozenPlayers = false,
+            Handler = RemoveLifeHandler,
+        };
+
 
         static readonly CommandDescriptor CdFirework = new CommandDescriptor
         {
@@ -156,17 +159,17 @@ namespace fCraft
             Handler = MazeHandler
         };
         static readonly CommandDescriptor CdMazeCuboid = new CommandDescriptor
-    {
-        Name = "MazeCuboid",
-        Aliases = new string[] { "Mc", "Mz", "Maze" },
-        Category = CommandCategory.Fun,
-        Permissions = new Permission[] { Permission.DrawAdvanced },
-        RepeatableSelection = true,
-        Help =
-            "Draws a cuboid with the current brush and with a random maze inside.(C) 2012 Lao Tszy",
-        Usage = "/MazeCuboid [block type]",
-        Handler = MazeCuboidHandler,
-    };
+        {
+            Name = "MazeCuboid",
+            Aliases = new string[] { "Mc", "Mz", "Maze" },
+            Category = CommandCategory.Fun,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            RepeatableSelection = true,
+            Help =
+                "Draws a cuboid with the current brush and with a random maze inside.(C) 2012 Lao Tszy",
+            Usage = "/MazeCuboid [block type]",
+            Handler = MazeCuboidHandler,
+        };
 
         private static void MazeHandler(Player p, Command cmd)
         {
@@ -192,172 +195,172 @@ namespace fCraft
                 Logger.Log(LogType.Error, "Error: " + e.Message);
             }
         }
-		private static void LifeHandler(Player p, Command cmd)
-		{
-			string name = cmd.Next();
-			if (String.IsNullOrWhiteSpace(name))
-			{
-				p.Message("Life zone name is missing or empty");
-				return;
-			}
+        private static void LifeHandler(Player p, Command cmd)
+        {
+            string name = cmd.Next();
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                p.Message("&WLife zone name is missing or empty");
+                return;
+            }
 
-			World w = p.World;
-			if (null==w)
-				return;
+            World w = p.World;
+            if (null == w)
+                return;
 
-			lock(w.SyncRoot)
-			{
-				if (null==w.Map)
-					return;
-				if (w.Map.LifeZones.ContainsKey(name.ToLower()))
-				{
-					p.Message("Life zone with such name exists already, choose another name");
-					return;
-				}
-			}
-			
-			List<Block> l=new List<Block>();
-			Block b = Block.Undefined;
-			for (int i=0; i<4; ++i)
-			{
-				b = cmd.NextBlock(p);
-				if (b == Block.Undefined)
-					b=Life2DZone.DefaultBlocks[i];
-				l.Add(b);
-			}
+            lock (w.SyncRoot)
+            {
+                if (null == w.Map)
+                    return;
+                if (w.Map.LifeZones.ContainsKey(name.ToLower()))
+                {
+                    p.Message("&WLife zone with such name exists already, choose another name");
+                    return;
+                }
+            }
 
-			p.SelectionStart(2, LifeCallback, new LifeCBData(){Name=name, Blocks=l}, Permission.DrawAdvanced);
-			p.MessageNow("Life zone: Place a block or type /Mark to use your location.");
-		}
+            List<Block> l = new List<Block>();
+            Block b = Block.Undefined;
+            for (int i = 0; i < 4; ++i)
+            {
+                b = cmd.NextBlock(p);
+                if (b == Block.Undefined)
+                    b = Life2DZone.DefaultBlocks[i];
+                l.Add(b);
+            }
 
-		private struct LifeCBData
-		{
-			public string Name;
-			public List<Block> Blocks;
-		}
-		static void LifeCallback(Player player, Vector3I[] marks, object state)
-		{
-			LifeCBData data = (LifeCBData) state;
-			List<Block> l = data.Blocks;
+            p.SelectionStart(2, LifeCallback, new LifeCBData() { Name = name, Blocks = l }, Permission.DrawAdvanced);
+            p.MessageNow("Life zone: Place a block or type /Mark to use your location.");
+        }
 
-			try
-			{
-				World w = player.World;
-				if (null == w)
-					return;
+        private struct LifeCBData
+        {
+            public string Name;
+            public List<Block> Blocks;
+        }
+        static void LifeCallback(Player player, Vector3I[] marks, object state)
+        {
+            LifeCBData data = (LifeCBData)state;
+            List<Block> l = data.Blocks;
 
-				lock (w.SyncRoot)
-				{
-					if (null == w.Map)
-						return;
-					if (w.Map.LifeZones.ContainsKey(data.Name.ToLower()))
-					{
-						player.Message("Life zone with such name exists already, choose another name");
-						return;
-					}
-					player.World.StartScheduler(TaskCategory.Scripting);
-					Life2DZone zone = new Life2DZone(player.World, marks, l[Life2DZone.EmptyIdx], l[Life2DZone.NormalIdx],
-													 l[Life2DZone.DeadIdx], l[Life2DZone.NewbornIdx], Life2DZone.DefaultHalfStepDelay,
-													 Life2DZone.DefaultDelay) { Name = data.Name };
-					w.Map.LifeZones.Add(data.Name, zone);
-					zone.Start();
-				}
-				
-			}
-			catch (Exception e)
-			{
-				player.Message("Life error: "+e.Message);
-			}
-			
-		}
+            try
+            {
+                World w = player.World;
+                if (null == w)
+                    return;
 
-		private static void StopLifeHandler(Player p, Command cmd)
-		{
-			string name = cmd.Next();
-			if (String.IsNullOrWhiteSpace(name))
-			{
-				p.Message("Life zone name is missing or empty");
-				return;
-			}
+                lock (w.SyncRoot)
+                {
+                    if (null == w.Map)
+                        return;
+                    if (w.Map.LifeZones.ContainsKey(data.Name.ToLower()))
+                    {
+                        player.Message("&WLife zone with such name exists already, choose another name");
+                        return;
+                    }
+                    player.World.StartScheduler(TaskCategory.Scripting);
+                    Life2DZone zone = new Life2DZone(player.World, marks, l[Life2DZone.EmptyIdx], l[Life2DZone.NormalIdx],
+                                                     l[Life2DZone.DeadIdx], l[Life2DZone.NewbornIdx], Life2DZone.DefaultHalfStepDelay,
+                                                     Life2DZone.DefaultDelay) { Name = data.Name };
+                    w.Map.LifeZones.Add(data.Name, zone);
+                    zone.Start();
+                }
 
-			World w = p.World;
-			if (null == w)
-				return;
+            }
+            catch (Exception e)
+            {
+                player.Message("&WLife error: " + e.Message);
+            }
 
-			Life2DZone life;
-			lock (w.SyncRoot)
-			{
-				if (null == w.Map)
-					return;
-				
-				if (!w.Map.LifeZones.TryGetValue(name.ToLower(), out life))
-				{
-					p.Message("Can not find life " + name);
-					return;
-				}
-			}
-			life.Stop();
-			p.Message("Life " + name + " was stopped");
-		}
+        }
 
-		private static void StartLifeHandler(Player p, Command cmd)
-		{
-			string name = cmd.Next();
-			if (String.IsNullOrWhiteSpace(name))
-			{
-				p.Message("Life zone name is missing or empty");
-				return;
-			}
+        private static void StopLifeHandler(Player p, Command cmd)
+        {
+            string name = cmd.Next();
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                p.Message("&WLife zone name is missing or empty");
+                return;
+            }
 
-			World w = p.World;
-			if (null == w)
-				return;
+            World w = p.World;
+            if (null == w)
+                return;
 
-			Life2DZone life;
-			lock (w.SyncRoot)
-			{
-				if (null == w.Map)
-					return;
+            Life2DZone life;
+            lock (w.SyncRoot)
+            {
+                if (null == w.Map)
+                    return;
 
-				if (!w.Map.LifeZones.TryGetValue(name.ToLower(), out life))
-				{
-					p.Message("Can not find life " + name);
-					return;
-				}
-			}
-			life.Start();
-			p.Message("Life " + name + " was started");
-		}
+                if (!w.Map.LifeZones.TryGetValue(name.ToLower(), out life))
+                {
+                    p.Message("&WCan not find life " + name);
+                    return;
+                }
+            }
+            life.Stop();
+            p.Message("Life " + name + " was stopped");
+        }
 
-		private static void RemoveLifeHandler(Player p, Command cmd)
-		{
-			string name = cmd.Next();
-			if (String.IsNullOrWhiteSpace(name))
-			{
-				p.Message("Life zone name is missing or empty");
-				return;
-			}
+        private static void StartLifeHandler(Player p, Command cmd)
+        {
+            string name = cmd.Next();
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                p.Message("&WLife zone name is missing or empty");
+                return;
+            }
 
-			World w = p.World;
-			if (null == w)
-				return;
+            World w = p.World;
+            if (null == w)
+                return;
 
-			Life2DZone life;
-			lock (w.SyncRoot)
-			{
-				if (null == w.Map)
-					return;
+            Life2DZone life;
+            lock (w.SyncRoot)
+            {
+                if (null == w.Map)
+                    return;
 
-				if (!w.Map.LifeZones.TryGetValue(name.ToLower(), out life))
-				{
-					p.Message("Can not find life " + name);
-					return;
-				}
-				life.Stop();
-				w.Map.LifeZones.Remove(name.ToLower());
-			}
-	
-			p.Message("Life " + name + " was killed");
-		}
+                if (!w.Map.LifeZones.TryGetValue(name.ToLower(), out life))
+                {
+                    p.Message("&WCan not find life " + name);
+                    return;
+                }
+            }
+            life.Start();
+            p.Message("Life " + name + " was started");
+        }
+
+        private static void RemoveLifeHandler(Player p, Command cmd)
+        {
+            string name = cmd.Next();
+            if (String.IsNullOrWhiteSpace(name))
+            {
+                p.Message("&WLife zone name is missing or empty");
+                return;
+            }
+
+            World w = p.World;
+            if (null == w)
+                return;
+
+            Life2DZone life;
+            lock (w.SyncRoot)
+            {
+                if (null == w.Map)
+                    return;
+
+                if (!w.Map.LifeZones.TryGetValue(name.ToLower(), out life))
+                {
+                    p.Message("&WCan not find life " + name);
+                    return;
+                }
+                life.Stop();
+                w.Map.LifeZones.Remove(name.ToLower());
+            }
+
+            p.Message("Life " + name + " was killed");
+        }
     }
 }

@@ -219,7 +219,6 @@
     <Compile Include="Player\PlayerDB.cs" />
     <Compile Include="Player\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="app.config" />
     <Compile Include="Utils\Trie.cs" />
     <Compile Include="Player\Position.cs" />
     <Compile Include="World\Block.cs" />

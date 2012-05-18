@@ -59,7 +59,7 @@ namespace fCraft.Physics
             Player.Clicked += PlayerClickedPhysics;
         }
 
-        public static void PlayerClickedPhysics(object sender, Events.PlayerClickedEventArgs e)
+        public static void PlayerClickedPhysics(object sender, PlayerClickedEventArgs e)
         {
             World world = e.Player.World;
             if (world.Map.GetBlock(e.Coords) == Block.TNT)

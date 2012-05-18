@@ -43,13 +43,9 @@ namespace fCraft {
         public bool plantPhysics = false;
         public bool sandPhysics = false;
         public bool gunPhysics = false;
-        private Queue<PhysicsBlock> updateQueue = new Queue<PhysicsBlock>();
-        private object queueLock = new object();
-        public bool lavaSpongeEnabled = false;
-        //private EventWaitHandle start = new EventWaitHandle(false, EventResetMode.ManualReset);
-       // public Thread phyThread;
 
         //games
+        //move all these tings
         public ConcurrentDictionary<String, Vector3I> blockCache = new ConcurrentDictionary<String, Vector3I>();
         public List<Player> redTeam = new List<Player>();
         public List<Player> blueTeam = new List<Player>();
@@ -57,6 +53,7 @@ namespace fCraft {
         public int blueScore = 0;
         public List<Action> Games;
         public bool GameOn = false;
+        public GameMode gameMode = GameMode.NULL;
 
 
         /// <summary> Whether this world is currently pending unload 
@@ -117,9 +114,25 @@ namespace fCraft {
 				_physSchedulers.Add(new PhysScheduler(this));
         }
 
+        #region Games
+
+        public enum GameMode
+        {
+            FFA,
+            CaptureTheFlag,
+            GunGame,
+            ZombieSurvival,
+            BotSurvival, 
+            MineField,
+            Football,
+            MineChallenge,
+            NULL
+        }
+        #endregion
+
         #region Physics
 
-		internal void StartScheduler(TaskCategory cat)
+        internal void StartScheduler(TaskCategory cat)
 		{
 			if (!_physSchedulers[(int)cat].Started)
 				_physSchedulers[(int)cat].Start();

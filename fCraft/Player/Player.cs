@@ -172,6 +172,7 @@ namespace fCraft {
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
         public IDictionary<string, object> PublicAuxStateObjects { get { return _publicAuxStateObjects; } }
 
+        //Portals
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
         public String PortalWorld;
@@ -179,10 +180,23 @@ namespace fCraft {
         public bool BuildingPortal = true;
         public DateTime LastUsedPortal;
         public DateTime LastWarnedPortal;
-        public DateTime DrownTime;
-        public readonly object PortalLock = new object();
         public bool PortalsEnabled = true;
+        public readonly object PortalLock = new object();
+
+        //Physics
+        public DateTime DrownTime;
     	public DateTime LastTimeTNTFired=DateTime.MinValue;
+        //note that this method updates the fired time, assuming that following this check the TNT will be fired
+        //this is a bad design generally, but sometimes its tempting to dont give a fuck
+        public bool CanFireTNT()
+        {
+            bool ret = (DateTime.UtcNow - LastTimeTNTFired) > TimeSpan.FromSeconds(1);
+            if (ret)
+                LastTimeTNTFired = DateTime.UtcNow;
+            return ret;
+        }
+
+        //Kill protection
         public bool CanBeKilled()
         {
             if (Immortal) return false;
@@ -192,15 +206,25 @@ namespace fCraft {
             }
             return true;
         }
-		//note that this method updates the fired time, assuming that following this check the TNT will be fired
-		//this is a bad design generally, but sometimes its tempting to dont give a fuck
-		public bool CanFireTNT()
-		{
-			bool ret= (DateTime.UtcNow - LastTimeTNTFired) > TimeSpan.FromSeconds(1);
-			if (ret)
-				LastTimeTNTFired = DateTime.UtcNow;
-			return ret;
-		}
+		
+
+        //List of weapons usable in game modes
+        //byte ID will be used for gungame
+        public enum GameWeapon : byte
+        {
+            Bat = 1,
+            DelayedGun = 2, 
+            FreezeGun = 3,
+            Gun = 4,
+            TNT = 5,
+            PortalGun = 6,
+            MineLauncher = 7,
+            MachineGun = 8,
+            FlameThrower = 9,
+        }
+
+        //used for impersonation (skin changing)
+        //if null, default skin is used
         public string iName = null;
 
 
