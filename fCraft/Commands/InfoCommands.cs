@@ -65,7 +65,8 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Shows a list of requirements needed to advance to the next rank.",
+            Help = "Can show an advacned list for a chosen section. "+ 
+            "Type /List to display the sections",
             Usage = "/List SectionName",
             Handler = ListHandler
         };

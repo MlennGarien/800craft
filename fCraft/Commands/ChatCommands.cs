@@ -34,6 +34,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBroMode);
             CommandManager.RegisterCommand(CdRageQuit);
             CommandManager.RegisterCommand(CdQuit);
+            CommandManager.RegisterCommand(CdGlobal);
 
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
@@ -80,6 +81,23 @@ namespace fCraft {
                 player.Info.LeaveMsg = "left the server: &C" + Msg;
                 player.Message("Your quit message is now set to: {0}", Msg);
             }
+        }
+
+        static readonly CommandDescriptor CdGlobal = new CommandDescriptor
+        {
+            Name = "Global",
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
+            Usage = "/Global [message]",
+            Help = "Sends a global message to other 800Craft servers",
+            Handler = GHandler
+        };
+
+        static void GHandler(Player player, Command cmd)
+        {
+            string Msg = cmd.NextAll();
+            GlobalChat.sendMessage(player, Msg);
         }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor

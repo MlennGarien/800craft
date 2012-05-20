@@ -49,7 +49,7 @@ namespace fCraft
         /// messages between multiple bots. If that's the case, several IRCThread objects
         /// are created. The bots grab messages from IRC.outputQueue whenever they are
         /// not on cooldown (a bit of an intentional race condition). </summary>
-        sealed class IRCThread : IDisposable
+        public sealed class IRCThread : IDisposable
         {
             TcpClient client;
             StreamReader reader;
@@ -492,7 +492,7 @@ namespace fCraft
         }
 
         // includes IRC color codes and non-printable ASCII
-        static readonly Regex NonPrintableChars = new Regex("\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled);
+        public static readonly Regex NonPrintableChars = new Regex("\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled);
 
         public static void Init()
         {
@@ -960,7 +960,7 @@ namespace fCraft
         }
 
 
-        static IRCMessage MessageParser([NotNull] string rawline, [NotNull] string actualBotNick)
+        public static IRCMessage MessageParser([NotNull] string rawline, [NotNull] string actualBotNick)
         {
             if (rawline == null) throw new ArgumentNullException("rawline");
             if (actualBotNick == null) throw new ArgumentNullException("actualBotNick");

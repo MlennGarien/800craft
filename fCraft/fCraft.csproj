@@ -154,6 +154,7 @@
     <Compile Include="Games\MineChallenge.cs" />
     <Compile Include="Games\Spell.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
+    <Compile Include="Network\GlobalChat.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\Life\Life2d.cs" />
     <Compile Include="Physics\Life\Life2DZone.cs" />
