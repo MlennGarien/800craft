@@ -93,7 +93,7 @@ namespace fCraft
 								_expression.EvaluateAsEquality(_scaler.ToFuncParam(arg1, min1, max1),
 									                     _scaler.ToFuncParam(arg2, min2, max2),
 														 _scaler.ToFuncParam(arg3Iterator, min3, max3));
-							//decision: we cant onl ytake points with 0 as comparison result as it will happen almost never.
+							//decision: we cant only take points with 0 as comparison result as it will happen almost never.
 							//We are reacting on the changes of the comparison result sign 
 							arg3 = int.MaxValue;
 							if (res.Item1 == 0) //exactly equal, wow, such a surprise
@@ -103,8 +103,8 @@ namespace fCraft
 							
 							if (DrawOneBlock())
 								++_count;
-							if (TimeToEndBatch)
-								return _count;
+							//if (TimeToEndBatch)
+							//    return _count;
 
 							prevComp = res.Item1;
                             prevDiff = res.Item2;

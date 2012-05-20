@@ -72,8 +72,8 @@ namespace fCraft
 								if (DrawOneBlock())
 									++_count;
 							}
-							if (TimeToEndBatch)
-								return _count;
+							//if (TimeToEndBatch)
+							//    return _count;
 						}
 						catch (Exception)
 						{

@@ -82,8 +82,8 @@ namespace fCraft
 						Coords.Z = _scaler.FromFuncResult(_expressions[2].Evaluate(t, u, v), Bounds.ZMin, Bounds.ZMax);
 						if (DrawOneBlock())
 							++count;
-						if (TimeToEndBatch)
-							return count;
+						//if (TimeToEndBatch)
+						//    return count;
 					}
 				}
 			}
