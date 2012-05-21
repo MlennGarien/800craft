@@ -99,21 +99,21 @@ namespace fCraft {
             string Msg = cmd.NextAll();
             if (Msg.Length < 1)
             {
-                if (player.Info.IsFollowing)
+                if (player.GlobalChat)
                 {
-                    player.Info.IsFollowing = false;
-                    GlobalChat.sendMessage(player, "has disabled the Global Chat (Left)");
+                    player.GlobalChat = false;
+                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " has disabled the Global Chat (Left)");
                     player.Message("You left the 800Craft Global Chat");
                     return;
                 }
-                if (!player.Info.IsFollowing)
+                if (!player.GlobalChat)
                 {
-                    player.Info.IsFollowing = true;
-                    GlobalChat.sendMessage(player, "has enabled the Global Chat (Joined)");
+                    player.GlobalChat = true;
+                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " has enabled the Global Chat (Joined)");
                     return;
                 }
             }
-            if (!player.Info.IsFollowing)
+            if (!player.GlobalChat)
             {
                 player.Message("&WGlobal chat is disabled for you. Type /Global to enable it");
                 return;
@@ -123,9 +123,10 @@ namespace fCraft {
                 player.MessageMuted();
                 return;
             }
+            Msg = player.ClassyName + Color.White + ": " + Msg;
             Msg = Color.ReplacePercentCodes(Msg);
             Msg = Color.ToIRCColorCodes(Msg);
-            GlobalChat.sendMessage(player, Msg);
+            GlobalChat.GlobalThread.SendChannelMessage(Msg);
         }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor

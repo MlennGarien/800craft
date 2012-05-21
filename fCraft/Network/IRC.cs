@@ -605,7 +605,7 @@ namespace fCraft
         }
 
 
-        static bool IsBotNick([NotNull] string str)
+        public static bool IsBotNick([NotNull] string str)
         {
             if (str == null) throw new ArgumentNullException("str");
             return threads.Any(t => t.ActualBotNick == str);

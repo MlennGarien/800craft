@@ -451,7 +451,8 @@ namespace fCraft {
 
             IsRunning = true;
             RaiseEvent( Started );
-            GlobalChat.StartStream();
+            GlobalChat.Init();
+            GlobalChat.Start();
             return true;
         }
 
