@@ -299,7 +299,6 @@ namespace fCraft {
 
             // Init IRC
             IRC.Init();
-            GlobalChat.StartStream();
             GunClass.Init();
             Physics.Physics.Load();
             HeartbeatSaverUtil.Init();
@@ -452,6 +451,7 @@ namespace fCraft {
 
             IsRunning = true;
             RaiseEvent( Started );
+            GlobalChat.StartStream();
             return true;
         }
 

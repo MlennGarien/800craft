@@ -21,6 +21,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.IO;
 using fCraft;
+using System.Text.RegularExpressions;
 
 namespace fCraft
 {
@@ -32,65 +33,92 @@ namespace fCraft
         public static StreamWriter sw = null;
         public static string server = "irc.esper.net";
         public static int port = 6667;
-        public static string nick = IRC.NonPrintableChars.Replace(ConfigKey.ServerName.GetString().Replace(" ", ""), "").ToLower();
-        public static string name = "#au70";
+        public static string nick = RemoveTroublesomeCharacters(ConfigKey.ServerName.GetString());
+        public static string name = "#800craft";
         public static Thread thread;
+
+        public static string RemoveTroublesomeCharacters(string inString)
+        {
+            if (inString == null) return null;
+            StringBuilder newString = new StringBuilder();
+            char ch;
+            for (int i = 0; i < inString.Length; i++){
+                ch = inString[i];
+                if ((ch <= 0x007A && ch >= 0x0061) || (ch <= 0x005A && ch >= 0x0041) || (ch <= 0x0039 && ch >= 0x0030) || ch == ']')
+                {
+                    newString.Append(ch);
+                }
+            }
+            return newString.ToString();
+        }
 
         public static void StartStream()
         {
-            thread = new Thread(new ThreadStart(delegate
+            try
             {
-                try
+                thread = new Thread(new ThreadStart(delegate
                 {
+                    //Stops an error
                     if (nick.Length > 55)
                     {
                         Logger.Log(LogType.Error, "GlobalChat: Name cannot exceed 55 characters");
                         return;
                     }
+                    nick = "[" + nick + "]";
+                    
+                    //start irc connection
                     IRCConnection = new TcpClient(server, port);
                     try
                     {
+                        //open streams
                         ns = IRCConnection.GetStream();
                         sr = new StreamReader(ns);
                         sw = new StreamWriter(ns);
                     }
                     catch (Exception e)
                     {
-                        Logger.Log(LogType.Error, "Communication error: "+e);
+                        Logger.Log(LogType.Error, "Communication error: " + e);
                     }
+                    //register
                     sendData("USER", nick + " 800CraftBot " + " 800CraftGlobalChat" + " :" + name);
                     sendData("NICK", nick);
+                    //send a ping and join if success
                     IRCWork();
-                }
-                catch(Exception e)
-                {
-                    Logger.Log(LogType.Error, "Connection Error: "+ e);
-                }
 
-                finally
-                {
-                    if (sr != null)
-                        sr.Close();
-                    if (sw != null)
-                        sw.Close();
-                    if (ns != null)
-                        ns.Close();
-                    if (IRCConnection != null)
-                        IRCConnection.Close();
-                }
+                })); thread.Start();
+            }
+            catch (Exception e)
+            {
+                Logger.Log(LogType.Error, "Connection Error: " + e);
+            }
 
-            })); thread.Start();
+            finally
+            {
+                //close all things
+                if (sr != null)
+                    sr.Close();
+                if (sw != null)
+                    sw.Close();
+                if (ns != null)
+                    ns.Close();
+                if (IRCConnection != null)
+                    IRCConnection.Close();
+            }
         }
 
+        //sends and handles a players message to the global chat
         public static void sendMessage(Player player, string message)
         {
             if (message == null)
             {
                 return;
             }
-            sw.WriteLine(IRCCommands.Privmsg(name, player.ClassyName + Color.White + ": " + message));
+            string data = IRCCommands.Privmsg(name, player.ClassyName + Color.White + ": " + message);
+                data = Color.ToIRCColorCodes(data);
+            sw.WriteLine(data);
             sw.Flush();
-            player.Message(player.ClassyName + Color.White + ": " + message);
+            //relay noraml message back to player
+            player.Message("&i(Global)" + player.ClassyName + Color.White + ": " + message);
         }
 
         public static void sendData(string cmd, string param)
@@ -99,13 +127,13 @@ namespace fCraft
             {
                 sw.WriteLine(cmd);
                 sw.Flush();
-                //Logger.Log(LogType.SystemActivity, cmd);
+               // Logger.Log(LogType.GlobalChat, cmd); //if debug
             }
             else
             {
                 sw.WriteLine(cmd + " " + param);
                 sw.Flush();
-                //Logger.Log(LogType.Error, cmd + " " + param);
+                //Logger.Log(LogType.GlobalChat, cmd + " " + param);
             }
         }
 
@@ -117,10 +145,11 @@ namespace fCraft
             IRCMessage msg;
             while (shouldRun)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(10); //wait to stop flood excess
                 data = sr.ReadLine();
                 msg = IRC.MessageParser(data, nick);
                 string processedMessage = msg.Message;
+                var SendList = Server.Players.Where(p => p.Info.IsFollowing);
                 if (msg.Type == IRCMessageType.ChannelAction)
                 {
                     if (processedMessage.StartsWith("\u0001ACTION"))
@@ -137,16 +166,25 @@ namespace fCraft
                     processedMessage = IRC.NonPrintableChars.Replace(processedMessage, "");
                     if (processedMessage.Length > 0)
                     {
-
-                        Server.Message("&i(Global) {0}{1}: {2}",
+                        SendList.Message("&i(Global){0}{1}: {2}",
                                         msg.Nick, Color.White, processedMessage);
-
                     }
                     else if (msg.Message.StartsWith("#"))
                     {
-                        Server.Message("&i(Global) {0}{1}: {2}",
+                        SendList.Message("&i(Global){0}{1}: {2}",
                                         msg.Nick, Color.White, processedMessage.Substring(1));
                     }
+                }
+                if (msg.Type == IRCMessageType.Join)
+                {
+                    SendList.Message("&i(Global) Server {0} joined the 800Craft Global Chat",
+                                    msg.Nick);
+                }
+
+                if (msg.Type == IRCMessageType.Quit || msg.Type == IRCMessageType.Part)
+                {
+                    SendList.Message("&i(Global) Server {0} left the 800Craft Global Chat",
+                                    msg.Nick);
                 }
 
                 char[] charSeparator = new char[] { ' ' };
@@ -155,6 +193,7 @@ namespace fCraft
                 {
                     sendData("PONG", ex[1]);
                     sendData("JOIN", name);
+                    Logger.Log(LogType.SystemActivity, "Joined 800Craft Global Chat with Bot Name: " + nick);
                 }
             }
         }
