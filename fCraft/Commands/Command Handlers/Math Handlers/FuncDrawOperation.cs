@@ -135,8 +135,8 @@ namespace fCraft
 													 _scaler.ToFuncParam(arg2, min2, max2)),
 								minV, maxV);
 						DrawFase1(fval, ref arg1, ref arg2, ref val, min1, max1, min2, max2, minV, maxV, maxBlocksToDraw);
-						if (TimeToEndBatch)
-							return _count;
+						//if (TimeToEndBatch)
+						//    return _count;
 					}
 					catch (Exception)
 					{

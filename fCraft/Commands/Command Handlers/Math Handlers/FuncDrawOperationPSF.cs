@@ -81,8 +81,8 @@ namespace fCraft
 				if (DrawOneBlock())
 				{
 					++_count;
-					if (TimeToEndBatch)
-						return;
+					//if (TimeToEndBatch)
+					//    return;
 				}
 			}
 		}
@@ -152,8 +152,8 @@ namespace fCraft
 						if (DrawOneBlock())
 						{
 							++count;
-							if (TimeToEndBatch)
-								return;
+							//if (TimeToEndBatch)
+							//    return;
 						}
 				}
 			}
