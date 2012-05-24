@@ -456,7 +456,7 @@ namespace fCraft
         static GlobalThread[] threads;
 
         const int Timeout = 10000; // socket timeout (ms)
-        internal static int SendDelay; // set by ApplyConfig
+        internal static int SendDelay = 750; //default
         const int ReconnectDelay = 15000;
 
         static string hostName;
@@ -500,8 +500,6 @@ namespace fCraft
 
         public static void Init()
         {
-            //if (!ConfigKey.IRCBotEnabled.Enabled()) return;
-
             hostName = "irc.esper.net";
             port = 6667;
             channelNames = new[] { "#800craft" };
