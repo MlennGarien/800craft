@@ -228,6 +228,7 @@ namespace fCraft {
         //used for impersonation (skin changing)
         //if null, default skin is used
         public string iName = null;
+        public bool entityChanged = false;
 
 
         // This constructor is used to create pseudoplayers (such as Console and /dummy).

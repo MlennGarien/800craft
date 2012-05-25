@@ -1240,9 +1240,13 @@ namespace fCraft {
                 if( entities.TryGetValue( otherPlayer, out entity ) ) {
                     entity.MarkedForRetention = true;
 
-                    if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
+                    if( entity.LastKnownRank != otherPlayer.Info.Rank || otherPlayer.entityChanged) {
                         ReAddEntity( entity, otherPlayer, otherPos );
                         entity.LastKnownRank = otherPlayer.Info.Rank;
+                        if (otherPlayer.entityChanged)
+                        {
+                            otherPlayer.entityChanged = false;
+                        }
 
                     } else if( entity.Hidden ) {
                         if( distance < entityShowingThreshold ) {

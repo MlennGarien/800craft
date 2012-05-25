@@ -323,7 +323,6 @@ namespace fCraft {
             Name = "Impersonate",
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
-            IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Changes to players skin to a desired name. " + 
             "If no playername is given, all changes are reverted. " + 
@@ -334,6 +333,7 @@ namespace fCraft {
 
         static void ImpersonateHandler(Player player, Command cmd)
         {
+            //entityChanged should be set to true for the skin update to happen in real time
             string iName = cmd.Next();
             if (iName == null && player.iName == null){
                 CdImpersonate.PrintUsage(player);
@@ -341,24 +341,19 @@ namespace fCraft {
             }
             if (iName == null){
                 player.iName = null;
-                player.Message("&SAll changes have been removed. "
-                    + "Change worlds, then rejoin the current world to update changes.");
-                return;
-            }
-            if (iName.ToLower().Equals("glennmr") || iName.ToLower().Equals("jonty800")){
-                player.Message("&WUse of this name is forbidden");
+                player.entityChanged = true;
+                player.Message("&SAll changes have been removed and your skin has been updated");
                 return;
             }
             //ignore isvalidname for percent codes to work
             if (player.iName == null){
-                player.Message("&SYour name has changed from '" + player.ClassyName + "&S' to '" + iName 
-                    + "&S'.\n Change worlds, then rejoin the current world to update changes.");
+                player.Message("&SYour name has changed from '" + player.ClassyName + "&S' to '" + iName);
             }
             if (player.iName != null){
-                player.Message("&SYour name has changed from '" + player.iName + "&S' to '" + iName 
-                    + "&S'.\n Change worlds, then rejoin the current world to update changes.");
+                player.Message("&SYour name has changed from '" + player.iName + "&S' to '" + iName);
             }
             player.iName = iName;
+            player.entityChanged = true;
         }
 
         static readonly CommandDescriptor CdTempBan = new CommandDescriptor
