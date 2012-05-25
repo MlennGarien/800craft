@@ -506,5 +506,63 @@ namespace fCraft
             restDistance = 0;
         }
     }
+
+    internal class FootballBehavior : IParticleBehavior
+    {
+        private static Random _r = new Random();
+
+        public int ProcessingStepsPerSecond
+        {
+            get { return 20; }
+        }
+
+        public int MaxDistance
+        {
+            get { return 1024; } //check what happens at max
+        }
+
+        public int MovesPerProcessingStep
+        {
+            get { return 1; }
+        }
+
+
+        private const double G = 10; //blocks per second per second
+        public void ModifyDirection(ref Vector3F direction, Block currentBlock) //change this
+        {
+            double t = 1.0 / (ProcessingStepsPerSecond * MovesPerProcessingStep);
+            Vector3F v = direction * (ProcessingStepsPerSecond * MovesPerProcessingStep);
+            Vector3F dv = new Vector3F(0, 0, (float)(-G * t));
+            direction = (v + dv).Normalize();
+        }
+
+        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates, Block sending)
+        {
+            //add some bounce and stuff in here
+            if (Block.Air != block && Block.Water != block) //explode it
+            {
+                restDistance = 0;
+                return false;
+            }
+            return true;
+        }
+
+        public bool CanKillPlayer
+        {
+            get { return false; }
+        }
+
+        public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
+        {
+            //if it hits a player, move at Delay to the floor in front of the player
+            for (int z = pos.Z; z > 0; z--)
+            {
+                if (world.Map.GetBlock(pos.X, pos.Y, z) != Block.Air)
+                {
+
+                }
+            }
+        }
+    }
 }
 

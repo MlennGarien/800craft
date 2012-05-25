@@ -54,6 +54,7 @@ namespace fCraft {
         public List<Action> Games;
         public bool GameOn = false;
         public GameMode gameMode = GameMode.NULL;
+        public Vector3I footballPos;
 
 
         /// <summary> Whether this world is currently pending unload 
