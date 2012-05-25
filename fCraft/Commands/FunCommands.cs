@@ -27,7 +27,7 @@ namespace fCraft
         {
             CommandManager.RegisterCommand(CdRandomMaze);
             CommandManager.RegisterCommand(CdMazeCuboid);
-            //CommandManager.RegisterCommand(CdGame);
+            CommandManager.RegisterCommand(CdGame);
             CommandManager.RegisterCommand(CdFirework);
             CommandManager.RegisterCommand(CdLife);
             CommandManager.RegisterCommand(CdStopLife);
@@ -162,14 +162,20 @@ namespace fCraft
 
         private static void GameHandler(Player player, Command cmd)
         {
+            string GameMode = cmd.Next();
+            string Option = cmd.Next();
             World world = player.World;
-            if (world == WorldManager.MainWorld)
-            {
-                player.Message("/Game cannot be used on the main world"); return;
+            if (world == WorldManager.MainWorld){
+                player.Message("/Game cannot be used on the main world"); 
+                return;
             }
-            if (world.GameOn)
-            {
-                Games.MineChallenge.Stop(player);
+
+            if(GameMode.ToLower() == "zombie"){
+                if (Option.ToLower() == "start")
+                {
+                    ZombieGame zombiegame = new ZombieGame(player.World);
+                    zombiegame.Start();
+                }
             }
             else
             {

@@ -55,7 +55,7 @@ namespace fCraft {
         public bool GameOn = false;
         public GameMode gameMode = GameMode.NULL;
         public Vector3I footballPos;
-
+        public Player[, ,] positions; 
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
@@ -345,7 +345,7 @@ namespace fCraft {
                 map = value;
             }
         }
-        Map map;
+        public Map map;
 
         /// <summary> Whether the map is currently loaded. </summary>
         public bool IsLoaded {
