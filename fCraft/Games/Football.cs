@@ -27,7 +27,6 @@ namespace fCraft
 {
     public class Football
     {
-        private Vector3I _footPos;
         private World _world;
         private Vector3I _startPos;
         public Football(Player player, World world, Vector3I FootballPos)

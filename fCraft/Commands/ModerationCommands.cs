@@ -276,6 +276,7 @@ namespace fCraft {
                 Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
                 target.TeleportTo(slap);
                 Server.Players.CanSee(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
+                IRC.IRCAnnounceCustom(String.Format("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName));
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
             }else{

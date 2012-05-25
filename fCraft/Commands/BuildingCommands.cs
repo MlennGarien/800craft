@@ -420,17 +420,13 @@ namespace fCraft {
             {
                 CdBanx.PrintUsage(player);
                 return;
-            }
-
-            else
-            {
+            }else{
                 UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
 
                 string reason = cmd.NextAll();
 
                 if (reason.Length < 1)
                     reason = "Reason Undefined: BanX";
-
                     
                 Player targetPlayer = target.PlayerObject;
                 target.Ban( player, reason, false, true );
@@ -441,13 +437,15 @@ namespace fCraft {
                             player.LastUsedPlayerName = target.Name;
                             target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
                         }
-                        Server.Players.Message("{0}&S was BanX'd by {1}&S(with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
+                        Server.Players.Message("{0}&S was BanX'd by {1}&S (with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
+                        IRC.IRCAnnounceCustom(String.Format("{0}&S was BanX'd by {1}&S(with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason));
                         return;
                     }
                     else
                     {
                         player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
                         Server.Players.Message("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason);
+                        IRC.IRCAnnounceCustom(String.Format("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason));
                     }
                 player.Message("&SConfirm the undo with &A/ok");
             }
