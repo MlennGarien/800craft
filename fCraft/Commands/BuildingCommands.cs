@@ -99,6 +99,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdTower);
             CommandManager.RegisterCommand(CdCylinder);
             CommandManager.RegisterCommand(CdDrawScheme);
+            CommandManager.RegisterCommand(CdCenter);
         }
 
         #region 800Craft
@@ -286,6 +287,55 @@ namespace fCraft {
             }
             else player.Message("&WError: No last used blocktype was found");
         }
+
+        static readonly CommandDescriptor CdCenter = new CommandDescriptor
+        {
+            Name = "Center",
+            Aliases = new[] {"Centre"},
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Build },
+            IsConsoleSafe = false,
+            NotRepeatable = false,
+            Usage = "/Center",
+            Help = "Places a block at the center for a chosen cuboided area",
+            UsableByFrozenPlayers = false,
+            Handler = CenterHandler
+        };
+
+        static void CenterHandler( Player player, Command cmd ) {
+            player.SelectionStart( 2, CenterCallback, null, CdCenter.Permissions );
+            player.MessageNow( "Center: Place a block or type /Mark to use your location." );
+        }
+
+
+        static void CenterCallback(Player player, Vector3I[] marks, object tag)
+        {
+            if (player.LastUsedBlockType != Block.Undefined)
+            {
+                int sx = Math.Min(marks[0].X, marks[1].X), ex = Math.Max(marks[0].X, marks[1].X),
+                sy = Math.Min(marks[0].Y, marks[1].Y), ey = Math.Max(marks[0].Y, marks[1].Y),
+                sz = Math.Min(marks[0].Z, marks[1].Z), ez = Math.Max(marks[0].Z, marks[1].Z);
+
+                BoundingBox bounds = new BoundingBox(sx, sy, sz, ex, ey, ez);
+                Vector3I cPos = new Vector3I((bounds.XMin + bounds.XMax) / 2,
+                    (bounds.YMin + bounds.YMax) / 2,
+                    (bounds.ZMin + bounds.ZMax) / 2);
+                int blocksDrawn = 0,
+                blocksSkipped = 0;
+                UndoState undoState = player.DrawBegin(null);
+
+                World playerWorld = player.World;
+                if (playerWorld == null) PlayerOpException.ThrowNoWorld(player);
+                Map map = player.WorldMap;
+                DrawOneBlock(player, player.World.Map, player.LastUsedBlockType, cPos,
+                          BlockChangeContext.Drawn,
+                          ref blocksDrawn, ref blocksSkipped, undoState);
+                DrawingFinished(player, "Placed", blocksDrawn, blocksSkipped);
+            }else{
+                player.Message("&WCannot deduce desired block. Click a block or type out the block name.");
+            }
+        }
+
 
        
         static readonly CommandDescriptor CdTower = new CommandDescriptor

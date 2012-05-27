@@ -346,7 +346,7 @@ namespace fCraft {
                 delta.Z = 0;
 
             }
-            else if (!Can(Permission.UseSpeedHack) || World.gameMode != World.GameMode.NULL)
+            else if (!Can(Permission.UseSpeedHack))
             {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // speedhack detection
@@ -1172,9 +1172,9 @@ namespace fCraft {
         // anti-speedhack vars
         int speedHackDetectionCounter;
         const int AntiSpeedMaxJumpDelta = 25, // 16 for normal client, 25 for WoM
-                  AntiSpeedMaxDistanceSquared = 256, // 16 * 16
-                  AntiSpeedMaxPacketCount = 100,
-                  AntiSpeedMaxPacketInterval = 3;
+                  AntiSpeedMaxDistanceSquared = 1024, // 32 * 32
+                  AntiSpeedMaxPacketCount = 200,
+                  AntiSpeedMaxPacketInterval = 6;
 
         // anti-speedhack vars: packet spam
         readonly Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
