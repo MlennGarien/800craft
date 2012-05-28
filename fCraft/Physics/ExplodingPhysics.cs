@@ -175,8 +175,12 @@ namespace fCraft
         {
             if (by == null)
             {
-                hitted.Kill(world, String.Format("{0}&S was torn to pieces and lost the game!", hitted.ClassyName));
-                return;
+                if (MineField.Failed != null && !MineField.Failed.Contains(hitted))
+                {
+                    hitted.Kill(world, String.Format("{0}&S was torn to pieces and lost the game!", hitted.ClassyName));
+                    return;
+                }
+                else return;
             }
 			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName==by.ClassyName?"theirself":by.ClassyName));
         }

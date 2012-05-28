@@ -185,15 +185,25 @@ namespace fCraft
             }
             if (GameMode.ToLower() == "minefield")
             {
-                MineField mField = new MineField();
                 if (Option.ToLower() == "start")
                 {
-                    mField.Start(player);
+                    if (WorldManager.FindWorldExact("Minefield") != null)
+                    {
+                        player.Message("&WA game of Minefield is currently running and must first be stopped");
+                        return;
+                    }
+                    MineField.GetInstance();
+                    MineField.Start(player);
                     return;
                 }
-                if (Option.ToLower() == "stop")
+                else if (Option.ToLower() == "stop")
                 {
-                    mField.Stop(player, false);
+                    if (WorldManager.FindWorldExact("Minefield") == null)
+                    {
+                        player.Message("&WA game of Minefield is currently not running");
+                        return;
+                    }
+                    MineField.Stop(player, false);
                     return;
                 }
                 else
