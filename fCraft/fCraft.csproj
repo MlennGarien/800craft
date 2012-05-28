@@ -152,6 +152,7 @@
     <Compile Include="Drawing\nbt\Tags\NbtTagType.cs" />
     <Compile Include="Games\Football.cs" />
     <Compile Include="Games\MineChallenge.cs" />
+    <Compile Include="Games\MineField.cs" />
     <Compile Include="Games\Spell.cs" />
     <Compile Include="Games\ZombieGame.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />

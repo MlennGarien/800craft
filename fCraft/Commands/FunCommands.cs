@@ -177,6 +177,14 @@ namespace fCraft
                     zombiegame.Start();
                 }
             }
+            if (GameMode.ToLower() == "minefield")
+            {
+                if (Option.ToLower() == "start")
+                {
+                    MineField mField = new MineField();
+                    mField.Start();
+                }
+            }
             else
             {
                 Games.MineChallenge.Start(player, player.World);

@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+///<Summary> Spell enum, to be used with Spell Physics </Summary>
 namespace fCraft
 {
     public enum Spell : byte
