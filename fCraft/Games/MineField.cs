@@ -29,7 +29,8 @@ namespace fCraft
         private World _world;
         private const int _ground = 15; 
         private Map _map;
-        public List<Player> Failed; //public so the Mines class can access it
+        public List<Player> Failed;
+        private bool stopped = false;
         public ConcurrentDictionary<string, Vector3I> Mines;
         private Random _rand;
         public MineField()
@@ -37,9 +38,10 @@ namespace fCraft
             Failed = new List<Player>();
             Mines = new ConcurrentDictionary<string, Vector3I>();
             Player.Moving += PlayerMoving;
+            Player.PlacingBlock += PlayerPlacing;
             _rand = new Random();
         }
-        public void Start()
+        public void Start(Player player)
         {
             Map map = MapGenerator.GenerateFlatgrass(64, 128, 32);
             map.Save("maps/minefield.fcm");
@@ -55,18 +57,38 @@ namespace fCraft
             _map.Spawn = new Position(_map.Width / 2, 5, _ground + 3).ToVector3I().ToPlayerCoords();
             _world.LoadMap();
             _world.gameMode = World.GameMode.MineField;
+            _world.EnableTNTPhysics(Player.Console, false);
+            Server.Message("{0}&S started a game of MineField on world Minefield!", player.ClassyName);
+        }
+
+        public void Stop(Player player, bool Won)
+        {
+            Failed.Clear();
+            foreach(Vector3I m in Mines.Values){
+                Vector3I removed;
+                Mines.TryRemove(m.ToString(), out removed);
+            }
+            WorldManager.RemoveWorld(_world);
+            if (Won){
+                if (!stopped){
+                    Server.Players.Message("{0}&S Won the game of MineField!", player.ClassyName);
+                    stopped = true;
+                }
+            }else{
+                Server.Players.Message("{0}&S aborted the game of MineFiled", player.ClassyName);
+            }
         }
 
         private void SetUpRed(){
-            for (int x = 1; x <= _map.Width; x++){
-                for (int y = 1; y <= 10; y++){
+            for (int x = 0; x <= _map.Width; x++){
+                for (int y = 0; y <= 10; y++){
                     _map.SetBlock(x, y, _ground, Block.Red);
                 }
             }
         }
 
         private void SetUpGreen(){
-            for (int x = _map.Width; x >= 1; x--){
+            for (int x = _map.Width; x >= 0; x--){
                 for (int y = _map.Length; y >= _map.Length - 10; y--){
                     _map.SetBlock(x, y, _ground, Block.Green);
                 }
@@ -81,7 +103,7 @@ namespace fCraft
                             _map.GetBlock(i, j, _ground) != Block.Green){
                             Vector3I vec = new Vector3I(i, j, _ground);
                             Mines.TryAdd(vec.ToString(), vec);
-                            _map.SetBlock(vec, Block.Red);//
+                            //_map.SetBlock(vec, Block.Red);//
                         }
                     }
                 }
@@ -98,26 +120,53 @@ namespace fCraft
             return false;
         }
 
+        private void PlayerPlacing(object sender, PlayerPlacingBlockEventArgs e)
+        {
+            World world = e.Player.World;
+            if (world.gameMode == World.GameMode.MineField)
+            {
+                e.Result = CanPlaceResult.Revert;
+            }
+        }
+
         private void PlayerMoving(object sender, PlayerMovingEventArgs e)
         {
-            if (e.Player.World.gameMode == World.GameMode.MineField && !Failed.Contains(e.Player)){
-                Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-                Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+            if(!stopped){
+                if(e.NewPosition!= null)
+                {
+                    if (e.Player.World.gameMode == World.GameMode.MineField && !Failed.Contains(e.Player))
+                    {
+                        Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                        Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
-                // Check if the player jumped, flew, whatevers
-                if (oldPos.Z != newPos.Z){
-                    if (newPos.Z > _ground + 2){
-                        e.Player.TeleportTo(e.OldPosition);
-                        newPos = oldPos;
-                    }
-                }
-                foreach (Vector3I pos in Mines.Values){
-                    Vector3I checkPos = new Vector3I(pos.X, pos.Y, pos.Z + 2);
-                    if (newPos == checkPos){
-                        e.Player.TeleportTo(_map.Spawn);
-                        Failed.Add(e.Player);
-                        Vector3I removed;
-                        Mines.TryRemove(pos.ToString(), out removed);
+                        // Check if the player jumped, flew, whatevers
+                        if (oldPos.Z != newPos.Z)
+                        {
+                            if (newPos.Z > _ground + 2)
+                            {
+                                e.Player.TeleportTo(e.OldPosition);
+                                newPos = oldPos;
+                            }
+                        }
+                        foreach (Vector3I pos in Mines.Values)
+                        {
+                            Vector3I checkPos = new Vector3I(pos.X, pos.Y, pos.Z + 2);
+                            if (newPos == checkPos)
+                            {
+                                _world.Map.QueueUpdate(new BlockUpdate(null, pos, Block.TNT));
+                                _world.AddPhysicsTask(new TNTTask(_world, pos, null, true, false), 0);
+                                if (PlayerBlowUpCheck(e.Player))
+                                {
+                                    e.Player.Message("&WYou lost the game! You are now unable to win.");
+                                }
+                                Vector3I removed;
+                                Mines.TryRemove(pos.ToString(), out removed);
+                            }
+                        }
+                        if (_map.GetBlock(newPos.X, newPos.Y, newPos.Z - 2) == Block.Green)
+                        {
+                            Stop(e.Player, true);
+                        }
                     }
                 }
             }

@@ -238,7 +238,7 @@ namespace fCraft
         {
 			if (Block.TNT == block) //explode it
 			{
-				world.AddPhysicsTask(new TNTTask(world, pos, owner, false), 0);
+				world.AddPhysicsTask(new TNTTask(world, pos, owner, false, true), 0);
 				return true;
 			}
 			if (Block.Air != block && Block.Water != block && Block.Lava != block)
@@ -486,7 +486,7 @@ namespace fCraft
             if (Block.Air != block && Block.Water != block) //explode it
             {
                 updates.Add(new BlockUpdate(null, pos, Block.TNT));
-                world.AddPhysicsTask(new TNTTask(world, pos, owner, false), 0);
+                world.AddPhysicsTask(new TNTTask(world, pos, owner, false, true), 0);
                 restDistance = 0;
                 return false;
             }
@@ -502,7 +502,7 @@ namespace fCraft
         {
             hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "theirself" : by.ClassyName));
             updates.Add(new BlockUpdate(null, pos, Block.TNT));
-            world.AddPhysicsTask(new TNTTask(world, pos, by, false), 0);
+            world.AddPhysicsTask(new TNTTask(world, pos, by, false, true), 0);
             restDistance = 0;
         }
     }

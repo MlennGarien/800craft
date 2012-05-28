@@ -175,19 +175,37 @@ namespace fCraft
                 {
                     ZombieGame zombiegame = new ZombieGame(player.World);
                     zombiegame.Start();
+                    return;
+                }
+                else
+                {
+                    CdGame.PrintUsage(player);
+                    return;
                 }
             }
             if (GameMode.ToLower() == "minefield")
             {
+                MineField mField = new MineField();
                 if (Option.ToLower() == "start")
                 {
-                    MineField mField = new MineField();
-                    mField.Start();
+                    mField.Start(player);
+                    return;
+                }
+                if (Option.ToLower() == "stop")
+                {
+                    mField.Stop(player, false);
+                    return;
+                }
+                else
+                {
+                    CdGame.PrintUsage(player);
+                    return;
                 }
             }
             else
             {
-                Games.MineChallenge.Start(player, player.World);
+                CdGame.PrintUsage(player);
+                return;
             }
         }
         static readonly CommandDescriptor CdRandomMaze = new CommandDescriptor

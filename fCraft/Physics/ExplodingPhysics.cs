@@ -50,10 +50,12 @@ namespace fCraft
 
         private Stage _stage;
         private int _currentR = 0;
+        private bool _particles;
 
-        public TNTTask(World world, Vector3I position, Player owner, bool gun)
+        public TNTTask(World world, Vector3I position, Player owner, bool gun, bool particles)
             : base(world)
         {
+            _particles = particles;
             _gun = gun;
             _pos = position;
             _owner = owner;
@@ -76,7 +78,10 @@ namespace fCraft
                         UpdateMap(new BlockUpdate(null, _pos, Block.Air));
 
                         _stage = Stage.Exploding; //switch to expansion stage
-                        CreateParticles();
+                        if (_particles)
+                        {
+                            CreateParticles();
+                        }
                         Explosion();
                         return StepDelay;
                     case Stage.Exploding:
@@ -156,7 +161,7 @@ namespace fCraft
             //chain explosion
             if (Block.TNT == prevBlock)
             {
-                _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false), _r.Next(50, 100));
+                _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false, _particles), _r.Next(50, 100));
                 return;
             }
 
@@ -168,6 +173,11 @@ namespace fCraft
 
         public void HitPlayer(World world, Player hitted, Player by)
         {
+            if (by == null)
+            {
+                hitted.Kill(world, String.Format("{0}&S was torn to pieces and lost the game!", hitted.ClassyName));
+                return;
+            }
 			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName==by.ClassyName?"theirself":by.ClassyName));
         }
     }
