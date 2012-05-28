@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using fCraft.MapConversion;
+using fCraft.Events;
 
 namespace fCraft
 {
@@ -27,42 +28,56 @@ namespace fCraft
         private World _world;
         private const int _ground = 15; 
         private Map _map;
+        public List<Player> Failed; //public so the Mines class can access it
         public MineField()
         {
-            _world = WorldManager.FindWorldExact("Minefield"); //can only be used when the world is loaded
+            Failed = new List<Player>();
+            Player.Moving += PlayerMoving;
         }
         public void Start()
         {
-            Map map = MapGenerator.GenerateFlatgrass(128, 128, 32);
+            Map map = MapGenerator.GenerateFlatgrass(64, 128, 32);
             map.Save("maps/minefield.fcm");
-            if (_world != null)
-            {
+            if (_world != null){
                 WorldManager.RemoveWorld(_world);
             }
-            WorldManager.AddWorld(Player.Console, "Minefield", map, false);
+            WorldManager.AddWorld(Player.Console, "Minefield", map, true);
             _map = map;
             SetUpRed();
             SetUpGreen();
+            _map.Spawn = new Position(_map.Width / 2, 5, _ground + 2).ToVector3I().ToPlayerCoords();
+            _world = WorldManager.FindWorldExact("Minefield"); //can only be used when the world is loaded
+            _world.LoadMap();
+            _world.gameMode = World.GameMode.MineField;
         }
 
-        private void SetUpRed()
-        {
-            for (int x = 1; x <= _map.Length; x++)
-            {
-                for (int y = 1; y <= 10; y++)
-                {
+        private void SetUpRed(){
+            for (int x = 1; x <= _map.Width; x++){
+                for (int y = 1; y <= 10; y++){
                     _map.SetBlock(x, y, _ground, Block.Red);
                 }
             }
         }
 
-        private void SetUpGreen()
-        {
-            for (int x = _map.Length; x >= 1; x--)
-            {
-                for (int y = _map.Width; y >= _map.Width - 10; y--)
-                {
+        private void SetUpGreen(){
+            for (int x = _map.Width; x >= 1; x--){
+                for (int y = _map.Length; y >= _map.Length - 10; y--){
                     _map.SetBlock(x, y, _ground, Block.Green);
+                }
+            }
+        }
+        private void PlayerMoving(object sender, PlayerMovingEventArgs e)
+        {
+            if (e.Player.World.gameMode == World.GameMode.MineField)
+            {
+                Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+
+                // Check if the player jumped, flew, whatevers
+                if (oldPos.Z != newPos.Z){
+                    if (newPos.Z > _ground + 2){
+                        e.Player.TeleportTo(e.OldPosition);
+                    }
                 }
             }
         }
