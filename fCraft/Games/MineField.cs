@@ -16,6 +16,7 @@
 //Copyright (C) <2012> Jon Baker(http://au70.net)
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using fCraft.MapConversion;
@@ -29,10 +30,14 @@ namespace fCraft
         private const int _ground = 15; 
         private Map _map;
         public List<Player> Failed; //public so the Mines class can access it
+        public ConcurrentDictionary<string, Vector3I> Mines;
+        private Random _rand;
         public MineField()
         {
             Failed = new List<Player>();
+            Mines = new ConcurrentDictionary<string, Vector3I>();
             Player.Moving += PlayerMoving;
+            _rand = new Random();
         }
         public void Start()
         {
@@ -43,10 +48,11 @@ namespace fCraft
             }
             WorldManager.AddWorld(Player.Console, "Minefield", map, true);
             _map = map;
+            _world = WorldManager.FindWorldExact("Minefield");
             SetUpRed();
             SetUpGreen();
-            _map.Spawn = new Position(_map.Width / 2, 5, _ground + 2).ToVector3I().ToPlayerCoords();
-            _world = WorldManager.FindWorldExact("Minefield"); //can only be used when the world is loaded
+            SetUpMines();
+            _map.Spawn = new Position(_map.Width / 2, 5, _ground + 3).ToVector3I().ToPlayerCoords();
             _world.LoadMap();
             _world.gameMode = World.GameMode.MineField;
         }
@@ -66,10 +72,35 @@ namespace fCraft
                 }
             }
         }
+
+        private void SetUpMines(){
+            for (short i = 0; i < _map.Width; ++i){
+                for (short j = 0; j < _map.Length; ++j){
+                    if (_rand.Next(1, 100) > 95){
+                        if (_map.GetBlock(i, j, _ground) != Block.Red && 
+                            _map.GetBlock(i, j, _ground) != Block.Green){
+                            Vector3I vec = new Vector3I(i, j, _ground);
+                            Mines.TryAdd(vec.ToString(), vec);
+                            _map.SetBlock(vec, Block.Red);//
+                        }
+                    }
+                }
+            }
+        }
+
+        private bool PlayerBlowUpCheck(Player player)
+        {
+            if (!Failed.Contains(player))
+            {
+                Failed.Add(player);
+                return true;
+            }
+            return false;
+        }
+
         private void PlayerMoving(object sender, PlayerMovingEventArgs e)
         {
-            if (e.Player.World.gameMode == World.GameMode.MineField)
-            {
+            if (e.Player.World.gameMode == World.GameMode.MineField && !Failed.Contains(e.Player)){
                 Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
                 Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
@@ -77,6 +108,16 @@ namespace fCraft
                 if (oldPos.Z != newPos.Z){
                     if (newPos.Z > _ground + 2){
                         e.Player.TeleportTo(e.OldPosition);
+                        newPos = oldPos;
+                    }
+                }
+                foreach (Vector3I pos in Mines.Values){
+                    Vector3I checkPos = new Vector3I(pos.X, pos.Y, pos.Z + 2);
+                    if (newPos == checkPos){
+                        e.Player.TeleportTo(_map.Spawn);
+                        Failed.Add(e.Player);
+                        Vector3I removed;
+                        Mines.TryRemove(pos.ToString(), out removed);
                     }
                 }
             }
