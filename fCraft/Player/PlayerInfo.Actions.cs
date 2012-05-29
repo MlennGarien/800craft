@@ -672,6 +672,8 @@ namespace fCraft {
             Logger.Log( LogType.UserActivity,
                         "{0} {1} {2} from {3} to {4}. Reason: {5}",
                         player.Name, verbed, Name, Rank.Name, newRank.Name, reason ?? "" );
+            //add promocount
+            if (promoting) player.Info.PromoCount++;
 
             // Actually change rank
             Rank oldRank = Rank;

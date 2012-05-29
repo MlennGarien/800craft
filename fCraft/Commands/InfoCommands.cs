@@ -81,6 +81,7 @@ namespace fCraft {
                                          .Reverse());
             string list = WorldNames.Take(10).JoinToString(w => String.Format("{0}&S: {1}", w.ClassyName, w.VisitCount));
             player.Message("&WShowing worlds with the most visits: "+ list);
+            WorldNames.Clear();
         }
 
 
@@ -678,8 +679,8 @@ namespace fCraft {
 
 
             // More stats
-            if( info.TimesBannedOthers > 0 || info.TimesKickedOthers > 0 ) {
-                player.Message( "  Kicked {0} and banned {1} players.", info.TimesKickedOthers, info.TimesBannedOthers );
+            if( info.TimesBannedOthers > 0 || info.TimesKickedOthers > 0 || info.PromoCount > 0) {
+                player.Message( "  Kicked {0}, Promoted {1} and banned {2} players.", info.TimesKickedOthers, info.PromoCount, info.TimesBannedOthers );
             }
 
             if( info.TimesKicked > 0 ) {
