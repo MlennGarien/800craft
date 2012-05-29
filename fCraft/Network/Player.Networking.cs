@@ -1028,13 +1028,16 @@ namespace fCraft {
                 Message("Rejoined realm {0}", newWorld.ClassyName);
             }else if (World.IsRealm){
                 Message("Joined realm {0}", newWorld.ClassyName);
+                if (World != WorldManager.MainWorld){
+                    World.VisitCount++;
+                }
             }if (!World.IsRealm && oldWorld == newWorld){
                 Message("Rejoined world {0}", newWorld.ClassyName);
             }else if (!World.IsRealm){
                 Message("Joined world {0}", newWorld.ClassyName);
-            }
-            if (World != WorldManager.MainWorld){
-                World.VisitCount++;
+                if (World != WorldManager.MainWorld){
+                    World.VisitCount++;
+                }
             }
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
 
