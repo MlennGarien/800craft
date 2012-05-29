@@ -38,6 +38,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdReqs);
             CommandManager.RegisterCommand(CdList);
+            CommandManager.RegisterCommand(CdTop10);
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
@@ -59,6 +60,30 @@ namespace fCraft {
 
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+        static readonly CommandDescriptor CdTop10 = new CommandDescriptor
+        {
+            Name = "TopTen",
+            Aliases = new[] {"Top10"},
+            Category = CommandCategory.Info,
+            IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
+            Help = "Shows a list of the top 10 most visited world on the server",
+            Usage = "/TopTen",
+            Handler = Top10Handler
+        };
+
+        internal static void Top10Handler(Player player, Command cmd)
+        {
+            List<World> WorldNames = new List<World>(WorldManager.Worlds.Where(w=> w.VisitCount > 0)
+                                         .OrderBy(c=> c.VisitCount)
+                                         .ToArray()
+                                         .Reverse());
+            string list = WorldNames.Take(10).JoinToString(w => String.Format("{0}&S: {1}", w.ClassyName, w.VisitCount));
+            player.Message("&WShowing worlds with the most visits: "+ list);
+        }
+
+
         static readonly CommandDescriptor CdList = new CommandDescriptor
         {
             Name = "List",

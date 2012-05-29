@@ -28,6 +28,8 @@ namespace fCraft {
         //custom
         public bool IsRealm { get; set; }
 
+        public float VisitCount { get; set; }
+
         public bool RealisticEnv = false; //previously getset
 
         public bool ZombieGame = false;
@@ -60,6 +62,7 @@ namespace fCraft {
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }
+
 
 
         [NotNull]

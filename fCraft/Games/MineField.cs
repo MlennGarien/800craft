@@ -194,17 +194,19 @@ namespace fCraft
                         Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
                         Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
-                        // Check if the player jumped, flew, whatevers
-                        if (oldPos.Z != newPos.Z || !_map.InBounds(newPos))
+                        if (oldPos.X != newPos.X || oldPos.Y != newPos.Y || oldPos.Z != newPos.Z)
                         {
-                            if (newPos.Z > _ground + 2 || !_map.InBounds(newPos))
+                            if (!_map.InBounds(newPos))
+                            {
+                                e.Player.TeleportTo(_map.Spawn);
+                                newPos = (Vector3I)_map.Spawn;
+                            }
+                            // Check if the player jumped, flew, whatevers
+                            if (newPos.Z > _ground + 2)
                             {
                                 e.Player.TeleportTo(e.OldPosition);
                                 newPos = oldPos;
                             }
-                        }
-                        if (oldPos.X != newPos.X || oldPos.Y != newPos.Y)
-                        {
                             foreach (Vector3I pos in Mines.Values)
                             {
                                 if (newPos == new Vector3I(pos.X, pos.Y, pos.Z + 2) || 

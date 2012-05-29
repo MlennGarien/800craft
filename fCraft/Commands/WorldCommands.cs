@@ -3178,8 +3178,9 @@ namespace fCraft {
             } else {
                 player.Message( "  Periodic backups every {0}", world.BackupInterval.ToMiniString() );
             }
-            if (world.RealisticEnv)
-                player.Message("  Realistic ENV is enabled on this world");
+            if (world.VisitCount > 0){
+                player.Message("   This world has been visited {0} times", world.VisitCount);
+            }
         }
 
         #endregion

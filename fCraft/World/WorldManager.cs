@@ -177,6 +177,21 @@ namespace fCraft {
                                 worldName );
                 }
             }
+
+            if ((tempAttr = el.Attribute("visitCount")) != null)
+            {
+                int vCount;
+                if (Int32.TryParse(tempAttr.Value, out vCount))
+                {
+                    world.VisitCount = vCount;
+                }
+                else
+                {
+                    Logger.Log(LogType.Warning,
+                                "WorldManager: Could not parse \"VisitCount\" attribute of world \"{0}\", assuming NO Visits.",
+                                worldName);
+                }
+            }
             if( firstWorld == null ) firstWorld = world;
 
             XElement tempEl;
@@ -363,6 +378,10 @@ namespace fCraft {
 
                     if( world.NeverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
+                    }
+                    if (world.VisitCount > 0)
+                    {
+                        temp.Add(new XAttribute("visitCount", world.VisitCount));
                     }
                     if (world.IsRealm)
                     {

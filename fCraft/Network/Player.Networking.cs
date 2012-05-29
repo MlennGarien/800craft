@@ -1033,7 +1033,9 @@ namespace fCraft {
             }else if (!World.IsRealm){
                 Message("Joined world {0}", newWorld.ClassyName);
             }
-
+            if (World != WorldManager.MainWorld){
+                World.VisitCount++;
+            }
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
 
             // Done.
