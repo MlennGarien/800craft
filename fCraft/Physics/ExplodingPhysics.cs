@@ -178,6 +178,10 @@ namespace fCraft
                 if (MineField.Failed != null && !MineField.Failed.Contains(hitted))
                 {
                     hitted.Kill(world, String.Format("{0}&S was torn to pieces and lost the game!", hitted.ClassyName));
+                    if (MineField.PlayerBlowUpCheck(hitted))
+                    {
+                        hitted.Message("&WYou lost the game! You are now unable to win.");
+                    }
                     return;
                 }
                 else return;

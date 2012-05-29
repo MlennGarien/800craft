@@ -26,13 +26,13 @@ namespace fCraft
 {
     class MineField
     {
-        private static  World _world;
-        private const int _ground = 15;
+        private static World _world;
+        private const int _ground = 1;
         private static Map _map;
         public static List<Player> Failed;
-        private static bool stopped = false;
         public static ConcurrentDictionary<string, Vector3I> Mines;
         private static Random _rand;
+        private static bool _stopped;
         private static MineField instance;
 
         private MineField()
@@ -50,12 +50,13 @@ namespace fCraft
                 Player.Moving += new EventHandler<PlayerMovingEventArgs>(PlayerMoving);
                 Player.PlacingBlock += new EventHandler<PlayerPlacingBlockEventArgs>(PlayerPlacing);
                 _rand = new Random();
+                _stopped = false;
             }
             return instance;
         }
         public static void Start(Player player)
         {
-            Map map = MapGenerator.GenerateFlatgrass(64, 128, 32);
+            Map map = MapGenerator.GenerateEmpty(64, 128, 16);
             map.Save("maps/minefield.fcm");
             if (_world != null)
             {
@@ -65,6 +66,7 @@ namespace fCraft
             _map = map;
             _world = WorldManager.FindWorldExact("Minefield");
             SetUpRed();
+            SetUpMiddleWater();
             SetUpGreen();
             SetUpMines();
             _map.Spawn = new Position(_map.Width / 2, 5, _ground + 3).ToVector3I().ToPlayerCoords();
@@ -92,17 +94,14 @@ namespace fCraft
             WorldManager.RemoveWorld(world);
             WorldManager.SaveWorldList();
             Server.RequestGC();
+            instance = null;
             if (Won)
             {
-                if (!stopped)
-                {
-                    Server.Players.Message("{0}&S Won the game of MineField!", player.ClassyName);
-                    stopped = true;
-                }
+                Server.Players.Message("{0}&S Won the game of MineField!", player.ClassyName);
             }
             else
             {
-                Server.Players.Message("{0}&S aborted the game of MineFiled", player.ClassyName);
+                Server.Players.Message("{0}&S aborted the game of MineField", player.ClassyName);
             }
         }
 
@@ -113,6 +112,19 @@ namespace fCraft
                 for (int y = 0; y <= 10; y++)
                 {
                     _map.SetBlock(x, y, _ground, Block.Red);
+                    _map.SetBlock(x, y, _ground - 1, Block.Black);
+                }
+            }
+        }
+
+        private static void SetUpMiddleWater()
+        {
+            for (int x = _map.Width; x >= 0; x--)
+            {
+                for (int y = _map.Length -50; y >= _map.Length - 56; y--)
+                {
+                    _map.SetBlock(x, y, _ground, Block.Water);
+                    _map.SetBlock(x, y, _ground - 1, Block.Water);
                 }
             }
         }
@@ -124,20 +136,24 @@ namespace fCraft
                 for (int y = _map.Length; y >= _map.Length - 10; y--)
                 {
                     _map.SetBlock(x, y, _ground, Block.Green);
+                    _map.SetBlock(x, y, _ground - 1, Block.Black);
                 }
             }
         }
 
         private static void SetUpMines()
         {
-            for (short i = 0; i < _map.Width; ++i)
+            for (short i = 0; i <= _map.Width; ++i)
             {
-                for (short j = 0; j < _map.Length; ++j)
+                for (short j = 0; j <= _map.Length; ++j)
                 {
-                    if (_rand.Next(1, 100) > 96)
+                    if (_map.GetBlock(i, j, _ground) != Block.Red &&
+                        _map.GetBlock(i, j, _ground) != Block.Green &&
+                        _map.GetBlock(i, j, _ground) != Block.Water)
                     {
-                        if (_map.GetBlock(i, j, _ground) != Block.Red &&
-                            _map.GetBlock(i, j, _ground) != Block.Green)
+                        _map.SetBlock(i, j, _ground, Block.Dirt);
+                        _map.SetBlock(i, j, _ground - 1, Block.Dirt);
+                        if (_rand.Next(1, 100) > 96)
                         {
                             Vector3I vec = new Vector3I(i, j, _ground);
                             Mines.TryAdd(vec.ToString(), vec);
@@ -148,7 +164,7 @@ namespace fCraft
             }
         }
 
-        private static bool PlayerBlowUpCheck(Player player)
+        public static bool PlayerBlowUpCheck(Player player)
         {
             if (!Failed.Contains(player))
             {
@@ -173,39 +189,38 @@ namespace fCraft
             {
                 if (_world.gameMode == World.GameMode.MineField && !Failed.Contains(e.Player))
                 {
-                    if (!stopped)
+                    if (e.NewPosition != null)
                     {
-                        if (e.NewPosition != null)
-                        {
-                            Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-                            Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+                        Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                        Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
-                            // Check if the player jumped, flew, whatevers
-                            if (oldPos.Z != newPos.Z)
+                        // Check if the player jumped, flew, whatevers
+                        if (oldPos.Z != newPos.Z || !_map.InBounds(newPos))
+                        {
+                            if (newPos.Z > _ground + 2 || !_map.InBounds(newPos))
                             {
-                                if (newPos.Z > _ground + 2)
-                                {
-                                    e.Player.TeleportTo(e.OldPosition);
-                                    newPos = oldPos;
-                                }
+                                e.Player.TeleportTo(e.OldPosition);
+                                newPos = oldPos;
                             }
+                        }
+                        if (oldPos.X != newPos.X || oldPos.Y != newPos.Y)
+                        {
                             foreach (Vector3I pos in Mines.Values)
                             {
-                                Vector3I checkPos = new Vector3I(pos.X, pos.Y, pos.Z + 2);
-                                if (newPos == checkPos)
+                                if (newPos == new Vector3I(pos.X, pos.Y, pos.Z + 2) || 
+                                    newPos == new Vector3I(pos.X, pos.Y, pos.Z + 1)|| 
+                                    newPos == new Vector3I(pos.X, pos.Y, pos.Z))
                                 {
                                     _world.Map.QueueUpdate(new BlockUpdate(null, pos, Block.TNT));
                                     _world.AddPhysicsTask(new TNTTask(_world, pos, null, true, false), 0);
-                                    if (PlayerBlowUpCheck(e.Player))
-                                    {
-                                        e.Player.Message("&WYou lost the game! You are now unable to win.");
-                                    }
                                     Vector3I removed;
                                     Mines.TryRemove(pos.ToString(), out removed);
                                 }
                             }
-                            if (_map.GetBlock(newPos.X, newPos.Y, newPos.Z - 2) == Block.Green)
+                            if (_map.GetBlock(newPos.X, newPos.Y, newPos.Z - 2) == Block.Green
+                                && !_stopped)
                             {
+                                _stopped = true;
                                 Stop(e.Player, true);
                             }
                         }

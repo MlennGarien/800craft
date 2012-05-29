@@ -165,10 +165,10 @@ namespace fCraft
             string GameMode = cmd.Next();
             string Option = cmd.Next();
             World world = player.World;
-            if (world == WorldManager.MainWorld){
+            /*if (world == WorldManager.MainWorld){
                 player.Message("/Game cannot be used on the main world"); 
                 return;
-            }
+            }*/
 
             if(GameMode.ToLower() == "zombie"){
                 if (Option.ToLower() == "start")
