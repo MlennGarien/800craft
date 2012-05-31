@@ -160,8 +160,11 @@ To request features, report bugs, or receive support, please visit:
 
 800Craft code and binaries are covered by the GPLv3 license, and distributed using both licences.
 
+The 800Craft HeartBeatSaver is Copyright (C) <2011, 2012> Jon Baker 
+and is ONLY to be distributed with copies of 800Craft.
+
 800Craft's license:
-Copyright (C) <2012> <Jon Baker, Glenn Mariën and Lao Tszy>
+Copyright (C) <2012> <Jon Baker, Glenn Mariï¿½n and Lao Tszy>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
