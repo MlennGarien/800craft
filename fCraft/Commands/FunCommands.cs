@@ -173,8 +173,8 @@ namespace fCraft
             if(GameMode.ToLower() == "zombie"){
                 if (Option.ToLower() == "start")
                 {
-                    ZombieGame zombiegame = new ZombieGame(player.World);
-                    zombiegame.Start();
+                    ZombieGame.GetInstance(player.World);
+                    ZombieGame.Start();
                     return;
                 }
                 else
