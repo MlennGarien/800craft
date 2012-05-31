@@ -103,13 +103,13 @@ namespace fCraft {
                 {
                     player.GlobalChat = false;
                     GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas disabled the Global Chat (Left)");
-                    player.Message("You left the 800Craft Global Chat");
+                    player.Message("&SYou left the 800Craft Global Chat");
                     return;
                 }
                 if (!player.GlobalChat)
                 {
                     player.GlobalChat = true;
-                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " has enabled the Global Chat (Joined)");
+                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
                     player.Message(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
                     return;
                 }
@@ -125,8 +125,8 @@ namespace fCraft {
                 return;
             }
             Msg = player.ClassyName + Color.White + ": " + Msg;
-            Msg = Color.ReplacePercentCodes("&i(Global) "+ Msg);
-            player.Message(Msg);
+            Msg = Color.ReplacePercentCodes(Msg);
+            player.Message("&i(Global) " + Msg);
             Msg = Color.ToIRCColorCodes(Msg);
             GlobalChat.GlobalThread.SendChannelMessage(Msg);
         }

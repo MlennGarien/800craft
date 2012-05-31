@@ -49,15 +49,16 @@ namespace fCraft
 
         public static void Stop(Player player)
         {
-            if (player != null)
-            {
+            if (player != null){
                 _world.Players.Message("{0}&S stopped the game of Infection on world {1}", 
                     player.ClassyName, _world.ClassyName);
             }
             RevertNames();
             _world.gameMode = World.GameMode.NULL;
-
+            _humanCount = 0;
+            _task = null;
             instance = null;
+            _started = false;
         }
 
         public static void RandomPick(){
@@ -74,6 +75,7 @@ namespace fCraft
             //check to stop Interval
             if (_world.gameMode != World.GameMode.ZombieSurvival || _world == null)
             {
+                _world = null;
                 task.Stop();
                 return;
             }
@@ -81,6 +83,11 @@ namespace fCraft
             {
                 if (startTime != null && (DateTime.Now - startTime).TotalMinutes > 1)
                 {
+                    /*if (_world.Players.Length < 3){
+                        _world.Players.Message("&WThe game failed to start: 2 or more players need to be in the world");
+                        Stop(null);
+                        return;
+                    }*/
                     foreach (Player p in _world.Players)
                     {
                         int x = rand.Next(2, _world.Map.Width);
@@ -132,27 +139,29 @@ namespace fCraft
         }
 
         static void OnPlayerMoved(object sender, PlayerMovedEventArgs e){
-            if (e.Player.World.Name == _world.Name){
-                if (e.NewPosition != null){
-                    Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-                    Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
-                    if (_world.Map.InBounds(newPos)){
-                        if (oldPos.X != newPos.X || oldPos.Y != newPos.Y || oldPos.Z != newPos.Z){
-                            foreach (Player p in _world.Players){
-                                Vector3I pos = p.Position.ToBlockCoords();
-                                if (e.NewPosition.DistanceSquaredTo(pos.ToPlayerCoords()) <= 33 * 33){
-                                    toZombie(e.Player, p);
+            if (e.Player.World.gameMode == World.GameMode.ZombieSurvival){
+                if (e.Player.World.Name == _world.Name && _world != null){
+                    if (e.NewPosition != null){
+                        Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                        Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+                        if (_world.Map.InBounds(newPos)){
+                            if (oldPos.X != newPos.X || oldPos.Y != newPos.Y || oldPos.Z != newPos.Z){
+                                foreach (Player p in _world.Players){
+                                    Vector3I pos = p.Position.ToBlockCoords();
+                                    if (e.NewPosition.DistanceSquaredTo(pos.ToPlayerCoords()) <= 33 * 33){
+                                        toZombie(e.Player, p);
+                                    }
                                 }
                             }
                         }
-                    }   
+                    }
                 }
             }
         }
 
         static public void toZombie(Player infector, Player target){
             if (infector == null){
-                _world.Players.Message("{0}&S has been the first to get &cInfected. &9Panick!!!!!",
+                _world.Players.Message("{0}&S has been the first to get &cInfected. &9Panic!!!!!",
                         target.ClassyName);
                 target.iName = _zomb;
                 target.entityChanged = true;

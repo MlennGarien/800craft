@@ -335,10 +335,10 @@ namespace fCraft
                         {
                             case IRCReplyCode.ErrorNicknameInUse:
                             case IRCReplyCode.ErrorNicknameCollision:
+                                ActualBotNick = ActualBotNick.Remove(ActualBotNick.Length - 4) + "_";
                                 Logger.Log(LogType.SystemActivity,
-                                            "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"",
+                                            "Error: Nickname \"{0}\" is already in use. Trying \"{0}\"",
                                             ActualBotNick);
-                                ActualBotNick += "_";
                                 Send(IRCCommands.Nick(ActualBotNick));
                                 break;
 
