@@ -69,7 +69,7 @@ namespace fCraft
                     case Stage.Waiting:
                         if (!_gun)
                         {
-                            if (!_world.tntPhysics || _map.GetBlock(_pos) != Block.TNT) //TNT was removed for some reason, forget the xplosion
+                            if (!_world.tntPhysics)// || _map.GetBlock(_pos) != Block.TNT) //TNT was removed for some reason, forget the xplosion
                                 return 0; //remove task
                         }
 
@@ -134,11 +134,11 @@ namespace fCraft
 
             if (null != toClean)
             {
-                toClean.ForEach(delegate(BData pt)
+                foreach (BData pt in toClean)
                 {
                     UpdateMap(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z,
                         pt.PrevBlock == Block.Water ? Block.Water : Block.Air));
-                });
+                }
             }
 
             return _currentR <= R;
@@ -152,12 +152,14 @@ namespace fCraft
                 return;
 
             Block prevBlock = _map.GetBlock(x, y, z);
-            
+			if (Block.Lava == prevBlock)
+				return;
+
             //chain explosion
             if (Block.TNT == prevBlock)
             {
                 _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false), _r.Next(50, 100));
-                return;
+				UpdateMap(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
             }
 
             if (0.45 + 0.55 * (R - _currentR) / R < _r.NextDouble())

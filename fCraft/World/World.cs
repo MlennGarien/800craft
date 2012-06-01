@@ -130,8 +130,66 @@ namespace fCraft {
         }
         #endregion
 
-        #region Physics
+		public bool TryAddLife(Life2DZone life)
+		{
+			if (null==life)
+			{
+				Logger.Log(LogType.Error, "trying to add null life instance");
+				return false;
+			}
+			lock (SyncRoot)
+			{
+				if (null==Map)
+					return false;
+				if (map.LifeZones.ContainsKey(life.Name.ToLower()))
+					return false;
+				map.LifeZones.Add(life.Name.ToLower(), life);
+				if (!_physSchedulers[(int)TaskCategory.Life].Started)
+					_physSchedulers[(int)TaskCategory.Life].Start();
+			}
+			return true;
+		}
+		public void DeleteLife(string name)
+		{
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				Logger.Log(LogType.Error, "null or empty string in deleting life");
+				return;
+			}
+			lock (SyncRoot)
+			{
+				if (null == Map)
+					return;
+				map.LifeZones.Remove(name.ToLower());
+				if (map.LifeZones.Count<=0)
+					_physSchedulers[(int)TaskCategory.Life].Stop();
+			}
+		}
+		public Life2DZone GetLife(string name)
+		{
+			if (string.IsNullOrWhiteSpace(name))
+			{
+				Logger.Log(LogType.Error, "null or empty string in GetLife");
+				return null;
+			}
+			lock (SyncRoot)
+			{
+				if (null == Map)
+					return null;
+				Life2DZone life=null;
+				map.LifeZones.TryGetValue(name, out life);
+				return life;
+			}
+		}
+		public IEnumerable<Life2DZone> GetLifes()
+		{
+			lock (SyncRoot)
+			{
+				return null == Map ? null : Map.LifeZones.Values.ToList();
+			}
+		}
 
+    	#region Physics
         internal void StartScheduler(TaskCategory cat)
 		{
 			if (!_physSchedulers[(int)cat].Started)

@@ -25,7 +25,7 @@ namespace fCraft
 	public enum TaskCategory
 	{
 		Physics,
-		Scripting,
+		Life,
 	}
 
 public class PhysScheduler
@@ -34,7 +34,7 @@ public class PhysScheduler
 		private Stopwatch _watch = new Stopwatch(); //a good counter of elapsed milliseconds
 		private World _owner;
 		private EventWaitHandle _continue = new EventWaitHandle(false, EventResetMode.AutoReset);
-		private EventWaitHandle _stop = new EventWaitHandle(false, EventResetMode.ManualReset);
+		private EventWaitHandle _stop = new EventWaitHandle(false, EventResetMode.AutoReset);
 		private Thread _thread;
 
 		public bool Started { get { return null != _thread; } }
@@ -70,7 +70,7 @@ public class PhysScheduler
 						_tasks.RemoveHead();
 					else
 					{
-						timeout = (int)(task.DueTime - now); //here the time difference should not exceed 24 days :)
+						timeout = (int)(task.DueTime - now); 
 						continue;
 					}
 				}
@@ -94,7 +94,7 @@ public class PhysScheduler
 						task.DueTime = now + delay;
 						_tasks.Add(task);
 					}
-					timeout = _tasks.Size > 0 ? Math.Max((int)(_tasks.Head().DueTime - now), 0) : Timeout.Infinite; //here the time difference should not exceed 24 days :)
+					timeout = _tasks.Size > 0 ? Math.Max((int)(_tasks.Head().DueTime - now), 0) : Timeout.Infinite; 
 				}
 			}
 		}
@@ -103,7 +103,6 @@ public class PhysScheduler
 		{
 			if (null!=_thread)
 			{
-				//log error, running already
 				return;
 			}
 			if (_tasks.Size>0)
@@ -116,7 +115,6 @@ public class PhysScheduler
 		{
 			if (null==_thread)
 			{
-				//log error, not running
 				return;
 			}
 			_stop.Set();
