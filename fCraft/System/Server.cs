@@ -299,7 +299,6 @@ namespace fCraft {
 
             // Init IRC
             IRC.Init();
-            GlobalChat.StartStream();
             GunClass.Init();
             Physics.Physics.Load();
             HeartbeatSaverUtil.Init();
@@ -452,6 +451,8 @@ namespace fCraft {
 
             IsRunning = true;
             RaiseEvent( Started );
+            GlobalChat.Init();
+            GlobalChat.Start();
             return true;
         }
 
@@ -843,31 +844,50 @@ namespace fCraft {
 
 
 
-        public static void BackupData() {
-            if( !Paths.TestDirectory( "DataBackup", Paths.DataBackupDirectory, true ) ) {
-                Logger.Log( LogType.Error, "Unable to create a data backup." );
+        public static void BackupData()
+        {
+            if (!Paths.TestDirectory("DataBackup", Paths.DataBackupDirectory, true))
+            {
+                Logger.Log(LogType.Error, "Unable to create a data backup.");
                 return;
             }
-            string backupFileName = String.Format( Paths.DataBackupFileNameFormat, DateTime.Now ); // localized
-            backupFileName = Path.Combine( Paths.DataBackupDirectory, backupFileName );
-            using( FileStream fs = File.Create( backupFileName ) ) {
-                string fileComment = String.Format( "Backup of 800Craft data for server \"{0}\", saved on {1}",
-                                                    ConfigKey.ServerName.GetString(),
-                                                    DateTime.Now );
-                using( ZipStorer backupZip = ZipStorer.Create( fs, fileComment ) ) {
-                    foreach( string dataFileName in Paths.DataFilesToBackup ) {
-                        if( File.Exists( dataFileName ) ) {
-                            backupZip.AddFile( ZipStorer.Compression.Deflate,
-                                               dataFileName,
-                                               dataFileName,
-                                               "" );
+            string backupFileName = String.Format(Paths.DataBackupFileNameFormat, DateTime.Now); // localized
+            backupFileName = Path.Combine(Paths.DataBackupDirectory, backupFileName);
+            using (FileStream fs = File.Create(backupFileName))
+            {
+                try
+                {
+                    string fileComment = String.Format("Backup of 800Craft data for server \"{0}\", saved on {1}",
+                                                        ConfigKey.ServerName.GetString(),
+                                                        DateTime.Now);
+                    using (ZipStorer backupZip = ZipStorer.Create(fs, fileComment))
+                    {
+                        foreach (string dataFileName in Paths.DataFilesToBackup)
+                        {
+                            if (File.Exists(dataFileName))
+                            {
+                                backupZip.AddFile(ZipStorer.Compression.Deflate,
+                                                   dataFileName,
+                                                   dataFileName,
+                                                   "");
+                            }
                         }
                     }
                 }
+                catch (IOException)
+                {
+                    Logger.Log(LogType.Error, "Unable to create a data backup.");
+                    return;
+                }
+                finally
+                {
+                    if (fs != null)
+                        fs.Close();
+                }
+                Logger.Log(LogType.SystemActivity,
+                            "Backed up server data to \"{0}\"",
+                            backupFileName);
             }
-            Logger.Log( LogType.SystemActivity,
-                        "Backed up server data to \"{0}\"",
-                        backupFileName );
         }
 
 

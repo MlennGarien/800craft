@@ -238,7 +238,7 @@ namespace fCraft
         {
 			if (Block.TNT == block) //explode it
 			{
-				world.AddPhysicsTask(new TNTTask(world, pos, owner, false), 0);
+				world.AddPhysicsTask(new TNTTask(world, pos, owner, false, true), 0);
 				return true;
 			}
 			if (Block.Air != block && Block.Water != block && Block.Lava != block)
@@ -416,7 +416,7 @@ namespace fCraft
 
         public int MaxDistance
         {
-            get { return 15; }
+            get { return _r.Next(6, 10); }
         }
 
         public int MovesPerProcessingStep
@@ -424,36 +424,31 @@ namespace fCraft
             get { return 1; }
         }
 
-
-        private const double G = 10; //blocks per second per second
         public void ModifyDirection(ref Vector3F direction, Block currentBlock)
         {
-            double t = 2.0 / (ProcessingStepsPerSecond * MovesPerProcessingStep);
-            Vector3F v = direction * (ProcessingStepsPerSecond * MovesPerProcessingStep);
-            Vector3F dv = new Vector3F(0, 0, (float)(G * t));
-            direction = (v + dv).Normalize();
-        }
 
+        }
         public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates, Block sending)
         {
-            if (Block.Air != block && Block.Water != block)
+            if (Block.Air != block && Block.Water != block && Block.Lava != block)
             {
-                restDistance = 0;
+                updates.Add(new BlockUpdate(null, pos, Block.Air));
+                return true;
+            }
+            else
+            {
                 return false;
             }
-            return true;
         }
 
         public bool CanKillPlayer
         {
-            get { return true; }
+            get { return false; }
         }
 
         public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
         {
-            hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "theirself" : by.ClassyName));
-            updates.Add(new BlockUpdate(null, pos, Block.Air));
-            restDistance = 0;
+            
         }
     }
 
@@ -491,7 +486,7 @@ namespace fCraft
             if (Block.Air != block && Block.Water != block) //explode it
             {
                 updates.Add(new BlockUpdate(null, pos, Block.TNT));
-                world.AddPhysicsTask(new TNTTask(world, pos, owner, false), 0);
+                world.AddPhysicsTask(new TNTTask(world, pos, owner, false, true), 0);
                 restDistance = 0;
                 return false;
             }
@@ -507,8 +502,66 @@ namespace fCraft
         {
             hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName == by.ClassyName ? "theirself" : by.ClassyName));
             updates.Add(new BlockUpdate(null, pos, Block.TNT));
-            world.AddPhysicsTask(new TNTTask(world, pos, by, false), 0);
+            world.AddPhysicsTask(new TNTTask(world, pos, by, false, true), 0);
             restDistance = 0;
+        }
+    }
+
+    internal class FootballBehavior : IParticleBehavior
+    {
+        private static Random _r = new Random();
+
+        public int ProcessingStepsPerSecond
+        {
+            get { return 20; }
+        }
+
+        public int MaxDistance
+        {
+            get { return 1024; } //check what happens at max
+        }
+
+        public int MovesPerProcessingStep
+        {
+            get { return 1; }
+        }
+
+
+        private const double G = 10; //blocks per second per second
+        public void ModifyDirection(ref Vector3F direction, Block currentBlock) //change this
+        {
+            double t = 1.0 / (ProcessingStepsPerSecond * MovesPerProcessingStep);
+            Vector3F v = direction * (ProcessingStepsPerSecond * MovesPerProcessingStep);
+            Vector3F dv = new Vector3F(0, 0, (float)(-G * t));
+            direction = (v + dv).Normalize();
+        }
+
+        public bool VisitBlock(World world, Vector3I pos, Block block, Player owner, ref int restDistance, IList<BlockUpdate> updates, Block sending)
+        {
+            //add some bounce and stuff in here
+            if (Block.Air != block && Block.Water != block) //explode it
+            {
+                restDistance = 0;
+                return false;
+            }
+            return true;
+        }
+
+        public bool CanKillPlayer
+        {
+            get { return false; }
+        }
+
+        public void HitPlayer(World world, Vector3I pos, Player hitted, Player by, ref int restDistance, IList<BlockUpdate> updates)
+        {
+            //if it hits a player, move at Delay to the floor in front of the player
+            for (int z = pos.Z; z > 0; z--)
+            {
+                if (world.Map.GetBlock(pos.X, pos.Y, z) != Block.Air)
+                {
+
+                }
+            }
         }
     }
 }

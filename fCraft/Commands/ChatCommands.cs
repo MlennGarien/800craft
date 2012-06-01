@@ -97,7 +97,38 @@ namespace fCraft {
         static void GHandler(Player player, Command cmd)
         {
             string Msg = cmd.NextAll();
-            GlobalChat.sendMessage(player, Msg);
+            if (Msg.Length < 1)
+            {
+                if (player.GlobalChat)
+                {
+                    player.GlobalChat = false;
+                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas disabled the Global Chat (Left)");
+                    player.Message("&SYou left the 800Craft Global Chat");
+                    return;
+                }
+                if (!player.GlobalChat)
+                {
+                    player.GlobalChat = true;
+                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
+                    player.Message(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
+                    return;
+                }
+            }
+            if (!player.GlobalChat)
+            {
+                player.Message("&WGlobal chat is disabled for you. Type /Global to enable it");
+                return;
+            }
+            if (player.Info.IsMuted)
+            {
+                player.MessageMuted();
+                return;
+            }
+            Msg = player.ClassyName + Color.White + ": " + Msg;
+            Msg = Color.ReplacePercentCodes(Msg);
+            player.Message("&i(Global) " + Msg);
+            Msg = Color.ToIRCColorCodes(Msg);
+            GlobalChat.GlobalThread.SendChannelMessage(Msg);
         }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor
@@ -120,6 +151,7 @@ namespace fCraft {
             {
                 Server.Players.Message("{0} &4Ragequit from the server", player.ClassyName);
                 player.Kick(Player.Console, "Ragequit", LeaveReason.RageQuit, false, false, false);
+                IRC.IRCAnnounceCustom(String.Format("{0} &4Ragequit from the server", player.ClassyName));
                 return;
             }
 
@@ -127,6 +159,8 @@ namespace fCraft {
             {
                 Server.Players.Message("{0} &4Ragequit from the server: &C{1}",
                                 player.ClassyName, reason);
+                IRC.IRCAnnounceCustom(String.Format("{0} &4Ragequit from the server: &C{1}",
+                                player.ClassyName, reason));
                 player.Kick(Player.Console, reason, LeaveReason.RageQuit, false, false, false);
             }
         }
@@ -153,6 +187,7 @@ namespace fCraft {
                 }
                 fCraft.Utils.BroMode.Active = true;
                 Server.Players.Message("{0}&S turned Bro mode on.", player.Info.Rank.Color + player.Name);
+                IRC.IRCAnnounceCustom(String.Format("{0}&S turned Bro mode on.", player.Info.Rank.Color + player.Name));
             }
             else
             {
@@ -163,6 +198,7 @@ namespace fCraft {
 
                 fCraft.Utils.BroMode.Active = false;
                 Server.Players.Message("{0}&S turned Bro Mode off.", player.Info.Rank.Color + player.Name);
+                IRC.IRCAnnounceCustom(String.Format("{0}&S turned Bro mode off.", player.Info.Rank.Color + player.Name));
             }
         }
 
@@ -368,6 +404,7 @@ namespace fCraft {
                 return;
             }
             Server.Players.CanSee(target).Except(target).Message("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName);
+            IRC.IRCAnnounceCustom(String.Format("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName));
             target.Message("{0}&S high fived you.", player.ClassyName);
         }
 

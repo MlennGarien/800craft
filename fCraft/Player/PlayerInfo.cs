@@ -39,7 +39,9 @@ namespace fCraft {
         /// <summary> Reason for leaving the server last time. </summary>
         public LeaveReason LeaveReason;
 
+        public int PromoCount;
         //dummy
+        
         public int DummyID;
         public string DummyName;
         public Position DummyPos;
@@ -457,7 +459,8 @@ namespace fCraft {
             if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
             Int32.TryParse( fields[20], out info.TimesVisited );
             if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
-            // fields 22-23 are no longer in use
+            // field 23 are no longer in use
+            Int32.TryParse(fields[22], out info.PromoCount);
 
             if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
             if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
@@ -484,7 +487,6 @@ namespace fCraft {
                 info.LastSeen = info.LastLoginDate;
             }
             Int64.TryParse( fields[33], out info.BlocksDrawn );
-
             if( fields[34].Length > 0 ) info.LastKickBy = Unescape( fields[34] );
             if( fields[35].Length > 0 ) info.LastKickReason = Unescape( fields[35] );
 
@@ -998,7 +1000,11 @@ namespace fCraft {
 
 
             if( MessagesWritten > 0 ) sb.Digits( MessagesWritten ); // 21
-            sb.Append( ',', 3 ); // 22-23 no longer in use
+            sb.Append( ',' );
+
+            if (PromoCount > 0) sb.Digits(PromoCount); //22
+            sb.Append(',', 2); //23 no longer in use
+            
 
             if( PreviousRank != null ) sb.Append( PreviousRank.FullName ); // 24
             sb.Append( ',' );
@@ -1125,6 +1131,7 @@ namespace fCraft {
             if( BlocksDrawn > 0 ) writer.Write( BlocksDrawn ); // 25
             Write7BitEncodedInt( writer, TimesVisited ); // 26
             Write7BitEncodedInt( writer, MessagesWritten ); // 27
+            Write7BitEncodedInt(writer, PromoCount); //22 (?)
             Write7BitEncodedInt( writer, TimesKickedOthers ); // 28
             Write7BitEncodedInt( writer, TimesBannedOthers ); // 29
 

@@ -345,7 +345,9 @@ namespace fCraft {
                 delta.Y = 0;
                 delta.Z = 0;
 
-            } else if( !Can( Permission.UseSpeedHack ) ) {
+            }
+            else if (!Can(Permission.UseSpeedHack))
+            {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // speedhack detection
                 if( DetectMovementPacketSpam() ) {
@@ -1026,12 +1028,17 @@ namespace fCraft {
                 Message("Rejoined realm {0}", newWorld.ClassyName);
             }else if (World.IsRealm){
                 Message("Joined realm {0}", newWorld.ClassyName);
+                if (World != WorldManager.MainWorld){
+                    World.VisitCount++;
+                }
             }if (!World.IsRealm && oldWorld == newWorld){
                 Message("Rejoined world {0}", newWorld.ClassyName);
             }else if (!World.IsRealm){
                 Message("Joined world {0}", newWorld.ClassyName);
+                if (World != WorldManager.MainWorld){
+                    World.VisitCount++;
+                }
             }
-
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
 
             // Done.
@@ -1172,7 +1179,7 @@ namespace fCraft {
         const int AntiSpeedMaxJumpDelta = 25, // 16 for normal client, 25 for WoM
                   AntiSpeedMaxDistanceSquared = 1024, // 32 * 32
                   AntiSpeedMaxPacketCount = 200,
-                  AntiSpeedMaxPacketInterval = 5;
+                  AntiSpeedMaxPacketInterval = 6;
 
         // anti-speedhack vars: packet spam
         readonly Queue<DateTime> antiSpeedPacketLog = new Queue<DateTime>();
@@ -1240,9 +1247,13 @@ namespace fCraft {
                 if( entities.TryGetValue( otherPlayer, out entity ) ) {
                     entity.MarkedForRetention = true;
 
-                    if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
+                    if( entity.LastKnownRank != otherPlayer.Info.Rank || otherPlayer.entityChanged) {
                         ReAddEntity( entity, otherPlayer, otherPos );
                         entity.LastKnownRank = otherPlayer.Info.Rank;
+                        if (otherPlayer.entityChanged)
+                        {
+                            otherPlayer.entityChanged = false;
+                        }
 
                     } else if( entity.Hidden ) {
                         if( distance < entityShowingThreshold ) {

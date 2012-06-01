@@ -50,10 +50,12 @@ namespace fCraft
 
         private Stage _stage;
         private int _currentR = 0;
+        private bool _particles;
 
-        public TNTTask(World world, Vector3I position, Player owner, bool gun)
+        public TNTTask(World world, Vector3I position, Player owner, bool gun, bool particles)
             : base(world)
         {
+            _particles = particles;
             _gun = gun;
             _pos = position;
             _owner = owner;
@@ -76,7 +78,10 @@ namespace fCraft
                         UpdateMap(new BlockUpdate(null, _pos, Block.Air));
 
                         _stage = Stage.Exploding; //switch to expansion stage
-                        CreateParticles();
+                        if (_particles)
+                        {
+                            CreateParticles();
+                        }
                         Explosion();
                         return StepDelay;
                     case Stage.Exploding:
@@ -89,7 +94,7 @@ namespace fCraft
 
         private void CreateParticles()
         {
-            int n = _r.Next(5, 8);
+            int n = _r.Next(3, 5);
             for (int i = 0; i < n; ++i)
             {
                 double phi = _r.NextDouble() * 2 * Math.PI;
@@ -170,6 +175,19 @@ namespace fCraft
 
         public void HitPlayer(World world, Player hitted, Player by)
         {
+            if (by == null)
+            {
+                if (MineField.Failed != null && !MineField.Failed.Contains(hitted))
+                {
+                    hitted.Kill(world, String.Format("{0}&S was torn to pieces and lost the game!", hitted.ClassyName));
+                    if (MineField.PlayerBlowUpCheck(hitted))
+                    {
+                        hitted.Message("&WYou lost the game! You are now unable to win.");
+                    }
+                    return;
+                }
+                else return;
+            }
 			hitted.Kill(world, String.Format("{0}&S was torn to pieces by {1}", hitted.ClassyName, hitted.ClassyName==by.ClassyName?"theirself":by.ClassyName));
         }
     }

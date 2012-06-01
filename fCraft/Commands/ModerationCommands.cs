@@ -131,12 +131,13 @@ namespace fCraft {
                 if (Server.Moderation){
                     Server.Moderation = false;
                     Server.Message("{0}&W deactivated server moderation, the chat feed is enabled", player.ClassyName);
+                    IRC.IRCAnnounceCustom(String.Format("{0}&W deactivated server moderation, the chat feed is enabled", player.ClassyName));
                     Server.VoicedPlayers.Clear();
                 }else{
                     Server.Moderation = true;
                     Server.Message("{0}&W activated server moderation, the chat feed is disabled", player.ClassyName);
-                    if (player.World != null) //console safe
-                    {
+                    IRC.IRCAnnounceCustom(String.Format("{0}&W activated server moderation, the chat feed is disabled", player.ClassyName));
+                    if (player.World != null){ //console safe
                         Server.VoicedPlayers.Add(player);
                     }
                 }
@@ -157,18 +158,15 @@ namespace fCraft {
                     Server.VoicedPlayers.Add(target);
                     Server.Message("{0}&S was given Voiced status by {1}", target.ClassyName, player.ClassyName);
                     return;
-                }
-                else if (Option.ToLower() == "devoice" && Server.Moderation)
+                }else if (Option.ToLower() == "devoice" && Server.Moderation)
                 {
-                    if (name == null)
-                    {
+                    if (name == null){
                         player.Message("Please enter a player to Devoice");
                         return;
                     }
                     Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
                     if (target == null) return;
-                    if (!Server.VoicedPlayers.Contains(target))
-                    {
+                    if (!Server.VoicedPlayers.Contains(target)) {
                         player.Message("&WError: {0}&S does not have voiced status", target.ClassyName);
                         return;
                     }
@@ -176,9 +174,7 @@ namespace fCraft {
                     player.Message("{0}&S is no longer voiced", target.ClassyName);
                     target.Message("You are no longer voiced");
                     return;
-                }
-                else
-                {
+                }else{
                     player.Message("&WError: Server moderation is not activated");
                 }
             }
@@ -276,6 +272,7 @@ namespace fCraft {
                 Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
                 target.TeleportTo(slap);
                 Server.Players.CanSee(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
+                IRC.IRCAnnounceCustom(String.Format("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName));
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
             }else{
@@ -322,7 +319,6 @@ namespace fCraft {
             Name = "Impersonate",
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
-            IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Changes to players skin to a desired name. " + 
             "If no playername is given, all changes are reverted. " + 
@@ -333,6 +329,7 @@ namespace fCraft {
 
         static void ImpersonateHandler(Player player, Command cmd)
         {
+            //entityChanged should be set to true for the skin update to happen in real time
             string iName = cmd.Next();
             if (iName == null && player.iName == null){
                 CdImpersonate.PrintUsage(player);
@@ -340,24 +337,19 @@ namespace fCraft {
             }
             if (iName == null){
                 player.iName = null;
-                player.Message("&SAll changes have been removed. "
-                    + "Change worlds, then rejoin the current world to update changes.");
-                return;
-            }
-            if (iName.ToLower().Equals("glennmr") || iName.ToLower().Equals("jonty800")){
-                player.Message("&WUse of this name is forbidden");
+                player.entityChanged = true;
+                player.Message("&SAll changes have been removed and your skin has been updated");
                 return;
             }
             //ignore isvalidname for percent codes to work
             if (player.iName == null){
-                player.Message("&SYour name has changed from '" + player.ClassyName + "&S' to '" + iName 
-                    + "&S'.\n Change worlds, then rejoin the current world to update changes.");
+                player.Message("&SYour name has changed from '" + player.ClassyName + "&S' to '" + iName);
             }
             if (player.iName != null){
-                player.Message("&SYour name has changed from '" + player.iName + "&S' to '" + iName 
-                    + "&S'.\n Change worlds, then rejoin the current world to update changes.");
+                player.Message("&SYour name has changed from '" + player.iName + "&S' to '" + iName);
             }
             player.iName = iName;
+            player.entityChanged = true;
         }
 
         static readonly CommandDescriptor CdTempBan = new CommandDescriptor

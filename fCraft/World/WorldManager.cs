@@ -154,10 +154,9 @@ namespace fCraft {
             }
             if ((tempAttr = el.Attribute("realm")) != null)
             {
-                bool isRealm;
-                if (Boolean.TryParse(tempAttr.Value, out isRealm))
+                if (tempAttr.Value == "yes")
                 {
-                    world.IsRealm = isRealm;
+                    world.IsRealm = true;
                 }
                 else
                 {
@@ -175,6 +174,21 @@ namespace fCraft {
                     Logger.Log( LogType.Warning,
                                 "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
                                 worldName );
+                }
+            }
+
+            if ((tempAttr = el.Attribute("visitCount")) != null)
+            {
+                int vCount;
+                if (Int32.TryParse(tempAttr.Value, out vCount))
+                {
+                    world.VisitCount = vCount;
+                }
+                else
+                {
+                    Logger.Log(LogType.Warning,
+                                "WorldManager: Could not parse \"VisitCount\" attribute of world \"{0}\", assuming NO Visits.",
+                                worldName);
                 }
             }
             if( firstWorld == null ) firstWorld = world;
@@ -364,9 +378,13 @@ namespace fCraft {
                     if( world.NeverUnload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
                     }
+                    if (world.VisitCount > 0)
+                    {
+                        temp.Add(new XAttribute("visitCount", world.VisitCount));
+                    }
                     if (world.IsRealm)
                     {
-                        temp.Add(new XAttribute("realm", true));
+                        temp.Add(new XAttribute("realm", "yes"));
                     }
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );

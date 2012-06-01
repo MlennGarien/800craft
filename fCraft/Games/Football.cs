@@ -23,72 +23,48 @@ using fCraft.Events;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace fCraft.Games
+namespace fCraft
 {
     public class Football
     {
-        public Vector3I footballPos;
-        public World world;
-        public Thread FootThread;
-        public Football(Player player, World world_, Vector3I FootballPos)
+        private World _world;
+        private Vector3I _startPos;
+        public Football(Player player, World world, Vector3I FootballPos)
         {
-            footballPos = FootballPos;
-            world = world_;
+            _world = world;
             Player.Clicked += ClickedFootball;
-            drawFootball(footballPos);
         }
 
+        public void ResetFootball()
+        {
+            if (_startPos == null)
+            {
+                _startPos.X = _world.Map.Bounds.XMax - _world.Map.Bounds.XMin;
+                _startPos.Y = _world.Map.Bounds.YMax - _world.Map.Bounds.YMin;
+                for (int z = _world.Map.Bounds.ZMax; z > 0; z--)
+                {
+                    if (_world.Map.GetBlock(_startPos.X, _startPos.Y, z) != Block.Air)
+                    {
+                        _startPos.Z = z + 1;
+                        break;
+                    }
+                }
+            }
+            _world.Map.QueueUpdate(new BlockUpdate(null, _startPos, Block.White));
+        }
+
+        private FootballBehavior _footballBehavior = new FootballBehavior();
         public void ClickedFootball(object sender, PlayerClickedEventArgs e)
         {
-            Position p = e.Player.Position;
-            if (e.Coords == footballPos)
+            //replace e.coords with player.Pos.toblock() (moving event)
+            if (e.Coords == _world.footballPos)
             {
-                double rSin = Math.Sin(((double)(128 - p.R) / 255) * 2 * Math.PI);
-                double rCos = Math.Cos(((double)(128 - p.R) / 255) * 2 * Math.PI);
-
-                ConcurrentDictionary<String, Vector3I> balls = new ConcurrentDictionary<String, Vector3I>();
-                FootThread = new Thread(new ThreadStart(delegate
-                {
-                    int startX = footballPos.X;
-                    int startY = footballPos.Y;
-                    int startZ = footballPos.Z;
-
-                    Position pos = e.Player.Position;
-                    pos.R = e.Player.Position.R;
-                    for (int startB = 1; startB <= new Random().Next(4, 15); startB++)
-                    {
-                        if (world.Map != null && world.IsLoaded)
-                        {
-                            pos.X = (short)Math.Round((startX + (double)(rSin * startB)));
-                            pos.Y = (short)Math.Round((startY + (double)(rCos * startB)));
-                            pos.Z = (short)footballPos.Z;
-                            if (world.Map.GetBlock(pos.X, pos.Y, pos.Z) != Block.Air)
-                            {
-                                break; //needs bounce... hmmm
-                            }
-                            foreach (Vector3I bp in balls.Values)
-                            {
-                                world.Map.QueueUpdate(new BlockUpdate(null,
-                                    (short)bp.X,
-                                    (short)bp.Y,
-                                    (short)bp.Z,
-                                    Block.Air));
-                                Vector3I removed;
-                                balls.TryRemove(bp.ToString(), out removed);
-                            }
-                            balls.TryAdd(new Vector3I(pos.X, pos.Y, pos.Z).ToString(), new Vector3I(pos.X, pos.Y, pos.Z));
-                            drawFootball(new Vector3I(pos.X, pos.Y, pos.Z));
-                            Thread.Sleep(80);
-                        }
-                    }
-                })); FootThread.Start();
+                double ksi = 2.0 * Math.PI * (-e.Player.Position.L) / 256.0;
+                double r = Math.Cos(ksi);
+                double phi = 2.0 * Math.PI * (e.Player.Position.R - 64) / 256.0;
+                Vector3F dir = new Vector3F((float)(r * Math.Cos(phi)), (float)(r * Math.Sin(phi)), (float)(Math.Sin(ksi)));
+                _world.AddPhysicsTask(new Particle(_world, e.Coords, dir, e.Player, Block.White, _footballBehavior), 0);
             }
-        }
-
-        public void drawFootball(Vector3I newPos)
-        {
-            world.Map.QueueUpdate(new BlockUpdate(null, newPos, Block.White));
-            footballPos = newPos;
         }
     }
 }

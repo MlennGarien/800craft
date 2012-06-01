@@ -552,6 +552,19 @@ namespace fCraft
             }
         }
 
+        public static bool IRCAnnounceCustom(string message)
+        {
+            int threadCount = ConfigKey.IRCThreads.GetInt();
+
+            if (threadCount > 0)
+            {
+                SendChannelMessage(message);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
 
         public static void SendChannelMessage([NotNull] string line)
         {
@@ -605,7 +618,7 @@ namespace fCraft
         }
 
 
-        static bool IsBotNick([NotNull] string str)
+        public static bool IsBotNick([NotNull] string str)
         {
             if (str == null) throw new ArgumentNullException("str");
             return threads.Any(t => t.ActualBotNick == str);
