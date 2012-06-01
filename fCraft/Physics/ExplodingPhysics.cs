@@ -163,7 +163,7 @@ namespace fCraft
             //chain explosion
             if (Block.TNT == prevBlock)
             {
-                _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false), _r.Next(50, 100));
+                _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false, _particles), _r.Next(50, 100));
 				UpdateMap(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
             }
 
