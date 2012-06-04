@@ -337,7 +337,7 @@ namespace fCraft
                             case IRCReplyCode.ErrorNicknameCollision:
                                 ActualBotNick = ActualBotNick.Remove(ActualBotNick.Length - 4) + "_";
                                 Logger.Log(LogType.SystemActivity,
-                                            "Error: Nickname \"{0}\" is already in use. Trying \"{0}\"",
+                                            "Error: Global Chat Nickname is already in use. Trying \"{0}\"",
                                             ActualBotNick);
                                 Send(IRCCommands.Nick(ActualBotNick));
                                 break;
