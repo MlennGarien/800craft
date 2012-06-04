@@ -477,9 +477,13 @@ namespace fCraft {
 
                 if (reason.Length < 1)
                     reason = "Reason Undefined: BanX";
-                    
-                Player targetPlayer = target.PlayerObject;
-                target.Ban( player, reason, false, true );
+                try{
+                    Player targetPlayer = target.PlayerObject;
+                    target.Ban(player, reason, false, true);
+                }catch (PlayerOpException ex){
+                    player.Message(ex.MessageColored);
+                    return;
+                }
                     if (player.Can(Permission.Demote, target.Rank))
                     {
                         if (target.Rank != RankManager.LowestRank)

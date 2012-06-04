@@ -343,7 +343,7 @@ namespace fCraft {
             }
             //ignore isvalidname for percent codes to work
             if (player.iName == null){
-                player.Message("&SYour name has changed from '" + player.ClassyName + "&S' to '" + iName);
+                player.Message("&SYour name has changed from '" + player.Info.Rank.Color + player.Name + "&S' to '" + iName);
             }
             if (player.iName != null){
                 player.Message("&SYour name has changed from '" + player.iName + "&S' to '" + iName);
