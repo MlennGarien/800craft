@@ -32,7 +32,7 @@ namespace fCraft
 	class TrackerUsageExample
 	{
 		private World _world;
-		private PlayerProximityTracker _tracker;
+		private PlayerProximityTracker _tracker = null;
 		private object _lock=new object();
 
 		public TrackerUsageExample(World world)
@@ -112,7 +112,7 @@ namespace fCraft
 		private bool _callEvents=false;
 		private double _distanceInBlocks;
 		private Func<Player, Player, bool> _takePair;
-		private World _world; //to ba able to remove players left the game
+		private World _world = null; //to be able to remove players left the game
 
 		public PlayerProximityTracker(int xSize, int ySize, World world)
 		{
