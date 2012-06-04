@@ -118,8 +118,11 @@ namespace fCraft
 		public int Delay { get { lock (_life2d) { return _delay; } } set { lock (_life2d) { _delay = value; } } }
 		public bool Torus { get { lock (_life2d) { return _life2d.Torus; } } set { lock (_life2d) { _life2d.Torus = value; } } }
 		public AutoResetMethod AutoReset { get { lock (_life2d) { return _autoReset; } } set { lock (_life2d) { _autoReset = value; } } }
+
+		public string CreatorName { get; set; }
+		public string MinRankToChange { get; set; }
 		
-		public Life2DZone(string name, World world, Vector3I[] marks) : base (world)
+		public Life2DZone(string name, World world, Vector3I[] marks, string creator, string minRankToChange) : base (world)
 		{
 			_bounds=new BoundingBox(marks[0], marks[1]);
 			if (_bounds.Dimensions.X == 1 && _bounds.Dimensions.Y > 1 && _bounds.Dimensions.Z > 1)
@@ -144,6 +147,8 @@ namespace fCraft
 				throw new ArgumentException("bounds must be a 2d rectangle");
 
 			Name = name;
+			CreatorName = creator;
+			MinRankToChange = minRankToChange;
 			_normal = DefaultBlocks[NormalIdx];
 			_empty = DefaultBlocks[EmptyIdx];
 			_dead = DefaultBlocks[DeadIdx];

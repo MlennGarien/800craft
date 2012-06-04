@@ -282,6 +282,8 @@ namespace fCraft
 			LifeHandler handler=new LifeHandler();
 			if (!handler.CheckAndGetLifeZone(p, cmd))
 				return;
+			if (!handler.CheckWorldPermissions(p))
+				return;
 			if (null!=handler._life)
 			{
 				p.Message("&WLife with such name exists already, choose another");
@@ -298,6 +300,8 @@ namespace fCraft
 			{
 				lock (_world.SyncRoot)
 				{
+					if (!CheckWorldPermissions(player))
+						return;
 					if (null == _world.Map)
 						return;
 					if (null != _world.GetLife(_name)) //check it again, since smone could create it in between
@@ -305,11 +309,11 @@ namespace fCraft
 						player.Message("&WLife with such name exists already, choose another");
 						return;
 					}
-					Life2DZone life = new Life2DZone(_name, _world, marks);
+					Life2DZone life = new Life2DZone(_name, _world, marks, player.Name, (player.Info.Rank.NextRankUp??player.Info.Rank).Name);
 					if (_world.TryAddLife(life))
 						player.Message("&yLife was created. Named " + _name);
 					else
-						player.Message("&WCoulnd't create life for some reason unknown."); //really unknown: we are under a lock so nobody could create a life with the same name inbetween
+						player.Message("&WCoulnd't create life for some reason unknown."); //really unknown: we are under a lock so nobody could create a life with the same name in between
 				}
 			}
 			catch (Exception e)
@@ -323,6 +327,8 @@ namespace fCraft
 			LifeHandler handler = GetCheckedLifeHandler(p, cmd);
 			if (null == handler)
 				return;
+			if (!handler.CheckChangePermissions(p))
+				return;
 			handler._life.Start();
 			p.Message("&yLife " + handler._life.Name + " is started");
 		}
@@ -332,6 +338,8 @@ namespace fCraft
 			LifeHandler handler = GetCheckedLifeHandler(p, cmd);
 			if (null == handler)
 				return;
+			if (!handler.CheckChangePermissions(p))
+				return;
 			handler._life.Stop();
 			p.Message("&yLife " + handler._life.Name + " is stopped");
 		}
@@ -340,6 +348,8 @@ namespace fCraft
 		{
 			LifeHandler handler = GetCheckedLifeHandler(p, cmd);
 			if (null == handler)
+				return;
+			if (!handler.CheckChangePermissions(p))
 				return;
 			handler._world.DeleteLife(handler._name);
 			p.Message("&yLife " + handler._life.Name + " is deleted");
@@ -378,13 +388,19 @@ namespace fCraft
 				return;
 			Life2DZone l = handler._life;
 			p.Message("&y"+l.Name+": "+(l.Stopped ? "stopped" : "started") + ", delay "+l.Delay+
-				", intermediate delay "+l.HalfStepDelay+", is "+(l.Torus?"":"not")+" on torus, block types: "+
-				l.Normal+" is normal, "+l.Empty+" is empty, "+l.Dead+" is dead, "+l.Newborn+" is newborn");
+				", intermediate delay "+l.HalfStepDelay+", is"+(l.Torus?"":" not")+" on torus, "+
+				"auto reset strategy is "+Enum.GetName(typeof(AutoResetMethod), l.AutoReset)+
+				", owner is "+l.CreatorName+
+				", changable by "+l.MinRankToChange+
+				", block types: "+ l.Normal+" is normal, "+l.Empty+" is empty, "+l.Dead+" is dead, "+l.Newborn+" is newborn");
 		}
+
 		private static void OnSet(Player p, Command cmd)
 		{
 			LifeHandler handler = GetCheckedLifeHandler(p, cmd);
 			if (null == handler)
+				return;
+			if (!handler.CheckChangePermissions(p))
 				return;
 
 			string paramStr = cmd.Next();
@@ -503,6 +519,44 @@ namespace fCraft
 			}
 			life.AutoReset = method;
 			p.Message("&yAutoReset param set to " + Enum.GetName(typeof(AutoResetMethod), method));
+		}
+
+		private bool CheckWorldPermissions(Player p)
+		{
+			if (!p.Info.Rank.AllowSecurityCircumvention)
+			{
+				SecurityCheckResult buildCheck = _world.BuildSecurity.CheckDetailed(p.Info);
+				switch (buildCheck)
+				{
+					case SecurityCheckResult.BlackListed:
+						p.Message("Cannot add life to world {0}&S: You are barred from building here.",
+										p.ClassyName);
+						return false;
+					case SecurityCheckResult.RankTooLow:
+						p.Message("Cannot add life to world {0}&S: You are not allowed to build here.",
+										p.ClassyName);
+						return false;
+				}
+			}
+			return true;
+		}
+
+		private bool CheckChangePermissions(Player p)
+		{
+			if (p.Name==_life.CreatorName)
+				return true;
+			Rank r;
+			if (!RankManager.RanksByName.TryGetValue(_life.MinRankToChange, out r))
+			{
+				string prevRank = _life.MinRankToChange;
+				r = RankManager.LowestRank.NextRankUp ?? RankManager.LowestRank;
+				_life.MinRankToChange = r.Name;
+				p.Message("&WRank "+prevRank+" couldn't be found. Updated to "+r.Name);
+			}
+			if (p.Info.Rank>=r)
+				return true;
+			p.Message("&WYour rank is too low to change this life.");
+			return false;
 		}
 	}
 }

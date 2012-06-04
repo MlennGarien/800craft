@@ -94,7 +94,7 @@ namespace fCraft
 
         private void CreateParticles()
         {
-            int n = _r.Next(3, 5);
+            int n = _r.Next(2, 5);
             for (int i = 0; i < n; ++i)
             {
                 double phi = _r.NextDouble() * 2 * Math.PI;
@@ -112,17 +112,26 @@ namespace fCraft
             if (++_currentR <= R)
             {
                 _explosion = new List<BData>();
-                for (int z = 0; z <= _currentR; ++z)
+				int rPrev = 0;
+				for (int z = _currentR; z >= 0; --z)
                 {
                     double r2 = _currentR * _currentR - z * z;
-                    for (int x = 0; x <= _currentR; ++x)
+                	double r = Math.Sqrt(r2);
+                	double yPrev = r;
+                    for (double x = 0; x <= Math.Round(r); ++x)
                     {
-                        int y = (int)Math.Round(Math.Sqrt(r2 - x * x));
-                        for (int mx = -1; mx < 2; mx += 2)
-                            for (int my = -1; my < 2; my += 2)
-                                for (int mz = -1; mz < 2; mz += 2)
-                                    TryAddPoint(mx * x + _pos.X, my * y + _pos.Y, mz * z + _pos.Z);
+						if (x > r)
+							x = r;
+                        double y = Math.Sqrt(r2 - x * x);
+                    	int ix = (int)Math.Round(x);
+						for (int iy = ix>rPrev?0:(int)Math.Round(y); iy < Math.Max(Math.Round(y) + 1, Math.Round(yPrev)); ++iy )
+							for (int mx = -1; mx < 2; mx += 2)
+								for (int my = -1; my < 2; my += 2)
+									for (int mz = -1; mz < 2; mz += 2)
+										TryAddPoint(mx * ix + _pos.X, my * iy + _pos.Y, mz * z + _pos.Z);
+                    	yPrev = y;
                     }
+                	rPrev = (int) Math.Round(r);
                 }
 
                 Util.RndPermutate(_explosion);
@@ -163,14 +172,12 @@ namespace fCraft
             //chain explosion
             if (Block.TNT == prevBlock)
             {
-                _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false, _particles), _r.Next(50, 100));
+                _world.AddPhysicsTask(new TNTTask(_world, new Vector3I(x, y, z), _owner, false, _particles), _r.Next(150, 300));
 				UpdateMap(new BlockUpdate(null, (short)x, (short)y, (short)z, Block.Air));
             }
 
-            if (0.45 + 0.55 * (R - _currentR) / R < _r.NextDouble())
-                return;
-
-            _explosion.Add(new BData() { X = x, Y = y, Z = z, PrevBlock = _map.GetBlock(x, y, z) });
+			if (0.2 + 0.75 * (R - _currentR) / R > _r.NextDouble())
+				_explosion.Add(new BData() {X = x, Y = y, Z = z, PrevBlock = _map.GetBlock(x, y, z)});
         }
 
         public void HitPlayer(World world, Player hitted, Player by)
