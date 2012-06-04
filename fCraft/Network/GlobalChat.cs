@@ -222,6 +222,7 @@ namespace fCraft
                 if (message == null) throw new ArgumentNullException("message");
 
                 IRCMessage msg = IRC.MessageParser(message, ActualBotNick);
+                var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
 #if DEBUG_IRC
                 Logger.Log( LogType.IRC,
                             "[{0}]: {1}",
@@ -249,7 +250,6 @@ namespace fCraft
                     case IRCMessageType.ChannelAction:
                     case IRCMessageType.ChannelMessage:
                         // channel chat
-                        var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
                         if (!ResponsibleForInputParsing) return;
                             string processedMessage = msg.Message;
                             if (msg.Type == IRCMessageType.ChannelAction)
@@ -289,7 +289,7 @@ namespace fCraft
 
                     case IRCMessageType.Join:
                         if (!ResponsibleForInputParsing) return;
-                            Server.Message("&i(Global) Server {0} joined the 800Craft Global Chat",
+                            SendList.Message("&i(Global) Server {0} joined the 800Craft Global Chat",
                                             msg.Nick, msg.Channel);
                         return;
 
@@ -307,7 +307,7 @@ namespace fCraft
                         else
                         {
                             if (!ResponsibleForInputParsing) return;
-                            Server.Message("&i(Global) {0} kicked {1} ({2})",
+                            SendList.Message("&i(Global) {0} kicked {1} ({2})",
                                             msg.Nick, kicked, msg.Message);
                         }
                         return;
@@ -316,14 +316,14 @@ namespace fCraft
                     case IRCMessageType.Part:
                     case IRCMessageType.Quit:
                         if (!ResponsibleForInputParsing) return;
-                            Server.Message("&i(Global) Server {0} left the 800Craft Global Chat",
+                            SendList.Message("&i(Global) Server {0} left the 800Craft Global Chat",
                                             msg.Nick);
                         return;
 
 
                     case IRCMessageType.NickChange:
                         if (!ResponsibleForInputParsing) return;
-                        Server.Message("&i(Global) {0} is now known as {1}",
+                        SendList.Message("&i(Global) {0} is now known as {1}",
                                         msg.Nick, msg.Message);
                         return;
 

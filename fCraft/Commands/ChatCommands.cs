@@ -97,6 +97,7 @@ namespace fCraft {
         static void GHandler(Player player, Command cmd)
         {
             string Msg = cmd.NextAll();
+            var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
             if (Msg.Length < 1)
             {
                 if (player.GlobalChat)
@@ -126,7 +127,7 @@ namespace fCraft {
             }
             Msg = player.ClassyName + Color.White + ": " + Msg;
             Msg = Color.ReplacePercentCodes(Msg);
-            player.Message("&i(Global) " + Msg);
+            SendList.Message("&i(Global) " + Msg);
             Msg = Color.ToIRCColorCodes(Msg);
             GlobalChat.GlobalThread.SendChannelMessage(Msg);
         }
