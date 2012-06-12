@@ -250,31 +250,26 @@ namespace fCraft {
         {
             string name = cmd.Next();
             string item = cmd.Next();
-            if (name == null)
-            {
+            if (name == null){
                 player.Message("Please enter a name");
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
-            if (target.Immortal)
-            {
+            if (target.Immortal){
                 player.Message("&SYou failed to slap {0}&S, they are immortal", target.ClassyName);
                 return;
             }
-            if (target == player)
-            {
+            if (target == player){
                 player.Message("&sYou can't slap yourself.... What's wrong with you???");
                 return;
             }
-            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 10)
-            {
+            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 10){
                 player.Message("&CYou can only use /Slap once every 10 seconds. Slow down.");
                 return;
             }
             string aMessage;
-            if (player.Can(Permission.Slap, target.Info.Rank))
-            {
+            if (player.Can(Permission.Slap, target.Info.Rank)){
                 Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
                 target.TeleportTo(slap);
                 if (string.IsNullOrEmpty(item)){
@@ -301,9 +296,7 @@ namespace fCraft {
                 IRC.IRCAnnounceCustom(aMessage);
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
-            }
-            else
-            {
+            }else{
                 player.Message("&sYou can only Slap players ranked {0}&S or lower",
                                player.Info.Rank.GetLimit(Permission.Slap).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
