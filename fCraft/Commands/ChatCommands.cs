@@ -97,19 +97,23 @@ namespace fCraft {
         static void GHandler(Player player, Command cmd)
         {
             string Msg = cmd.NextAll();
-            var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
-            if (Msg.Length < 1)
+            if (!ConfigKey.GCKey.Enabled())
             {
-                if (player.GlobalChat)
-                {
+                player.Message("Global Chat is disabled on this server");
+                return;
+            }
+            var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
+            if (Msg.Length < 1){
+                if (player.GlobalChat){
                     player.GlobalChat = false;
                     GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas disabled the Global Chat (Left)");
                     player.Message("&SYou left the 800Craft Global Chat");
                     return;
                 }
-                if (!player.GlobalChat)
-                {
+                if (!player.GlobalChat){
                     player.GlobalChat = true;
+                    player.Message("&WRules: No spamming, no advertising. Your Servers chat rules apply here (staff will mute / kick you)\n" +
+                        "&9By using the Global Chat, you automatically accept these conditions.");
                     GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
                     player.Message(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
                     return;
@@ -125,11 +129,12 @@ namespace fCraft {
                 player.MessageMuted();
                 return;
             }
-            Msg = player.ClassyName + Color.White + ": " + Msg;
-            Msg = Color.ReplacePercentCodes(Msg);
-            SendList.Message("&i(Global) " + Msg);
+            string pMsg = player.ClassyName + Color.White + ": " + Msg;
+            Msg = player.ClassyName + Color.Black + ": " + Msg;
+            SendList.Message("&i(Global) " + pMsg); //send the white message to Server
             Msg = Color.ToIRCColorCodes(Msg);
-            GlobalChat.GlobalThread.SendChannelMessage(Msg);
+            Msg = Color.ReplacePercentCodes(Msg);
+            GlobalChat.GlobalThread.SendChannelMessage(Msg); //send the black message to GC
         }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor

@@ -25,7 +25,7 @@ namespace fCraft {
         }
 
         static readonly TimeSpan DoorCloseTimer = TimeSpan.FromMilliseconds(1500);
-        const int maxDoorBlocks = 15;  //change for max door area
+        const int maxDoorBlocks = 30;  //change for max door area
         static List<Zone> openDoors;
 
         struct DoorInfo

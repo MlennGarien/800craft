@@ -98,7 +98,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdPlace);
             CommandManager.RegisterCommand(CdTower);
             CommandManager.RegisterCommand(CdCylinder);
-            CommandManager.RegisterCommand(CdDrawScheme);
+            //CommandManager.RegisterCommand(CdDrawScheme);
             CommandManager.RegisterCommand(CdCenter);
         }
 

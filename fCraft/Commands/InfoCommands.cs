@@ -38,7 +38,6 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdReqs);
             CommandManager.RegisterCommand(CdList);
-            CommandManager.RegisterCommand(CdTop10);
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
@@ -61,30 +60,6 @@ namespace fCraft {
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-        static readonly CommandDescriptor CdTop10 = new CommandDescriptor
-        {
-            Name = "TopTen",
-            Aliases = new[] {"Top10"},
-            Category = CommandCategory.Info,
-            IsConsoleSafe = true,
-            UsableByFrozenPlayers = true,
-            Help = "Shows a list of the top 10 most visited world on the server",
-            Usage = "/TopTen",
-            Handler = Top10Handler
-        };
-
-        internal static void Top10Handler(Player player, Command cmd)
-        {
-            List<World> WorldNames = new List<World>(WorldManager.Worlds.Where(w=> w.VisitCount > 0)
-                                         .OrderBy(c=> c.VisitCount)
-                                         .ToArray()
-                                         .Reverse());
-            string list = WorldNames.Take(10).JoinToString(w => String.Format("{0}&S: {1}", w.ClassyName, w.VisitCount));
-            player.Message("&WShowing worlds with the most visits: "+ list);
-            WorldNames.Clear();
-        }
-
-
         static readonly CommandDescriptor CdList = new CommandDescriptor
         {
             Name = "List",
@@ -103,16 +78,24 @@ namespace fCraft {
             if (Option == null)
             {
                 CdList.PrintUsage(player);
-                player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank");
+                player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10");
                 return;
             }
             switch (Option.ToLower())
             {
                 default:
                     CdList.PrintUsage(player);
-                    player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank");
+                    player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10");
                     break;
-
+                case "top10":
+                    List<World> WorldNames = new List<World>(WorldManager.Worlds.Where(w => w.VisitCount > 0)
+                                         .OrderBy(c => c.VisitCount)
+                                         .ToArray()
+                                         .Reverse());
+                    string list = WorldNames.Take(10).JoinToString(w => String.Format("{0}&S: {1}", w.ClassyName, w.VisitCount));
+                    player.Message("&WShowing worlds with the most visits: " + list);
+                    WorldNames.Clear();
+                    break;
                 case "idles":
                 case "idle":
                     var Idles = Server.Players.Where(p => p.IdleTime.TotalMinutes > 5).ToArray();
@@ -122,18 +105,23 @@ namespace fCraft {
                     else player.Message("No players have been idle for more than 5 minutes");
                     break;
                 case "portals":
-                    if (player.World == null){
+                    if (player.World == null)
+                    {
                         player.Message("/List portals cannot be used from Console");
                         return;
                     }
-                    if (player.World.Portals == null || 
-                        player.World.Portals.Count == 0){
+                    if (player.World.Portals == null ||
+                        player.World.Portals.Count == 0)
+                    {
                         player.Message("There are no portals in {0}&S.", player.World.ClassyName);
-                    }else{
+                    }
+                    else
+                    {
                         String[] portalNames = new String[player.World.Portals.Count];
                         StringBuilder output = new StringBuilder("There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: ");
 
-                        for (int i = 0; i < player.World.Portals.Count; i++){
+                        for (int i = 0; i < player.World.Portals.Count; i++)
+                        {
                             portalNames[i] = ((fCraft.Portals.Portal)player.World.Portals[i]).Name;
                         }
                         output.Append(portalNames.JoinToString(", "));
@@ -145,10 +133,14 @@ namespace fCraft {
                                          .Where(r => r.Rank.Can(Permission.ReadStaffChat) &&
                                              r.Rank.Can(Permission.Ban) &&
                                              r.Rank.Can(Permission.Promote))
+                                             .OrderBy(p => p.Rank)
                                              .ToArray();
-                    if (StaffNames.Length <= PlayersPerPage){
+                    if (StaffNames.Length <= PlayersPerPage)
+                    {
                         player.MessageManyMatches("staff", StaffNames);
-                    }else{
+                    }
+                    else
+                    {
                         int offset;
                         if (!cmd.NextInt(out offset)) offset = 0;
                         if (offset >= StaffNames.Length)
@@ -167,7 +159,8 @@ namespace fCraft {
 
                 case "rank":
                     string rankName = cmd.Next();
-                    if (rankName == null){
+                    if (rankName == null)
+                    {
                         player.Message("Usage: /List rank rankName");
                         return;
                     }
@@ -175,9 +168,12 @@ namespace fCraft {
                     var RankNames = PlayerDB.PlayerInfoList
                                          .Where(r => r.Rank == rank)
                                              .ToArray();
-                    if (RankNames.Length <= PlayersPerPage){
+                    if (RankNames.Length <= PlayersPerPage)
+                    {
                         player.MessageManyMatches("players", RankNames);
-                    }else{
+                    }
+                    else
+                    {
                         int offset;
                         if (!cmd.NextInt(out offset)) offset = 0;
                         if (offset >= RankNames.Length)
@@ -197,26 +193,29 @@ namespace fCraft {
                 case "displayedname":
                 case "dn":
                     var DisplayedNames = PlayerDB.PlayerInfoList
-                                             .Where(r => r.DisplayedName != null).ToArray();
+                                             .Where(r => r.DisplayedName != null).OrderBy(p => p.Rank).ToArray();
 
-                 if (DisplayedNames.Length <= 15){
-                    player.MessageManyDisplayedNamesMatches("DisplayedNames", DisplayedNames);
-                }else{
-                    int offset;
-                    if (!cmd.NextInt(out offset)) offset = 0;
-                    if (offset >= DisplayedNames.Count())
-                        offset = Math.Max(0, DisplayedNames.Length - 15);
-                    PlayerInfo[] DnPart = DisplayedNames.Skip(offset).Take(15).ToArray();
-                    player.MessageManyDisplayedNamesMatches("DisplayedNames", DnPart);
-                    if (offset + DisplayedNames.Length < DisplayedNames.Length)
-                        player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
-                                        offset + 1, offset + DnPart.Length, DisplayedNames.Length,
-                                        "DisplayedNames", offset + DnPart.Length);
+                    if (DisplayedNames.Length <= 15)
+                    {
+                        player.MessageManyDisplayedNamesMatches("DisplayedNames", DisplayedNames);
+                    }
                     else
-                        player.Message("Showing matches {0}-{1} (out of {2}).",
-                                        offset + 1, offset + DnPart.Length, DisplayedNames.Length);
-                }
-                break;
+                    {
+                        int offset;
+                        if (!cmd.NextInt(out offset)) offset = 0;
+                        if (offset >= DisplayedNames.Count())
+                            offset = Math.Max(0, DisplayedNames.Length - 15);
+                        PlayerInfo[] DnPart = DisplayedNames.Skip(offset).Take(15).ToArray();
+                        player.MessageManyDisplayedNamesMatches("DisplayedNames", DnPart);
+                        if (offset + DisplayedNames.Length < DisplayedNames.Length)
+                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                                            offset + 1, offset + DnPart.Length, DisplayedNames.Length,
+                                            "DisplayedNames", offset + DnPart.Length);
+                        else
+                            player.Message("Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + DnPart.Length, DisplayedNames.Length);
+                    }
+                    break;
             }
         }
 

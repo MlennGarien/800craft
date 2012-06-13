@@ -22,7 +22,7 @@ official server list (if server is public).",
             MinLength = 1, MaxLength = 12)]
         CustomAliasName,
 
-        [StringKey(ConfigSection.General, "&CBlock",
+        [StringKey(ConfigSection.General, "%CBlock",
 @"The word which swears will be replaced with",
             MinLength = 1, MaxLength = 12)]
         SwearName,
@@ -327,6 +327,10 @@ If exceeded, oldest backups will be deleted first.",
         [BoolKey(ConfigSection.SavingAndBackup, true,
 @"Starts the heartbeatsaver on shutdown")]
         HbSaverKey,
+
+        [BoolKey(ConfigSection.Chat, true,
+@"Enables Global Chat (/Global) for IRC channel #800Craft esper.net")]
+        GCKey,
 
         #endregion
 

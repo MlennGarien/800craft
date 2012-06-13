@@ -451,8 +451,11 @@ namespace fCraft {
 
             IsRunning = true;
             RaiseEvent( Started );
-            GlobalChat.Init();
-            GlobalChat.Start();
+            if (ConfigKey.GCKey.Enabled())
+            {
+                GlobalChat.Init();
+                GlobalChat.Start();
+            }
             return true;
         }
 

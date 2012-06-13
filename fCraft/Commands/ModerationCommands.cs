@@ -61,8 +61,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBasscannon);
             CommandManager.RegisterCommand(CdKill);
             CommandManager.RegisterCommand(CdTempBan);
-            //CommandManager.RegisterCommand(CdPossess);
-            //CommandManager.RegisterCommand(CdUnPossess);
             CommandManager.RegisterCommand(CdWarn);
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(CdDisconnect);
@@ -501,8 +499,7 @@ namespace fCraft {
                 {
                     Player targetPlayer = target;
                     target.BassKick(player, reason, LeaveReason.Kick, true, true, true);
-                    if (BassText.Count < 1)
-                    {
+                    if (BassText.Count < 1){
                         BassText.Add("Flux Pavillion does not approve of your behavior");
                         BassText.Add("Let the Basscannon KICK IT!");
                         BassText.Add("WUB WUB WUB WUB WUB WUB!");
