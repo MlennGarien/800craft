@@ -94,6 +94,9 @@ namespace fCraft {
         /// <summary> Ability to use advanced draw commands: sphere, torus, brushes. </summary>
         DrawAdvanced,
 
+        /// <summary> Ability to draw trees of any height and shape. </summary>
+        Tree, 
+
         /// <summary> Ability to copy (or cut) and paste blocks. The total number of
         /// blocks that can be copied or pasted at a time is affected by the draw limit. </summary>
         CopyAndPaste,

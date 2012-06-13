@@ -176,7 +176,7 @@ namespace fCraft {
         {
             Name = "Tree",
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Permissions = new[] { Permission.Tree },
             Usage = "/Tree Shape Height",
             Help = "Plants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove",
             Handler = TreeHandler
