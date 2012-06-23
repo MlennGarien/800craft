@@ -309,7 +309,7 @@ namespace fCraft
 						player.Message("&WLife with such name exists already, choose another");
 						return;
 					}
-					Life2DZone life = new Life2DZone(_name, _world, marks, player.Name, (player.Info.Rank.NextRankUp??player.Info.Rank).Name);
+					Life2DZone life = new Life2DZone(_name, _world, marks, player, (player.Info.Rank.NextRankUp??player.Info.Rank).Name);
 					if (_world.TryAddLife(life))
 						player.Message("&yLife was created. Named " + _name);
 					else

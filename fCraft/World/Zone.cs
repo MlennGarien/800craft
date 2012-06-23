@@ -1,6 +1,9 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Xml.Linq;
+using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -242,4 +245,74 @@ namespace fCraft {
             if( h != null ) h( null, EventArgs.Empty );
         }
     }
+
+	public class ZoneConverterExtension : IConverterExtension
+	{
+		private static List<string> _group = new List<string> {"zones"};
+		public IEnumerable<string> AcceptedGroups { get { return _group; } }
+
+		public int Serialize(Map map, Stream stream, IMapConverterEx converter)
+		{
+			BinaryWriter writer = new BinaryWriter(stream);
+			int count = 0;
+			Zone[] zoneList = map.Zones.Cache;
+			foreach (Zone zone in zoneList)
+			{
+				converter.WriteMetadataEntry(_group[0], zone.Name, SerializeZone(zone), writer); 
+				++count;
+			}
+			return count;
+		}
+
+		static string SerializeZone([NotNull] Zone zone)
+		{
+			if (zone == null) throw new ArgumentNullException("zone");
+			string xheader;
+			if (zone.CreatedBy != null)
+			{
+				xheader = zone.CreatedBy + " " + zone.CreatedDate.ToCompactString() + " ";
+			}
+			else
+			{
+				xheader = "- - ";
+			}
+
+			if (zone.EditedBy != null)
+			{
+				xheader += zone.EditedBy + " " + zone.EditedDate.ToCompactString();
+			}
+			else
+			{
+				xheader += "- -";
+			}
+
+			var zoneExceptions = zone.Controller.ExceptionList;
+
+			string whitelist = zone.rawWhitelist ?? zoneExceptions.Included.JoinToString(" ", p => p.Name);
+			string blacklist = zone.rawBlacklist ?? zoneExceptions.Excluded.JoinToString(" ", p => p.Name);
+
+			return String.Format("{0},{1},{2},{3}",
+								  String.Format("{0} {1} {2} {3} {4} {5} {6} {7}",
+												 zone.Name,
+												 zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.ZMin,
+												 zone.Bounds.XMax, zone.Bounds.YMax, zone.Bounds.ZMax,
+												 zone.Controller.MinRank.FullName),
+								  whitelist,
+								  blacklist,
+								  xheader);
+		}
+
+		public void Deserialize(string group, string key, string value, Map map)
+		{
+			try
+			{
+				map.Zones.Add(new Zone(value, map.World));
+			}
+			catch (Exception ex)
+			{
+				Logger.Log(LogType.Error,
+							"ZoneConverterExtension.Deserialize: Error importing zone definition: {0}", ex);
+			}
+		}
+	}
 }

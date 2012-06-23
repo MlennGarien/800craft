@@ -161,6 +161,7 @@
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\Life\Life2d.cs" />
     <Compile Include="Physics\Life\Life2DZone.cs" />
+    <Compile Include="Physics\Life\LifeSerialization.cs" />
     <Compile Include="Physics\ParticleSystem.cs" />
     <Compile Include="Physics\Physics.cs" />
     <Compile Include="Physics\PhysicsHeap.cs" />

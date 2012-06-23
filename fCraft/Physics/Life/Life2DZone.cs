@@ -122,7 +122,7 @@ namespace fCraft
 		public string CreatorName { get; set; }
 		public string MinRankToChange { get; set; }
 		
-		public Life2DZone(string name, World world, Vector3I[] marks, string creator, string minRankToChange) : base (world)
+		public Life2DZone(string name, World world, Vector3I[] marks, Player creator, string minRankToChange) : base (world)
 		{
 			_bounds=new BoundingBox(marks[0], marks[1]);
 			if (_bounds.Dimensions.X == 1 && _bounds.Dimensions.Y > 1 && _bounds.Dimensions.Z > 1)
@@ -146,8 +146,10 @@ namespace fCraft
 			else
 				throw new ArgumentException("bounds must be a 2d rectangle");
 
+			CheckPermissionsToDraw(creator);
+
 			Name = name;
-			CreatorName = creator;
+			CreatorName = creator.Name;
 			MinRankToChange = minRankToChange;
 			_normal = DefaultBlocks[NormalIdx];
 			_empty = DefaultBlocks[EmptyIdx];
@@ -158,6 +160,15 @@ namespace fCraft
 			_delay = DefaultDelay;
 			Torus = false;
 			_autoReset = AutoResetMethod.ToRandom;
+		}
+
+		private void CheckPermissionsToDraw(Player creator)
+		{
+			for (int i=_bounds.XMin; i<=_bounds.XMax; ++i)
+				for (int j=_bounds.YMin; j<=_bounds.YMax; ++j)
+					for (int k=_bounds.ZMin; k<=_bounds.ZMax; ++k)
+						if (creator.CanPlace(_map, new Vector3I(i, j, k), DefaultBlocks[EmptyIdx], BlockChangeContext.Physics)!=CanPlaceResult.Allowed)
+							throw new ArgumentException("This life intersects with prohibited zones/blocks. Creation denied.");
 		}
 
 		public void Stop()

@@ -1,4 +1,6 @@
 // Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+using System.Collections.Generic;
+using System.IO;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
@@ -39,4 +41,31 @@ namespace fCraft.MapConversion {
         /// <returns> true if saving succeeded. </returns>
         bool Save( [NotNull] Map mapToSave, [NotNull] string path );
     }
+
+	public interface IMapConverterEx : IMapConverter
+	{
+		//must return this to enable addin multiple extensions in one line: converter.AddExtension(e1).AddExtension(e2)
+		IMapConverterEx AddExtension(IConverterExtension ex);
+		void WriteMetadataEntry(string group, string key, string value, BinaryWriter writer);
+	}
+
+	public interface IConverterExtension
+	{
+		/// <summary>
+		/// Returns groups procesed by this extension
+		/// </summary>
+		/// <returns></returns>
+		IEnumerable<string> AcceptedGroups { get; }
+		/// <summary>
+		/// Serializes the extended data as metadata and returns the number of written keys
+		/// </summary>
+		/// <returns>
+		/// The number of written keys
+		/// </returns>
+		int Serialize(Map map, Stream stream, IMapConverterEx converter);
+		/// <summary>
+		/// Instantiates the extended data for the given map from the group, key, and value
+		/// </summary>
+		void Deserialize(string group, string key, string value, Map map);
+	}
 }
