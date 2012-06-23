@@ -302,6 +302,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.GCcheckBox = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -3377,6 +3378,7 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.GCcheckBox);
             this.groupBox3.Controls.Add(this.MaxCapsValue);
             this.groupBox3.Controls.Add(this.MaxCaps);
             this.groupBox3.Controls.Add(this.HbBox1);
@@ -3384,7 +3386,7 @@
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Location = new System.Drawing.Point(31, 199);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(595, 120);
+            this.groupBox3.Size = new System.Drawing.Size(595, 142);
             this.groupBox3.TabIndex = 27;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Configurations";
@@ -3472,7 +3474,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(14, 53);
+            this.label1.Location = new System.Drawing.Point(16, 67);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(224, 15);
             this.label1.TabIndex = 16;
@@ -3484,7 +3486,7 @@
             this.label4.AutoSize = true;
             this.label4.Cursor = System.Windows.Forms.Cursors.Help;
             this.label4.ForeColor = System.Drawing.Color.Red;
-            this.label4.Location = new System.Drawing.Point(17, 74);
+            this.label4.Location = new System.Drawing.Point(19, 88);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(331, 30);
             this.label4.TabIndex = 25;
@@ -3495,7 +3497,7 @@
             // CustomColor
             // 
             this.CustomColor.BackColor = System.Drawing.Color.White;
-            this.CustomColor.Location = new System.Drawing.Point(245, 17);
+            this.CustomColor.Location = new System.Drawing.Point(246, 35);
             this.CustomColor.Name = "CustomColor";
             this.CustomColor.Size = new System.Drawing.Size(100, 23);
             this.CustomColor.TabIndex = 15;
@@ -3505,7 +3507,7 @@
             // CustomText
             // 
             this.CustomText.AutoSize = true;
-            this.CustomText.Location = new System.Drawing.Point(80, 25);
+            this.CustomText.Location = new System.Drawing.Point(82, 39);
             this.CustomText.Name = "CustomText";
             this.CustomText.Size = new System.Drawing.Size(158, 15);
             this.CustomText.TabIndex = 14;
@@ -3517,7 +3519,7 @@
             this.CustomName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.CustomName.HideSelection = false;
-            this.CustomName.Location = new System.Drawing.Point(244, 50);
+            this.CustomName.Location = new System.Drawing.Point(246, 64);
             this.CustomName.MaxLength = 64;
             this.CustomName.Name = "CustomName";
             this.CustomName.Size = new System.Drawing.Size(169, 21);
@@ -3527,7 +3529,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(70, 110);
+            this.label2.Location = new System.Drawing.Point(72, 124);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(168, 15);
             this.label2.TabIndex = 18;
@@ -3539,7 +3541,7 @@
             this.CustomAliases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.CustomAliases.HideSelection = false;
-            this.CustomAliases.Location = new System.Drawing.Point(244, 107);
+            this.CustomAliases.Location = new System.Drawing.Point(246, 121);
             this.CustomAliases.MaxLength = 64;
             this.CustomAliases.Name = "CustomAliases";
             this.CustomAliases.Size = new System.Drawing.Size(169, 21);
@@ -3610,6 +3612,16 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
+            // 
+            // GCcheckBox
+            // 
+            this.GCcheckBox.AutoSize = true;
+            this.GCcheckBox.Location = new System.Drawing.Point(13, 94);
+            this.GCcheckBox.Name = "GCcheckBox";
+            this.GCcheckBox.Size = new System.Drawing.Size(205, 19);
+            this.GCcheckBox.TabIndex = 25;
+            this.GCcheckBox.Text = "Enable Global Chat on the server";
+            this.GCcheckBox.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -3998,5 +4010,6 @@
         private System.Windows.Forms.TextBox SwearBox;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox GCcheckBox;
     }
 }

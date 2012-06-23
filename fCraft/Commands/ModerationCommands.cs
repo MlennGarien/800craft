@@ -61,8 +61,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBasscannon);
             CommandManager.RegisterCommand(CdKill);
             CommandManager.RegisterCommand(CdTempBan);
-            //CommandManager.RegisterCommand(CdPossess);
-            //CommandManager.RegisterCommand(CdUnPossess);
             CommandManager.RegisterCommand(CdWarn);
             CommandManager.RegisterCommand(CdUnWarn);
             CommandManager.RegisterCommand(CdDisconnect);
@@ -249,14 +247,14 @@ namespace fCraft {
         static void Slap(Player player, Command cmd)
         {
             string name = cmd.Next();
+            string item = cmd.Next();
             if (name == null){
                 player.Message("Please enter a name");
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
             if (target == null) return;
-            if (target.Immortal)
-            {
+            if (target.Immortal){
                 player.Message("&SYou failed to slap {0}&S, they are immortal", target.ClassyName);
                 return;
             }
@@ -268,11 +266,32 @@ namespace fCraft {
                 player.Message("&CYou can only use /Slap once every 10 seconds. Slow down.");
                 return;
             }
+            string aMessage;
             if (player.Can(Permission.Slap, target.Info.Rank)){
                 Position slap = new Position(target.Position.X, target.Position.Y, (target.World.Map.Bounds.ZMax) * 32);
                 target.TeleportTo(slap);
-                Server.Players.CanSee(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
-                IRC.IRCAnnounceCustom(String.Format("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName));
+                if (string.IsNullOrEmpty(item)){
+                    Server.Players.CanSee(target).Union(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
+                    IRC.IRCAnnounceCustom(String.Format("{0} &Swas slapped by {1}", target.ClassyName, player.ClassyName));
+                    player.Info.LastUsedSlap = DateTime.Now;
+                    return;
+                }
+                else if (item.ToLower() == "bakingtray")
+                    aMessage = String.Format("{0} &Swas slapped by {1}&S with a Baking Tray", target.ClassyName, player.ClassyName);
+                else if (item.ToLower() == "fish")
+                    aMessage = String.Format("{0} &Swas slapped by {1}&S with a Giant Fish", target.ClassyName, player.ClassyName);
+                else if (item.ToLower() == "bitchslap")
+                    aMessage = String.Format("{0} &Swas bitch-slapped by {1}", target.ClassyName, player.ClassyName);
+                else if (item.ToLower() == "shoe")
+                    aMessage = String.Format("{0} &Swas slapped by {1}&S with a Shoe", target.ClassyName, player.ClassyName);
+                else{
+                    Server.Players.CanSee(target).Union(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
+                    IRC.IRCAnnounceCustom(String.Format("{0} &Swas slapped by {1}", target.ClassyName, player.ClassyName));
+                    player.Info.LastUsedSlap = DateTime.Now;
+                    return;
+                }
+                Server.Players.CanSee(target).Union(target).Message(aMessage);
+                IRC.IRCAnnounceCustom(aMessage);
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
             }else{
@@ -480,8 +499,7 @@ namespace fCraft {
                 {
                     Player targetPlayer = target;
                     target.BassKick(player, reason, LeaveReason.Kick, true, true, true);
-                    if (BassText.Count < 1)
-                    {
+                    if (BassText.Count < 1){
                         BassText.Add("Flux Pavillion does not approve of your behavior");
                         BassText.Add("Let the Basscannon KICK IT!");
                         BassText.Add("WUB WUB WUB WUB WUB WUB!");

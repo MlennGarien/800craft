@@ -20,7 +20,7 @@ namespace fCraft {
         public static bool SendGlobal( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
+            string OriginalMessage = rawMessage;
             if (Server.Moderation && !Server.VoicedPlayers.Contains(player) && player.World != null)
             {
                 player.Message("&WError: Server Moderation is activated. Message failed to send");
@@ -76,8 +76,7 @@ namespace fCraft {
                     sb.AppendLine("piss");
                     File.WriteAllText("SwearWords.txt", sb.ToString());
                 }
-                string CensoredText = Color.ReplacePercentCodes(ConfigKey.SwearName.GetString()) + "&F";
-
+                string CensoredText = Color.ReplacePercentCodes(ConfigKey.SwearName.GetString()) + Color.White;
                 if (ConfigKey.SwearName.GetString() == null)
                 {
                     CensoredText = "&CBlock&F";
@@ -103,7 +102,7 @@ namespace fCraft {
                 rawMessage = output;
             }
 
-            if (player.World != null)
+            /*if (player.World != null)
             {
                 if (player.World.GameOn)
                 {
@@ -139,9 +138,9 @@ namespace fCraft {
                         return false;
                     }
                 }
-            }
+            }*/
 
-            var recepientList = Server.Players.NotIgnoring( player );
+            var recepientList = Server.Players.NotIgnoring(player);
 
             string formattedMessage = String.Format( "{0}&F: {1}",
                                                      player.ClassyName,
@@ -156,7 +155,7 @@ namespace fCraft {
             if( !SendInternal( e ) ) return false;
 
             Logger.Log( LogType.GlobalChat,
-                        "{0}: {1}", player.Name, rawMessage );
+                        "{0}: {1}", player.Name, OriginalMessage );
             return true;
         }
 

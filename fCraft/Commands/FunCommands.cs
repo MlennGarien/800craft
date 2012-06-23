@@ -27,10 +27,10 @@ namespace fCraft
         {
             CommandManager.RegisterCommand(CdRandomMaze);
             CommandManager.RegisterCommand(CdMazeCuboid);
-            CommandManager.RegisterCommand(CdGame);
+            //CommandManager.RegisterCommand(CdGame);
             CommandManager.RegisterCommand(CdFirework);
-            CommandManager.RegisterCommand(CdLife);
-            CommandManager.RegisterCommand(CdSpell);
+            //CommandManager.RegisterCommand(CdLife);
+            //CommandManager.RegisterCommand(CdSpell);
         }
 
         static readonly CommandDescriptor CdSpell = new CommandDescriptor

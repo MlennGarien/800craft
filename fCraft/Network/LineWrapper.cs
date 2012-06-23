@@ -1,5 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-//#define DEBUG_LINE_WRAPPER
+// #define DEBUG_LINE_WRAPPER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,11 +10,11 @@ namespace fCraft
 {
     /// <summary> Intelligent line-wrapper for Minecraft protocol.
     /// Splits long messages into 64-character chunks of ASCII.
-    /// Maintains colors between lines. Wraps at word boundaries and dashes.
+    /// Maintains colors between lines. Wraps at word boundaries and hyphens.
     /// Removes invalid characters and color sequences.
     /// Supports optional line prefixes for second and consequent lines.
     /// This class is implemented as IEnumerable of Packets, so it's usable with foreach() and Linq. </summary>
-    sealed class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet>
+    public sealed class LineWrapper : IEnumerable<Packet>, IEnumerator<Packet>
     {
         const string DefaultPrefixString = "> ";
         static readonly byte[] DefaultPrefix;
@@ -31,9 +31,12 @@ namespace fCraft
 
         public Packet Current { get; private set; }
 
-        byte color, lastColor;
-        bool hadColor;
-        int spaceCount, wordLength;
+        byte color,
+             lastColor;
+        bool hadColor, // used to see if white (&f) colorcodes should be inserted
+             hadSpace; // used to see if a word needs to be forcefully wrapped (i.e. doesnt fit in one line)
+        int spaceCount,
+            wordLength; // used to see whether to wrap at hyphens
 
         readonly byte[] input;
         int inputIndex;
@@ -42,6 +45,11 @@ namespace fCraft
         int outputStart, outputIndex;
 
         readonly byte[] prefix;
+
+        int wrapIndex,
+            wrapOutputIndex;
+        byte wrapColor;
+        bool expectingColor;
 
 
         LineWrapper([NotNull] string message)
@@ -121,6 +129,7 @@ namespace fCraft
 
             wordLength = 0;
             wrapIndex = inputIndex;
+            hadSpace = false;
 
             // Append as much of the remaining input as possible
             while (inputIndex < input.Length)
@@ -134,20 +143,18 @@ namespace fCraft
                 }
                 inputIndex++;
             }
+
             PrepareOutput();
             return true;
         }
 
-        int wrapIndex,
-            wrapOutputIndex;
-        byte wrapColor;
-        bool expectingColor;
 
         bool ProcessChar(byte ch)
         {
             switch (ch)
             {
                 case (byte)' ':
+                    hadSpace = true;
                     expectingColor = false;
                     if (spaceCount == 0)
                     {
@@ -162,24 +169,8 @@ namespace fCraft
                 case (byte)'&':
                     if (expectingColor)
                     {
-                        // append "&&"
+                        // skip double ampersands
                         expectingColor = false;
-                        if (!Append(ch))
-                        {
-                            if (wordLength < LineSize - 2 - prefix.Length)
-                            {
-                                inputIndex = wrapIndex;
-                                outputIndex = wrapOutputIndex;
-                                color = wrapColor;
-                            }
-                            else
-                            {
-                                inputIndex--;
-                                // else word is too long, dont backtrack to wrap
-                            }
-                            return true;
-                        }
-                        spaceCount = 0;
                     }
                     else
                     {
@@ -188,25 +179,37 @@ namespace fCraft
                     break;
 
                 case (byte)'-':
+                    if (spaceCount > 0)
+                    {
+                        // set wrapping point, if at beginning of a word
+                        wrapIndex = inputIndex;
+                        wrapColor = color;
+                    }
                     expectingColor = false;
                     if (!Append(ch))
                     {
-                        if (wordLength < LineSize - prefix.Length)
+                        if (hadSpace)
                         {
+                            // word doesn't fit in line, backtrack to wrapping point
                             inputIndex = wrapIndex;
                             outputIndex = wrapOutputIndex;
                             color = wrapColor;
-                        }
+                        }// else force wrap (word is too long), don't backtrack
                         return true;
                     }
                     spaceCount = 0;
-                    // allow wrapping after dash
-                    wrapIndex = inputIndex + 1;
-                    wrapOutputIndex = outputIndex;
-                    wrapColor = color;
+                    if (wordLength > 2)
+                    {
+                        // allow wrapping after hyphen, if at least 2 word characters precede this hyphen
+                        wrapIndex = inputIndex + 1;
+                        wrapOutputIndex = outputIndex;
+                        wrapColor = color;
+                        wordLength = 0;
+                    }
                     break;
 
                 case (byte)'\n':
+                    // break the line early
                     inputIndex++;
                     return true;
 
@@ -224,6 +227,7 @@ namespace fCraft
                     {
                         if (spaceCount > 0)
                         {
+                            // set wrapping point, if at beginning of a word
                             wrapIndex = inputIndex;
                             wrapColor = color;
                         }
@@ -234,7 +238,7 @@ namespace fCraft
                         }
                         if (!Append(ch))
                         {
-                            if (wordLength < LineSize - prefix.Length)
+                            if (hadSpace)
                             {
                                 inputIndex = wrapIndex;
                                 outputIndex = wrapOutputIndex;
@@ -256,14 +260,6 @@ namespace fCraft
             {
                 output[i] = (byte)' ';
             }
-            // make sure there is no trailing ampersand
-            /*for( ; outputIndex > outputStart; outputIndex-- ) {
-                if( output[outputIndex - 1] == '&' ) {
-                    output[outputIndex - 1] = (byte)' ';
-                } else if( output[outputIndex - 1] != ' ' ) {
-                    break;
-                }
-            }*/
 #if DEBUG_LINE_WRAPPER
             Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
             Console.WriteLine();
@@ -291,7 +287,7 @@ namespace fCraft
                 return false;
             }
 
-            // append color, if changed since last word
+            // append color, if changed since last inserted character
             if (prependColor)
             {
                 output[outputIndex++] = (byte)'&';
@@ -385,7 +381,7 @@ namespace fCraft
         }
 
 
-        public void Dispose() { }
+        void IDisposable.Dispose() { }
 
 
         #region IEnumerable<Packet> Members
