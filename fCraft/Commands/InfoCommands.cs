@@ -66,7 +66,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Can show an advacned list for a chosen section. "+ 
+            Help = "Can show an advanced list for a chosen section. "+ 
             "Type /List to display the sections",
             Usage = "/List SectionName",
             Handler = ListHandler
