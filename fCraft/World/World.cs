@@ -181,7 +181,7 @@ namespace fCraft {
 				if (null == Map)
 					return null;
 				Life2DZone life=null;
-				map.LifeZones.TryGetValue(name, out life);
+				map.LifeZones.TryGetValue(name.ToLower(), out life);
 				return life;
 			}
 		}
@@ -390,6 +390,20 @@ namespace fCraft {
                 && !waterPhysics)  //must be extended to further phys types
 				_physSchedulers[(int)TaskCategory.Physics].Stop();
         }
+
+		private void StopSchedulers()
+		{
+			foreach (PhysScheduler sch in _physSchedulers)
+				sch.Stop();
+		}
+		private void AddTasksFromNewMap()
+		{
+			//assuming lock(SyncRoot)
+			foreach (Life2DZone life in map.LifeZones.Values)
+				life.Resume();
+			if (map.LifeZones.Count>0)
+				_physSchedulers[(int)TaskCategory.Life].Start();
+		}
         #endregion
 
 
@@ -400,10 +414,19 @@ namespace fCraft {
         public Map Map {
             get { return map; }
             set {
+            	bool changed = !ReferenceEquals(map, value);
                 if( map != null && value == null ) StopTasks();
                 if( map == null && value != null ) StartTasks();
                 if( value != null ) value.World = this;
                 map = value;
+
+				if (changed)
+				{
+					if (null == map)
+						StopSchedulers();
+					else
+						AddTasksFromNewMap();
+				}
             }
         }
         public Map map;
@@ -504,7 +527,6 @@ namespace fCraft {
                     EdgeLevel = EdgeLevel,
                     EdgeBlock = EdgeBlock
                 };
-                newMap.World = newWorld;
                 newWorld.Map = newMap;
                 newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );

@@ -309,7 +309,7 @@ namespace fCraft
 						player.Message("&WLife with such name exists already, choose another");
 						return;
 					}
-					Life2DZone life = new Life2DZone(_name, _world, marks, player, (player.Info.Rank.NextRankUp??player.Info.Rank).Name);
+					Life2DZone life = new Life2DZone(_name, _world.Map, marks, player, (player.Info.Rank.NextRankUp ?? player.Info.Rank).Name);
 					if (_world.TryAddLife(life))
 						player.Message("&yLife was created. Named " + _name);
 					else
@@ -351,6 +351,7 @@ namespace fCraft
 				return;
 			if (!handler.CheckChangePermissions(p))
 				return;
+			handler._life.Stop();
 			handler._world.DeleteLife(handler._name);
 			p.Message("&yLife " + handler._life.Name + " is deleted");
 		}
@@ -543,7 +544,9 @@ namespace fCraft
 
 		private bool CheckChangePermissions(Player p)
 		{
-			if (p.Name==_life.CreatorName)
+			if (string.IsNullOrWhiteSpace(_life.CreatorName) || p.Name==_life.CreatorName)
+				return true;
+			if (string.IsNullOrWhiteSpace(_life.MinRankToChange))
 				return true;
 			Rank r;
 			if (!RankManager.RanksByName.TryGetValue(_life.MinRankToChange, out r))

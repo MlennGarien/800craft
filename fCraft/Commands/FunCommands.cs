@@ -29,7 +29,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdMazeCuboid);
             //CommandManager.RegisterCommand(CdGame);
             CommandManager.RegisterCommand(CdFirework);
-            //CommandManager.RegisterCommand(CdLife);
+            CommandManager.RegisterCommand(CdLife);
             //CommandManager.RegisterCommand(CdSpell);
         }
 

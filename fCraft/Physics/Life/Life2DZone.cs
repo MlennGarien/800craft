@@ -16,8 +16,10 @@
 //Copyright (C) <2012> Lao Tszy (lao_tszy@yahoo.co.uk)
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace fCraft
 {
@@ -65,8 +67,10 @@ namespace fCraft
 		ToRandom,
 	}
 
-	public class Life2DZone : PhysicsTask
+	public class Life2DZone
 	{
+		public int MaxSize = 2500;
+
 		public static readonly Block[] DefaultBlocks = {Block.Air,Block.Red,Block.Black,Block.Brick};
 		public const int EmptyIdx = 0;
 		public const int NormalIdx = 1;
@@ -90,10 +94,12 @@ namespace fCraft
 		{
 			Starting, HalfStep, FinalizedStep, Stopped, Resetting, Reinit,
 		}
+
+		private Map _map;
 		private BoundingBox _bounds;
 		private Orientation _orientation;
 		private Life2d _life2d;
-		private Vector3I _coords=new Vector3I(); //for mapping
+		private Vector3I _coords=new Vector3I(); //used for remapping of axes, see XXXByOrientation methods below
 
 		private Block _normal;
 		private Block _empty;
@@ -122,8 +128,9 @@ namespace fCraft
 		public string CreatorName { get; set; }
 		public string MinRankToChange { get; set; }
 		
-		public Life2DZone(string name, World world, Vector3I[] marks, Player creator, string minRankToChange) : base (world)
+		public Life2DZone(string name, Map map, Vector3I[] marks, Player creator, string minRankToChange)
 		{
+			_map = map;
 			_bounds=new BoundingBox(marks[0], marks[1]);
 			if (_bounds.Dimensions.X == 1 && _bounds.Dimensions.Y > 1 && _bounds.Dimensions.Z > 1)
 			{
@@ -145,6 +152,9 @@ namespace fCraft
 			}
 			else
 				throw new ArgumentException("bounds must be a 2d rectangle");
+
+			if (_bounds.Dimensions.X*_bounds.Dimensions.Y*_bounds.Dimensions.Z>MaxSize)
+				throw new ArgumentException("The life if too large. Width*Length must be less or equal than "+MaxSize);
 
 			CheckPermissionsToDraw(creator);
 
@@ -188,9 +198,42 @@ namespace fCraft
 			{
 				if (!Stopped)
 					return;
+				_state = State.Starting;
 			}
-			_state = State.Starting;
-			_world.AddTask(TaskCategory.Life, this, 0);
+			
+			World w = _map.World;
+			if (null == w)
+			{
+				Logger.Log(LogType.Error, "Life: cant start life in a map without a world");
+				return;
+			}
+			w.AddTask(TaskCategory.Life, new Task(w, this), 0);
+		}
+
+		public void Resume() //the map with this life was just loaded from the file
+		{
+			lock (_life2d)
+			{
+				if (Stopped)
+					return;
+			}
+			World w = _map.World;
+			if (null == w)
+			{
+				Logger.Log(LogType.Error, "Life: cant resume life in a map without a world");
+				return;
+			}
+			w.AddTask(TaskCategory.Life, new Task(w, this), 0);
+		}
+
+		private class Task : PhysicsTask
+		{
+			private Life2DZone _life;
+			public Task(World w, Life2DZone life) : base(w) {_life = life;}
+			protected override int PerformInternal()
+			{
+				return _life.PerformInternal();
+			}
 		}
 
 		private void ReadToArray(ref int i, ref int j, int minI, int maxI, int minJ, int maxJ)
@@ -264,7 +307,7 @@ namespace fCraft
 			}
 		}
 
-		protected override int PerformInternal()
+		private int PerformInternal()
 		{
 			lock (_life2d)
 			{
@@ -343,5 +386,138 @@ namespace fCraft
 					return;
 			}
 		}
+
+		public string Serialize()
+		{
+			SerializedData data=new SerializedData(this);
+			DataContractSerializer serializer = new DataContractSerializer(typeof(SerializedData));
+			MemoryStream s = new MemoryStream();
+			serializer.WriteObject(s, data);
+			return Convert.ToBase64String(s.ToArray());
+		}
+
+		private Life2DZone(string name, Map map)
+		{
+			_map = map;
+			Name = name;
+		}
+
+		public static Life2DZone Deserialize(string name, string sdata, Map map)
+		{
+			Life2DZone life=new Life2DZone(name, map);
+			
+			byte[] bdata = Convert.FromBase64String(sdata);
+			DataContractSerializer serializer = new DataContractSerializer(typeof(SerializedData));
+			MemoryStream s=new MemoryStream(bdata);
+			SerializedData data = (SerializedData)serializer.ReadObject(s);
+			
+			data.UpdateLife2DZone(life);
+			return life;
+		}
+
+		[DataContract]
+		private class SerializedData
+		{
+			[DataMember] public BoundingBox Bounds;
+			[DataMember] public Orientation Orient;
+
+			[DataMember] public Block Normal;
+			[DataMember] public Block Empty;
+			[DataMember] public Block Dead;
+			[DataMember] public Block Newborn;
+
+			[DataMember] public State RuntimeState;
+
+			[DataMember] public int HalfStepDelay;
+			[DataMember] public int Delay;
+			[DataMember] public AutoResetMethod AutoReset;
+			[DataMember] public byte[] CurrentState;
+			[DataMember] public byte[] InitialState;
+
+			[DataMember] public int Dim0, Dim1;
+
+			[DataMember] public string CreatorName;
+			[DataMember] public string MinRankToChange;
+
+			public SerializedData(Life2DZone life)
+			{
+				lock (life._life2d)
+				{
+					Bounds = life._bounds;
+					Orient = life._orientation;
+					
+					Normal = life._normal;
+					Empty = life._empty;
+					Dead = life._dead;
+					Newborn = life._newborn;
+
+					RuntimeState = life._state;
+					HalfStepDelay = life._halfStepDelay;
+					Delay = life._delay;
+					AutoReset = life._autoReset;
+
+					CreatorName = life.CreatorName;
+					MinRankToChange = life.MinRankToChange;
+
+					CurrentState = To1DArray(life._life2d.GetArrayCopy(), out Dim0, out Dim1);
+					InitialState = To1DArray((byte[,])life._initialState.Clone(), out Dim0, out Dim1);
+				}
+			}
+
+			public void UpdateLife2DZone(Life2DZone life)
+			{
+				//the life is not running, no locks needed
+				life._bounds = Bounds;
+				//we only will be needed one assignment depending on the orientation (see the public life constructor) 
+				//but it doesnt hurt to assign all variables, which is shorter than a switch statement
+				life._coords.X = Bounds.XMin;
+				life._coords.Y = Bounds.YMin;
+				life._coords.Z = Bounds.ZMin;
+				life._orientation = Orient;
+
+				life._normal = Normal;
+				life._empty = Empty;
+				life._dead = Dead;
+				life._newborn = Newborn;
+
+				life._state = RuntimeState;
+				life._halfStepDelay = HalfStepDelay;
+				life._delay = Delay;
+				life._autoReset = AutoReset;
+
+				life.CreatorName = CreatorName;
+				life.MinRankToChange = MinRankToChange;
+
+				life._life2d=new Life2d(Dim0, Dim1);
+				life._life2d.SetState(To2DArray(CurrentState, Dim0, Dim1));
+				life._initialState = To2DArray(InitialState, Dim0, Dim1);
+			}
+
+			private static byte[] To1DArray(byte[,] a, out int dim0, out int dim1)
+			{
+				byte[] aa=new byte[a.GetLength(0)*a.GetLength(1)];
+				int idx = 0;
+				dim0 = a.GetLength(0);
+				dim1 = a.GetLength(1);
+				for (int i = 0; i < dim0; ++i)
+					for (int j = 0; j < dim1; ++j)
+						aa[idx++] = a[i, j];
+				return aa;
+			}
+
+			private static byte[,] To2DArray(byte[] a, int dim0, int dim1)
+			{
+				if (a.Length!=dim0*dim1)
+					throw new ArgumentException("wrong dimensions");
+				byte[,] aa=new byte[dim0, dim1];
+				int idx = 0;
+				for (int i = 0; i < dim0; ++i)
+					for (int j = 0; j < dim1; ++j)
+						a[idx++] = aa[i, j];
+				return aa;
+			}
+		}
 	}
+
+
 }

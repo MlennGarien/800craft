@@ -1065,7 +1065,7 @@ namespace fCraft {
                 case CanPlaceResult.ZoneDenied:
                     Zone deniedZone = WorldMap.Zones.FindDenied( coord, this );
                     if( deniedZone != null ) {
-                        Message( "&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name );
+                        Message( deniedZone.Message??string.Format("&WYou are not allowed to build in zone \"{0}\".", deniedZone.Name));
                     } else {
                         Message( "&WYou are not allowed to build here." );
                     }

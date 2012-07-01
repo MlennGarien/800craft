@@ -1,5 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Runtime.Serialization;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
@@ -8,10 +9,12 @@ namespace fCraft {
     /// <summary>
     /// Defines a 3D bounding box, in integer cartesian coordinates
     /// </summary>
+    [DataContract]
     public sealed class BoundingBox : IEquatable<BoundingBox> {
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
 
         // ReSharper disable FieldCanBeMadeReadOnly.Global
+		[DataMember]
         public int XMin, YMin, ZMin, XMax, YMax, ZMax;
         // ReSharper restore FieldCanBeMadeReadOnly.Global
 

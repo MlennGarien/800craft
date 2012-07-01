@@ -57,7 +57,7 @@ namespace fCraft
             }
         }
 
-        public Int64 GetHeapKey()
+		public Int64 GetHeapKey()
         {
             return DueTime;
         }
@@ -69,7 +69,7 @@ namespace fCraft
         /// <returns></returns>
         public int Perform()
         {
-            lock (_world.SyncRoot)
+			lock (_world.SyncRoot)
             {
                 if (null == _map || !ReferenceEquals(_map, _world.Map))
                     return 0;

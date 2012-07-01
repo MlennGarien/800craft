@@ -218,7 +218,7 @@ namespace fCraft {
             Category = CommandCategory.Zone,
             Aliases = new[] { "zone" },
             Permissions = new[] { Permission.ManageZones },
-            Usage = "/ZAdd ZoneName RankName",
+            Usage = "/ZAdd ZoneName RankName [{+|-}PlayerName] msg=CustomDenyMessage",
             Help = "Create a zone that overrides build permissions. " +
                    "This can be used to restrict access to an area (by setting RankName to a high rank) " +
                    "or to designate a guest area (by lowering RankName).",
@@ -270,10 +270,8 @@ namespace fCraft {
 
                 newZone.Controller.MinRank = info.Rank.NextRankUp ?? info.Rank;
                 newZone.Controller.Include( info );
-                player.Message( "Zone: Creating a {0}+&S zone for player {1}&S. Place a block or type /Mark to use your location.",
+                player.Message( "Zone: Creating a {0}+&S zone for player {1}&S.",
                                 newZone.Controller.MinRank.ClassyName, info.ClassyName );
-                player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
-
             } else {
                 // Adding an ordinary, rank-restricted zone.
                 if( !World.IsValidName( givenZoneName ) ) {
@@ -301,6 +299,12 @@ namespace fCraft {
 
                         if( name.Length == 0 ) continue;
 
+						if (name.ToLower().StartsWith("msg="))
+						{
+							newZone.Message = name.Substring(4) + " " + (cmd.NextAll() ?? "");
+							break;
+						}
+
                         PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
                         if( info == null ) return;
 
@@ -312,13 +316,13 @@ namespace fCraft {
                     }
 
                     newZone.Controller.MinRank = minRank;
-                    player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
-                    player.Message( "Zone: Place a block or type &H/Mark&S to use your location." );
-
                 } else {
                     player.MessageNoRank( rankName );
+                	return;
                 }
             }
+			player.Message("Zone: Place a block or type &H/Mark&S to use your location.");
+			player.SelectionStart(2, ZoneAddCallback, newZone, CdZoneAdd.Permissions);
         }
 
         static void ZoneAddCallback( Player player, Vector3I[] marks, object tag ) {
@@ -373,9 +377,10 @@ namespace fCraft {
             Name = "ZEdit",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
-            Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
+            Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName] [msg=CustomDenyMessage]",
             Help = "Allows editing the zone permissions after creation. " +
-                   "You can change the rank restrictions, and include or exclude individual players.",
+                   "You can change the rank restrictions, and include or exclude individual players."+
+				   " The custom deny message must be the last pararameter since the rest of the command past the 'msg=' will be considered as the new message",
             Handler = ZoneEditHandler
         };
 
@@ -454,7 +459,14 @@ namespace fCraft {
                             break;
                     }
 
-                } else {
+                } 
+				else if (name.ToLower().StartsWith("msg="))
+				{
+					zone.Message = name.Substring(4) + " " + (cmd.NextAll() ?? "");
+					changesWereMade = true;
+					break;
+				}
+				else {
                     Rank minRank = RankManager.FindRank( name );
 
                     if( minRank != null ) {
@@ -476,13 +488,11 @@ namespace fCraft {
                         player.MessageNoRank( name );
                     }
                 }
-
-                if( changesWereMade ) {
-                    zone.Edit( player.Info );
-                } else {
-                    player.Message( "No changes were made to the zone." );
-                }
             }
+			if (changesWereMade)
+				zone.Edit(player.Info);
+			else
+				player.Message("No changes were made to the zone.");
         }
 
         #endregion ZoneEdit
@@ -550,7 +560,12 @@ namespace fCraft {
                 player.Message( "  Zone blacklist excludes: {0}",
                                 zoneExceptions.Excluded.JoinToClassyString() );
             }
-        }
+
+			if (null != zone.Message)
+				player.Message("  Zone has custom deny build message: " + zone.Message);
+			else
+				player.Message("  Zone has no custom deny build message");
+		}
 
         #endregion
 

@@ -40,14 +40,16 @@ namespace fCraft
             CommandManager.RegisterCommand(CdClearParam);
         }
         const string commonFuncHelp = "Can also be x=f(y, z) or y=f(x, z). ";
-        const string commonHelp =
-            "Allowed operators: +, -, *, /, %, ^. Comparison and logical operators: >, <, =, &, |, !." +
-            "Constants: e, pi. " +
-            "Functions: sqrt, sq, exp, lg, ln, log(num, base), abs, sign, sin, cos, tan, sinh, cosh, tanh. Example: 1-exp(-1/sq(x)). " +
-            "'sq' stands for 'square', i.e. sq(x) is x*x. " +
-            "Select 2 points to define a volume (same as e.g. for cuboid), where the function will be drawn. " +
-            "Coords are whole numbers from 0 to the corresponding cuboid dimension length. ";
+
+    	private const string commonHelp =
+    		"Allowed operators: +, -, *, /, %, ^. Comparison and logical operators: >, <, =, &, |, !." +
+    		"Constants: e, pi. " +
+    		"Functions: sqrt, sq, exp, lg, ln, log(num, base), abs, sign, sin, cos, tan, sinh, cosh, tanh. Example: 1-exp(-1/sq(x)). " +
+    		"'sq' stands for 'square', i.e. sq(x) is x*x. ";
+            
         const string commonScalingHelp =
+			"Select 2 points to define a volume (same as e.g. for cuboid), where the function will be drawn. " +
+            "Coords are whole numbers from 0 to the corresponding cuboid dimension length. " +
             "Using 'u' as a scaling switch coords to be [0, 1] along the corresponding cuboid axis. " +
             "'uu' switches coords to be [-1, 1] along the corresponding cuboid axis.";
         const string copyright = "\n(C) 2012 Lao Tszy";

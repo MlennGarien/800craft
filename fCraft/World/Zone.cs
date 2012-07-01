@@ -57,6 +57,7 @@ namespace fCraft {
         [NotNull]
         public Map Map { get; set; }
 
+		public string Message { get; set; }
 
         /// <summary> Creates the zone boundaries, and sets CreatedDate/CreatedBy. </summary>
         /// <param name="bounds"> New zone boundaries. </param>
@@ -168,6 +169,12 @@ namespace fCraft {
                     EditedDate = DateTime.Parse( xheader[3] );
                 }
             }
+
+			//message
+			if (parts.Length > 4 && !string.IsNullOrWhiteSpace(parts[4]))
+				Message = parts[4].Replace('\\',',');
+			else
+				Message = null;
         }
 
         internal string rawWhitelist, rawBlacklist;
@@ -291,7 +298,7 @@ namespace fCraft {
 			string whitelist = zone.rawWhitelist ?? zoneExceptions.Included.JoinToString(" ", p => p.Name);
 			string blacklist = zone.rawBlacklist ?? zoneExceptions.Excluded.JoinToString(" ", p => p.Name);
 
-			return String.Format("{0},{1},{2},{3}",
+			return String.Format("{0},{1},{2},{3},{4}",
 								  String.Format("{0} {1} {2} {3} {4} {5} {6} {7}",
 												 zone.Name,
 												 zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.ZMin,
@@ -299,7 +306,8 @@ namespace fCraft {
 												 zone.Controller.MinRank.FullName),
 								  whitelist,
 								  blacklist,
-								  xheader);
+								  xheader,
+								  null==zone.Message?"":zone.Message.Replace(',','\\'));
 		}
 
 		public void Deserialize(string group, string key, string value, Map map)
