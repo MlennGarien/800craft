@@ -87,6 +87,7 @@ namespace fCraft {
         {
             Name = "Global",
             Category = CommandCategory.Chat,
+            Aliases = new[] { "gl", "gc" },
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Chat },
             Usage = "/Global [message]",
@@ -97,9 +98,12 @@ namespace fCraft {
         static void GHandler(Player player, Command cmd)
         {
             string Msg = cmd.NextAll();
-            if (!ConfigKey.GCKey.Enabled())
-            {
+            if (!ConfigKey.GCKey.Enabled()){
                 player.Message("Global Chat is disabled on this server");
+                return;
+            }
+            if (!GlobalChat.GlobalThread.GCReady){
+                player.Message("Global Chat is not connected for this server");
                 return;
             }
             var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
@@ -107,15 +111,16 @@ namespace fCraft {
                 if (player.GlobalChat){
                     player.GlobalChat = false;
                     GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas disabled the Global Chat (Left)");
+                    SendList.Message(player.ClassyName + " &Shas disabled the Global Chat (Left)");
                     player.Message("&SYou left the 800Craft Global Chat");
                     return;
                 }
                 if (!player.GlobalChat){
                     player.GlobalChat = true;
-                    player.Message("&WRules: No spamming, no advertising. Your Servers chat rules apply here (staff will mute / kick you)\n" +
+                    player.Message(" &WRules: No spamming, no advertising. Your Servers chat rules apply here (staff will mute / kick you)\n" +
                         "&9By using the Global Chat, you automatically accept these conditions.");
                     GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
-                    player.Message(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
+                    SendList.Message(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
                     return;
                 }
             }

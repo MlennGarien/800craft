@@ -48,7 +48,7 @@ namespace fCraft
             StreamReader reader;
             StreamWriter writer;
             Thread thread;
-            bool isConnected;
+            public bool isConnected;
             public bool IsReady;
             bool reconnect;
             public bool ResponsibleForInputParsing;
@@ -56,6 +56,7 @@ namespace fCraft
             string desiredBotNick;
             DateTime lastMessageSent;
             ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
+            public static bool GCReady = false;
 
 
             public bool Start([NotNull] string botNick, bool parseInput)
@@ -107,6 +108,7 @@ namespace fCraft
                 reader = new StreamReader(client.GetStream());
                 writer = new StreamWriter(client.GetStream());
                 isConnected = true;
+                GCReady = true;
             }
 
 
@@ -119,8 +121,9 @@ namespace fCraft
             public static void SendChannelMessage([NotNull] string line)
             {
                 if (line == null) throw new ArgumentNullException("line");
-                if (channelNames == null) return; // in case IRC bot is disabled.
-                    line = Color.ToIRCColorCodes(line);
+                line = Color.ToIRCColorCodes(line);
+                if (channelNames == null || !GCReady)
+                    return; // in case IRC bot is disabled.
                 for (int i = 0; i < channelNames.Length; i++)
                 {
                     SendRawMessage(IRCCommands.Privmsg(channelNames[i], line));
@@ -130,6 +133,7 @@ namespace fCraft
             public static void SendRawMessage([NotNull] string line)
             {
                 if (line == null) throw new ArgumentNullException("line");
+                
                 OutputQueue.Enqueue(line);
             }
 
@@ -347,6 +351,7 @@ namespace fCraft
                                 Logger.Log(LogType.SystemActivity,
                                             "Error: {0} ({1})",
                                             msg.ReplyCode, msg.Channel);
+                                GCReady = false;
                                 die = true;
                                 break;
                                 //wont happen
@@ -355,12 +360,14 @@ namespace fCraft
                                             "Error: Channel password required for {0}. 800Craft does not currently support passworded channels.",
                                             msg.Channel);
                                 die = true;
+                                GCReady = false;
                                 break;
 
                             default:
                                 Logger.Log(LogType.SystemActivity,
                                             "Error ({0}): {1}",
                                             msg.ReplyCode, msg.RawMessage);
+                                GCReady = false;
                                 break;
                         }
 
@@ -397,6 +404,7 @@ namespace fCraft
                 IsReady = false;
                 AssignBotForInputParsing();
                 isConnected = false;
+                GCReady = false;
                 if (thread != null && thread.IsAlive)
                 {
                     thread.Join(1000);

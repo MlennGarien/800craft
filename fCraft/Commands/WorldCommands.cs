@@ -3179,7 +3179,7 @@ namespace fCraft {
                 player.Message( "  Periodic backups every {0}", world.BackupInterval.ToMiniString() );
             }
             if (world.VisitCount > 0){
-                player.Message("   This world has been visited {0} times", world.VisitCount);
+                player.Message("  This world has been visited {0} times", world.VisitCount);
             }
         }
 

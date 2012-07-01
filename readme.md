@@ -5,6 +5,27 @@
 
 800Craft started off as Au70 v800.X, which was a private mod of fCraft built specifically for Au70 Galaxy by Jonty800. The software was placed in Sourceforge as a backup, but somehow went viral and suddenly there was a demand for new features from hosts who had found the software and were using it full-time. In October 2011, a Halloween Mod was released and was recommended to Project-Vanilla host 'GlennMR'. Glenn contacted Jonty800 personally and persuaded him to make an Official Software with him. The software then changed name to '800Craft' (the name of the sourceforge) and branch 0.1x was released in late December.
 
+
+## Installation (Windows)
+
+80Craft requires Microsoft .NET Framework 4.0. Your system may already have it
+installed, and you can download it from microsoft.com
+
+## Installation (Linux, Unix, MacOS X)
+
+800Craft requires Mono 2.10 (recommended). You can
+download it from www.mono-project.org, or (on some Linux distributions) install
+it through your package manager.
+
+To be able to use graphical 800Craft components (ServerGUI and ConfigGUI) you
+will also need GDI+ library (libgdiplus). Before starting 800Craft, make sure
+that it has read/write permissions in the 800Craft directory.
+
+To run ".exe" files with Mono, use the following syntax:
+Mono 2.6.4: "mono SomeFile.exe"
+Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
+
+
 ## 800Craft Commands
 
 * Custom kick and ban commands such as: /Basscanon, /Gtfo, /Tempban, /Banx, /Warn
