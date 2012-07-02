@@ -96,6 +96,8 @@ namespace fCraft {
                                 "Turns plant physics on / off in the current world"},
                 { "sand",       "&H/Physics sand on/off \n&S" +
                                 "Turns sand and gravel physics on / off in the current world"},
+                { "gun",       "&H/Physics gun on/off \n&S" +
+                                "Turns gun physics on / off in the current world"},
                 { "all",     "&H/Physics all on/off \n&S" +
                                 "Turns all physics on / off in the current world"},
             },
@@ -653,7 +655,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             Usage = "/Realm <Option>. /Help Realm for a list of commands.",
             Help = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
-            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Invite",
+            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Physics",
             Handler = Realm,
         };
 
@@ -811,34 +813,66 @@ namespace fCraft {
                         return;
                     }
 
-                case "invite":
+                case "physics":
 
-                    string invite = cmd.Next();
+                    string phyOption = cmd.Next();
+                    string onOff = cmd.Next();
+                    world = player.World;
 
-                    if (invite == null)
+                    if (phyOption == null)
                     {
-                        player.Message("Invite a player to see your Realm. Useage: /Realm invite playername.");
+                        player.Message("Turn physics on in your realm. Useage: /Realm physics [Plant|Water|Gun|Fireworks] On/Off.");
                         return;
                     }
-
-                    Player targetInvite = Server.FindPlayerOrPrintMatches(player, invite, false, true);
-
-                    if (targetInvite == null)
+                    switch (phyOption.ToLower())
                     {
-                        player.Message("Please enter the name of the player you want to invite into your Realm.");
-                        return;
-                    }
-
-                    if (!Player.IsValidName(targetInvite.Name))
-                    {
-                        player.Message("Player not found. Please specify valid name.");
-                        return;
-                    }
-                    else
-                    {
-                        targetInvite.Confirm(cmd, "{0}&S Has invited you to join their Realm \"{1}\".", player.ClassyName, player.Name);
-                        World JoinName = WorldManager.FindWorldOrPrintMatches(targetInvite, player.Name);
-                        targetInvite.JoinWorld(JoinName, WorldChangeReason.ManualJoin);
+                        case "water":
+                            if (onOff.ToLower() == "on")
+                            {
+                                world.EnableWaterPhysics(player, true);
+                            }
+                            if (onOff.ToLower() == "off")
+                            {
+                                world.DisableWaterPhysics(player, true);
+                            }
+                            else player.Message("&WInvalid option: /Realm Physics [Type] [On/Off]");
+                            break;
+                        case "plant":
+                            if (onOff.ToLower() == "on")
+                            {
+                                world.EnablePlantPhysics(player, true);
+                            }
+                            if (onOff.ToLower() == "off")
+                            {
+                                world.DisablePlantPhysics(player, true);
+                            }
+                            else player.Message("&WInvalid option: /Realm Physics [Type] [On/Off]");
+                            break;
+                        case "gun":
+                            if (onOff.ToLower() == "on")
+                            {
+                                world.EnableGunPhysics(player, true);
+                            }
+                            if (onOff.ToLower() == "off")
+                            {
+                                world.DisableGunPhysics(player, true);
+                            }
+                            else player.Message("&WInvalid option: /Realm Physics [Type] [On/Off]");
+                            break;
+                        case "firework":
+                        case "fireworks":
+                            if (onOff.ToLower() == "on")
+                            {
+                                world.EnableFireworkPhysics(player, true);
+                            }
+                            if (onOff.ToLower() == "off")
+                            {
+                                world.DisableFireworkPhysics(player, true);
+                            }
+                            else player.Message("&WInvalid option: /Realm Physics [Type] [On/Off]");
+                            break;
+                        default: player.Message("&WInvalid option: /Realm physics [Plant|Water|Gun|Fireworks] On/Off");
+                            break;
                     }
                     break;
 
