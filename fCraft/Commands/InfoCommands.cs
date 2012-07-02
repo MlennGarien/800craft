@@ -93,6 +93,10 @@ namespace fCraft {
                                          .ToArray()
                                          .Reverse());
                     string list = WorldNames.Take(10).JoinToString(w => String.Format("{0}&S: {1}", w.ClassyName, w.VisitCount));
+                    if (WorldNames.Count() < 1){
+                        player.Message("&WNo results found");
+                        return;
+                    }
                     player.Message("&WShowing worlds with the most visits: " + list);
                     WorldNames.Clear();
                     break;
@@ -105,14 +109,12 @@ namespace fCraft {
                     else player.Message("No players have been idle for more than 5 minutes");
                     break;
                 case "portals":
-                    if (player.World == null)
-                    {
+                    if (player.World == null){
                         player.Message("/List portals cannot be used from Console");
                         return;
                     }
                     if (player.World.Portals == null ||
-                        player.World.Portals.Count == 0)
-                    {
+                        player.World.Portals.Count == 0){
                         player.Message("There are no portals in {0}&S.", player.World.ClassyName);
                     }
                     else
@@ -135,12 +137,13 @@ namespace fCraft {
                                              r.Rank.Can(Permission.Promote))
                                              .OrderBy(p => p.Rank)
                                              .ToArray();
-                    if (StaffNames.Length <= PlayersPerPage)
-                    {
-                        player.MessageManyMatches("staff", StaffNames);
+                    if (StaffNames.Length < 1){
+                        player.Message("&WNo results found");
+                        return;
                     }
-                    else
-                    {
+                    if (StaffNames.Length <= PlayersPerPage){
+                        player.MessageManyMatches("staff", StaffNames);
+                    }else{
                         int offset;
                         if (!cmd.NextInt(out offset)) offset = 0;
                         if (offset >= StaffNames.Length)
@@ -168,6 +171,10 @@ namespace fCraft {
                     var RankNames = PlayerDB.PlayerInfoList
                                          .Where(r => r.Rank == rank)
                                              .ToArray();
+                    if (RankNames.Length < 1){
+                        player.Message("&WNo results found");
+                        return;
+                    }
                     if (RankNames.Length <= PlayersPerPage)
                     {
                         player.MessageManyMatches("players", RankNames);
@@ -194,7 +201,10 @@ namespace fCraft {
                 case "dn":
                     var DisplayedNames = PlayerDB.PlayerInfoList
                                              .Where(r => r.DisplayedName != null).OrderBy(p => p.Rank).ToArray();
-
+                    if (DisplayedNames.Length < 1){
+                        player.Message("&WNo results found");
+                        return;
+                    }
                     if (DisplayedNames.Length <= 15)
                     {
                         player.MessageManyDisplayedNamesMatches("DisplayedNames", DisplayedNames);

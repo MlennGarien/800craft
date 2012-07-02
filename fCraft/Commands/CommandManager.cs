@@ -14,7 +14,7 @@ namespace fCraft {
         public static readonly string[] ReservedCommandNames = new[] { "ok", "nvm" };
 
         // Sets up all the command hooks
-        internal static void Init() {
+        public static void Init() {
             ModerationCommands.Init();
             BuildingCommands.Init();
             InfoCommands.Init();
