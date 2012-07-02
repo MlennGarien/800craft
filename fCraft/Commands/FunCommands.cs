@@ -30,7 +30,35 @@ namespace fCraft
             //CommandManager.RegisterCommand(CdGame);
             CommandManager.RegisterCommand(CdFirework);
             CommandManager.RegisterCommand(CdLife);
-            //CommandManager.RegisterCommand(CdSpell);
+            CommandManager.RegisterCommand(CdBot);
+        }
+
+        static readonly CommandDescriptor CdBot = new CommandDescriptor
+        {
+            Name = "Bot",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.Chat },
+            IsConsoleSafe = false,
+            NotRepeatable = true,
+            Usage = "/Spell",
+            Help = "Penis",
+            UsableByFrozenPlayers = false,
+            Handler = BotHandler,
+        };
+        internal static void BotHandler(Player player, Command cmd)
+        {
+            Bot bot = player.bot;
+            string yes = cmd.Next();
+            if (yes.ToLower() == "rotate")
+            {
+                player.bot.MakeRotate();
+                return;
+            }
+            if (yes.ToLower() == "create") 
+            {
+                player.bot = new Bot("Jonty8000", player.Position, 1, player.World);
+                player.bot.SetBot();
+            }
         }
 
         static readonly CommandDescriptor CdSpell = new CommandDescriptor
