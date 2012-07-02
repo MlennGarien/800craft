@@ -917,7 +917,7 @@ namespace fCraft {
                     muteWarnings++;
                     if( muteWarnings > ConfigKey.AntispamMaxWarnings.GetInt() ) {
                         KickNow( "You were kicked for repeated spamming.", LeaveReason.MessageSpamKick );
-                        Server.Message( "&W{0} was kicked for repeated spamming.", ClassyName );
+                        Server.Message( "&W{0}&S was kicked for repeated spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
                         Info.Mute( Console, autoMuteDuration, false, true );
