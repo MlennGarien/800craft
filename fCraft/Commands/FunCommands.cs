@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RandomMaze;
+using AIMLbot;
 
 namespace fCraft
 {
@@ -38,7 +39,7 @@ namespace fCraft
             Name = "Bot",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Chat },
-            IsConsoleSafe = false,
+            IsConsoleSafe = true,
             NotRepeatable = true,
             Usage = "/Spell",
             Help = "Penis",
@@ -58,6 +59,13 @@ namespace fCraft
             {
                 player.bot = new Bot("Jonty8000", player.Position, 1, player.World);
                 player.bot.SetBot();
+            }
+            if (yes.ToLower() == "chat")
+            {
+                string msg = cmd.NextAll();
+                if (player.ali == null) { player.ali = new alice(); }
+                player.Message(Color.Gray+"Bot&F: " + player.ali.getOutput(msg));
+
             }
         }
 

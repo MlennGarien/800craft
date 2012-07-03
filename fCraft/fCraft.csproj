@@ -88,6 +88,9 @@
     <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AIMLbot">
+      <HintPath>..\AIMLbot.dll</HintPath>
+    </Reference>
     <Reference Include="ServiceStack.Text">
       <HintPath>.\ServiceStack.Text.dll</HintPath>
     </Reference>
@@ -157,6 +160,7 @@
     <Compile Include="Games\Spell.cs" />
     <Compile Include="Games\ZombieGame.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
+    <Compile Include="Player\BotChatHandler.cs" />
     <Compile Include="Network\GlobalChat.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\Life\Life2d.cs" />
