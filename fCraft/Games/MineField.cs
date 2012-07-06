@@ -71,7 +71,7 @@ namespace fCraft
             SetUpMines();
             _map.Spawn = new Position(_map.Width / 2, 5, _ground + 3).ToVector3I().ToPlayerCoords();
             _world.LoadMap();
-            _world.gameMode = World.GameMode.MineField;
+            _world.gameMode = GameMode.MineField;
             _world.EnableTNTPhysics(Player.Console, false);
             Server.Message("{0}&S started a game of MineField on world Minefield!", player.ClassyName);
             WorldManager.SaveWorldList();
@@ -177,7 +177,7 @@ namespace fCraft
         private static void PlayerPlacing(object sender, PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
-            if (world.gameMode == World.GameMode.MineField)
+            if (world.gameMode == GameMode.MineField)
             {
                 e.Result = CanPlaceResult.Revert;
             }
@@ -187,7 +187,7 @@ namespace fCraft
         {
             if (_world != null && e.Player.World == _world)
             {
-                if (_world.gameMode == World.GameMode.MineField && !Failed.Contains(e.Player))
+                if (_world.gameMode == GameMode.MineField && !Failed.Contains(e.Player))
                 {
                     if (e.NewPosition != null)
                     {

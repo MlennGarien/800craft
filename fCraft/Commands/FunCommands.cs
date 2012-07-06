@@ -19,6 +19,7 @@ using System.Linq;
 using System.Text;
 using RandomMaze;
 using AIMLbot;
+using System.Threading;
 
 namespace fCraft
 {
@@ -28,10 +29,11 @@ namespace fCraft
         {
             CommandManager.RegisterCommand(CdRandomMaze);
             CommandManager.RegisterCommand(CdMazeCuboid);
-            //CommandManager.RegisterCommand(CdGame);
+            CommandManager.RegisterCommand(CdGame);
             CommandManager.RegisterCommand(CdFirework);
             CommandManager.RegisterCommand(CdLife);
             CommandManager.RegisterCommand(CdBot);
+            //CommandManager.RegisterCommand(CdSpell);
         }
 
         static readonly CommandDescriptor CdBot = new CommandDescriptor
@@ -62,9 +64,14 @@ namespace fCraft
             }
             if (yes.ToLower() == "chat")
             {
+                if (player.bot == null){
+                    player.Message("&WYou do not have a bot");
+                    return;
+                }
                 string msg = cmd.NextAll();
-                if (player.ali == null) { player.ali = new alice(); }
-                player.Message(Color.Gray+"Bot&F: " + player.ali.getOutput(msg));
+                if (player.ali == null){ player.ali = new Alice(); }
+                player.Message("&Bto " + player.bot.Name + ": " + msg);
+                player.Message(Color.Gray+"&Bfrom " + player.bot.Name + ": " + player.ali.getOutput(msg));
 
             }
         }

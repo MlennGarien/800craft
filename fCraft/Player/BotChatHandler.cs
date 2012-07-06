@@ -9,7 +9,7 @@ using AIMLbot;
 
 namespace fCraft
 {
-    public class alice
+    public class Alice
     {
         private AIMLbot.Bot myBot;
         private User myUser;
@@ -17,7 +17,7 @@ namespace fCraft
         /// <summary>
         /// Create a new instance of the ALICE object
         /// </summary>
-        public alice()
+        public Alice()
         {
             myBot = new AIMLbot.Bot();
             myUser = new User("Player", myBot);

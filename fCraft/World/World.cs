@@ -118,21 +118,6 @@ namespace fCraft {
 				_physSchedulers.Add(new PhysScheduler(this));
         }
 
-        #region Games
-
-        public enum GameMode
-        {
-            FFA,
-            CaptureTheFlag,
-            GunGame,
-            ZombieSurvival,
-            BotSurvival, 
-            MineField,
-            Football,
-            MineChallenge,
-            NULL
-        }
-        #endregion
 
 		public bool TryAddLife(Life2DZone life)
 		{

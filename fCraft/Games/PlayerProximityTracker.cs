@@ -152,19 +152,19 @@ namespace fCraft
 				Logger.Log(LogType.Trace, "PlayerProximityTracker.RemovePlayer: Player " + p.Name + " is not found at its position");
 		}
 
-		public void MovePlayer(Vector3I prevPos, Vector3I pos, Player p)
+		public void MovePlayer(Vector3I oldPos, Vector3I newPos, Player p)
 		{
 			//the new pos is given as an argument (assumed from PlayerMoved event args) so that the new position would match the previous in the next moved event
-			CheckCoords(ref prevPos);
-			CheckCoords(ref pos);
-			if (pos.X == prevPos.X && pos.Y == prevPos.Y) //nothing to do?
+			CheckCoords(ref oldPos);
+            CheckCoords(ref newPos);
+            if (newPos.X == oldPos.X && newPos.Y == oldPos.Y) //nothing to do?
 				return;
 
-			if (null == _players[prevPos.X, prevPos.Y] || !_players[prevPos.X, prevPos.Y].Remove(p))
+			if (null == _players[oldPos.X, oldPos.Y] || !_players[oldPos.X,oldPos.Y].Remove(p))
 			{//this is not a fatal error, the player, even when existing at some wrong position will not be returned by the find call looking around this wrong position
 				Logger.Log(LogType.Error, "PlayerProximityTracker.MovePlayer: Player " + p.Name + " is not found at its previous position");
 			}
-			AddPlayer(p, pos);
+            AddPlayer(p, newPos);
 		}
 
 		//may return null

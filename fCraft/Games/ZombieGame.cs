@@ -35,13 +35,13 @@ namespace fCraft
                 _task = new SchedulerTask(Interval, true).RunForever(TimeSpan.FromSeconds(1));
                 //_world.positions = new Player[_world.Map.Width,
                        // _world.Map.Length, _world.Map.Height];
-                _world.gameMode = World.GameMode.ZombieSurvival;
+                _world.gameMode = GameMode.ZombieSurvival;
             }
             return instance;
         }
 
         public static void Start(){
-            _world.gameMode = World.GameMode.ZombieSurvival; //set the game mode
+            _world.gameMode = GameMode.ZombieSurvival; //set the game mode
             _humanCount = _world.Players.Where(p => p.iName != _zomb).Count(); //count all players
             Scheduler.NewTask(t => _world.Players.Message("&WThe will be starting soon..."))
                 .RunRepeating(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), 2);
@@ -54,7 +54,7 @@ namespace fCraft
                     player.ClassyName, _world.ClassyName);
             }
             RevertNames();
-            _world.gameMode = World.GameMode.NULL;
+            _world.gameMode = GameMode.NULL;
             _humanCount = 0;
             _task = null;
             instance = null;
@@ -73,7 +73,7 @@ namespace fCraft
         public static void Interval(SchedulerTask task)
         {
             //check to stop Interval
-            if (_world.gameMode != World.GameMode.ZombieSurvival || _world == null)
+            if (_world.gameMode != GameMode.ZombieSurvival || _world == null)
             {
                 _world = null;
                 task.Stop();
@@ -139,7 +139,7 @@ namespace fCraft
         }
 
         static void OnPlayerMoved(object sender, PlayerMovedEventArgs e){
-            if (e.Player.World.gameMode == World.GameMode.ZombieSurvival){
+            if (e.Player.World.gameMode == GameMode.ZombieSurvival){
                 if (e.Player.World.Name == _world.Name && _world != null){
                     if (e.NewPosition != null){
                         Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);

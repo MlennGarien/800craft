@@ -101,7 +101,7 @@ namespace fCraft {
         public DateTime LastPatrolTime { get; set; }
 
         public Bot bot;
-        public alice ali;
+        public Alice ali;
 
 
         /// <summary> Last command called by the player. </summary>
