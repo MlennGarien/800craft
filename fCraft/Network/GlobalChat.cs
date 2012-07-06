@@ -293,8 +293,13 @@ namespace fCraft
 
                     case IRCMessageType.Join:
                         if (!ResponsibleForInputParsing) return;
+                        if (msg.Nick.StartsWith("[")){
                             SendList.Message("&i(Global) Server {0} joined the 800Craft Global Chat",
-                                            msg.Nick, msg.Channel);
+                                            msg.Nick);
+                        }else{
+                            SendList.Message("&i(Global) {0} joined the 800Craft Global Chat",
+                                            msg.Nick);
+                        }
                         return;
 
 
