@@ -247,6 +247,7 @@ at one time. If unchecked, there is no limit.";
 @"Ability to ban/unban other players from the server.
 Affected commands:
     /Ban
+    /Banx
     /Unban";
 
             vPermissions.Items[(int)Permission.BanAll].ToolTipText =
@@ -263,6 +264,11 @@ Required permission: Ban
 Affected commands:
     /BanIP
     /UnbanIP";
+    
+                vPermissions.Items[(int)Permission.Basscannon].ToolTipText =
+@"Ability to kick a player with stlye.
+Affected command:
+    /Basscannon";
 
             vPermissions.Items[(int)Permission.Bring].ToolTipText =
 @"Ability to bring/summon other players to your location.
@@ -275,6 +281,11 @@ Affected commands:
 @"Ability to bring/summon many players at a time to your location.
 Affected command:
     /BringAll";
+    
+                vPermissions.Items[(int)Permission.BroMode].ToolTipText =
+@"Ability to activate BroMode.
+Affected command:
+    /BroMode";
 
             vPermissions.Items[(int)Permission.Build].ToolTipText =
 @"Ability to place blocks on maps. This is a baseline permission
@@ -287,6 +298,9 @@ Affected commands:
     /Say
     @ (pm)
     @@ (rank chat)";
+                
+                vPermissions.Items[(int)Permission.ChatWithCaps].ToolTipText =
+@"Ability to chat with caps without restrictions.";
 
             vPermissions.Items[(int)Permission.CopyAndPaste].ToolTipText =
 @"Ability to copy (or cut) and paste blocks. The total number of
@@ -348,6 +362,11 @@ Affected commands:
     /SetInfo
     /InfoSwap
     /DumpStats";
+    
+                vPermissions.Items[(int)Permission.Fireworks].ToolTipText =
+@"Ability to create fireworks.
+Affected command:
+    /Firework";
 
             vPermissions.Items[(int)Permission.Freeze].ToolTipText =
 @"Ability to freeze/unfreeze players. Frozen players cannot
@@ -355,6 +374,16 @@ move or build/delete.
 Affected commands:
     /Freeze
     /Unfreeze";
+    
+                vPermissions.Items[(int)Permission.Gtfo].ToolTipText =
+@"Ability to kick a player without saving it to the DB.
+Affected command:
+    /Gtfo";
+    
+                vPermissions.Items[(int)Permission.Gun].ToolTipText =
+@"Ability to use a gun.
+Affected command:
+    /Gun";
 
             vPermissions.Items[(int)Permission.Hide].ToolTipText =
 @"Ability to appear hidden from other players. You can still chat,
@@ -363,23 +392,47 @@ Hidden players are completely invisible to other players.
 Affected commands:
     /Hide
     /Unhide";
+    
+                vPermissions.Items[(int)Permission.HideRanks].ToolTipText =
+@"Ability to hide ranks from the /ranks list.
+Affected command:
+    /RankHide";
+    
+                vPermissions.Items[(int)Permission.HighFive].ToolTipText =
+@"Ability to give a player a HighFive.
+Affected command:
+    /High5";
 
             vPermissions.Items[(int)Permission.Import].ToolTipText =
 @"Ability to import rank and ban lists from files. Useful if you
 are switching from another server software.
 Affected commands:
     /Import";
+    
+                vPermissions.Items[(int)Permission.Immortal].ToolTipText =
+@"Ability to become immortal.
+Affected command:
+    /Immortal";
 
             vPermissions.Items[(int)Permission.Kick].ToolTipText =
 @"Ability to kick players from the server.
 Affected commands:
     /Kick";
+    
+                vPermissions.Items[(int)Permission.Kill].ToolTipText =
+@"Ability to kill players.
+Affected command:
+    /Kill";
 
-            vPermissions.Items[(int)Permission.Lock].ToolTipText =
-@"Ability to lock/unlock maps (locking puts a map into read-only state).
-Affected commands:
-    /WLock
-    /WUnlock";
+                vPermissions.Items[(int)Permission.MakeVoteKicks].ToolTipText =
+@"Ability to vote to kick a player.
+Affected command:
+    /Vote";
+    
+                vPermissions.Items[(int)Permission.MakeVotes].ToolTipText =
+@"Ability to create votes.
+Affected command:
+    /Vote";
 
             vPermissions.Items[(int)Permission.ManageWorlds].ToolTipText =
 @"Ability to manipulate the world list: adding, renaming, and deleting worlds,
@@ -398,6 +451,11 @@ Affected commands:
 @"Ability to enable/disable, clear, and configure BlockDB.
 Affected command:
     /BlockDB";
+    
+                vPermissions.Items[(int)Permission.ManagePortal].ToolTipText =
+@"Ability to create, edit, and delete portals.
+Affected command:
+    /Portal";
 
             vPermissions.Items[(int)Permission.ManageZones].ToolTipText =
 @"Ability to manipulate zones: adding, editing, renaming, and removing zones.
@@ -406,6 +464,11 @@ Affected commands:
     /ZEdit
     /ZRemove
     /ZRename";
+    
+                vPermissions.Items[(int)Permission.Moderation].ToolTipText =
+@"Ability to mute everyone in the server, useful for announcements.
+Affected command:
+    /Moderate";
 
             vPermissions.Items[(int)Permission.Mute].ToolTipText =
 @"Ability to temporarily mute players. Muted players cannot write chat or 
@@ -421,6 +484,11 @@ Required permission: Teleport
 Affected commands:
     /Patrol
     /SpecPatrol";
+    
+                vPermissions.Items[(int)Permission.Physics].ToolTipText =
+@"Ability to activate Physics on a world.
+Affected command:
+    /Physics";
 
             vPermissions.Items[(int)Permission.PlaceAdmincrete].ToolTipText =
 @"Ability to place admincrete/adminium. This also affects draw commands.
@@ -454,9 +522,25 @@ Affected commands:
 @"Ability to promote players to a higher rank.
 Affected commands:
     /Rank";
+    
+                vPermissions.Items[(int)Permission.RageQuit].ToolTipText =
+@"Ability to ragequit from the server.
+Affected command:
+    /Ragequit";
+    
+                vPermissions.Items[(int)Permission.ReadAdminChat].ToolTipText =
+@"Ability to read Admin chat.";
+
+            vPermissions.Items[(int)Permission.ReadCustomChat].ToolTipText =
+@"Ability to read Custom chat.";
 
             vPermissions.Items[(int)Permission.ReadStaffChat].ToolTipText =
 @"Ability to read staff chat.";
+
+            vPermissions.Items[(int)Permission.Realm].ToolTipText =
+@"Ability to create realms.
+Affected command:
+    /Realm";
 
             vPermissions.Items[(int)Permission.ReloadConfig].ToolTipText =
 @"Ability to reload the configuration file without restarting.
@@ -480,16 +564,44 @@ Useful for servers that run on dedicated machines.
 Affected commands:
     /Shutdown
     /Restart";
+    
+                vPermissions.Items[(int)Permission.Slap].ToolTipText =
+@"Ability to slap players.
+Affected command:
+    /Slap";
 
             vPermissions.Items[(int)Permission.Spectate].ToolTipText =
 @"Ability to spectate/follow other players in first-person view.
 Affected commands:
     /Spectate";
+    
+                vPermissions.Items[(int)Permission.Swear].ToolTipText =
+@"Ability to use swear words without restrictions";
 
             vPermissions.Items[(int)Permission.Teleport].ToolTipText =
 @"Ability to teleport to other players.
 Affected commands:
     /TP";
+    
+                vPermissions.Items[(int)Permission.TempBan].ToolTipText =
+@"Ability to temporarily ban a player.
+Affected command:
+    /Tempban";
+    
+                vPermissions.Items[(int)Permission.Tower].ToolTipText =
+@"Ability to create a Tower.
+Affected command:
+    /Tower";
+    
+                vPermissions.Items[(int)Permission.Tree].ToolTipText =
+@"Ability to create a tree.
+Affected command:
+    /Tree";
+               
+               vPermissions.Items[(int)Permission.Troll].ToolTipText =
+@"Ability to troll players.
+Affected command:
+    /Troll";
 
             vPermissions.Items[(int)Permission.UndoOthersActions].ToolTipText =
 @"Ability to undo actions of other players, using the BlockDB.
@@ -499,11 +611,19 @@ Affected commands:
 
             vPermissions.Items[(int)Permission.UseColorCodes].ToolTipText =
 @"Ability to use color codes in chat messages.";
+            
+            vPermissions.Items[(int)Permission.UsePortal].ToolTipText =
+@"Ability to use portals (not be confused with ManagePortal).";
 
             vPermissions.Items[(int)Permission.UseSpeedHack].ToolTipText =
 @"Ability to move at a faster-than-normal rate (using hacks).
 WARNING: Speedhack detection is often inaccurate, and may produce many
 false positives - especially on laggy servers.";
+
+            vPermissions.Items[(int)Permission.Warn].ToolTipText =
+@"Ability to warn a player.
+Affected command:
+    /Warn";
 
             vPermissions.Items[(int)Permission.ViewOthersInfo].ToolTipText =
 @"Ability to view extended information about other players.
