@@ -423,6 +423,12 @@ Affected commands:
 @"Ability to kill players.
 Affected command:
     /Kill";
+    
+                vPermissions.Items[(int)Permission.Lock].ToolTipText =
+@"Ability to lock/unlock maps (locking puts a world into read-only state.)
+Affected commands:
+    /WLock
+    /WUnlock";
 
                 vPermissions.Items[(int)Permission.MakeVoteKicks].ToolTipText =
 @"Ability to vote to kick a player.
