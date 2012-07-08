@@ -107,7 +107,7 @@ namespace fCraft {
         internal World( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( !IsValidName( name ) ) {
-                throw new ArgumentException( "Unacceptible world name." );
+                throw new ArgumentException( "Unacceptable world name." );
             }
             BlockDB = new BlockDB( this );
             AccessSecurity = new SecurityController();

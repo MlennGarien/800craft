@@ -321,7 +321,7 @@ namespace fCraft {
                 	return;
                 }
             }
-			player.Message("Zone: Place a block or type &H/Mark&S to use your location.");
+			player.Message("Zone "+ newZone.ClassyName + "&S: Place a block or type &H/Mark&S to use your location.");
 			player.SelectionStart(2, ZoneAddCallback, newZone, CdZoneAdd.Permissions);
         }
 

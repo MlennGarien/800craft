@@ -19,8 +19,8 @@ namespace fCraft.ServerGUI {
             InitializeComponent();
             Shown += StartUp;
             console.OnCommand += console_Enter;
+            logBox.LinkClicked += new LinkClickedEventHandler(Link_Clicked);
         }
-
 
         #region Startup
         Thread startupThread;
@@ -180,10 +180,19 @@ namespace fCraft.ServerGUI {
                     int oldLength = logBox.Text.Length;
                     string msgToAppend = e.Message + Environment.NewLine;
                     logBox.AppendText(msgToAppend);
-                    logBox.Select(oldLength, msgToAppend.Length);
+                        logBox.Select(oldLength, msgToAppend.Length);
                     
                     switch (e.MessageType)
                     {
+                        case LogType.PrivateChat:
+                            logBox.SelectionColor = System.Drawing.Color.Teal;
+                            break;
+                        case LogType.IRC:
+                            if (!InvertCheckBox.Checked)
+                                logBox.SelectionColor = System.Drawing.Color.LightSkyBlue;
+                            else 
+                                logBox.SelectionColor = System.Drawing.Color.Navy;
+                            break;
                         case LogType.ChangedWorld:
                             logBox.SelectionColor = System.Drawing.Color.Orange;
                             break;
@@ -202,7 +211,14 @@ namespace fCraft.ServerGUI {
                             logBox.SelectionColor = System.Drawing.Color.White;
                             break;
                         default:
-                            logBox.SelectionColor = System.Drawing.Color.LightGray;
+                            if (InvertCheckBox.Checked)
+                            {
+                                logBox.SelectionColor = System.Drawing.Color.Black;
+                            }
+                            else
+                            {
+                                logBox.SelectionColor = System.Drawing.Color.LightGray;
+                            }
                             break;
                     }
 
@@ -306,6 +322,51 @@ namespace fCraft.ServerGUI {
         private void logBox_TextChanged(object sender, EventArgs e)
         {
 
+        }
+        private void Link_Clicked (object sender, LinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(e.LinkText);
+        }
+
+        private void mRichTextBox_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("iexplore.exe", e.LinkText);
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBox1.SelectedItem.ToString() == "Normal"){
+                logBox.ZoomFactor = 1;
+            }
+            if (comboBox1.SelectedItem.ToString() == "Big")
+            {
+                logBox.ZoomFactor = (float)1.2;
+            }
+            if (comboBox1.SelectedItem.ToString() == "Large")
+            {
+                logBox.ZoomFactor = (float)1.6;
+            }
+        }
+
+        private void InvertCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (InvertCheckBox.Checked)
+            {
+                logBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+                logBox.ForeColor = System.Drawing.Color.Black;
+                
+            }
+            if (!InvertCheckBox.Checked)
+            {
+                logBox.BackColor = System.Drawing.Color.Black;
+                logBox.ForeColor = System.Drawing.Color.LightGray;
+            }
+            logBox.Select(0, 0);
         }
     }
 }
