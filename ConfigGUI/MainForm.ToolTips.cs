@@ -738,6 +738,7 @@ Does not include IRC chatter (see IRCChat).";
             vLogFileOptions.Items[(int)LogType.UserActivity].ToolTipText = "Status messages regarding players' actions.";
             vLogFileOptions.Items[(int)LogType.UserCommand].ToolTipText = "Commands types in by players.";
             vLogFileOptions.Items[(int)LogType.Warning].ToolTipText = "Minor, recoverable errors and problems.";
+            vLogFileOptions.Items[(int)LogType.ChangedWorld].ToolTipText = "Logs when a player changes world.";
 
             for( int i = 0; i < vConsoleOptions.Items.Count; i++ ) {
                 vConsoleOptions.Items[i].ToolTipText = vLogFileOptions.Items[i].ToolTipText;

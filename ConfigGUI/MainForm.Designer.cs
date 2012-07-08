@@ -283,6 +283,7 @@
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.GCcheckBox = new System.Windows.Forms.CheckBox();
             this.MaxCapsValue = new System.Windows.Forms.NumericUpDown();
             this.MaxCaps = new System.Windows.Forms.Label();
             this.HbBox1 = new System.Windows.Forms.CheckBox();
@@ -302,7 +303,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.GCcheckBox = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -2590,6 +2590,7 @@
             this.vConsoleOptions.UseCompatibleStateImageBehavior = false;
             this.vConsoleOptions.View = System.Windows.Forms.View.Details;
             this.vConsoleOptions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.vConsoleOptions_ItemChecked);
+            this.vConsoleOptions.SelectedIndexChanged += new System.EventHandler(this.vConsoleOptions_SelectedIndexChanged);
             // 
             // columnHeader3
             // 
@@ -3391,6 +3392,16 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Configurations";
             // 
+            // GCcheckBox
+            // 
+            this.GCcheckBox.AutoSize = true;
+            this.GCcheckBox.Location = new System.Drawing.Point(13, 94);
+            this.GCcheckBox.Name = "GCcheckBox";
+            this.GCcheckBox.Size = new System.Drawing.Size(205, 19);
+            this.GCcheckBox.TabIndex = 25;
+            this.GCcheckBox.Text = "Enable Global Chat on the server";
+            this.GCcheckBox.UseVisualStyleBackColor = true;
+            // 
             // MaxCapsValue
             // 
             this.MaxCapsValue.Location = new System.Drawing.Point(110, 32);
@@ -3612,16 +3623,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // GCcheckBox
-            // 
-            this.GCcheckBox.AutoSize = true;
-            this.GCcheckBox.Location = new System.Drawing.Point(13, 94);
-            this.GCcheckBox.Name = "GCcheckBox";
-            this.GCcheckBox.Size = new System.Drawing.Size(205, 19);
-            this.GCcheckBox.TabIndex = 25;
-            this.GCcheckBox.Text = "Enable Global Chat on the server";
-            this.GCcheckBox.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 

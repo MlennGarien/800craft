@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.logBox = new System.Windows.Forms.TextBox();
+            this.logBox = new System.Windows.Forms.RichTextBox();
             this.uriDisplay = new System.Windows.Forms.TextBox();
             this.URLLabel = new System.Windows.Forms.Label();
             this.playerList = new System.Windows.Forms.ListBox();
@@ -38,28 +38,23 @@
             this.logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.logBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.logBox.BackColor = System.Drawing.Color.Black;
             this.logBox.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.logBox.Location = new System.Drawing.Point(12, 38);
-            this.logBox.Multiline = true;
+            this.logBox.HideSelection = false;
+            this.logBox.Location = new System.Drawing.Point(12, 39);
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
-            this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logBox.Size = new System.Drawing.Size(610, 388);
-            this.logBox.TabIndex = 3;
+            this.logBox.Size = new System.Drawing.Size(610, 387);
+            this.logBox.TabIndex = 7;
+            this.logBox.Text = "";
+            this.logBox.TextChanged += new System.EventHandler(this.logBox_TextChanged);
             // 
             // uriDisplay
             // 
-            this.uriDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.uriDisplay.Enabled = false;
             this.uriDisplay.Location = new System.Drawing.Point(95, 12);
             this.uriDisplay.Name = "uriDisplay";
-            this.uriDisplay.ReadOnly = true;
             this.uriDisplay.Size = new System.Drawing.Size(473, 20);
-            this.uriDisplay.TabIndex = 1;
-            this.uriDisplay.Text = "Waiting for first heartbeat...";
-            this.uriDisplay.WordWrap = false;
+            this.uriDisplay.TabIndex = 7;
             // 
             // URLLabel
             // 
@@ -141,7 +136,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox logBox;
+        private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.TextBox uriDisplay;
         private System.Windows.Forms.Label URLLabel;
         private System.Windows.Forms.ListBox playerList;

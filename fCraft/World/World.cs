@@ -651,14 +651,14 @@ namespace fCraft {
 
                 if (IsRealm)
                 {
-                    Logger.Log(LogType.UserActivity,
+                    Logger.Log(LogType.ChangedWorld,
                     "Player {0} joined realm {1}.",
                     player.Name, Name);
                 }
 
                 if (!IsRealm)
                 {
-                    Logger.Log(LogType.UserActivity,
+                    Logger.Log(LogType.ChangedWorld,
                     "Player {0} joined world {1}.",
                     player.Name, Name);
                 }

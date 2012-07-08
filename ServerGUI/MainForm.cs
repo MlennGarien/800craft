@@ -12,7 +12,8 @@ namespace fCraft.ServerGUI {
 
     public sealed partial class MainForm : Form {
         volatile bool shutdownPending, startupComplete, shutdownComplete;
-        const int MaxLinesInLog = 2000;
+        const int MaxLinesInLog = 2000,
+                  LinesToTrimWhenExceeded = 50;
 
         public MainForm() {
             InitializeComponent();
@@ -170,11 +171,61 @@ namespace fCraft.ServerGUI {
                 if( logBox.InvokeRequired ) {
                     BeginInvoke( (EventHandler<LogEventArgs>)OnLogged, sender, e );
                 } else {
-                    logBox.AppendText( e.Message + Environment.NewLine );
+                    // store user's selection
+                    int userSelectionStart = logBox.SelectionStart;
+                    int userSelectionLength = logBox.SelectionLength;
+                    bool userSelecting = (logBox.SelectionStart != logBox.Text.Length && logBox.Focused || logBox.SelectionLength > 0);
+
+                    // insert and color a new message
+                    int oldLength = logBox.Text.Length;
+                    string msgToAppend = e.Message + Environment.NewLine;
+                    logBox.AppendText(msgToAppend);
+                    logBox.Select(oldLength, msgToAppend.Length);
+                    
+                    switch (e.MessageType)
+                    {
+                        case LogType.ChangedWorld:
+                            logBox.SelectionColor = System.Drawing.Color.Orange;
+                            break;
+                        case LogType.Warning:
+                            logBox.SelectionColor = System.Drawing.Color.Yellow;
+                            break;
+                        case LogType.Debug:
+                            logBox.SelectionColor = System.Drawing.Color.DarkGray;
+                            break;
+                        case LogType.Error:
+                        case LogType.SeriousError:
+                            logBox.SelectionColor = System.Drawing.Color.Red;
+                            break;
+                        case LogType.ConsoleInput:
+                        case LogType.ConsoleOutput:
+                            logBox.SelectionColor = System.Drawing.Color.White;
+                            break;
+                        default:
+                            logBox.SelectionColor = System.Drawing.Color.LightGray;
+                            break;
+                    }
+
+                    // cut off the log, if too long
                     if( logBox.Lines.Length > MaxLinesInLog ) {
-                        logBox.Text = "----- cut off, see 800Craft.log for complete log -----" +
-                            Environment.NewLine +
-                            logBox.Text.Substring( logBox.GetFirstCharIndexFromLine( 50 ) );
+                                                logBox.SelectionStart = 0;
+                        logBox.SelectionLength = logBox.GetFirstCharIndexFromLine( LinesToTrimWhenExceeded );
+                        userSelectionStart -= logBox.SelectionLength;
+                        if( userSelectionStart < 0 ) userSelecting = false;
+                        string textToAdd = "----- cut off, see " + Logger.CurrentLogFileName + " for complete log -----" + Environment.NewLine;
+                        logBox.SelectedText = textToAdd;
+                        userSelectionStart += textToAdd.Length;
+                        logBox.SelectionColor = System.Drawing.Color.DarkGray;
+                        // either restore user's selection, or scroll to end
+                        if (userSelecting)
+                        {
+                            logBox.Select(userSelectionStart, userSelectionLength);
+                        }
+                        else
+                        {
+                            logBox.SelectionStart = logBox.Text.Length;
+                            logBox.ScrollToCaret();
+                        }
                     }
                     logBox.SelectionStart = logBox.Text.Length;
                     logBox.ScrollToCaret();
@@ -250,6 +301,11 @@ namespace fCraft.ServerGUI {
             } catch( Exception ) {
                 MessageBox.Show( "Could not open server URL. Please copy/paste it manually." );
             }
+        }
+
+        private void logBox_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

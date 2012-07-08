@@ -483,7 +483,7 @@ namespace fCraft {
             // Check name for nonstandard characters
             if( !IsValidName( givenName ) ) {
                 Logger.Log( LogType.SuspiciousActivity,
-                            "Player.LoginSequence: Unacceptible player name: {0} ({1})",
+                            "Player.LoginSequence: Unacceptable player name: {0} ({1})",
                             givenName, IP );
                 KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
                 return false;
