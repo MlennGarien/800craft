@@ -223,7 +223,7 @@ or any other files from Minecraft... neither does 800Craft.
 Thanks again to fragmer, what a bro.
 
 Thanks to 800Craft code contributers:
-    Rebelliousdude, boblol0909 and Maicke98 for trying. 
+    Rebelliousdude, boblol0909, WaterGod469 and Maicke98 for trying. 
 
 With testing from Pure2K12 and Xanderortiz.
 

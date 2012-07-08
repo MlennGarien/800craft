@@ -52,14 +52,15 @@ namespace fCraft
         {
             Bot bot = player.bot;
             string yes = cmd.Next();
-            if (yes.ToLower() == "rotate")
+            if (yes.ToLower() == "rotateleft")
             {
-                player.bot.MakeRotate();
+                player.bot.MakeRotLeft();
                 return;
             }
             if (yes.ToLower() == "create") 
             {
-                player.bot = new Bot("Jonty8000", player.Position, 1, player.World);
+                Position Pos = new Position(player.Position.X, player.Position.Y, player.Position.Z, player.Position.R, 0);
+                player.bot = new Bot("Jonty8000", Pos, 1, player.World);
                 player.bot.SetBot();
             }
             if (yes.ToLower() == "chat")
