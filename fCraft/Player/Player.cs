@@ -100,8 +100,8 @@ namespace fCraft {
         /// <summary> Last time when this player was patrolled by someone. </summary>
         public DateTime LastPatrolTime { get; set; }
 
-        public Bot bot;
-        public Alice ali;
+        public Bot Bot;
+        public Alice Ali;
 
 
         /// <summary> Last command called by the player. </summary>

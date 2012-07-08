@@ -41,7 +41,7 @@ namespace fCraft
             Name = "Bot",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Chat },
-            IsConsoleSafe = true,
+            IsConsoleSafe = false,
             NotRepeatable = true,
             Usage = "/Spell",
             Help = "Penis",
@@ -50,29 +50,32 @@ namespace fCraft
         };
         internal static void BotHandler(Player player, Command cmd)
         {
-            Bot bot = player.bot;
+            Bot bot = player.Bot;
             string yes = cmd.Next();
             if (yes.ToLower() == "rotateleft")
             {
-                player.bot.MakeRotLeft();
+                player.Bot.MakeRotLeft();
                 return;
             }
             if (yes.ToLower() == "create") 
             {
+                string Name = cmd.Next();
                 Position Pos = new Position(player.Position.X, player.Position.Y, player.Position.Z, player.Position.R, 0);
-                player.bot = new Bot("Jonty8000", Pos, 1, player.World);
-                player.bot.SetBot();
+                player.Bot = new Bot(Name, Pos, 1, player.World);
+                player.Bot.SetBot();
             }
             if (yes.ToLower() == "chat")
             {
-                if (player.bot == null){
+                if (player.Bot == null){
                     player.Message("&WYou do not have a bot");
                     return;
                 }
                 string msg = cmd.NextAll();
-                if (player.ali == null){ player.ali = new Alice(); }
-                player.Message("&Bto " + player.bot.Name + ": " + msg);
-                player.Message(Color.Gray+"&Bfrom " + player.bot.Name + ": " + player.ali.getOutput(msg));
+                if (player.Ali == null){
+                    player.Message("&8Finding your bot...");
+                    player.Ali = new Alice(player); }
+                player.Message("&Pto " + player.Bot.Name + ": " + msg);
+                player.Message(Color.Gray+"&Pfrom " + player.Bot.Name + ": " + player.Ali.getOutput(msg));
 
             }
         }

@@ -18,7 +18,7 @@ namespace fCraft
 
         public Bot(string name, Position pos, int iD, World world_)
         {
-            Name = Color.Gray + name; //bots should be gray :P
+            Name = name; //bots should be gray :P
             Pos = pos;
             ID = iD;
             world = world_;
@@ -48,7 +48,7 @@ namespace fCraft
         // reloading the world / joined after it was created
         public void SetBot()
         {
-            world.Players.Send(PacketWriter.MakeAddEntity(this.ID, this.Name, this.Pos));
+            world.Players.Send(PacketWriter.MakeAddEntity(this.ID, Color.Gray + this.Name, this.Pos));
         }
         //may not needs these rotate methods
         public void MakeRotLeft()
