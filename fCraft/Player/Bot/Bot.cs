@@ -106,7 +106,7 @@ namespace fCraft
                     if (_direction == Direction.North){
                         WalkNorth();
                     }
-                    Thread.Sleep(500);
+                    Thread.Sleep(350);
                 }
 
             }));
