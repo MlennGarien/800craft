@@ -52,11 +52,6 @@ namespace fCraft
         {
             Bot bot = player.Bot;
             string yes = cmd.Next();
-            if (yes.ToLower() == "rotateleft")
-            {
-                player.Bot.MakeRotLeft();
-                return;
-            }
             if (yes.ToLower() == "create") 
             {
                 string Name = cmd.Next();

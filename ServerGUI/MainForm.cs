@@ -377,13 +377,11 @@ namespace fCraft.ServerGUI {
             if (SizeBox.SelectedItem.ToString() == "Normal"){
                 logBox.ZoomFactor = 1;
             }
-            if (SizeBox.SelectedItem.ToString() == "Big")
-            {
+            if (SizeBox.SelectedItem.ToString() == "Big"){
                 logBox.ZoomFactor = (float)1.2;
             }
-            if (SizeBox.SelectedItem.ToString() == "Large")
-            {
-                logBox.ZoomFactor = (float)1.6;
+            if (SizeBox.SelectedItem.ToString() == "Large"){
+                logBox.ZoomFactor = (float)1.5;
             }
         }
 
