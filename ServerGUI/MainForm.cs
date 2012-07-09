@@ -188,36 +188,70 @@ namespace fCraft.ServerGUI {
                             logBox.SelectionColor = System.Drawing.Color.Teal;
                             break;
                         case LogType.IRC:
-                            if (!InvertCheckBox.Checked)
-                                logBox.SelectionColor = System.Drawing.Color.LightSkyBlue;
-                            else 
+                            if (ThemeBox.SelectedItem == null){
                                 logBox.SelectionColor = System.Drawing.Color.Navy;
+                            }else{
+                                switch (ThemeBox.SelectedItem.ToString()){
+                                    default:
+                                        logBox.SelectionColor = System.Drawing.Color.LightSkyBlue;
+                                        break;
+                                    case "New 800Craft":
+                                        logBox.SelectionColor = System.Drawing.Color.Navy;
+                                        break;
+                                }
+                            }
                             break;
                         case LogType.ChangedWorld:
                             logBox.SelectionColor = System.Drawing.Color.Orange;
                             break;
                         case LogType.Warning:
-                            logBox.SelectionColor = System.Drawing.Color.Yellow;
+                            if (ThemeBox.SelectedItem == null){
+                                logBox.SelectionColor = System.Drawing.Color.Yellow;
+                            }else{
+                                switch (ThemeBox.SelectedItem.ToString()){
+                                    default:
+                                        logBox.SelectionColor = System.Drawing.Color.MediumOrchid;
+                                        break;
+                                    case "New 800Craft":
+                                        logBox.SelectionColor = System.Drawing.Color.Yellow;
+                                        break;
+                                }
+                            }
                             break;
                         case LogType.Debug:
                             logBox.SelectionColor = System.Drawing.Color.DarkGray;
                             break;
                         case LogType.Error:
                         case LogType.SeriousError:
-                            logBox.SelectionColor = System.Drawing.Color.Red;
+                                logBox.SelectionColor = System.Drawing.Color.Red;
                             break;
                         case LogType.ConsoleInput:
                         case LogType.ConsoleOutput:
-                            logBox.SelectionColor = System.Drawing.Color.White;
+                            if (ThemeBox.SelectedItem == null){
+                                logBox.SelectionColor = System.Drawing.Color.White;
+                            }else{
+                                switch (ThemeBox.SelectedItem.ToString()){
+                                    default:
+                                        logBox.SelectionColor = System.Drawing.Color.Black;
+                                        break;
+                                    case "New 800Craft":
+                                        logBox.SelectionColor = System.Drawing.Color.White;
+                                        break;
+                                }
+                            }
                             break;
                         default:
-                            if (InvertCheckBox.Checked)
-                            {
-                                logBox.SelectionColor = System.Drawing.Color.Black;
-                            }
-                            else
-                            {
+                            if (ThemeBox.SelectedItem == null){
                                 logBox.SelectionColor = System.Drawing.Color.LightGray;
+                            }else{
+                                switch (ThemeBox.SelectedItem.ToString()){
+                                    default:
+                                        logBox.SelectionColor = System.Drawing.Color.Black;
+                                        break;
+                                    case "New 800Craft":
+                                        logBox.SelectionColor = System.Drawing.Color.LightGray;
+                                        break;
+                                }
                             }
                             break;
                     }
@@ -340,32 +374,96 @@ namespace fCraft.ServerGUI {
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedItem.ToString() == "Normal"){
+            if (SizeBox.SelectedItem.ToString() == "Normal"){
                 logBox.ZoomFactor = 1;
             }
-            if (comboBox1.SelectedItem.ToString() == "Big")
+            if (SizeBox.SelectedItem.ToString() == "Big")
             {
                 logBox.ZoomFactor = (float)1.2;
             }
-            if (comboBox1.SelectedItem.ToString() == "Large")
+            if (SizeBox.SelectedItem.ToString() == "Large")
             {
                 logBox.ZoomFactor = (float)1.6;
             }
         }
 
-        private void InvertCheckBox_CheckedChanged(object sender, EventArgs e)
+
+        private void ThemeBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (InvertCheckBox.Checked)
-            {
-                logBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-                logBox.ForeColor = System.Drawing.Color.Black;
-                
-            }
-            if (!InvertCheckBox.Checked)
-            {
-                logBox.BackColor = System.Drawing.Color.Black;
-                logBox.ForeColor = System.Drawing.Color.LightGray;
-            }
+            if (ThemeBox.SelectedItem.ToString().Equals("New 800Craft")) { SetNewTheme(); }
+            if (ThemeBox.SelectedItem.ToString().Equals("Old 800Craft")) { SetOldTheme(); }
+            if (ThemeBox.SelectedItem.ToString().Equals("Pink")) { SetPinkTheme(); }
+            if (ThemeBox.SelectedItem.ToString().Equals("Yellow")) { SetYellowTheme(); }
+            if (ThemeBox.SelectedItem.ToString().Equals("Green")) { SetGreenTheme(); }
+            if (ThemeBox.SelectedItem.ToString().Equals("Purple")) { SetPurpleTheme(); }
+            if (ThemeBox.SelectedItem.ToString().Equals("Grey")) { SetGreyTheme(); }
+        }
+
+        public void SetNewTheme()
+        {
+            BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            playerList.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            logBox.BackColor = System.Drawing.Color.Black;
+            logBox.SelectAll();
+            logBox.SelectionColor = System.Drawing.Color.LightGray;
+            logBox.Select(0, 0);
+        }
+        public void SetOldTheme()
+        {
+            BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            playerList.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            logBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            logBox.SelectAll();
+            logBox.SelectionColor = System.Drawing.Color.Black;
+            logBox.Select(0, 0);
+        }
+        public void SetPinkTheme()
+        {
+            BackColor = System.Drawing.Color.Pink;
+            playerList.BackColor = System.Drawing.Color.LightPink;
+            logBox.BackColor = System.Drawing.Color.LightPink;
+            logBox.SelectAll();
+            logBox.SelectionColor = System.Drawing.Color.Black;
+            logBox.Select(0, 0);
+        }
+
+        public void SetYellowTheme()
+        {
+            BackColor = System.Drawing.Color.LightGoldenrodYellow;
+            playerList.BackColor = System.Drawing.Color.LightYellow;
+            logBox.BackColor = System.Drawing.Color.LightYellow;
+            logBox.SelectAll();
+            logBox.SelectionColor = System.Drawing.Color.Black;
+            logBox.Select(0, 0);
+        }
+
+        public void SetGreenTheme()
+        {
+            BackColor = System.Drawing.Color.SpringGreen;
+            playerList.BackColor = System.Drawing.Color.LightGreen;
+            logBox.BackColor = System.Drawing.Color.LightGreen;
+            logBox.SelectAll();
+            logBox.SelectionColor = System.Drawing.Color.Black;
+            logBox.Select(0, 0);
+        }
+
+        public void SetPurpleTheme()
+        {
+            BackColor = System.Drawing.Color.MediumPurple;
+            playerList.BackColor = System.Drawing.Color.Plum;
+            logBox.BackColor = System.Drawing.Color.Plum;
+            logBox.SelectAll();
+            logBox.SelectionColor = System.Drawing.Color.Black;
+            logBox.Select(0, 0);
+        }
+
+        public void SetGreyTheme()
+        {
+            BackColor = System.Drawing.SystemColors.Control;
+            playerList.BackColor = System.Drawing.SystemColors.ControlLight;
+            logBox.BackColor = System.Drawing.SystemColors.ControlLight;
+            logBox.SelectAll();
+            logBox.SelectionColor = System.Drawing.Color.Black;
             logBox.Select(0, 0);
         }
     }

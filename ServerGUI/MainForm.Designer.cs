@@ -30,8 +30,8 @@
             this.playerList = new System.Windows.Forms.ListBox();
             this.playerListLabel = new System.Windows.Forms.Label();
             this.bPlay = new System.Windows.Forms.Button();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.InvertCheckBox = new System.Windows.Forms.CheckBox();
+            this.SizeBox = new System.Windows.Forms.ComboBox();
+            this.ThemeBox = new System.Windows.Forms.ComboBox();
             this.console = new fCraft.ServerGUI.ConsoleBox();
             this.SuspendLayout();
             // 
@@ -103,30 +103,37 @@
             this.bPlay.UseVisualStyleBackColor = true;
             this.bPlay.Click += new System.EventHandler(this.bPlay_Click);
             // 
-            // comboBox1
+            // SizeBox
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Items.AddRange(new object[] {
+            this.SizeBox.FormattingEnabled = true;
+            this.SizeBox.Items.AddRange(new object[] {
             "Normal",
             "Big",
             "Large"});
-            this.comboBox1.Location = new System.Drawing.Point(628, 10);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(56, 21);
-            this.comboBox1.TabIndex = 8;
-            this.comboBox1.Text = "Size";
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.SizeBox.Location = new System.Drawing.Point(628, 10);
+            this.SizeBox.Name = "SizeBox";
+            this.SizeBox.Size = new System.Drawing.Size(56, 21);
+            this.SizeBox.TabIndex = 8;
+            this.SizeBox.Text = "Size";
+            this.SizeBox.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
-            // InvertCheckBox
+            // ThemeBox
             // 
-            this.InvertCheckBox.AutoSize = true;
-            this.InvertCheckBox.Location = new System.Drawing.Point(690, 14);
-            this.InvertCheckBox.Name = "InvertCheckBox";
-            this.InvertCheckBox.Size = new System.Drawing.Size(85, 17);
-            this.InvertCheckBox.TabIndex = 9;
-            this.InvertCheckBox.Text = "Invert Colors";
-            this.InvertCheckBox.UseVisualStyleBackColor = true;
-            this.InvertCheckBox.CheckedChanged += new System.EventHandler(this.InvertCheckBox_CheckedChanged);
+            this.ThemeBox.FormattingEnabled = true;
+            this.ThemeBox.Items.AddRange(new object[] {
+            "New 800Craft",
+            "Old 800Craft",
+            "Pink",
+            "Yellow",
+            "Green",
+            "Purple",
+            "Grey"});
+            this.ThemeBox.Location = new System.Drawing.Point(690, 10);
+            this.ThemeBox.Name = "ThemeBox";
+            this.ThemeBox.Size = new System.Drawing.Size(82, 21);
+            this.ThemeBox.TabIndex = 9;
+            this.ThemeBox.Text = "Theme";
+            this.ThemeBox.SelectedIndexChanged += new System.EventHandler(this.ThemeBox_SelectedIndexChanged);
             // 
             // console
             // 
@@ -145,8 +152,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.ClientSize = new System.Drawing.Size(784, 464);
-            this.Controls.Add(this.InvertCheckBox);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.ThemeBox);
+            this.Controls.Add(this.SizeBox);
             this.Controls.Add(this.bPlay);
             this.Controls.Add(this.console);
             this.Controls.Add(this.playerListLabel);
@@ -173,8 +180,8 @@
         private System.Windows.Forms.Label playerListLabel;
         private ConsoleBox console;
         private System.Windows.Forms.Button bPlay;
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.CheckBox InvertCheckBox;
+        private System.Windows.Forms.ComboBox SizeBox;
+        private System.Windows.Forms.ComboBox ThemeBox;
     }
 }
 
