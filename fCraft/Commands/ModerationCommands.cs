@@ -211,8 +211,9 @@ namespace fCraft {
                 player.Message("You suicidal bro?");
                 return;
             }
-            if ((DateTime.Now - player.Info.LastUsedKill).TotalSeconds < 10){
-                player.Message("&CYou can only kill once every 10 seconds. Slow down.");
+            double time = (DateTime.Now - player.Info.LastUsedKill).TotalSeconds;
+            if (time < 10){
+                player.Message("&WYou can use /Kill again in " + Math.Round(10 - time) + " seconds.");
                 return;
             }
             if (target == null){
@@ -262,8 +263,9 @@ namespace fCraft {
                 player.Message("&sYou can't slap yourself.... What's wrong with you???");
                 return;
             }
-            if ((DateTime.Now - player.Info.LastUsedSlap).TotalSeconds < 10){
-                player.Message("&CYou can only use /Slap once every 10 seconds. Slow down.");
+            double time = (DateTime.Now - player.Info.LastUsedSlap).TotalSeconds;
+            if (time < 10){
+                player.Message("&WYou can use /Slap again in " + Math.Round(10 - time) + " seconds.");
                 return;
             }
             string aMessage;

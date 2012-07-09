@@ -1411,9 +1411,7 @@ namespace fCraft {
             if (!player.Can(Permission.ViewOthersInfo) && target != player){
                 player.Message("&WYou do not have permissions to perform this task") ;
                 return;
-            }
-            else
-            {
+            }else{
                 player.Message("Player {0}&S is on world {1}&S:",
                                 target.ClassyName,
                                 target.World.ClassyName);

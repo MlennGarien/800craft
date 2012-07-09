@@ -27,7 +27,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdAdminChat);
             CommandManager.RegisterCommand(CdCustomChat);
             CommandManager.RegisterCommand(cdAway);
-            CommandManager.RegisterCommand(cdHigh5);
+            CommandManager.RegisterCommand(CdHigh5);
             CommandManager.RegisterCommand(CdPoke);
             CommandManager.RegisterCommand(CdTroll);
             CommandManager.RegisterCommand(CdVote);
@@ -385,10 +385,10 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdHigh5 = new CommandDescriptor
+        static readonly CommandDescriptor CdHigh5 = new CommandDescriptor
         {
             Name = "High5",
-            Aliases = new string[] { "h5" },
+            Aliases = new string[] { "H5" },
             Category = CommandCategory.Chat | CommandCategory.Fun,
             Permissions = new Permission[] { Permission.HighFive },
             IsConsoleSafe = true,
@@ -402,7 +402,7 @@ namespace fCraft {
         {
             string targetName = cmd.Next();
             if (targetName == null){
-                cdHigh5.PrintUsage(player);
+                CdHigh5.PrintUsage(player);
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
@@ -411,7 +411,7 @@ namespace fCraft {
                 return;
             }
             if (target == player) {
-                player.Message("You cannot high five yourself.");
+                player.Message("&WYou cannot high five yourself.");
                 return;
             }
             Server.Players.CanSee(target).Except(target).Message("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName);
