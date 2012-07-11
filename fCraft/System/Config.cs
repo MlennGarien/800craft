@@ -1040,6 +1040,39 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
             owner.Add( new XElement( Permission.ShutdownServer.ToString() ) );
+            owner.Add( new XElement(Permission.Basscannon.ToString() ) );
+            owner.Add( new XElement(Permission.Tree.ToString() ) );
+            owner.Add( new XElement(Permission.UsePortal.ToString() ) );
+            owner.Add( new XElement(Permission.ManagePortal.ToString() ) );
+            owner.Add( new XElement(Permission.HighFive.ToString() ) );
+            owner.Add( new XElement(Permission.ChatWithCaps.ToString() ) );
+
+            owner.Add( new XElement(Permission.Swear.ToString() ) );
+            owner.Add( new XElement(Permission.MakeVotes.ToString() ) );
+            owner.Add( new XElement(Permission.MakeVoteKicks.ToString() ) );
+            owner.Add( new XElement(Permission.BroMode.ToString() ) );
+            owner.Add( new XElement(Permission.Troll.ToString() ) );
+            owner.Add( new XElement(Permission.HideRanks.ToString() ) );
+            owner.Add( new XElement(Permission.ReadAdminChat.ToString() ) );
+
+            owner.Add( new XElement(Permission.ReadCustomChat.ToString() ) );
+            owner.Add( new XElement(Permission.Realm.ToString() ) );
+            owner.Add( new XElement(Permission.Possess.ToString() ) );
+            owner.Add( new XElement(Permission.Gtfo.ToString() ) );
+            owner.Add( new XElement(Permission.RageQuit.ToString() ) );
+            owner.Add( new XElement(Permission.Tower.ToString() ) );
+
+            owner.Add( new XElement(Permission.TempBan.ToString() ) );
+            owner.Add( new XElement(Permission.Warn.ToString() ) );
+            owner.Add( new XElement(Permission.Slap.ToString() ) );
+            owner.Add( new XElement(Permission.Kill.ToString() ) );
+            owner.Add( new XElement(Permission.Physics.ToString() ) );
+
+            owner.Add( new XElement(Permission.Fireworks.ToString() ) );
+            owner.Add( new XElement(Permission.Gun.ToString() ) );
+            owner.Add( new XElement(Permission.Games.ToString() ) );
+            owner.Add( new XElement(Permission.Moderation.ToString() ) );
+            owner.Add( new XElement(Permission.Immortal.ToString() ) );
             permissions.Add( owner );
             try {
                 RankManager.AddRank( new Rank( owner ) );
