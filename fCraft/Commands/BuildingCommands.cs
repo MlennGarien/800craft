@@ -263,7 +263,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Place",
-            Help = "Places a block at your position.",
+            Help = "Places a block below your feet.",
             UsableByFrozenPlayers = false,
             Handler = Place
         };
@@ -272,7 +272,7 @@ namespace fCraft {
         {
             if (player.LastUsedBlockType != Block.Undefined)
             {
-                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, (player.Position.Z - 1)/ 32);
+                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, (player.Position.Z / 32) - 2);
 
                 if (player.CanPlace(player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual) != CanPlaceResult.Allowed)
                 {
@@ -283,7 +283,7 @@ namespace fCraft {
                 Player.RaisePlayerPlacedBlockEvent(player, player.WorldMap, Pos, player.WorldMap.GetBlock(Pos), player.LastUsedBlockType, BlockChangeContext.Manual);
                 BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
                 player.World.Map.QueueUpdate(blockUpdate);
-                player.Message("Block placed");
+                player.Message("Block placed below your feet");
             }
             else player.Message("&WError: No last used blocktype was found");
         }
