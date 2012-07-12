@@ -45,11 +45,11 @@ namespace fCraft
 							world.AddPhysicsTask(new PlantTask(world, (short)e.Coords.X, (short)e.Coords.Y, (short)e.Coords.Z), PlantTask.GetRandomDelay());
 						}
                 		Vector3I z = new Vector3I(e.Coords.X, e.Coords.Y, e.Coords.Z - 1);
-						if (world.Map.GetBlock(z) == Block.Grass)
+						if (world.Map.GetBlock(z) == Block.Grass && e.NewBlock!= Block.Air)
 						{
 							world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
 						}
-						else if (Physics.Physics.CanSquash(world.Map.GetBlock(z)))
+						else if (Physics.Physics.CanSquash(world.Map.GetBlock(z)) && e.NewBlock!=Block.Air)
 						{
 							e.Result = CanPlaceResult.Revert;
 							Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);
@@ -60,7 +60,7 @@ namespace fCraft
             }
             catch (Exception ex)
             {
-                Logger.Log(LogType.SeriousError, "" + ex);
+                Logger.Log(LogType.SeriousError, "BlockSquash" + ex);
             }
         }
     }
