@@ -40,7 +40,7 @@ namespace fCraft
         /// </summary>
         public void Initialize()
         {
-            myBot.loadSettings();
+            myBot.loadSettings("/botconfig/");
             myBot.isAcceptingUserInput = false;
             myBot.loadAIMLFromFiles();
             myBot.isAcceptingUserInput = true;
@@ -49,7 +49,7 @@ namespace fCraft
 
         public void SetUpSettings()
         {
-            myBot.GlobalSettings.addSetting("name", player.Bot.Name);
+            myBot.GlobalSettings.addSetting("name", "Jimmy");
             myBot.Chat(new Request("my name is " + player.Name, this.myUser, this.myBot));
             myBot.GlobalSettings.addSetting("master", player.Name);
             myBot.GlobalSettings.addSetting("location", ConfigKey.ServerName.GetString());

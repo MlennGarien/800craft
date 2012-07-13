@@ -35,6 +35,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdRageQuit);
             CommandManager.RegisterCommand(CdQuit);
             CommandManager.RegisterCommand(CdGlobal);
+            CommandManager.RegisterCommand(CdOmegle);
 
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
@@ -80,6 +81,29 @@ namespace fCraft {
             {
                 player.Info.LeaveMsg = "left the server: &C" + Msg;
                 player.Message("Your quit message is now set to: {0}", Msg);
+            }
+        }
+        static readonly CommandDescriptor CdOmegle = new CommandDescriptor
+        {
+            Name = "Om",
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Chat },
+            Usage = "/Quitmsg [message]",
+            Help = "Adds a farewell message which is displayed when you leave the server.",
+            Handler = OmHandler
+        };
+
+        static void OmHandler(Player player, Command cmd)
+        {
+            if (player.OmBot == null)
+            {
+                player.OmBot = new OmegleBot(player);
+            }
+            else
+            {
+                string Message = cmd.NextAll();
+                player.OmBot.Say(Message);
             }
         }
 
