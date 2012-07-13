@@ -343,19 +343,6 @@ namespace fCraft {
         // Parses message incoming from the player
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            if (rawMessage.ToLower().StartsWith("@bot"))
-            {
-                string message = rawMessage.Replace("@bot ","");
-                Message(message); Message(rawMessage);
-                if (this.Ali == null)
-                {
-                    this.Message("&8Finding your bot...");
-                    this.Ali = new Alice(this);
-                }
-                this.Message("&Pto Jimmy: " + message);
-                this.Message("&Pfrom Jimmy: " + this.Ali.getOutput(message));
-                return;
-            }
             if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
                 if( partialMessage != null ) {
                     MessageNow( "Partial message cancelled." );

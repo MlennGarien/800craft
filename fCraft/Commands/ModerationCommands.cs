@@ -129,12 +129,12 @@ namespace fCraft {
                 if (Server.Moderation){
                     Server.Moderation = false;
                     Server.Message("{0}&W deactivated server moderation, the chat feed is enabled", player.ClassyName);
-                    IRC.SendAction(player.ClassyName + "&Sdeactivated server moderation, the chat feed is enabled");
+                    IRC.SendAction(player.ClassyName + " &Sdeactivated server moderation, the chat feed is enabled");
                     Server.VoicedPlayers.Clear();
                 }else{
                     Server.Moderation = true;
                     Server.Message("{0}&W activated server moderation, the chat feed is disabled", player.ClassyName);
-                    IRC.SendAction(player.ClassyName +"&Sactivated server moderation, the chat feed is disabled");
+                    IRC.SendAction(player.ClassyName +" &Sactivated server moderation, the chat feed is disabled");
                     if (player.World != null){ //console safe
                         Server.VoicedPlayers.Add(player);
                     }
