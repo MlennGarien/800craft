@@ -121,6 +121,7 @@
     <Compile Include="Commands\Command Handlers\Math Handlers\SimpleParser.cs" />
     <Compile Include="Commands\Command Handlers\RealmHandler.cs" />
     <Compile Include="Commands\Command Handlers\VoteHandler.cs" />
+    <Compile Include="Commands\DevCommands.cs" />
     <Compile Include="Commands\FunCommands.cs" />
     <Compile Include="Commands\MathCommands.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
