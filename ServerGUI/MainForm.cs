@@ -19,7 +19,7 @@ namespace fCraft.ServerGUI {
             InitializeComponent();
             Shown += StartUp;
             console.OnCommand += console_Enter;
-            logBox.LinkClicked += new LinkClickedEventHandler(Link_Clicked);
+           // logBox.Lin += new LinkClickedEventHandler(Link_Clicked);
         }
 
         #region Startup
@@ -180,109 +180,23 @@ namespace fCraft.ServerGUI {
                     int oldLength = logBox.Text.Length;
                     string msgToAppend = e.Message + Environment.NewLine;
                     logBox.AppendText(msgToAppend);
-                        logBox.Select(oldLength, msgToAppend.Length);
-                    
-                    switch (e.MessageType)
-                    {
-                        case LogType.PrivateChat:
-                            logBox.SelectionColor = System.Drawing.Color.Teal;
-                            break;
-                        case LogType.IRC:
-                            if (ThemeBox.SelectedItem == null){
-                                logBox.SelectionColor = System.Drawing.Color.Navy;
-                            }else{
-                                switch (ThemeBox.SelectedItem.ToString()){
-                                    default:
-                                        logBox.SelectionColor = System.Drawing.Color.LightSkyBlue;
-                                        break;
-                                    case "New 800Craft":
-                                        logBox.SelectionColor = System.Drawing.Color.Navy;
-                                        break;
-                                }
-                            }
-                            break;
-                        case LogType.ChangedWorld:
-                            logBox.SelectionColor = System.Drawing.Color.Orange;
-                            break;
-                        case LogType.Warning:
-                            if (ThemeBox.SelectedItem == null){
-                                logBox.SelectionColor = System.Drawing.Color.Yellow;
-                            }else{
-                                switch (ThemeBox.SelectedItem.ToString()){
-                                    default:
-                                        logBox.SelectionColor = System.Drawing.Color.MediumOrchid;
-                                        break;
-                                    case "New 800Craft":
-                                        logBox.SelectionColor = System.Drawing.Color.Yellow;
-                                        break;
-                                }
-                            }
-                            break;
-                        case LogType.Debug:
-                            logBox.SelectionColor = System.Drawing.Color.DarkGray;
-                            break;
-                        case LogType.Error:
-                        case LogType.SeriousError:
-                                logBox.SelectionColor = System.Drawing.Color.Red;
-                            break;
-                        case LogType.ConsoleInput:
-                        case LogType.ConsoleOutput:
-                            if (ThemeBox.SelectedItem == null){
-                                logBox.SelectionColor = System.Drawing.Color.White;
-                            }else{
-                                switch (ThemeBox.SelectedItem.ToString()){
-                                    default:
-                                        logBox.SelectionColor = System.Drawing.Color.Black;
-                                        break;
-                                    case "New 800Craft":
-                                        logBox.SelectionColor = System.Drawing.Color.White;
-                                        break;
-                                }
-                            }
-                            break;
-                        default:
-                            if (ThemeBox.SelectedItem == null){
-                                logBox.SelectionColor = System.Drawing.Color.LightGray;
-                            }else{
-                                switch (ThemeBox.SelectedItem.ToString()){
-                                    default:
-                                        logBox.SelectionColor = System.Drawing.Color.Black;
-                                        break;
-                                    case "New 800Craft":
-                                        logBox.SelectionColor = System.Drawing.Color.LightGray;
-                                        break;
-                                }
-                            }
-                            break;
+                        
                     }
 
                     // cut off the log, if too long
                     if( logBox.Lines.Length > MaxLinesInLog ) {
                                                 logBox.SelectionStart = 0;
                         logBox.SelectionLength = logBox.GetFirstCharIndexFromLine( LinesToTrimWhenExceeded );
-                        userSelectionStart -= logBox.SelectionLength;
-                        if( userSelectionStart < 0 ) userSelecting = false;
                         string textToAdd = "----- cut off, see " + Logger.CurrentLogFileName + " for complete log -----" + Environment.NewLine;
                         logBox.SelectedText = textToAdd;
-                        userSelectionStart += textToAdd.Length;
-                        logBox.SelectionColor = System.Drawing.Color.DarkGray;
                         // either restore user's selection, or scroll to end
-                        if (userSelecting)
-                        {
-                            logBox.Select(userSelectionStart, userSelectionLength);
-                        }
-                        else
-                        {
-                            logBox.SelectionStart = logBox.Text.Length;
-                            logBox.ScrollToCaret();
-                        }
                     }
                     logBox.SelectionStart = logBox.Text.Length;
                     logBox.ScrollToCaret();
                     if( !Server.IsRunning || shutdownPending ) logBox.Refresh();
-                }
-            } catch( ObjectDisposedException ) {
-            } catch( InvalidOperationException ) { }
+                
+        
+            }  catch( InvalidOperationException ) { }
         }
 
 
@@ -362,11 +276,6 @@ namespace fCraft.ServerGUI {
             System.Diagnostics.Process.Start(e.LinkText);
         }
 
-        private void mRichTextBox_LinkClicked(object sender, LinkClickedEventArgs e)
-        {
-            System.Diagnostics.Process.Start("iexplore.exe", e.LinkText);
-        }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
 
@@ -375,13 +284,13 @@ namespace fCraft.ServerGUI {
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (SizeBox.SelectedItem.ToString() == "Normal"){
-                logBox.ZoomFactor = 1;
+                logBox.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             }
             if (SizeBox.SelectedItem.ToString() == "Big"){
-                logBox.ZoomFactor = (float)1.2;
+                logBox.Font = new System.Drawing.Font("Lucida Console", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             }
             if (SizeBox.SelectedItem.ToString() == "Large"){
-                logBox.ZoomFactor = (float)1.5;
+                logBox.Font = new System.Drawing.Font("Lucida Console", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             }
         }
 
@@ -405,7 +314,7 @@ namespace fCraft.ServerGUI {
             {
                 logBox.BackColor = System.Drawing.Color.Black;
                 logBox.SelectAll();
-                logBox.SelectionColor = System.Drawing.Color.LightGray;
+                logBox.ForeColor = System.Drawing.Color.LightGray;
                 logBox.Select(0, 0);
                 _isBlackText = false;
             }
@@ -418,7 +327,7 @@ namespace fCraft.ServerGUI {
             if (!_isBlackText)
             {
                 logBox.SelectAll();
-                logBox.SelectionColor = System.Drawing.Color.Black;
+                logBox.ForeColor = System.Drawing.Color.Black;
                 logBox.Select(0, 0);
                 _isBlackText = true;
             }
@@ -431,7 +340,7 @@ namespace fCraft.ServerGUI {
             if (!_isBlackText)
             {
                 logBox.SelectAll();
-                logBox.SelectionColor = System.Drawing.Color.Black;
+                logBox.ForeColor = System.Drawing.Color.Black;
                 logBox.Select(0, 0);
                 _isBlackText = true;
             }
@@ -445,7 +354,7 @@ namespace fCraft.ServerGUI {
             if (!_isBlackText)
             {
                 logBox.SelectAll();
-                logBox.SelectionColor = System.Drawing.Color.Black;
+                logBox.ForeColor = System.Drawing.Color.Black;
                 logBox.Select(0, 0);
                 _isBlackText = true;
             }
@@ -459,7 +368,7 @@ namespace fCraft.ServerGUI {
             if (!_isBlackText)
             {
                 logBox.SelectAll();
-                logBox.SelectionColor = System.Drawing.Color.Black;
+                logBox.ForeColor = System.Drawing.Color.Black;
                 logBox.Select(0, 0);
                 _isBlackText = true;
             }
@@ -473,7 +382,7 @@ namespace fCraft.ServerGUI {
             if (!_isBlackText)
             {
                 logBox.SelectAll();
-                logBox.SelectionColor = System.Drawing.Color.Black;
+                logBox.ForeColor = System.Drawing.Color.Black;
                 logBox.Select(0, 0);
                 _isBlackText = true;
             }
@@ -487,7 +396,7 @@ namespace fCraft.ServerGUI {
             if (!_isBlackText)
             {
                 logBox.SelectAll();
-                logBox.SelectionColor = System.Drawing.Color.Black;
+                logBox.ForeColor = System.Drawing.Color.Black;
                 logBox.Select(0, 0);
                 _isBlackText = true;
             }

@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.logBox = new System.Windows.Forms.RichTextBox();
+            this.logBox = new System.Windows.Forms.TextBox();
             this.uriDisplay = new System.Windows.Forms.TextBox();
             this.URLLabel = new System.Windows.Forms.Label();
             this.playerList = new System.Windows.Forms.ListBox();
@@ -44,11 +44,14 @@
             this.logBox.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.logBox.HideSelection = false;
             this.logBox.Location = new System.Drawing.Point(12, 39);
+            this.logBox.MaxLength = 400;
+            this.logBox.Multiline = true;
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
+            this.logBox.ForeColor = System.Drawing.Color.LightGray;
+            this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.logBox.Size = new System.Drawing.Size(610, 387);
             this.logBox.TabIndex = 7;
-            this.logBox.Text = "";
             this.logBox.TextChanged += new System.EventHandler(this.logBox_TextChanged);
             // 
             // uriDisplay
@@ -173,7 +176,7 @@
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox logBox;
+        private System.Windows.Forms.TextBox logBox;
         private System.Windows.Forms.TextBox uriDisplay;
         private System.Windows.Forms.Label URLLabel;
         private System.Windows.Forms.ListBox playerList;
