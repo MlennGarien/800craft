@@ -492,14 +492,14 @@ namespace fCraft {
                             target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
                         }
                         Server.Players.Message("{0}&S was BanX'd by {1}&S (with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
-                        IRC.IRCAnnounceCustom(String.Format("{0}&S was BanX'd by {1}&S(with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason));
+                        IRC.PlayerSomethingMessage(player, "BanX'd (with auto-demote)", target, reason);
                         return;
                     }
                     else
                     {
                         player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
                         Server.Players.Message("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason);
-                        IRC.IRCAnnounceCustom(String.Format("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason));
+                        IRC.PlayerSomethingMessage(player, "BanX'd", target, reason);
                     }
                 player.Message("&SConfirm the undo with &A/ok");
             }

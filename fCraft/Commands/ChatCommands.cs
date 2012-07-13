@@ -186,7 +186,7 @@ namespace fCraft {
             {
                 Server.Players.Message("{0} &4Ragequit from the server", player.ClassyName);
                 player.Kick(Player.Console, "Ragequit", LeaveReason.RageQuit, false, false, false);
-                IRC.IRCAnnounceCustom(String.Format("{0} &4Ragequit from the server", player.ClassyName));
+                IRC.SendAction(player.ClassyName+ "&4Ragequit from the server");
                 return;
             }
 
@@ -194,8 +194,7 @@ namespace fCraft {
             {
                 Server.Players.Message("{0} &4Ragequit from the server: &C{1}",
                                 player.ClassyName, reason);
-                IRC.IRCAnnounceCustom(String.Format("{0} &4Ragequit from the server: &C{1}",
-                                player.ClassyName, reason));
+                IRC.SendAction(player.ClassyName + "&WRagequit from the server: "+ reason);
                 player.Kick(Player.Console, reason, LeaveReason.RageQuit, false, false, false);
             }
         }
@@ -222,7 +221,8 @@ namespace fCraft {
                 }
                 fCraft.Utils.BroMode.Active = true;
                 Server.Players.Message("{0}&S turned Bro mode on.", player.Info.Rank.Color + player.Name);
-                IRC.IRCAnnounceCustom(String.Format("{0}&S turned Bro mode on.", player.Info.Rank.Color + player.Name));
+
+                IRC.SendAction(player.Name + "turned Bro mode on.");
             }
             else
             {
@@ -233,7 +233,7 @@ namespace fCraft {
 
                 fCraft.Utils.BroMode.Active = false;
                 Server.Players.Message("{0}&S turned Bro Mode off.", player.Info.Rank.Color + player.Name);
-                IRC.IRCAnnounceCustom(String.Format("{0}&S turned Bro mode off.", player.Info.Rank.Color + player.Name));
+                IRC.SendAction(player.Name + "turned Bro mode off");
             }
         }
 
@@ -439,7 +439,7 @@ namespace fCraft {
                 return;
             }
             Server.Players.CanSee(target).Except(target).Message("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName);
-            IRC.IRCAnnounceCustom(String.Format("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName));
+            IRC.PlayerSomethingMessage(player, "high fived", target, null);
             target.Message("{0}&S high fived you.", player.ClassyName);
         }
 

@@ -482,10 +482,8 @@ namespace fCraft.ServerGUI {
         {
             if ((e.Modifiers == Keys.Control) && (e.KeyCode == Keys.C))
             {
-                // Check if selection exists and that it's not null
                 if (logBox.SelectedText.Length > 0)
-                    // Copy the selected text to the Clipboard
-                    Clipboard.SetText(logBox.SelectedText, TextDataFormat.Text);
+                    Clipboard.SetText(logBox.SelectedText.ToString(), TextDataFormat.Text);
             }
         }
 

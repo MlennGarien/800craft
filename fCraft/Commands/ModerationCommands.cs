@@ -129,12 +129,12 @@ namespace fCraft {
                 if (Server.Moderation){
                     Server.Moderation = false;
                     Server.Message("{0}&W deactivated server moderation, the chat feed is enabled", player.ClassyName);
-                    IRC.IRCAnnounceCustom(String.Format("{0}&W deactivated server moderation, the chat feed is enabled", player.ClassyName));
+                    IRC.SendAction(player.ClassyName + "&Sdeactivated server moderation, the chat feed is enabled");
                     Server.VoicedPlayers.Clear();
                 }else{
                     Server.Moderation = true;
                     Server.Message("{0}&W activated server moderation, the chat feed is disabled", player.ClassyName);
-                    IRC.IRCAnnounceCustom(String.Format("{0}&W activated server moderation, the chat feed is disabled", player.ClassyName));
+                    IRC.SendAction(player.ClassyName +"&Sactivated server moderation, the chat feed is disabled");
                     if (player.World != null){ //console safe
                         Server.VoicedPlayers.Add(player);
                     }
@@ -274,7 +274,7 @@ namespace fCraft {
                 target.TeleportTo(slap);
                 if (string.IsNullOrEmpty(item)){
                     Server.Players.CanSee(target).Union(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
-                    IRC.IRCAnnounceCustom(String.Format("{0} &Swas slapped by {1}", target.ClassyName, player.ClassyName));
+                    IRC.PlayerSomethingMessage(player, "slapped", target, null);
                     player.Info.LastUsedSlap = DateTime.Now;
                     return;
                 }
@@ -288,12 +288,12 @@ namespace fCraft {
                     aMessage = String.Format("{0} &Swas slapped by {1}&S with a Shoe", target.ClassyName, player.ClassyName);
                 else{
                     Server.Players.CanSee(target).Union(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
-                    IRC.IRCAnnounceCustom(String.Format("{0} &Swas slapped by {1}", target.ClassyName, player.ClassyName));
+                    IRC.PlayerSomethingMessage(player, "slapped", target, null);
                     player.Info.LastUsedSlap = DateTime.Now;
                     return;
                 }
                 Server.Players.CanSee(target).Union(target).Message(aMessage);
-                IRC.IRCAnnounceCustom(aMessage);
+                IRC.PlayerSomethingMessage(player, "slapped", target, null);
                 player.Info.LastUsedSlap = DateTime.Now;
                 return;
             }else{
