@@ -22,7 +22,6 @@ namespace fCraft.ServerGUI {
             Shown += StartUp;
             console.OnCommand += console_Enter;
             logBox.LinkClicked += new LinkClickedEventHandler(Link_Clicked);
-            KeyDown += KeyDownHandler;
             MenuItem[] menuItems = new MenuItem[] { new MenuItem("Copy", new EventHandler(CopyMenuOnClickHandler)) };
             logBox.ContextMenu = new ContextMenu(menuItems);
             logBox.ContextMenu.Popup += new EventHandler(CopyMenuPopupHandler);
@@ -475,15 +474,6 @@ namespace fCraft.ServerGUI {
             if (SizeBox.SelectedItem.ToString() == "Large")
             {
                 logBox.ZoomFactor = (float)1.5;
-            }
-        }
-
-        private void KeyDownHandler(object sender, KeyEventArgs e)
-        {
-            if ((e.Modifiers == Keys.Control) && (e.KeyCode == Keys.C))
-            {
-                if (logBox.SelectedText.Length > 0)
-                    Clipboard.SetText(logBox.SelectedText.ToString(), TextDataFormat.Text);
             }
         }
 

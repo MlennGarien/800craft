@@ -29,7 +29,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(cdAway);
             CommandManager.RegisterCommand(CdHigh5);
             CommandManager.RegisterCommand(CdPoke);
-            CommandManager.RegisterCommand(CdTroll);
             CommandManager.RegisterCommand(CdVote);
             CommandManager.RegisterCommand(CdBroMode);
             CommandManager.RegisterCommand(CdRageQuit);
@@ -304,79 +303,6 @@ namespace fCraft {
                 Chat.SendCustom(player, message);
             }
         }
-
-        #region Troll
-
-        static readonly CommandDescriptor CdTroll = new CommandDescriptor
-        {
-            Name = "Troll",
-            Category = CommandCategory.Chat | CommandCategory.Fun,
-            Permissions = new[] { Permission.Troll },
-            IsConsoleSafe = true,
-            NotRepeatable = false,
-            Usage = "/troll player option [Message]",
-            Help = "Does a little somthin'-somethin'.\n" +
-            " Available options: st, ac, pm, message or leave",
-            Handler = TrollHandler
-        };
-
-        static void TrollHandler(Player player, Command cmd)
-        {
-            string Name = cmd.Next();
-            if (Name == null){
-                player.Message("Player not found. Please specify valid name.");
-                return;
-            }
-            if (!Player.IsValidName(Name)) 
-                return;
-            Player target = Server.FindPlayerOrPrintMatches(player, Name, true, true);
-            if (target == null)
-                return;
-            string options = cmd.Next();
-            if (options == null){
-                CdTroll.PrintUsage(player);
-                return;
-            }
-            string Message = cmd.NextAll();
-            if (Message.Length < 1 && options.ToLower() != "leave"){
-                player.Message("&WError: Please enter a message for {0}.", target.ClassyName);
-                return;
-            }
-            switch (options.ToLower()){
-                case "pm":
-                    if (player.Can(Permission.UseColorCodes) && Message.Contains("%")){
-                        Message = Color.ReplacePercentCodes(Message);
-                    }
-                    Server.Players.Message("&Pfrom {0}: {1}", 
-                        target.Name, Message);
-                    break;
-                case "ac":
-                    Chat.SendAdmin(target, Message);
-                    break;
-                case "st":
-                case "staff":
-                    Chat.SendStaff(target, Message);
-                    break;
-                case "i":
-                case "impersonate":
-                case "msg":
-                case "message":
-                case "m":
-                    Server.Message("{0}&S&F: {1}",
-                                      target.ClassyName, Message);
-                    break;
-                case "leave":
-                case "disconnect":
-                case "gtfo":
-                    Server.Players.Message("&SPlayer {0}&S left the server.", 
-                        target.ClassyName);
-                    break;
-                default: player.Message("Invalid option. Please choose st, ac, pm, message or leave");
-                    break;
-            }
-        }
-
-        #endregion
 
         static readonly CommandDescriptor cdAway = new CommandDescriptor
         {

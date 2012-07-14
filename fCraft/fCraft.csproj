@@ -197,6 +197,7 @@
     <Compile Include="Plugins\SecurityController.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
+    <Compile Include="Plugins\Plugins\TrollPlugin.cs" />
     <Compile Include="Portals\Portal.cs" />
     <Compile Include="Portals\PortalDB.cs" />
     <Compile Include="Portals\PortalException.cs" />
