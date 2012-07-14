@@ -1766,6 +1766,16 @@ namespace fCraft {
                     }
                     break;
 
+                case "side":
+                    if (world.SideBlock != Block.Admincrete){
+                        world.SideBlock = Block.Admincrete;
+                        player.Message("The sides of the world have been restored");
+                    }else{
+                        world.SideBlock = Block.Air;
+                        player.Message("The sides of the world have been removed");
+                    }
+                    break;
+
                 default:
                     CdEnv.PrintUsage( player );
                     return;

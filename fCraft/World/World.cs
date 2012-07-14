@@ -510,6 +510,7 @@ namespace fCraft {
                     CloudColor = CloudColor,
                     SkyColor = SkyColor,
                     EdgeLevel = EdgeLevel,
+                    SideBlock = SideBlock,
                     EdgeBlock = EdgeBlock
                 };
                 newWorld.Map = newMap;
@@ -965,6 +966,7 @@ namespace fCraft {
         public string Terrain { get; set; }
 
         public Block EdgeBlock = Block.Water;
+        public Block SideBlock = Block.Admincrete;
 
         public string GenerateWoMConfig( bool sendMotd ) {
             StringBuilder sb = new StringBuilder();
@@ -984,6 +986,14 @@ namespace fCraft {
                 string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
                 if( edgeTexture != null ) {
                     sb.AppendLine( "environment.edge = " + edgeTexture );
+                }
+            }
+            if (SideBlock != Block.Admincrete)
+            {
+                string sideTexture = Map.GetEdgeTexture(SideBlock);
+                if (sideTexture != null)
+                {
+                    sb.AppendLine("environment.side = "+sideTexture);
                 }
             }
             sb.AppendLine( "server.sendwomid = true" );
