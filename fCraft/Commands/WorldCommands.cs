@@ -1593,13 +1593,28 @@ namespace fCraft {
             if (variable.ToLower() == "terrain"){
                 if (valueText == null)
                 {
-                    player.Message("&A/Env [WorldName] terrain [Normal, fall, winter, tron, mario, highres, 8bit, simple," +
-                                                 " indev, messa, portal, zelda ");
+                    player.Message("&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, woodpunk, fall, snow, tron, "+
+                    "mario, highres, 8bit, simple, indev, messa, portal, zelda ");
                     return;
                 }
                 switch (valueText.ToLower()){
                     case "normal":
                         world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
+                        break;
+                    case "arbot":
+                        world.Terrain = "1e3eb03d8efaa862679d36c9044ce47e861ea25e";
+                        break;
+                    case "cool":
+                        world.Terrain = "165917066357092a2e7f6b0ec358c05b36b0efa7";
+                        break;
+                    case "deadly":
+                        world.Terrain = "cb45307db4addbaac1504529fef79d773a6e31f5";
+                        break;
+                    case "shroom":
+                        world.Terrain = "f31b086dbae92cc1741476a3697506192b8f5814";
+                        break;
+                    case "woodpunk":
+                        world.Terrain = "dff99c37e4a792e10c3b775e6bded725f18ed6fe";
                         break;
                     case "simple":
                         world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
@@ -1628,14 +1643,15 @@ namespace fCraft {
                     case "portal":
                         world.Terrain = "d4b455134394763296994d0c819b0ac0ea338457";
                         break;
-                    case "winter":
-                        world.Terrain = "3d22ed0ab311e003ed4e3ba17c3cf455019e7f35";
+                    case "snow":
+                        world.Terrain = "0b18fb3b41874ac5fbcb43532d62e6b742adc25e";
                         break;
                     case "zelda":
                         world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
                         break;
-                    default: player.Message("&A/Env [WorldName] terrain [Normal, fall, winter, tron, mario, highres, 8bit, simple," +
-                                                 " indev, messa, portal, zelda ");
+                    default: 
+                        player.Message("&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, woodpunk, fall, snow, tron, " +
+                    "mario, highres, 8bit, simple, indev, messa, portal, zelda ");
                         return;
                 }
                 player.Message("Terrain Changed for {0}", world.ClassyName);
@@ -1767,12 +1783,17 @@ namespace fCraft {
                     break;
 
                 case "side":
-                    if (world.SideBlock != Block.Admincrete){
-                        world.SideBlock = Block.Admincrete;
-                        player.Message("The sides of the world have been restored");
+                case "sides":
+                    if (valueText.ToLower() == "on"){
+                        if (world.SideBlock != Block.Admincrete){
+                            world.SideBlock = Block.Admincrete;
+                            player.Message("The sides of the world have been restored");
+                        }
                     }else{
-                        world.SideBlock = Block.Air;
-                        player.Message("The sides of the world have been removed");
+                        if (valueText.ToLower() == "off"){
+                            world.SideBlock = Block.Air;
+                            player.Message("The sides of the world have been removed");
+                        }
                     }
                     break;
 
