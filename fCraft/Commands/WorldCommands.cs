@@ -1591,6 +1591,12 @@ namespace fCraft {
             #region 800Craft
             //Copyright (C) <2012> <Jon Baker>
             if (variable.ToLower() == "terrain"){
+                if (valueText == null)
+                {
+                    player.Message("&A/Env [WorldName] terrain [Normal, fall, winter, tron, mario, highres, 8bit, simple," +
+                                                 " indev, messa, portal, zelda ");
+                    return;
+                }
                 switch (valueText.ToLower()){
                     case "normal":
                         world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
@@ -1628,8 +1634,8 @@ namespace fCraft {
                     case "zelda":
                         world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
                         break;
-                    default: player.Message("&A/terrain Normal | fall | winter | tron | mario | highres | 8bit | simple |" +
-                             " indev | messa | portal | zelda ");
+                    default: player.Message("&A/Env [WorldName] terrain [Normal, fall, winter, tron, mario, highres, 8bit, simple," +
+                                                 " indev, messa, portal, zelda ");
                         return;
                 }
                 player.Message("Terrain Changed for {0}", world.ClassyName);
