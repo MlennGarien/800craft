@@ -33,7 +33,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBroMode);
             CommandManager.RegisterCommand(CdRageQuit);
             CommandManager.RegisterCommand(CdQuit);
-            CommandManager.RegisterCommand(CdGlobal);
             CommandManager.RegisterCommand(CdOmegle);
 
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
@@ -104,65 +103,6 @@ namespace fCraft {
                 string Message = cmd.NextAll();
                 player.OmBot.Say(Message);
             }
-        }
-
-        static readonly CommandDescriptor CdGlobal = new CommandDescriptor
-        {
-            Name = "Global",
-            Category = CommandCategory.Chat,
-            Aliases = new[] { "gl", "gc" },
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.Chat },
-            Usage = "/Global [message]",
-            Help = "Sends a global message to other 800Craft servers",
-            Handler = GHandler
-        };
-
-        static void GHandler(Player player, Command cmd)
-        {
-            string Msg = cmd.NextAll();
-            if (!ConfigKey.GCKey.Enabled()){
-                player.Message("Global Chat is disabled on this server");
-                return;
-            }
-            if (!GlobalChat.GlobalThread.GCReady){
-                player.Message("Global Chat is not connected for this server");
-                return;
-            }
-            var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
-            if (Msg.Length < 1){
-                if (player.GlobalChat){
-                    player.GlobalChat = false;
-                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas disabled the Global Chat (Left)");
-                    SendList.Message(player.ClassyName + " &Shas disabled the Global Chat (Left)");
-                    player.Message("&SYou left the 800Craft Global Chat");
-                    return;
-                }
-                if (!player.GlobalChat){
-                    player.GlobalChat = true;
-                    player.Message(" &WRules: No spamming, no advertising. Your Servers chat rules apply here (staff will mute / kick you)\n" +
-                        "&9By using the Global Chat, you automatically accept these conditions.");
-                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
-                    SendList.Message(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
-                    return;
-                }
-            }
-            if (!player.GlobalChat)
-            {
-                player.Message("&WGlobal chat is disabled for you. Type /Global to enable it");
-                return;
-            }
-            if (player.Info.IsMuted)
-            {
-                player.MessageMuted();
-                return;
-            }
-            string pMsg = player.ClassyName + Color.White + ": " + Msg;
-            Msg = player.ClassyName + Color.Black + ": " + Msg;
-            SendList.Message("&i(Global) " + pMsg); //send the white message to Server
-            Msg = Color.ToIRCColorCodes(Msg);
-            Msg = Color.ReplacePercentCodes(Msg);
-            GlobalChat.GlobalThread.SendChannelMessage(Msg); //send the black message to GC
         }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor

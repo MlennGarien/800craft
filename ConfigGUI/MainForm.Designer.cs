@@ -283,7 +283,6 @@
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.GCcheckBox = new System.Windows.Forms.CheckBox();
             this.MaxCapsValue = new System.Windows.Forms.NumericUpDown();
             this.MaxCaps = new System.Windows.Forms.Label();
             this.HbBox1 = new System.Windows.Forms.CheckBox();
@@ -3379,7 +3378,6 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.GCcheckBox);
             this.groupBox3.Controls.Add(this.MaxCapsValue);
             this.groupBox3.Controls.Add(this.MaxCaps);
             this.groupBox3.Controls.Add(this.HbBox1);
@@ -3391,16 +3389,6 @@
             this.groupBox3.TabIndex = 27;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Configurations";
-            // 
-            // GCcheckBox
-            // 
-            this.GCcheckBox.AutoSize = true;
-            this.GCcheckBox.Location = new System.Drawing.Point(13, 94);
-            this.GCcheckBox.Name = "GCcheckBox";
-            this.GCcheckBox.Size = new System.Drawing.Size(205, 19);
-            this.GCcheckBox.TabIndex = 25;
-            this.GCcheckBox.Text = "Enable Global Chat on the server";
-            this.GCcheckBox.UseVisualStyleBackColor = true;
             // 
             // MaxCapsValue
             // 
@@ -4011,6 +3999,5 @@
         private System.Windows.Forms.TextBox SwearBox;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckBox GCcheckBox;
     }
 }
