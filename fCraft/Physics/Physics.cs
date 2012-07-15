@@ -42,12 +42,6 @@ namespace fCraft.Physics
     /// </summary>
     public static class Physics
     {
-
-        //junk
-        public const int Tick = 150; //in ms
-        public static int size = 3;
-        public static Thread physicsQueue;
-
         //init
         public static void Load()
         {
@@ -56,26 +50,13 @@ namespace fCraft.Physics
             Player.PlacingBlock += WaterPhysics.towerInit;
             Player.Clicking += WaterPhysics.towerRemove;
             Player.PlacingBlock += PlayerPlacingPhysics;
-            Player.Clicked += PlayerClickedPhysics;
         }
 
-        public static void PlayerClickedPhysics(object sender, PlayerClickedEventArgs e)
-        {
-            World world = e.Player.World;
-            if (world.Map.GetBlock(e.Coords) == Block.TNT)
-            {
-                if (!e.Player.GunMode)
-                {
-                    lock (world.SyncRoot)
-                    {
-                        world.AddPhysicsTask(new TNTTask(world, e.Coords, e.Player, false, true), 0);
-                    }
-                }
-            }
-        }
         public static void PlayerPlacingPhysics(object sender, PlayerPlacingBlockEventArgs e)
         {
             World world = e.Player.World;
+            if (e.Result != CanPlaceResult.Allowed)
+                return;
             if (e.NewBlock == Block.Gold)
             {
                 if (e.Context == BlockChangeContext.Manual)
