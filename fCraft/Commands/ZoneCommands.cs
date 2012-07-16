@@ -98,6 +98,7 @@ namespace fCraft {
                     return;
                 }
                 Player target = Server.FindPlayerOrPrintMatches(player, playerName, true, true);
+                if (target == null) return;
                 if ((zone = player.WorldMap.Zones.FindExact(target.Name + "door")) != null)
                 {
                     player.WorldMap.Zones.Remove(zone);

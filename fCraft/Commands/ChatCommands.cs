@@ -85,10 +85,10 @@ namespace fCraft {
         {
             Name = "Om",
             Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
+            IsConsoleSafe = false,
             Permissions = new[] { Permission.Chat },
-            Usage = "/Quitmsg [message]",
-            Help = "Adds a farewell message which is displayed when you leave the server.",
+            Usage = "/Om Message",
+            Help = "Yes, help.",
             Handler = OmHandler
         };
 
@@ -101,6 +101,11 @@ namespace fCraft {
             else
             {
                 string Message = cmd.NextAll();
+                if (Message == null)
+                {
+                    player.Message("Your message cannot be zero length");
+                    return;
+                }
                 player.OmBot.Say(Message);
             }
         }

@@ -48,6 +48,7 @@ namespace fCraft
         public static void VoteParams(Player player, Command cmd)
         {
             string option = cmd.Next();
+            if (option == null) { player.Message("Invalid param"); return; }
             switch (option)
             {
                 default:

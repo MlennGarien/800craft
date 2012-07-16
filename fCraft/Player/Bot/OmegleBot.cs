@@ -1,9 +1,4 @@
-﻿// C# OmegleBot class
-// by Andrew Brown
-// Free to be modified, redistributed, or otherwise have your way with in any way you see fit
-// http://www.drusepth.net/
- 
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -41,7 +36,10 @@ public class OmegleBot
         get { return t; }
         set { t = value; }
     }
-    public OmegleBot() { }
+    public OmegleBot() 
+    {
+
+    }
     public OmegleBot(Player player_)
     {
         player = player_;
@@ -52,6 +50,7 @@ public class OmegleBot
 
     public string Connect()
     {
+        //gets your ID, Request() doesnt seem to work for this
         try
         {
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create("http://omegle.com/start");
@@ -76,7 +75,7 @@ public class OmegleBot
     {
         Request("http://www.omegle.com/disconnect", "id=" + ID);
         player.OmBot = null;
-        player.Message(Color.Olive + "(Omegle)" + "You have disconnected");
+        player.Message(Color.Olive + "(Omegle)You have disconnected");
         t.Abort();
     }
 
@@ -84,12 +83,12 @@ public class OmegleBot
     {
         try
         {
-            player.Message(Color.Olive + "(Omegle)" + "You: " + what);
+            player.Message(Color.Olive + "(Omegle)You: " + what);
             Request("http://www.omegle.com/send", "id=" + ID + "&amp;msg=" + what);
         }
         catch
         {
-            player.Message(Color.Olive + "(Omegle)" + "&WSomething went wrong with sending the /Om message");
+            player.Message(Color.Olive + "(Omegle)&WSomething went wrong with sending the /Om message");
         }
     }
 
@@ -132,19 +131,20 @@ public class OmegleBot
 
                 case "connected":
                     Paired = true;
-                    player.Message(Color.Olive + "(Omegle)" + "Found a new stranger!");
+                    player.Message(Color.Olive + "(Omegle)Found a new stranger!");
                     break;
                 case "null":
                     Disconnect();
                     break;
 
+                    //this was just laziness.
                 default:
                         string message = en.Value.ToString().Replace("\"[[gotmessage\", ", "").Replace("]]", "");
                         player.Message(Color.Olive + "(Omegle)Stranger: " + message);
                         break;
                 case "strangerDisconnected":
                     Paired = false;
-                    player.Message(Color.Olive + "(Omegle)" + "The stranger has disconnected.");
+                    player.Message(Color.Olive + "(Omegle)The stranger has disconnected.");
                     break;
             }
 
