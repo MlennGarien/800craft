@@ -986,7 +986,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ReloadConfig },
             IsConsoleSafe = true,
-            Usage = "/Reload config/autorank/salt",
+            Usage = "/Reload config/autorank/salt/swears",
             Help = "Reloads a given configuration file or setting. "+
                    "Config note: changes to ranks and IRC settings still require a full restart. "+
                    "Salt note: Until server synchronizes with Minecraft.net, " +
@@ -1013,6 +1013,12 @@ namespace fCraft {
 
                     case "autorank":
                         success = AutoRankManager.Init();
+                        break;
+
+                    case "swears":
+                        Chat.badWordMatchers = null;
+                        Chat.Swears.Clear();
+                        success = true;
                         break;
 
                     case "salt":
