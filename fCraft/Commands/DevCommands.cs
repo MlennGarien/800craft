@@ -14,10 +14,10 @@ namespace fCraft
 
         public static void Init()
         {
-            CommandManager.RegisterCommand(CdDrawScheme);
-            CommandManager.RegisterCommand(CdBot);
-            CommandManager.RegisterCommand(CdSpell);
-            CommandManager.RegisterCommand(CdGame);
+            //CommandManager.RegisterCommand(CdDrawScheme);
+            //CommandManager.RegisterCommand(CdBot);
+            //CommandManager.RegisterCommand(CdSpell);
+           // CommandManager.RegisterCommand(CdGame);
         }
 
         static readonly CommandDescriptor CdGame = new CommandDescriptor

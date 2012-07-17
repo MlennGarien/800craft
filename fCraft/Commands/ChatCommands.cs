@@ -33,7 +33,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBroMode);
             CommandManager.RegisterCommand(CdRageQuit);
             CommandManager.RegisterCommand(CdQuit);
-            CommandManager.RegisterCommand(CdOmegle);
+            //CommandManager.RegisterCommand(CdOmegle);
 
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
