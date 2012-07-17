@@ -523,6 +523,12 @@ Required permission: Build
 Affected commands:
     /Water
     /Bind";
+    
+    vPermissions.Items[(int)Permission.Possess].ToolTipText =
+@"Ability to possess a player.
+Affected commands:
+    /Possess
+    /unpossess";
 
             vPermissions.Items[(int)Permission.Promote].ToolTipText =
 @"Ability to promote players to a higher rank.
