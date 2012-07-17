@@ -36,7 +36,7 @@ namespace fCraft {
 
         static Updater() {
             UpdateCheckTimeout = 4000;
-            UpdateUrl = "http://800craft.net/UpdateCheck.php?r={0}";
+            UpdateUrl = "http://au70.net/UpdateCheck.php?r={0}";
         }
 
 

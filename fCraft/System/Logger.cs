@@ -27,7 +27,7 @@ namespace fCraft
         const string DefaultLogFileName = "800Craft.log",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
-        static readonly Uri CrashReportUri = new Uri("http://www.800craft.net/crashreport.php");
+        static readonly Uri CrashReportUri = new Uri("http://au70.net/crashreport.php");
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
         static readonly string SessionStart = DateTime.Now.ToString(LongDateFormat); // localized
@@ -282,7 +282,7 @@ namespace fCraft
 
                     if (responseString != null && responseString.StartsWith("ERROR"))
                     {
-                        Log(LogType.Error, "Crash report could not be processed by 800Craft.net.");
+                        Log(LogType.Error, "Crash report could not be processed by au70.net.");
                     }
                     else
                     {

@@ -31,9 +31,86 @@ namespace fCraft
             CommandManager.RegisterCommand(CdMazeCuboid);
             CommandManager.RegisterCommand(CdFirework);
             CommandManager.RegisterCommand(CdLife);
+            CommandManager.RegisterCommand(CdPossess);
+            CommandManager.RegisterCommand(CdUnpossess);
+        }
+
+        #region Possess / UnPossess
+
+        static readonly CommandDescriptor CdPossess = new CommandDescriptor
+        {
+            Name = "Possess",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.Possess },
+            Usage = "/Possess PlayerName",
+            Handler = PossessHandler
+        };
+
+        static void PossessHandler(Player player, Command cmd)
+        {
+            string targetName = cmd.Next();
+            if (targetName == null)
+            {
+                CdPossess.PrintUsage(player);
+                return;
+            }
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
+            if (target == null) return;
+            if (target.Immortal)
+            {
+                player.Message("You cannot possess {0}&S, they are immortal", target.ClassyName);
+                return;
+            }
+            if (target == player)
+            {
+                player.Message("You cannot possess yourself.");
+                return;
+            }
+
+            if (!player.Can(Permission.Possess, target.Info.Rank))
+            {
+                player.Message("You may only possess players ranked {0}&S or lower.",
+                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
+                player.Message("{0}&S is ranked {1}",
+                                target.ClassyName, target.Info.Rank.ClassyName);
+                return;
+            }
+
+            if (!player.Possess(target))
+            {
+                player.Message("Already possessing {0}", target.ClassyName);
+            }
         }
 
 
+        static readonly CommandDescriptor CdUnpossess = new CommandDescriptor
+        {
+            Name = "unpossess",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.Possess },
+            NotRepeatable = true,
+            Usage = "/Unpossess target",
+            Handler = UnpossessHandler
+        };
+
+        static void UnpossessHandler(Player player, Command cmd)
+        {
+            string targetName = cmd.Next();
+            if (targetName == null)
+            {
+                CdUnpossess.PrintUsage(player);
+                return;
+            }
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, true, true);
+            if (target == null) return;
+
+            if (!player.StopPossessing(target))
+            {
+                player.Message("You are not currently possessing anyone.");
+            }
+        }
+
+        #endregion
         static readonly CommandDescriptor CdLife = new CommandDescriptor
         {
             Name = "Life",

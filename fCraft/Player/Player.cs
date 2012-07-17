@@ -1523,7 +1523,8 @@ namespace fCraft {
         }
 
         #endregion
-
+        [CanBeNull]
+        Player possessionPlayer;
 
         #region Spectating
 
@@ -1566,12 +1567,46 @@ namespace fCraft {
             }
         }
 
-
-        public bool StopSpectating() {
-            lock( spectateLock ) {
-                if( spectatedPlayer == null ) return false;
-                Message( "Stopped spectating {0}", spectatedPlayer.ClassyName );
+        public bool StopSpectating()
+        {
+            lock (spectateLock)
+            {
+                if (spectatedPlayer == null) return false;
+                Message("Stopped spectating {0}", spectatedPlayer.ClassyName);
                 spectatedPlayer = null;
+                return true;
+            }
+        }
+
+        public bool Possess([NotNull] Player target)
+        {
+            if (target == null) throw new ArgumentNullException("target");
+            lock (spectateLock)
+            {
+                if (target == this)
+                {
+                    PlayerOpException.ThrowCannotTargetSelf(this, Info, "possess");
+                }
+
+                if (!Can(Permission.Possess, target.Info.Rank))
+                {
+                    PlayerOpException.ThrowPermissionLimit(this, target.Info, "possess", Permission.Possess);
+                }
+
+                if (target.possessionPlayer == this) return false;
+
+                target.possessionPlayer = this;
+                Message("Now Possessing {0}&S. Type &H/unpossess&S to stop.", target.ClassyName);
+                return true;
+            }
+        }
+        public bool StopPossessing([NotNull]Player target)
+        {
+            lock (spectateLock)
+            {
+                if (target.possessionPlayer == null) return false;
+                Message("Stopped possessing {0}", target.ClassyName);
+                target.possessionPlayer = null;
                 return true;
             }
         }
