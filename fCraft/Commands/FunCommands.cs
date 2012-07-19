@@ -119,7 +119,7 @@ namespace fCraft
             IsConsoleSafe = false,
             NotRepeatable = true,
             Usage = "/Life <command> [params]",
-            Help = "Google Conwey's Game of Life\n'/Life help' for more usage info\n(c) 2012 LaoTszy",
+            Help = "Google \"Conwey's Game of Life\"\n'/Life help' for more usage info\n(c) 2012 LaoTszy",
             UsableByFrozenPlayers = false,
             Handler = LifeHandlerFunc,
         };
@@ -210,11 +210,17 @@ namespace fCraft
         {
         	try
         	{
+                if (!cmd.HasNext)
+                {
+                    p.Message("&H/Life <command> <params>. Commands are Help, Create, Delete, Start, Stop, Set, List, Print");
+                    p.Message("Type /Life help <command> for more information");
+                    return;
+                }
 				LifeHandler.ProcessCommand(p, cmd);
         	}
         	catch (Exception e)
         	{
-				Logger.Log(LogType.Error, "Error: " + e.Message);
+				p.Message("Error: " + e.Message);
         	}
         }
 
