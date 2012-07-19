@@ -132,10 +132,9 @@ namespace fCraft {
         static void NickHandler(Player player, Command cmd)
         {
             string targetName = cmd.Next();
-            string propertyName = cmd.Next();
             string valName = cmd.NextAll();
 
-            if (targetName == null || propertyName == null)
+            if (targetName == null)
             {
                 CdNick.PrintUsage(player);
                 return;
