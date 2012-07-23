@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -12,7 +12,7 @@ namespace fCraft.GUI {
 
         private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
             try {
-                Process.Start( "http://www.800craft.net" );
+                Process.Start( "http://www.fcraft.net" );
             } catch { }
         }
 
@@ -24,7 +24,11 @@ namespace fCraft.GUI {
 
         private void linkLabel2_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
         {
-
+            try
+            {
+                Process.Start("http://www.800craft.net");
+            }
+            catch { }
         }
 
     }
