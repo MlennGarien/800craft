@@ -195,7 +195,7 @@ namespace fCraft {
         }
 
 
-        internal static Packet MakeSetBlock( int x, int y, int z, Block type ) {
+        public static Packet MakeSetBlock( int x, int y, int z, Block type ) {
             Packet packet = new Packet( OpCode.SetBlockServer );
             ToNetOrder( x, packet.Data, 1 );
             ToNetOrder( z, packet.Data, 3 );

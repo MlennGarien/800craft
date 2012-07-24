@@ -13,6 +13,7 @@ namespace fCraft
     {
         private AIMLbot.Bot myBot;
         private User myUser;
+        public Player player;
 
         /// <summary>
         /// Create a new instance of the ALICE object
@@ -24,6 +25,14 @@ namespace fCraft
             Initialize();
         }
 
+        public Alice(Player player_)
+        {
+            player = player_;
+            myBot = new AIMLbot.Bot();
+            myUser = new User(player.Name, myBot);//y wont u set my name
+            Initialize();
+        }
+
         /// <summary>
         /// This initialization can be put in the alice() method
         /// but I kept it seperate due to the nature of my program.
@@ -31,10 +40,20 @@ namespace fCraft
         /// </summary>
         public void Initialize()
         {
-            myBot.loadSettings();
+            myBot.loadSettings("/botconfig/");
             myBot.isAcceptingUserInput = false;
             myBot.loadAIMLFromFiles();
             myBot.isAcceptingUserInput = true;
+            SetUpSettings();
+        }
+
+        public void SetUpSettings()
+        {
+            myBot.GlobalSettings.addSetting("name", "Jimmy");
+            myBot.Chat(new Request("my name is " + player.Name, this.myUser, this.myBot));
+            myBot.GlobalSettings.addSetting("master", player.Name);
+            myBot.GlobalSettings.addSetting("location", ConfigKey.ServerName.GetString());
+            myBot.GlobalSettings.addSetting("birthplace", ConfigKey.ServerName.GetString());
         }
 
         /// <summary>

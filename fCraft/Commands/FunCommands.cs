@@ -29,83 +29,88 @@ namespace fCraft
         {
             CommandManager.RegisterCommand(CdRandomMaze);
             CommandManager.RegisterCommand(CdMazeCuboid);
-            CommandManager.RegisterCommand(CdGame);
             CommandManager.RegisterCommand(CdFirework);
             CommandManager.RegisterCommand(CdLife);
-            CommandManager.RegisterCommand(CdBot);
-            //CommandManager.RegisterCommand(CdSpell);
+            CommandManager.RegisterCommand(CdPossess);
+            CommandManager.RegisterCommand(CdUnpossess);
         }
 
-        static readonly CommandDescriptor CdBot = new CommandDescriptor
+        #region Possess / UnPossess
+
+        static readonly CommandDescriptor CdPossess = new CommandDescriptor
         {
-            Name = "Bot",
+            Name = "Possess",
             Category = CommandCategory.Fun,
-            Permissions = new[] { Permission.Chat },
-            IsConsoleSafe = true,
-            NotRepeatable = true,
-            Usage = "/Spell",
-            Help = "Penis",
-            UsableByFrozenPlayers = false,
-            Handler = BotHandler,
+            Permissions = new[] { Permission.Possess },
+            Usage = "/Possess PlayerName",
+            Handler = PossessHandler
         };
-        internal static void BotHandler(Player player, Command cmd)
+
+        static void PossessHandler(Player player, Command cmd)
         {
-            Bot bot = player.bot;
-            string yes = cmd.Next();
-            if (yes.ToLower() == "rotate")
+            string targetName = cmd.Next();
+            if (targetName == null)
             {
-                player.bot.MakeRotate();
+                CdPossess.PrintUsage(player);
                 return;
             }
-            if (yes.ToLower() == "create") 
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
+            if (target == null) return;
+            if (target.Immortal)
             {
-                player.bot = new Bot("Jonty8000", player.Position, 1, player.World);
-                player.bot.SetBot();
+                player.Message("You cannot possess {0}&S, they are immortal", target.ClassyName);
+                return;
             }
-            if (yes.ToLower() == "chat")
+            if (target == player)
             {
-                if (player.bot == null){
-                    player.Message("&WYou do not have a bot");
-                    return;
-                }
-                string msg = cmd.NextAll();
-                if (player.ali == null){ player.ali = new Alice(); }
-                player.Message("&Bto " + player.bot.Name + ": " + msg);
-                player.Message(Color.Gray+"&Bfrom " + player.bot.Name + ": " + player.ali.getOutput(msg));
+                player.Message("You cannot possess yourself.");
+                return;
+            }
 
+            if (!player.Can(Permission.Possess, target.Info.Rank))
+            {
+                player.Message("You may only possess players ranked {0}&S or lower.",
+                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
+                player.Message("{0}&S is ranked {1}",
+                                target.ClassyName, target.Info.Rank.ClassyName);
+                return;
+            }
+
+            if (!player.Possess(target))
+            {
+                player.Message("Already possessing {0}", target.ClassyName);
             }
         }
 
-        static readonly CommandDescriptor CdSpell = new CommandDescriptor
+
+        static readonly CommandDescriptor CdUnpossess = new CommandDescriptor
         {
-            Name = "Spell",
+            Name = "unpossess",
             Category = CommandCategory.Fun,
-            Permissions = new[] { Permission.Chat },
-            IsConsoleSafe = false,
+            Permissions = new[] { Permission.Possess },
             NotRepeatable = true,
-            Usage = "/Spell",
-            Help = "Penis",
-            UsableByFrozenPlayers = false,
-            Handler = SpellHandler,
+            Usage = "/Unpossess target",
+            Handler = UnpossessHandler
         };
-        public static SpellStartBehavior particleBehavior = new SpellStartBehavior();
-        internal static void SpellHandler(Player player, Command cmd)
-        {
-            World world = player.World;
-            Vector3I pos1 = player.Position.ToBlockCoords();
-            Random _r = new Random();
-            int n = _r.Next(8, 12);
-            for (int i = 0; i < n; ++i)
-            {
-                double phi = -_r.NextDouble() + -player.Position.L * 2 * Math.PI;
-                double ksi = -_r.NextDouble() + player.Position.R * Math.PI - Math.PI / 2.0;
 
-                Vector3F direction = (new Vector3F((float)(Math.Cos(phi) * Math.Cos(ksi)), (float)(Math.Sin(phi) * Math.Cos(ksi)), (float)Math.Sin(ksi))).Normalize();
-                world.AddPhysicsTask(new Particle(world, (pos1 + 2 * direction).Round(), direction, player, Block.Obsidian, particleBehavior), 0);
+        static void UnpossessHandler(Player player, Command cmd)
+        {
+            string targetName = cmd.Next();
+            if (targetName == null)
+            {
+                CdUnpossess.PrintUsage(player);
+                return;
+            }
+            Player target = Server.FindPlayerOrPrintMatches(player, targetName, true, true);
+            if (target == null) return;
+
+            if (!player.StopPossessing(target))
+            {
+                player.Message("You are not currently possessing anyone.");
             }
         }
 
-
+        #endregion
         static readonly CommandDescriptor CdLife = new CommandDescriptor
         {
             Name = "Life",
@@ -114,7 +119,7 @@ namespace fCraft
             IsConsoleSafe = false,
             NotRepeatable = true,
             Usage = "/Life <command> [params]",
-            Help = "Google Conwey's Game of Life\n'/Life help' for more usage info\n(c) 2012 LaoTszy",
+            Help = "Google \"Conwey's Game of Life\"\n'/Life help' for more usage info\n(c) 2012 LaoTszy",
             UsableByFrozenPlayers = false,
             Handler = LifeHandlerFunc,
         };
@@ -151,74 +156,6 @@ namespace fCraft
         }
 
 
-        static readonly CommandDescriptor CdGame = new CommandDescriptor
-        {
-            Name = "Game",
-            Category = CommandCategory.World,
-            Permissions = new Permission[] { Permission.Games },
-            IsConsoleSafe = false,
-            Usage = "/Unfinished command.",
-            Handler = GameHandler
-        };
-
-        private static void GameHandler(Player player, Command cmd)
-        {
-            string GameMode = cmd.Next();
-            string Option = cmd.Next();
-            World world = player.World;
-            /*if (world == WorldManager.MainWorld){
-                player.Message("/Game cannot be used on the main world"); 
-                return;
-            }*/
-
-            if(GameMode.ToLower() == "zombie"){
-                if (Option.ToLower() == "start")
-                {
-                    ZombieGame.GetInstance(player.World);
-                    ZombieGame.Start();
-                    return;
-                }
-                else
-                {
-                    CdGame.PrintUsage(player);
-                    return;
-                }
-            }
-            if (GameMode.ToLower() == "minefield")
-            {
-                if (Option.ToLower() == "start")
-                {
-                    if (WorldManager.FindWorldExact("Minefield") != null)
-                    {
-                        player.Message("&WA game of Minefield is currently running and must first be stopped");
-                        return;
-                    }
-                    MineField.GetInstance();
-                    MineField.Start(player);
-                    return;
-                }
-                else if (Option.ToLower() == "stop")
-                {
-                    if (WorldManager.FindWorldExact("Minefield") == null)
-                    {
-                        player.Message("&WA game of Minefield is currently not running");
-                        return;
-                    }
-                    MineField.Stop(player, false);
-                    return;
-                }
-                else
-                {
-                    CdGame.PrintUsage(player);
-                    return;
-                }
-            }
-            else
-            {
-                CdGame.PrintUsage(player);
-                return;
-            }
-        }
         static readonly CommandDescriptor CdRandomMaze = new CommandDescriptor
         {
             Name = "RandomMaze",
@@ -273,11 +210,17 @@ namespace fCraft
         {
         	try
         	{
+                if (!cmd.HasNext)
+                {
+                    p.Message("&H/Life <command> <params>. Commands are Help, Create, Delete, Start, Stop, Set, List, Print");
+                    p.Message("Type /Life help <command> for more information");
+                    return;
+                }
 				LifeHandler.ProcessCommand(p, cmd);
         	}
         	catch (Exception e)
         	{
-				Logger.Log(LogType.Error, "Error: " + e.Message);
+				p.Message("Error: " + e.Message);
         	}
         }
 

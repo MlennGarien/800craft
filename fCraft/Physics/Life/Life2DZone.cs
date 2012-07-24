@@ -170,6 +170,7 @@ namespace fCraft
 			_delay = DefaultDelay;
 			Torus = false;
 			_autoReset = AutoResetMethod.ToRandom;
+            _initialState = _life2d.GetArrayCopy();
 		}
 
 		private void CheckPermissionsToDraw(Player creator)
@@ -314,7 +315,6 @@ namespace fCraft
 				switch (_state)
 				{
 					case State.Stopped:
-						_initialState = null;
 						return 0;
 					case State.Starting:
 

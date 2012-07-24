@@ -32,6 +32,8 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdFixRealms);
 
+            CommandManager.RegisterCommand(CdNick);
+
 #if DEBUG
             CommandManager.RegisterCommand( new CommandDescriptor {
                 Name = "BUM",
@@ -114,6 +116,70 @@ namespace fCraft {
                 }
             }
             player.Message("Converted {0} worlds to Realms", Count.ToString());
+        }
+
+        static readonly CommandDescriptor CdNick = new CommandDescriptor
+        {
+            Name = "Nick",
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Usage = "/Nick PlayerName DisplayedName",
+            Help = "A shortcut for /Setinfo DisplayedName, it changes a player's displayedName",
+            Handler = NickHandler
+        };
+
+        static void NickHandler(Player player, Command cmd)
+        {
+            string targetName = cmd.Next();
+            string valName = cmd.NextAll();
+
+            if (targetName == null)
+            {
+                CdNick.PrintUsage(player);
+                return;
+            }
+
+            PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetName);
+            if (info == null) return;
+            string oldDisplayedName = info.DisplayedName;
+            if (valName.Length == 0) valName = null;
+            if (valName == info.DisplayedName)
+            {
+                if (valName == null)
+                {
+                    player.Message("Nick: DisplayedName for {0} is not set.",
+                                    info.Name);
+                }
+                else
+                {
+                    player.Message("Nick: DisplayedName for {0} is already set to \"{1}&S\"",
+                                    info.Name,
+                                    valName);
+                }
+                return;
+            }
+            info.DisplayedName = valName;
+
+            if (oldDisplayedName == null)
+            {
+                player.Message("Nick: DisplayedName for {0} set to \"{1}&S\"",
+                                info.Name,
+                                valName);
+            }
+            else if (valName == null)
+            {
+                player.Message("Nick: DisplayedName for {0} was reset (was \"{1}&S\")",
+                                info.Name,
+                                oldDisplayedName);
+            }
+            else
+            {
+                player.Message("Nick: DisplayedName for {0} changed from \"{1}&S\" to \"{2}&S\"",
+                                info.Name,
+                                oldDisplayedName,
+                                valName);
+            }
         }
         #endregion
 
@@ -986,7 +1052,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ReloadConfig },
             IsConsoleSafe = true,
-            Usage = "/Reload config/autorank/salt",
+            Usage = "/Reload config/autorank/salt/swears",
             Help = "Reloads a given configuration file or setting. "+
                    "Config note: changes to ranks and IRC settings still require a full restart. "+
                    "Salt note: Until server synchronizes with Minecraft.net, " +
@@ -1013,6 +1079,12 @@ namespace fCraft {
 
                     case "autorank":
                         success = AutoRankManager.Init();
+                        break;
+
+                    case "swears":
+                        Chat.badWordMatchers = null;
+                        Chat.Swears.Clear();
+                        success = true;
                         break;
 
                     case "salt":

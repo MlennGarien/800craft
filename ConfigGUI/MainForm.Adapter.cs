@@ -113,7 +113,6 @@ namespace fCraft.ConfigGUI {
 
         void ApplyTabGeneral() {
             HbBox1.Checked = ConfigKey.HbSaverKey.Enabled();
-            GCcheckBox.Checked = ConfigKey.GCKey.Enabled();
             tServerName.Text = ConfigKey.ServerName.GetString();
             CustomName.Text = ConfigKey.CustomChatName.GetString();
             SwearBox.Text = ConfigKey.SwearName.GetString();
@@ -446,7 +445,6 @@ namespace fCraft.ConfigGUI {
         void SaveConfig() {
             // General
             ConfigKey.HbSaverKey.TrySetValue(HbBox1.Checked);
-            ConfigKey.GCKey.TrySetValue(GCcheckBox.Checked);
             ConfigKey.ServerName.TrySetValue( tServerName.Text );
             ConfigKey.CustomChatName.TrySetValue(CustomName.Text);
             ConfigKey.SwearName.TrySetValue(SwearBox.Text);

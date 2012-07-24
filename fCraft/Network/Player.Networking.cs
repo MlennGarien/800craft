@@ -483,7 +483,7 @@ namespace fCraft {
             // Check name for nonstandard characters
             if( !IsValidName( givenName ) ) {
                 Logger.Log( LogType.SuspiciousActivity,
-                            "Player.LoginSequence: Unacceptible player name: {0} ({1})",
+                            "Player.LoginSequence: Unacceptable player name: {0} ({1})",
                             givenName, IP );
                 KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
                 return false;
@@ -1201,6 +1201,44 @@ namespace fCraft {
 
         void UpdateVisibleEntities() {
             if( World == null ) PlayerOpException.ThrowNoWorld( this );
+            if (possessionPlayer != null)
+            {
+                if (!possessionPlayer.IsOnline || possessionPlayer.IsSpectating)
+                {
+                    Message("You have been released from possession");
+                    possessionPlayer = null;
+                }
+                else
+                {
+                    Position sendTo = possessionPlayer.Position;
+                    World possessedWorld = possessionPlayer.World;
+                    if (possessedWorld == null)
+                    {
+                        throw new InvalidOperationException("Possess: Something weird just happened (error 404).");
+                    }
+                    if (possessedWorld != World)
+                    {
+                        if (CanJoin(possessedWorld))
+                        {
+                            postJoinPosition = sendTo;
+                            Message("Joined {0}&S (possessed)",
+                                     possessedWorld.ClassyName);
+                            JoinWorldNow(possessedWorld, false, WorldChangeReason.SpectateTargetJoined);
+                        }
+                        else
+                        {
+                            possessionPlayer.Message("Stopped possessing {0}&S (they cannot join {1}&S)",
+                                      ClassyName,
+                                      possessedWorld.ClassyName);
+                            possessionPlayer = null;
+                        }
+                    }
+                    else if (sendTo != Position)
+                    {
+                        SendNow(PacketWriter.MakeSelfTeleport(sendTo));
+                    }
+                }
+            }
             if( spectatedPlayer != null ) {
                 if( !spectatedPlayer.IsOnline || !CanSee( spectatedPlayer ) ) {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
@@ -1237,7 +1275,7 @@ namespace fCraft {
                 Player otherPlayer = worldPlayerList[i];
                 if( otherPlayer == this ||
                     !CanSeeMoving( otherPlayer ) ||
-                    spectatedPlayer == otherPlayer ) continue;
+                    spectatedPlayer == otherPlayer || possessionPlayer != null ) continue;
 
                 Position otherPos = otherPlayer.Position;
                 int distance = pos.DistanceSquaredTo( otherPos );

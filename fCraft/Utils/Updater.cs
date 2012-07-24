@@ -16,11 +16,11 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            204,
-            150,
-            new DateTime( 2012, 06, 13, 1, 0, 0, DateTimeKind.Utc ),
+            206,
+            151,
+            new DateTime( 2012, 07, 19, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Optimized | ReleaseFlags.Bugfix | ReleaseFlags.Feature
+            ReleaseFlags.Bugfix
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -30,13 +30,13 @@ namespace fCraft {
             get { return "800Craft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.204";
+        public const string LatestStable = "0.205";
 
         public static string UpdateUrl { get; set; }
 
         static Updater() {
             UpdateCheckTimeout = 4000;
-            UpdateUrl = "http://800craft.net/UpdateCheck.php?r={0}";
+            UpdateUrl = "http://au70.net/UpdateCheck.php?r={0}";
         }
 
 

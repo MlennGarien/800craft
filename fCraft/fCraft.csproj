@@ -121,6 +121,7 @@
     <Compile Include="Commands\Command Handlers\Math Handlers\SimpleParser.cs" />
     <Compile Include="Commands\Command Handlers\RealmHandler.cs" />
     <Compile Include="Commands\Command Handlers\VoteHandler.cs" />
+    <Compile Include="Commands\DevCommands.cs" />
     <Compile Include="Commands\FunCommands.cs" />
     <Compile Include="Commands\MathCommands.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
@@ -161,8 +162,6 @@
     <Compile Include="Games\Spell.cs" />
     <Compile Include="Games\ZombieGame.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
-    <Compile Include="Player\BotChatHandler.cs" />
-    <Compile Include="Network\GlobalChat.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\Life\Life2d.cs" />
     <Compile Include="Physics\Life\Life2DZone.cs" />
@@ -175,9 +174,12 @@
     <Compile Include="Physics\SandPhysics.cs" />
     <Compile Include="Physics\TreeGeneration.cs" />
     <Compile Include="Physics\WaterPhysics.cs" />
-    <Compile Include="Player\Bot.cs" />
+    <Compile Include="Player\Bot\OmegleBot.cs" />
     <Compile Include="Player\Chat.cs" />
     <Compile Include="Player\ChatTimer.cs" />
+    <Compile Include="Player\Bot\Bot.cs" />
+    <Compile Include="Player\Bot\BotChatHandler.cs" />
+    <Compile Include="Player\Bot\BotHelper.cs" />
     <Compile Include="Player\Permission.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Player\Player.Events.cs" />
@@ -194,6 +196,7 @@
     <Compile Include="Plugins\SecurityController.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
+    <Compile Include="Plugins\Plugins\TrollPlugin.cs" />
     <Compile Include="Portals\Portal.cs" />
     <Compile Include="Portals\PortalDB.cs" />
     <Compile Include="Portals\PortalException.cs" />

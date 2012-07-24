@@ -27,14 +27,13 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdAdminChat);
             CommandManager.RegisterCommand(CdCustomChat);
             CommandManager.RegisterCommand(cdAway);
-            CommandManager.RegisterCommand(cdHigh5);
+            CommandManager.RegisterCommand(CdHigh5);
             CommandManager.RegisterCommand(CdPoke);
-            CommandManager.RegisterCommand(CdTroll);
             CommandManager.RegisterCommand(CdVote);
             CommandManager.RegisterCommand(CdBroMode);
             CommandManager.RegisterCommand(CdRageQuit);
             CommandManager.RegisterCommand(CdQuit);
-            CommandManager.RegisterCommand(CdGlobal);
+            //CommandManager.RegisterCommand(CdOmegle);
 
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_IsBack);
         }
@@ -82,64 +81,33 @@ namespace fCraft {
                 player.Message("Your quit message is now set to: {0}", Msg);
             }
         }
-
-        static readonly CommandDescriptor CdGlobal = new CommandDescriptor
+        static readonly CommandDescriptor CdOmegle = new CommandDescriptor
         {
-            Name = "Global",
+            Name = "Om",
             Category = CommandCategory.Chat,
-            Aliases = new[] { "gl", "gc" },
-            IsConsoleSafe = true,
+            IsConsoleSafe = false,
             Permissions = new[] { Permission.Chat },
-            Usage = "/Global [message]",
-            Help = "Sends a global message to other 800Craft servers",
-            Handler = GHandler
+            Usage = "/Om Message",
+            Help = "Yes, help.",
+            Handler = OmHandler
         };
 
-        static void GHandler(Player player, Command cmd)
+        static void OmHandler(Player player, Command cmd)
         {
-            string Msg = cmd.NextAll();
-            if (!ConfigKey.GCKey.Enabled()){
-                player.Message("Global Chat is disabled on this server");
-                return;
+            if (player.OmBot == null)
+            {
+                player.OmBot = new OmegleBot(player);
             }
-            if (!GlobalChat.GlobalThread.GCReady){
-                player.Message("Global Chat is not connected for this server");
-                return;
-            }
-            var SendList = Server.Players.Where(p => p.GlobalChat && !p.IsDeaf);
-            if (Msg.Length < 1){
-                if (player.GlobalChat){
-                    player.GlobalChat = false;
-                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas disabled the Global Chat (Left)");
-                    SendList.Message(player.ClassyName + " &Shas disabled the Global Chat (Left)");
-                    player.Message("&SYou left the 800Craft Global Chat");
+            else
+            {
+                string Message = cmd.NextAll();
+                if (Message == null)
+                {
+                    player.Message("Your message cannot be zero length");
                     return;
                 }
-                if (!player.GlobalChat){
-                    player.GlobalChat = true;
-                    player.Message(" &WRules: No spamming, no advertising. Your Servers chat rules apply here (staff will mute / kick you)\n" +
-                        "&9By using the Global Chat, you automatically accept these conditions.");
-                    GlobalChat.GlobalThread.SendChannelMessage(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
-                    SendList.Message(player.ClassyName + " &Shas enabled the Global Chat (Joined)");
-                    return;
-                }
+                player.OmBot.Say(Message);
             }
-            if (!player.GlobalChat)
-            {
-                player.Message("&WGlobal chat is disabled for you. Type /Global to enable it");
-                return;
-            }
-            if (player.Info.IsMuted)
-            {
-                player.MessageMuted();
-                return;
-            }
-            string pMsg = player.ClassyName + Color.White + ": " + Msg;
-            Msg = player.ClassyName + Color.Black + ": " + Msg;
-            SendList.Message("&i(Global) " + pMsg); //send the white message to Server
-            Msg = Color.ToIRCColorCodes(Msg);
-            Msg = Color.ReplacePercentCodes(Msg);
-            GlobalChat.GlobalThread.SendChannelMessage(Msg); //send the black message to GC
         }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor
@@ -162,7 +130,7 @@ namespace fCraft {
             {
                 Server.Players.Message("{0} &4Ragequit from the server", player.ClassyName);
                 player.Kick(Player.Console, "Ragequit", LeaveReason.RageQuit, false, false, false);
-                IRC.IRCAnnounceCustom(String.Format("{0} &4Ragequit from the server", player.ClassyName));
+                IRC.SendAction(player.ClassyName+ " &4Ragequit from the server");
                 return;
             }
 
@@ -170,8 +138,7 @@ namespace fCraft {
             {
                 Server.Players.Message("{0} &4Ragequit from the server: &C{1}",
                                 player.ClassyName, reason);
-                IRC.IRCAnnounceCustom(String.Format("{0} &4Ragequit from the server: &C{1}",
-                                player.ClassyName, reason));
+                IRC.SendAction(player.ClassyName + " &WRagequit from the server: "+ reason);
                 player.Kick(Player.Console, reason, LeaveReason.RageQuit, false, false, false);
             }
         }
@@ -198,7 +165,8 @@ namespace fCraft {
                 }
                 fCraft.Utils.BroMode.Active = true;
                 Server.Players.Message("{0}&S turned Bro mode on.", player.Info.Rank.Color + player.Name);
-                IRC.IRCAnnounceCustom(String.Format("{0}&S turned Bro mode on.", player.Info.Rank.Color + player.Name));
+
+                IRC.SendAction(player.Name + " turned Bro mode on.");
             }
             else
             {
@@ -209,7 +177,7 @@ namespace fCraft {
 
                 fCraft.Utils.BroMode.Active = false;
                 Server.Players.Message("{0}&S turned Bro Mode off.", player.Info.Rank.Color + player.Name);
-                IRC.IRCAnnounceCustom(String.Format("{0}&S turned Bro mode off.", player.Info.Rank.Color + player.Name));
+                IRC.SendAction(player.Name + " turned Bro mode off");
             }
         }
 
@@ -281,79 +249,6 @@ namespace fCraft {
             }
         }
 
-        #region Troll
-
-        static readonly CommandDescriptor CdTroll = new CommandDescriptor
-        {
-            Name = "Troll",
-            Category = CommandCategory.Chat | CommandCategory.Fun,
-            Permissions = new[] { Permission.Troll },
-            IsConsoleSafe = true,
-            NotRepeatable = false,
-            Usage = "/troll player option [Message]",
-            Help = "Does a little somthin'-somethin'.\n" +
-            " Available options: st, ac, pm, message or leave",
-            Handler = TrollHandler
-        };
-
-        static void TrollHandler(Player player, Command cmd)
-        {
-            string Name = cmd.Next();
-            if (Name == null){
-                player.Message("Player not found. Please specify valid name.");
-                return;
-            }
-            if (!Player.IsValidName(Name)) 
-                return;
-            Player target = Server.FindPlayerOrPrintMatches(player, Name, true, true);
-            if (target == null)
-                return;
-            string options = cmd.Next();
-            if (options == null){
-                CdTroll.PrintUsage(player);
-                return;
-            }
-            string Message = cmd.NextAll();
-            if (Message.Length < 1 && options.ToLower() != "leave"){
-                player.Message("&WError: Please enter a message for {0}.", target.ClassyName);
-                return;
-            }
-            switch (options.ToLower()){
-                case "pm":
-                    if (player.Can(Permission.UseColorCodes) && Message.Contains("%")){
-                        Message = Color.ReplacePercentCodes(Message);
-                    }
-                    Server.Players.Message("&Pfrom {0}: {1}", 
-                        target.Name, Message);
-                    break;
-                case "ac":
-                    Chat.SendAdmin(target, Message);
-                    break;
-                case "st":
-                case "staff":
-                    Chat.SendStaff(target, Message);
-                    break;
-                case "i":
-                case "impersonate":
-                case "msg":
-                case "message":
-                case "m":
-                    Server.Message("{0}&S&F: {1}",
-                                      target.ClassyName, Message);
-                    break;
-                case "leave":
-                case "disconnect":
-                case "gtfo":
-                    Server.Players.Message("&SPlayer {0}&S left the server.", 
-                        target.ClassyName);
-                    break;
-                default: player.Message("Invalid option. Please choose st, ac, pm, message or leave");
-                    break;
-            }
-        }
-
-        #endregion
-
         static readonly CommandDescriptor cdAway = new CommandDescriptor
         {
             Name = "Away",
@@ -385,10 +280,10 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor cdHigh5 = new CommandDescriptor
+        static readonly CommandDescriptor CdHigh5 = new CommandDescriptor
         {
             Name = "High5",
-            Aliases = new string[] { "h5" },
+            Aliases = new string[] { "H5" },
             Category = CommandCategory.Chat | CommandCategory.Fun,
             Permissions = new Permission[] { Permission.HighFive },
             IsConsoleSafe = true,
@@ -402,7 +297,7 @@ namespace fCraft {
         {
             string targetName = cmd.Next();
             if (targetName == null){
-                cdHigh5.PrintUsage(player);
+                CdHigh5.PrintUsage(player);
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
@@ -411,11 +306,11 @@ namespace fCraft {
                 return;
             }
             if (target == player) {
-                player.Message("You cannot high five yourself.");
+                player.Message("&WYou cannot high five yourself.");
                 return;
             }
             Server.Players.CanSee(target).Except(target).Message("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName);
-            IRC.IRCAnnounceCustom(String.Format("{0}&S was just &chigh fived &Sby {1}&S", target.ClassyName, player.ClassyName));
+            IRC.PlayerSomethingMessage(player, "high fived", target, null);
             target.Message("{0}&S high fived you.", player.ClassyName);
         }
 

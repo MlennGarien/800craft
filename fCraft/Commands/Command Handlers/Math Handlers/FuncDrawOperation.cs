@@ -42,10 +42,16 @@ namespace fCraft
 			: base(player)
         {
 			string strFunc = cmd.Next();
-			if (string.IsNullOrWhiteSpace(strFunc))
-				throw new ArgumentException("empty function expression");
-			if (strFunc.Length<3)
-				throw new ArgumentException("expression is too short (should be like z=f(x,y))");
+            if (string.IsNullOrWhiteSpace(strFunc))
+            {
+                player.Message("&WEmpty function expression");
+                return;
+            }
+            if (strFunc.Length < 3)
+            {
+                player.Message("&WExpression is too short (should be like z=f(x,y))");
+                return;
+            }
 			
 			strFunc = strFunc.ToLower();
 

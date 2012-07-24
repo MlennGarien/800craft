@@ -100,8 +100,8 @@ namespace fCraft {
         /// <summary> Last time when this player was patrolled by someone. </summary>
         public DateTime LastPatrolTime { get; set; }
 
-        public Bot bot;
-        public Alice ali;
+        public Bot Bot;
+        public Alice Ali;
 
 
         /// <summary> Last command called by the player. </summary>
@@ -172,6 +172,8 @@ namespace fCraft {
 
         public DateTime LastTimeKilled;
         public bool Immortal = false;
+
+        public OmegleBot OmBot;
 
         //general purpose state storage for plugins
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
@@ -341,7 +343,6 @@ namespace fCraft {
         // Parses message incoming from the player
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
             if( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
                 if( partialMessage != null ) {
                     MessageNow( "Partial message cancelled." );
@@ -781,7 +782,7 @@ namespace fCraft {
 
 
         public void MessageInvalidWorldName( [NotNull] string worldName ) {
-            Message( "Unacceptible world name: \"{0}\"", worldName );
+            Message( "Unacceptable world name: \"{0}\"", worldName );
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
         }
 
@@ -1522,7 +1523,8 @@ namespace fCraft {
         }
 
         #endregion
-
+        [CanBeNull]
+        Player possessionPlayer;
 
         #region Spectating
 
@@ -1565,12 +1567,46 @@ namespace fCraft {
             }
         }
 
-
-        public bool StopSpectating() {
-            lock( spectateLock ) {
-                if( spectatedPlayer == null ) return false;
-                Message( "Stopped spectating {0}", spectatedPlayer.ClassyName );
+        public bool StopSpectating()
+        {
+            lock (spectateLock)
+            {
+                if (spectatedPlayer == null) return false;
+                Message("Stopped spectating {0}", spectatedPlayer.ClassyName);
                 spectatedPlayer = null;
+                return true;
+            }
+        }
+
+        public bool Possess([NotNull] Player target)
+        {
+            if (target == null) throw new ArgumentNullException("target");
+            lock (spectateLock)
+            {
+                if (target == this)
+                {
+                    PlayerOpException.ThrowCannotTargetSelf(this, Info, "possess");
+                }
+
+                if (!Can(Permission.Possess, target.Info.Rank))
+                {
+                    PlayerOpException.ThrowPermissionLimit(this, target.Info, "possess", Permission.Possess);
+                }
+
+                if (target.possessionPlayer == this) return false;
+
+                target.possessionPlayer = this;
+                Message("Now Possessing {0}&S. Type &H/unpossess&S to stop.", target.ClassyName);
+                return true;
+            }
+        }
+        public bool StopPossessing([NotNull]Player target)
+        {
+            lock (spectateLock)
+            {
+                if (target.possessionPlayer == null) return false;
+                Message("Stopped possessing {0}", target.ClassyName);
+                target.possessionPlayer = null;
                 return true;
             }
         }

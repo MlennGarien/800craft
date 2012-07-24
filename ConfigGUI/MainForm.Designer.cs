@@ -302,7 +302,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.GCcheckBox = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -2590,6 +2589,7 @@
             this.vConsoleOptions.UseCompatibleStateImageBehavior = false;
             this.vConsoleOptions.View = System.Windows.Forms.View.Details;
             this.vConsoleOptions.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.vConsoleOptions_ItemChecked);
+            this.vConsoleOptions.SelectedIndexChanged += new System.EventHandler(this.vConsoleOptions_SelectedIndexChanged);
             // 
             // columnHeader3
             // 
@@ -3378,7 +3378,6 @@
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.GCcheckBox);
             this.groupBox3.Controls.Add(this.MaxCapsValue);
             this.groupBox3.Controls.Add(this.MaxCaps);
             this.groupBox3.Controls.Add(this.HbBox1);
@@ -3612,16 +3611,6 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // GCcheckBox
-            // 
-            this.GCcheckBox.AutoSize = true;
-            this.GCcheckBox.Location = new System.Drawing.Point(13, 94);
-            this.GCcheckBox.Name = "GCcheckBox";
-            this.GCcheckBox.Size = new System.Drawing.Size(205, 19);
-            this.GCcheckBox.TabIndex = 25;
-            this.GCcheckBox.Text = "Enable Global Chat on the server";
-            this.GCcheckBox.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
@@ -4010,6 +3999,5 @@
         private System.Windows.Forms.TextBox SwearBox;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckBox GCcheckBox;
     }
 }

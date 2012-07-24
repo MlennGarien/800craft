@@ -1378,7 +1378,7 @@ namespace fCraft {
             Name = "Where",
             Aliases = new[] { "compass", "whereis", "whereami" },
             Category = CommandCategory.Info,
-            Permissions = new[] { Permission.ViewOthersInfo },
+            Permissions = new[] { Permission.Build },
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Usage = "/Where [PlayerName]",
@@ -1407,10 +1407,14 @@ namespace fCraft {
                 // Chances of this happening are miniscule
                 player.Message( "Player {0}&S is not in any world." );
                 return;
-            } else {
-                player.Message( "Player {0}&S is on world {1}&S:",
+            }
+            if (!player.Can(Permission.ViewOthersInfo) && target != player){
+                player.Message("&WYou do not have permissions to perform this task") ;
+                return;
+            }else{
+                player.Message("Player {0}&S is on world {1}&S:",
                                 target.ClassyName,
-                                target.World.ClassyName );
+                                target.World.ClassyName);
             }
 
             Vector3I targetBlockCoords = target.Position.ToBlockCoords();

@@ -98,6 +98,7 @@ namespace fCraft {
                     return;
                 }
                 Player target = Server.FindPlayerOrPrintMatches(player, playerName, true, true);
+                if (target == null) return;
                 if ((zone = player.WorldMap.Zones.FindExact(target.Name + "door")) != null)
                 {
                     player.WorldMap.Zones.Remove(zone);
@@ -302,6 +303,7 @@ namespace fCraft {
 						if (name.ToLower().StartsWith("msg="))
 						{
 							newZone.Message = name.Substring(4) + " " + (cmd.NextAll() ?? "");
+                            player.Message("Zone: Custom denied messaged changed to '" + newZone.Message + "'");
 							break;
 						}
 
@@ -321,7 +323,7 @@ namespace fCraft {
                 	return;
                 }
             }
-			player.Message("Zone: Place a block or type &H/Mark&S to use your location.");
+			player.Message("Zone "+ newZone.ClassyName + "&S: Place a block or type &H/Mark&S to use your location.");
 			player.SelectionStart(2, ZoneAddCallback, newZone, CdZoneAdd.Permissions);
         }
 
@@ -464,6 +466,7 @@ namespace fCraft {
 				{
 					zone.Message = name.Substring(4) + " " + (cmd.NextAll() ?? "");
 					changesWereMade = true;
+                    player.Message("Zedit: Custom denied messaged changed to '" + zone.Message + "'");
 					break;
 				}
 				else {

@@ -490,30 +490,8 @@ namespace fCraft
                 bullets.TryRemove(bp.ToString(), out removed);
             }
         }
-    
-       /* public static bool CanRemoveBlock(Player player, Position oldpos, Position newPos)
-        {
-            int x = oldpos.X - newPos.X;
-            int y = oldpos.Y - newPos.Y;
-            int z = oldpos.Z - newPos.Z;
-            int r = oldpos.R - newPos.R;
-            int l = oldpos.L - newPos.L;
 
-            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -3 && z <= 3))
-            {
-                return true;
-            }
-            if (!(x >= -2 && x <= 2) || !(y >= -2 && y <= 2) || !(z >= -2 && z <= 2))
-            {
-                return true;
-            }
-            if (!(r >= -10 && r <= 10) || !(l >= -10 && l <= 10))
-            {
-                return true;
-            }
 
-            return false;
-        }*/
         public static bool CanPlacePortal(short x, short y, short z, Map map)
         {
             int Count = 0;

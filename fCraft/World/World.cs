@@ -107,7 +107,7 @@ namespace fCraft {
         internal World( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( !IsValidName( name ) ) {
-                throw new ArgumentException( "Unacceptible world name." );
+                throw new ArgumentException( "Unacceptable world name." );
             }
             BlockDB = new BlockDB( this );
             AccessSecurity = new SecurityController();
@@ -510,6 +510,7 @@ namespace fCraft {
                     CloudColor = CloudColor,
                     SkyColor = SkyColor,
                     EdgeLevel = EdgeLevel,
+                    SideBlock = SideBlock,
                     EdgeBlock = EdgeBlock
                 };
                 newWorld.Map = newMap;
@@ -651,14 +652,14 @@ namespace fCraft {
 
                 if (IsRealm)
                 {
-                    Logger.Log(LogType.UserActivity,
+                    Logger.Log(LogType.ChangedWorld,
                     "Player {0} joined realm {1}.",
                     player.Name, Name);
                 }
 
                 if (!IsRealm)
                 {
-                    Logger.Log(LogType.UserActivity,
+                    Logger.Log(LogType.ChangedWorld,
                     "Player {0} joined world {1}.",
                     player.Name, Name);
                 }
@@ -965,6 +966,7 @@ namespace fCraft {
         public string Terrain { get; set; }
 
         public Block EdgeBlock = Block.Water;
+        public Block SideBlock = Block.Admincrete;
 
         public string GenerateWoMConfig( bool sendMotd ) {
             StringBuilder sb = new StringBuilder();
@@ -984,6 +986,14 @@ namespace fCraft {
                 string edgeTexture = Map.GetEdgeTexture( EdgeBlock );
                 if( edgeTexture != null ) {
                     sb.AppendLine( "environment.edge = " + edgeTexture );
+                }
+            }
+            if (SideBlock != Block.Admincrete)
+            {
+                string sideTexture = Map.GetEdgeTexture(SideBlock);
+                if (sideTexture != null)
+                {
+                    sb.AppendLine("environment.side = "+sideTexture);
                 }
             }
             sb.AppendLine( "server.sendwomid = true" );

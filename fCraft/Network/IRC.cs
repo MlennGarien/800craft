@@ -552,20 +552,6 @@ namespace fCraft
             }
         }
 
-        public static bool IRCAnnounceCustom(string message)
-        {
-            int threadCount = ConfigKey.IRCThreads.GetInt();
-
-            if (threadCount > 0)
-            {
-                SendChannelMessage(message);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-
         public static void SendChannelMessage([NotNull] string line)
         {
             if (line == null) throw new ArgumentNullException("line");
@@ -736,8 +722,7 @@ namespace fCraft
             }
         }
 
-
-        static void PlayerSomethingMessage([NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [CanBeNull] string reason)
+        public static void PlayerSomethingMessage([NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [CanBeNull] string reason)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (action == null) throw new ArgumentNullException("action");

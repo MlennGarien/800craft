@@ -24,12 +24,14 @@
         /// </summary>
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.logBox = new System.Windows.Forms.TextBox();
+            this.logBox = new System.Windows.Forms.RichTextBox();
             this.uriDisplay = new System.Windows.Forms.TextBox();
             this.URLLabel = new System.Windows.Forms.Label();
             this.playerList = new System.Windows.Forms.ListBox();
             this.playerListLabel = new System.Windows.Forms.Label();
             this.bPlay = new System.Windows.Forms.Button();
+            this.SizeBox = new System.Windows.Forms.ComboBox();
+            this.ThemeBox = new System.Windows.Forms.ComboBox();
             this.console = new fCraft.ServerGUI.ConsoleBox();
             this.SuspendLayout();
             // 
@@ -38,34 +40,29 @@
             this.logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.logBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.logBox.BackColor = System.Drawing.Color.Black;
             this.logBox.Font = new System.Drawing.Font("Lucida Console", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.logBox.Location = new System.Drawing.Point(12, 38);
-            this.logBox.Multiline = true;
+            this.logBox.HideSelection = false;
+            this.logBox.Location = new System.Drawing.Point(12, 39);
             this.logBox.Name = "logBox";
             this.logBox.ReadOnly = true;
-            this.logBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.logBox.Size = new System.Drawing.Size(610, 388);
-            this.logBox.TabIndex = 3;
+            this.logBox.Size = new System.Drawing.Size(610, 387);
+            this.logBox.TabIndex = 7;
+            this.logBox.Text = "";
+            this.logBox.TextChanged += new System.EventHandler(this.logBox_TextChanged);
             // 
             // uriDisplay
             // 
-            this.uriDisplay.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.uriDisplay.Enabled = false;
-            this.uriDisplay.Location = new System.Drawing.Point(95, 12);
+            this.uriDisplay.Location = new System.Drawing.Point(92, 12);
             this.uriDisplay.Name = "uriDisplay";
-            this.uriDisplay.ReadOnly = true;
-            this.uriDisplay.Size = new System.Drawing.Size(473, 20);
-            this.uriDisplay.TabIndex = 1;
-            this.uriDisplay.Text = "Waiting for first heartbeat...";
-            this.uriDisplay.WordWrap = false;
+            this.uriDisplay.Size = new System.Drawing.Size(476, 20);
+            this.uriDisplay.TabIndex = 7;
             // 
             // URLLabel
             // 
             this.URLLabel.AutoSize = true;
             this.URLLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.URLLabel.Location = new System.Drawing.Point(12, 15);
+            this.URLLabel.Location = new System.Drawing.Point(9, 15);
             this.URLLabel.Name = "URLLabel";
             this.URLLabel.Size = new System.Drawing.Size(77, 13);
             this.URLLabel.TabIndex = 5;
@@ -78,9 +75,9 @@
             this.playerList.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.playerList.FormattingEnabled = true;
             this.playerList.IntegralHeight = false;
-            this.playerList.Location = new System.Drawing.Point(628, 38);
+            this.playerList.Location = new System.Drawing.Point(628, 58);
             this.playerList.Name = "playerList";
-            this.playerList.Size = new System.Drawing.Size(144, 388);
+            this.playerList.Size = new System.Drawing.Size(144, 368);
             this.playerList.TabIndex = 4;
             // 
             // playerListLabel
@@ -88,7 +85,7 @@
             this.playerListLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.playerListLabel.AutoSize = true;
             this.playerListLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.playerListLabel.Location = new System.Drawing.Point(710, 15);
+            this.playerListLabel.Location = new System.Drawing.Point(628, 42);
             this.playerListLabel.Name = "playerListLabel";
             this.playerListLabel.Size = new System.Drawing.Size(62, 13);
             this.playerListLabel.TabIndex = 6;
@@ -105,6 +102,38 @@
             this.bPlay.Text = "Play";
             this.bPlay.UseVisualStyleBackColor = true;
             this.bPlay.Click += new System.EventHandler(this.bPlay_Click);
+            // 
+            // SizeBox
+            // 
+            this.SizeBox.FormattingEnabled = true;
+            this.SizeBox.Items.AddRange(new object[] {
+            "Normal",
+            "Big",
+            "Large"});
+            this.SizeBox.Location = new System.Drawing.Point(628, 10);
+            this.SizeBox.Name = "SizeBox";
+            this.SizeBox.Size = new System.Drawing.Size(56, 21);
+            this.SizeBox.TabIndex = 8;
+            this.SizeBox.Text = "Size";
+            this.SizeBox.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // ThemeBox
+            // 
+            this.ThemeBox.FormattingEnabled = true;
+            this.ThemeBox.Items.AddRange(new object[] {
+            "New 800Craft",
+            "Old 800Craft",
+            "Pink",
+            "Yellow",
+            "Green",
+            "Purple",
+            "Grey"});
+            this.ThemeBox.Location = new System.Drawing.Point(690, 10);
+            this.ThemeBox.Name = "ThemeBox";
+            this.ThemeBox.Size = new System.Drawing.Size(82, 21);
+            this.ThemeBox.TabIndex = 9;
+            this.ThemeBox.Text = "Theme";
+            this.ThemeBox.SelectedIndexChanged += new System.EventHandler(this.ThemeBox_SelectedIndexChanged);
             // 
             // console
             // 
@@ -123,6 +152,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             this.ClientSize = new System.Drawing.Size(784, 464);
+            this.Controls.Add(this.ThemeBox);
+            this.Controls.Add(this.SizeBox);
             this.Controls.Add(this.bPlay);
             this.Controls.Add(this.console);
             this.Controls.Add(this.playerListLabel);
@@ -134,6 +165,7 @@
             this.MinimumSize = new System.Drawing.Size(500, 150);
             this.Name = "MainForm";
             this.Text = "800Craft";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -141,13 +173,15 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox logBox;
+        private System.Windows.Forms.RichTextBox logBox;
         private System.Windows.Forms.TextBox uriDisplay;
         private System.Windows.Forms.Label URLLabel;
         private System.Windows.Forms.ListBox playerList;
         private System.Windows.Forms.Label playerListLabel;
         private ConsoleBox console;
         private System.Windows.Forms.Button bPlay;
+        private System.Windows.Forms.ComboBox SizeBox;
+        private System.Windows.Forms.ComboBox ThemeBox;
     }
 }
 

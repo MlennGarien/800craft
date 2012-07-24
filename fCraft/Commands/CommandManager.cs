@@ -11,10 +11,11 @@ namespace fCraft {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
-        public static readonly string[] ReservedCommandNames = new[] { "ok", "nvm" };
+        public static readonly string[] ReservedCommandNames = new[] { "ok", "nvm", "dev" };
 
         // Sets up all the command hooks
         public static void Init() {
+            DevCommands.Init();
             ModerationCommands.Init();
             BuildingCommands.Init();
             InfoCommands.Init();

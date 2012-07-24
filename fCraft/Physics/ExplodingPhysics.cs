@@ -135,7 +135,7 @@ namespace fCraft
                 }
 
                 Util.RndPermutate(_explosion);
-                _explosion.ForEach(delegate(BData pt)
+                foreach (BData pt in _explosion)
                 {
                     UpdateMap(new BlockUpdate(null, (short)pt.X, (short)pt.Y, (short)pt.Z, Block.Lava));
                     foreach (Player p in _world.Players)
@@ -143,7 +143,7 @@ namespace fCraft
                         if (p.CanBeKilled() && p.Position.DistanceSquaredTo((new Vector3I(pt.X, pt.Y, pt.Z)).ToPlayerCoords()) <= 64 * 64) //less or equal than 2 blocks
                             HitPlayer(_world, p, _owner);
                     }
-                });
+                }
             }
 
             if (null != toClean)

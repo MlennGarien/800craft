@@ -4,10 +4,6 @@ using System.Linq;
 using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
-using LibNbt;
-using LibNbt.Exceptions;
-using LibNbt.Queries;
-using LibNbt.Tags;
 using System.IO;
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -98,7 +94,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdPlace);
             CommandManager.RegisterCommand(CdTower);
             CommandManager.RegisterCommand(CdCylinder);
-            //CommandManager.RegisterCommand(CdDrawScheme);
             CommandManager.RegisterCommand(CdCenter);
         }
 
@@ -119,58 +114,6 @@ namespace fCraft {
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-        static readonly CommandDescriptor CdDrawScheme = new CommandDescriptor
-        {
-            Name = "DrawScheme",
-            Aliases = new[] { "drs" },
-            Category = CommandCategory.Building,
-            Permissions = new[] { Permission.PlaceAdmincrete },
-            Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
-            Handler = test
-        };
-        public static void test(Player player, Command cmd)
-        {
-            if (!File.Exists("C:/users/jb509/desktop/1.schematic"))
-            {
-                player.Message("Nop"); return;
-            }
-            NbtFile file = new NbtFile("C:/users/jb509/desktop/1.schematic");
-            file.RootTag = new NbtCompound("Schematic");
-            file.LoadFile();
-            bool notClassic = false;
-            short width = file.RootTag.Query<NbtShort>("/Schematic/Width").Value;
-            short height = file.RootTag.Query<NbtShort>("/Schematic/Height").Value;
-            short length = file.RootTag.Query<NbtShort>("/Schematic/Length").Value;
-            Byte[] blocks = file.RootTag.Query<NbtByteArray>("/Schematic/Blocks").Value;
-
-            Vector3I pos = player.Position.ToBlockCoords();
-            int i = 0;
-            player.Message("&SDrawing Schematic ({0}x{1}x{2})", length, width, height);
-            for (int x = pos.X; x < width + pos.X; x++)
-            {
-                for (int y = pos.Y; y < length + pos.Y; y++)
-                {
-                    for (int z = pos.Z; z < height + pos.Z; z++)
-                    {
-                        if (Enum.Parse(typeof(Block), ((Block)blocks[i]).ToString(), true) != null)
-                        {
-                            if (!notClassic && blocks[i] > 49)
-                            {
-                                notClassic = true;
-                                player.Message("&WSchematic used is not designed for Minecraft Classic;" +
-                                                " Converting all unsupported blocks with air");
-                            }
-                            if (blocks[i] < 50)
-                            {
-                                player.WorldMap.QueueUpdate(new BlockUpdate(null, (short)x, (short)y, (short)z, (Block)blocks[i]));
-                            }
-                        }
-                        i++;
-                    }
-                }
-            }
-            file.Dispose();
-        }
 
         static readonly CommandDescriptor CdTree = new CommandDescriptor
         {
@@ -263,7 +206,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Place",
-            Help = "Places a block at your position.",
+            Help = "Places a block below your feet.",
             UsableByFrozenPlayers = false,
             Handler = Place
         };
@@ -272,7 +215,7 @@ namespace fCraft {
         {
             if (player.LastUsedBlockType != Block.Undefined)
             {
-                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, (player.Position.Z - 1)/ 32);
+                Vector3I Pos = new Vector3I(player.Position.X / 32, player.Position.Y / 32, (player.Position.Z / 32) - 2);
 
                 if (player.CanPlace(player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual) != CanPlaceResult.Allowed)
                 {
@@ -283,7 +226,7 @@ namespace fCraft {
                 Player.RaisePlayerPlacedBlockEvent(player, player.WorldMap, Pos, player.WorldMap.GetBlock(Pos), player.LastUsedBlockType, BlockChangeContext.Manual);
                 BlockUpdate blockUpdate = new BlockUpdate(null, Pos, player.LastUsedBlockType);
                 player.World.Map.QueueUpdate(blockUpdate);
-                player.Message("Block placed");
+                player.Message("Block placed below your feet");
             }
             else player.Message("&WError: No last used blocktype was found");
         }
@@ -492,14 +435,14 @@ namespace fCraft {
                             target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
                         }
                         Server.Players.Message("{0}&S was BanX'd by {1}&S (with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
-                        IRC.IRCAnnounceCustom(String.Format("{0}&S was BanX'd by {1}&S(with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason));
+                        IRC.PlayerSomethingMessage(player, "BanX'd (with auto-demote)", target, reason);
                         return;
                     }
                     else
                     {
                         player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
                         Server.Players.Message("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason);
-                        IRC.IRCAnnounceCustom(String.Format("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason));
+                        IRC.PlayerSomethingMessage(player, "BanX'd", target, reason);
                     }
                 player.Message("&SConfirm the undo with &A/ok");
             }
