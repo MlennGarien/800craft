@@ -15,6 +15,7 @@ namespace fCraft
         public World world; //world the bot is on
         private bool _isMoving; //if the bot can move, can be changed if it is not boxed in ect
         private Position nextPos;
+        private Position oldPos;
 
         public Bot(string name, Position pos, int iD, World world_)
         {
@@ -45,14 +46,11 @@ namespace fCraft
         public void MoveBot()
         {
             Position oldPos = Pos; //curent pos
-            Position delta = new Position //delta of new - old
-            {
-                X = (short)(nextPos.X - oldPos.X),
-                Y = (short)(nextPos.Y - oldPos.Y),
-                Z = (short)(nextPos.Z - oldPos.Z),
-                R = (byte)Math.Abs(nextPos.R - oldPos.R),
-                L = (byte)Math.Abs(nextPos.L - oldPos.L)
-            };
+            Position delta = new Position(
+                (short)(nextPos.X - oldPos.X),
+                (short)(nextPos.Y - oldPos.Y),
+                (short)(nextPos.Z - oldPos.Z));
+
             //set the packet
             Packet packet = PacketWriter.MakeMoveRotate(ID, new Position
             {
@@ -60,11 +58,19 @@ namespace fCraft
                 Y = delta.Y,
                 Z = delta.Z,
                 R = Pos.R,
-                L = Pos.L
+                L = 0
             });
             //send packet to everyone in the world
-            world.Players.Send(packet);
-            Pos = nextPos;
+            if (nextPos == oldPos && oldPos != null)
+            {
+                world.Players.Send(PacketWriter.MakeTeleport(ID, new Position(world.Map.Spawn.X, world.Map.Spawn.Y, world.Map.Spawn.Z)));
+                Pos = new Position(world.Map.Spawn.X, world.Map.Spawn.Y, world.Map.Spawn.Z, Pos.R, Pos.L);
+            }
+            else
+            {
+                world.Players.Send(packet);
+                Pos = nextPos;
+            }
             world.Players.Message(Pos.ToBlockCoords().ToString());
         }
         public void CheckIfCanMove()
@@ -76,13 +82,13 @@ namespace fCraft
             double sksi = Math.Sin(ksi);
             double cksi = Math.Cos(ksi);
             Position movePos;
-            Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 1 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
-										  (int)(sphi * cksi * 1 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
-										  (int)(sksi * 1 + cksi * (0.5 + 1)));
+            Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 2 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
+										  (int)(sphi * cksi * 2 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
+										  (int)(sksi * 2 + cksi * (0.5 + 1)));
             BlockPos += Pos.ToBlockCoords();
             movePos = new Position((short)(BlockPos.X * 32), (short)(BlockPos.Y *32), (short)(BlockPos.Z* 32), Pos.R, Pos.L);
-
-            switch (world.Map.GetBlock(BlockPos))
+            oldPos = movePos;
+            switch (world.Map.GetBlock(BlockPos.X,BlockPos.Y, BlockPos.Z - 2))
             {
                 case Block.Air:
                 case Block.Water:
@@ -93,15 +99,12 @@ namespace fCraft
                 case Block.YellowFlower:
                 case Block.BrownMushroom:
                     nextPos = movePos;
-                    Server.Players.Message("Can Move");
                     MoveBot();
                     break;
                 default:
-                    Server.Players.Message(BlockPos.ToString());
-                    Server.Players.Message(world.Map.GetBlock(BlockPos).ToString());
-                   // Pos.L -= 45;
+                    Pos.R -= 90;
+                    world.Players.Send(PacketWriter.MakeRotate(ID, Pos));
                     break;
-
             }
         }
 
