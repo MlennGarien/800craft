@@ -15,7 +15,7 @@ namespace fCraft
         public static void Init()
         {
             //CommandManager.RegisterCommand(CdDrawScheme);
-            //CommandManager.RegisterCommand(CdBot);
+            CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
            // CommandManager.RegisterCommand(CdGame);
         }
@@ -109,26 +109,9 @@ namespace fCraft
             if (yes.ToLower() == "create")
             {
                 string Name = cmd.Next();
-                Position Pos = new Position(player.Position.X, player.Position.Y, player.Position.Z, player.Position.R, 0);
+                Position Pos = new Position(player.Position.X, player.Position.Y, player.Position.Z, player.Position.R, player.Position.L);
                 player.Bot = new Bot(Name, Pos, 1, player.World);
-                player.Bot.SetBot();
-            }
-            if (yes.ToLower() == "chat")
-            {
-                if (player.Bot == null)
-                {
-                    player.Message("&WYou do not have a bot");
-                    return;
-                }
-                string msg = cmd.NextAll();
-                if (player.Ali == null)
-                {
-                    player.Message("&8Finding your bot...");
-                    player.Ali = new Alice(player);
-                }
-                player.Message("&Pto " + player.Bot.Name + ": " + msg);
-                player.Message(Color.Gray + "&Pfrom " + player.Bot.Name + ": " + player.Ali.getOutput(msg));
-
+                //player.Bot.SetBot();
             }
         }
 

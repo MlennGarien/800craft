@@ -13,9 +13,8 @@ namespace fCraft
         public Position Pos; //bots current position
         public int ID; //ID of the bot, should not change
         public World world; //world the bot is on
-        private Thread _botThread; //bot thread
         private bool _isMoving; //if the bot can move, can be changed if it is not boxed in ect
-        private Direction _direction; //direction the bot is facing, 0 = south
+        private Position nextPos;
 
         public Bot(string name, Position pos, int iD, World world_)
         {
@@ -23,18 +22,9 @@ namespace fCraft
             Pos = pos;
             ID = iD;
             world = world_;
-            _isMoving = false;
-            _direction = Direction.South; //start off at south
-            StartNewAIMovement(); //start the while loop in a new thread. I want to change the way the thread works
-            //its only like this for testing purposes
-        }
-
-        public enum Direction
-        {
-            North,
-            South,
-            East,
-            West
+            _isMoving = true;
+            SetBot();
+            Scheduler.NewBackgroundTask(t => StartNewAIMovement()).RunForever(TimeSpan.FromMilliseconds(500));
         }
 
         public Map WorldMap
@@ -49,78 +39,19 @@ namespace fCraft
         // reloading the world / joined after it was created
         public void SetBot()
         {
-            world.Players.Send(PacketWriter.MakeAddEntity(this.ID, Color.Gray + this.Name, this.Pos));
-        }
-        //makes the bot walk in the south direction (-32 on the Y. -32 because block size)
-        public void WalkSouth()
-        {
-            if (CheckBounds())
-            {
-                _direction = Direction.East;
-                return;
-            }
-            Pos.R = 0; //face south
-            Position oldPos = Pos; //curent pos
-            Position newPos = new Position(oldPos.X, (short)(oldPos.Y - 32), oldPos.Z, oldPos.R, oldPos.L); //desired pos
-            Position delta = new Position //delta of new - old
-            {
-                X = (short)(newPos.X - oldPos.X),
-                Y = (short)(newPos.Y - oldPos.Y),
-                Z = (short)(newPos.Z - oldPos.Z),
-                R = (byte)Math.Abs(newPos.R - oldPos.R),
-                L = (byte)Math.Abs(newPos.L - oldPos.L)
-            };
-             //set the packet
-            Packet packet = PacketWriter.MakeMoveRotate(ID, new Position
-            {
-                X = delta.X,
-                Y = delta.Y,
-                Z = delta.Z,
-                R = newPos.R,
-                L = newPos.L
-            });
-            //send packet to everyone in the world
-            world.Players.Send(packet);
-            Pos = newPos;
+            world.Players.Send(PacketWriter.MakeAddEntity(this.ID, Color.Gray + this.Name, new Position(Pos.X, Pos.Y, Pos.Z, Pos.R, Pos.L)));
         }
 
-        public bool CheckBounds()
+        public void MoveBot()
         {
-            switch (_direction)
-            {
-                case Direction.South:
-                    if (!WorldMap.InBounds(Pos.X / 32, (Pos.Y / 32) - 1, Pos.Z / 32))
-                    {
-                        return true;
-                    }
-                    break;
-                case Direction.East:
-                    if (!WorldMap.InBounds((Pos.Y / 32) + 1, Pos.Y / 32, Pos.Z / 32))
-                    {
-                        return true;
-                    }
-                    break;
-            }
-            return false;
-        }
-
-        public void WalkEast()
-        {
-            if(CheckBounds())
-            {
-                _direction = Direction.North;
-                return;
-            }
-            //unsure Pos.R = -90; //face east
             Position oldPos = Pos; //curent pos
-            Position newPos = new Position((short)(oldPos.X - 32), oldPos.Y, oldPos.Z, oldPos.R, oldPos.L); //desired pos
             Position delta = new Position //delta of new - old
             {
-                X = (short)(newPos.X - oldPos.X),
-                Y = (short)(newPos.Y - oldPos.Y),
-                Z = (short)(newPos.Z - oldPos.Z),
-                R = (byte)Math.Abs(newPos.R - oldPos.R),
-                L = (byte)Math.Abs(newPos.L - oldPos.L)
+                X = (short)(nextPos.X - oldPos.X),
+                Y = (short)(nextPos.Y - oldPos.Y),
+                Z = (short)(nextPos.Z - oldPos.Z),
+                R = (byte)Math.Abs(nextPos.R - oldPos.R),
+                L = (byte)Math.Abs(nextPos.L - oldPos.L)
             };
             //set the packet
             Packet packet = PacketWriter.MakeMoveRotate(ID, new Position
@@ -128,35 +59,59 @@ namespace fCraft
                 X = delta.X,
                 Y = delta.Y,
                 Z = delta.Z,
-                R = newPos.R,
-                L = newPos.L
+                R = Pos.R,
+                L = Pos.L
             });
             //send packet to everyone in the world
             world.Players.Send(packet);
-            Pos = newPos;
+            Pos = nextPos;
+            world.Players.Message(Pos.ToBlockCoords().ToString());
+        }
+        public void CheckIfCanMove()
+        {
+            double ksi = 2.0 * Math.PI * (-Pos.L) / 256.0;
+            double phi = 2.0 * Math.PI * (Pos.R - 64) / 256.0;
+            double sphi = Math.Sin(phi);
+            double cphi = Math.Cos(phi);
+            double sksi = Math.Sin(ksi);
+            double cksi = Math.Cos(ksi);
+            Position movePos;
+            Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 1 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
+										  (int)(sphi * cksi * 1 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
+										  (int)(sksi * 1 + cksi * (0.5 + 1)));
+            BlockPos += Pos.ToBlockCoords();
+            movePos = new Position((short)(BlockPos.X * 32), (short)(BlockPos.Y *32), (short)(BlockPos.Z* 32), Pos.R, Pos.L);
+
+            switch (world.Map.GetBlock(BlockPos))
+            {
+                case Block.Air:
+                case Block.Water:
+                case Block.Lava:
+                case Block.Plant:
+                case Block.RedFlower:
+                case Block.RedMushroom:
+                case Block.YellowFlower:
+                case Block.BrownMushroom:
+                    nextPos = movePos;
+                    Server.Players.Message("Can Move");
+                    MoveBot();
+                    break;
+                default:
+                    Server.Players.Message(BlockPos.ToString());
+                    Server.Players.Message(world.Map.GetBlock(BlockPos).ToString());
+                   // Pos.L -= 45;
+                    break;
+
+            }
         }
 
         public void StartNewAIMovement()
         {
-            _botThread = new Thread(new ThreadStart(delegate
+            if (!_isMoving)
             {
-                _isMoving = true;
-                while (_isMoving)
-                {
-                    
-                    if (_direction == Direction.South){
-                        WalkSouth();
-                    }
-                    else if (_direction == Direction.East)
-                    {
-                        WalkEast();
-                    }
-                    Thread.Sleep(350);
-                }
-
-            }));
-            _botThread.Start();
+                return;
+            }
+            CheckIfCanMove();
         }
     }
-    
 }
