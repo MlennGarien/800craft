@@ -1634,5 +1634,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 }
             }
             else Process.Start(Paths.SwearWordsFileName);
+        }
     }
 }
