@@ -2036,7 +2036,7 @@ namespace fCraft {
                     swapThemeAndTemplate = true;
 
                 } else {
-                    player.Message( "Gen: Unrecognized theme \"{0}\". Available themes are: {1}",
+                    player.Message( "Gen: Unrecognized theme \"{0}\". Available themes are: Grass, {1}",
                                     themeName,
                                     Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
                     return;
@@ -2045,14 +2045,14 @@ namespace fCraft {
                 // parse template
                 if( swapThemeAndTemplate ) {
                     if( !EnumUtil.TryParse( themeName, out template, true ) ) {
-                        player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
+                        player.Message( "Unrecognized template \"{0}\". Available terrain types: Empty, Ocean, {1}",
                                         themeName,
                                         Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
                         return;
                     }
                 } else {
                     if( !EnumUtil.TryParse( templateName, out template, true ) ) {
-                        player.Message( "Unrecognized template \"{0}\". Available templates are: {1}",
+                        player.Message( "Unrecognized template \"{0}\". Available terrain types: Empty, Ocean, {1}",
                                         templateName,
                                         Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
                         return;
@@ -2221,10 +2221,10 @@ namespace fCraft {
                 playerWorld.MapChangedBy = player.Name;
                 playerWorld.ChangeMap( map );
             }
+            Server.RequestGC();
         }
 
         #endregion
-
 
         #region Join
 

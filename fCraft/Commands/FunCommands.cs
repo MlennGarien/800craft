@@ -38,30 +38,30 @@ namespace fCraft
 
         public static void PlayerMoving(object sender, fCraft.Events.PlayerMovingEventArgs e)
         {
+            if (e.Player.Info.IsFrozen || e.Player.SpectatedPlayer != null)
+                return;
             Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-                Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+            Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
-                // Check if the player actually moved and not just rotated
-                if ((newPos.X == oldPos.X + 1) || (newPos.X == oldPos.X - 1) || (newPos.Y == oldPos.Y + 1) || (newPos.Y == oldPos.Y - 1))
+            if ((newPos.X == oldPos.X + 1) || (newPos.X == oldPos.X - 1) || (newPos.Y == oldPos.Y + 1) || (newPos.Y == oldPos.Y - 1))
+            {
+                Position p = e.OldPosition;
+                double ksi = 2.0 * Math.PI * (-p.L) / 256.0;
+                double phi = 2.0 * Math.PI * (p.R - 64) / 256.0;
+                double sphi = Math.Sin(phi);
+                double cphi = Math.Cos(phi);
+                double sksi = Math.Sin(ksi);
+                double cksi = Math.Cos(ksi);
+                Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 5 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
+                                                (int)(sphi * cksi * 5 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
+                                                (int)(sksi * 5 + cksi * (0.5 + 1)));
+                BlockPos += p.ToBlockCoords();
+                if (e.Player.World.Map.InBounds(BlockPos) && e.Player.World.Map.GetBlock(BlockPos) == Block.Air)
                 {
-                    Position p = e.OldPosition;
-                    double ksi = 2.0 * Math.PI * (-p.L) / 256.0;
-                    double phi = 2.0 * Math.PI * (p.R - 64) / 256.0;
-                    double sphi = Math.Sin(phi);
-                    double cphi = Math.Cos(phi);
-                    double sksi = Math.Sin(ksi);
-                    double cksi = Math.Cos(ksi);
-                    Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 5 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
-                                                  (int)(sphi * cksi * 5 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
-                                                  (int)(sksi * 5 + cksi * (0.5 + 1)));
-                    BlockPos += p.ToBlockCoords();
-                    if (e.Player.World.Map.InBounds(BlockPos) && e.Player.World.Map.GetBlock(BlockPos) == Block.Air)
-                    {
-                        Position send = BlockPos.ToPlayerCoords();
-                        e.Player.TeleportTo(new Position(send.X, send.Y, e.Player.Position.Z, e.Player.Position.R, e.Player.Position.L));
-                    }
+                    Position send = BlockPos.ToPlayerCoords();
+                    e.Player.TeleportTo(new Position(send.X, send.Y, e.Player.Position.Z, e.Player.Position.R, e.Player.Position.L));
                 }
-                
+            }
         }
 
         #region Possess / UnPossess
