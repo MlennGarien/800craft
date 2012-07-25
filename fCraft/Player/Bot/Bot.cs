@@ -73,6 +73,17 @@ namespace fCraft
             }
             world.Players.Message(Pos.ToBlockCoords().ToString());
         }
+
+        public bool CheckVelocity(Block block)
+        {
+            if (block == Block.Air)
+            {
+                Pos.Z -= 32;
+                world.Players.Send(PacketWriter.MakeMove(ID, Pos));
+                return true;
+            }
+            return false;
+        }
         public void CheckIfCanMove()
         {
             double ksi = 2.0 * Math.PI * (-Pos.L) / 256.0;
@@ -88,7 +99,7 @@ namespace fCraft
             BlockPos += Pos.ToBlockCoords();
             movePos = new Position((short)(BlockPos.X * 32), (short)(BlockPos.Y *32), (short)(BlockPos.Z* 32), Pos.R, Pos.L);
             oldPos = movePos;
-            switch (world.Map.GetBlock(BlockPos.X,BlockPos.Y, BlockPos.Z - 2))
+            switch (world.Map.GetBlock(BlockPos.X, BlockPos.Y, BlockPos.Z - 2))
             {
                 case Block.Air:
                 case Block.Water:
@@ -115,6 +126,31 @@ namespace fCraft
                 return;
             }
             CheckIfCanMove();
+            int Rand = new Random().Next(1, 100);
+            if (Rand > 95) MakeRandomDecision();
+        }
+
+        public void MakeRandomDecision()
+        {
+            int rand = new Random().Next(1, 5);
+            switch (rand)
+            {
+                case 1:
+                    Pos.R+=15;
+                    world.Players.Send(PacketWriter.MakeRotate(ID, Pos));
+                    break;
+            case 2:
+                    Pos.R += 90;
+                    world.Players.Send(PacketWriter.MakeRotate(ID, Pos));
+                    break;
+            case 3:
+                    int player = new Random().Next(0, world.Players.Count() - 1);
+                    world.Players.Send(PacketWriter.MakeTeleport(ID, world.Players[player].Position));
+                    Pos = world.Players[player].Position;
+                break;
+                default:
+                break;
+            }
         }
     }
 }
