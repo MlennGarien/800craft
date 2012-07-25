@@ -1132,7 +1132,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
             Usage = "/Hide [silent]",
-            Help = "Enables invisible mode. It looks to other players like you left the server, " +
+            Help = "&SEnables invisible mode. It looks to other players like you left the server, " +
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
                    "Great way to spy on griefers and scare newbies. " +
                    "Call &H/Unhide&S to reveal yourself.",

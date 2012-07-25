@@ -67,6 +67,10 @@ You can also edit announcements.txt with any text editor." );
 You can use any color codes, and these special variables:
     {SERVER_NAME} = server name (as defined in config)
     {RANK} = connecting player's rank" );
+    
+    toolTip.SetToolTip(SwearEditor,
+@"Edit the list of Swearwords (swearwords.txt).
+Each swearword should be on a seperate line.");
 
         }
 

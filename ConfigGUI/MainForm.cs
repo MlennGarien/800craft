@@ -1621,5 +1621,16 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         {
 
         }
+        
+        private void SwearEditor_Click_1(object sender, EventArgs e)
+        {
+                if (!System.IO.File.Exists(Paths.SwearWordsFileName))
+                {
+                    System.IO.FileStream f = System.IO.File.Create(Paths.SwearWordsFileName);
+                    f.Close();
+                    Process.Start(Paths.SwearWordsFileName);
+                }
+            else Process.Start(Paths.SwearWordsFileName);
+        }
     }
 }
