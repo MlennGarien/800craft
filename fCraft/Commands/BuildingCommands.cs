@@ -562,6 +562,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             IsHidden = false,
             Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
             Help = "Fills a rectangular area of walls",
             Handler = WallsHandler
         };
