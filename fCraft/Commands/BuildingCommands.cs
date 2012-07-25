@@ -1887,7 +1887,7 @@ namespace fCraft {
             Name = "Cancel",
             Category = CommandCategory.Building,
             NotRepeatable = true,
-            Help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
+            Help = "&SCancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
                    "If you wish to stop a drawing in-progress, use &H/Undo&S instead.",
             Handler = CancelHandler
         };
