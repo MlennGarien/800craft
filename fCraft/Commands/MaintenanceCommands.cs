@@ -96,7 +96,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             IsHidden = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Help = "Converts personal worlds into realms.",
+            Help = "&SConverts personal worlds into realms.",
             Handler = FixRealms
         };
 

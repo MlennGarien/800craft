@@ -242,7 +242,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             Permissions = new[] { Permission.Slap },
             Help = "Slaps a player to the sky. " +
-            "Availble items are: bakingtray, fish, bitchslap, and shoe.\n " +
+            "Availble items are: bakingtray, fish, bitchslap, and shoe.\n" +
             "NOTE: Items are optional.",
             Usage = "/slap <item>",
             Handler = Slap
