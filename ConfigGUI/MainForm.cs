@@ -1650,7 +1650,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 Process.Start(Paths.ReqTextPath);
                     
             }
-            else Process.Start(Paths.ReqTextPath);
+            if (!System.IO.File.Exists(Paths.ReqTextPath))
+            {
+                Process.Start(Paths.ReqPath);
+            }
         }
     }
 }
