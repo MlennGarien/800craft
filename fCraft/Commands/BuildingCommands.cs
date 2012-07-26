@@ -389,6 +389,197 @@ namespace fCraft {
         }
         #endregion
 
+        #region Banx
+
+        static readonly CommandDescriptor CdBanx = new CommandDescriptor
+        {
+            Name = "Banx",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = false,
+            IsHidden = false,
+            Permissions = new[] { Permission.Ban },
+            Usage = "/Banx playerName reason",
+            Help = "Bans and undoes a players actions up to 50000 blocks",
+            Handler = BanXHandler
+        };
+
+        static void BanXHandler(Player player, Command cmd)
+        {
+            string ban = cmd.Next();
+
+            if (ban == null)
+            {
+                player.Message("&WError: Enter a player name to BanX");
+                return;
+            }
+
+            //parse
+            if (ban == "-")
+            {
+                if (player.LastUsedPlayerName != null)
+                {
+                    ban = player.LastUsedPlayerName;
+                }
+                else
+                {
+                    player.Message("Cannot repeat player name: you haven't used any names yet.");
+                    return;
+                }
+            }
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
+            if (target == null) return;
+            if (!Player.IsValidName(ban))
+            {
+                CdBanx.PrintUsage(player);
+                return;
+            }
+            else
+            {
+                UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
+
+                string reason = cmd.NextAll();
+
+                if (reason.Length < 1)
+                    reason = "Reason Undefined: BanX";
+                try
+                {
+                    Player targetPlayer = target.PlayerObject;
+                    target.Ban(player, reason, false, true);
+                }
+                catch (PlayerOpException ex)
+                {
+                    player.Message(ex.MessageColored);
+                    return;
+                }
+                if (player.Can(Permission.Demote, target.Rank))
+                {
+                    if (target.Rank != RankManager.LowestRank)
+                    {
+                        player.LastUsedPlayerName = target.Name;
+                        target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
+                    }
+                    Server.Players.Message("{0}&S was BanX'd by {1}&S (with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
+                    IRC.PlayerSomethingMessage(player, "BanX'd (with auto-demote)", target, reason);
+                    return;
+                }
+                else
+                {
+                    player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
+                    Server.Players.Message("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason);
+                    IRC.PlayerSomethingMessage(player, "BanX'd", target, reason);
+                }
+                player.Message("&SConfirm the undo with &A/ok");
+            }
+        }
+
+        static void UndoPlayerHandler2(Player player, Command cmd)
+        {
+            if (player.World == null) PlayerOpException.ThrowNoWorld(player);
+
+            if (!BlockDB.IsEnabledGlobally)
+            {
+                player.Message("&WBlockDB is disabled on this server.\nThe undo of the player's blocks failed.");
+                return;
+            }
+
+            World world = player.World;
+            if (!world.BlockDB.IsEnabled)
+            {
+                player.Message("&WBlockDB is disabled in this world.\nThe undo of the player's blocks failed.");
+                return;
+            }
+
+            string name = cmd.Next();
+            string range = cmd.Next();
+            if (name == null || range == null)
+            {
+                CdUndoPlayer.PrintUsage(player);
+                return;
+            }
+
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, name);
+            if (target == null) return;
+
+            if (player.Info != target && !player.Can(Permission.UndoOthersActions, target.Rank))
+            {
+                player.Message("You may only undo actions of players ranked {0}&S or lower.",
+                                player.Info.Rank.GetLimit(Permission.UndoOthersActions).ClassyName);
+                player.Message("Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName);
+                return;
+            }
+
+            int count;
+            TimeSpan span;
+            BlockDBEntry[] changes;
+            if (Int32.TryParse(range, out count))
+            {
+                changes = world.BlockDB.Lookup(target, count);
+                if (changes.Length > 0)
+                {
+                    player.Confirm(cmd, "Undo last {0} changes made by player {1}&S?",
+                                    changes.Length, target.ClassyName);
+                    return;
+                }
+
+            }
+            else if (range.TryParseMiniTimespan(out span))
+            {
+                changes = world.BlockDB.Lookup(target, span);
+                if (changes.Length > 0)
+                {
+                    player.Confirm(cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
+                                    changes.Length, target.ClassyName, span.ToMiniString());
+                    return;
+                }
+            }
+            else
+            {
+                CdBanx.PrintUsage(player);
+                return;
+            }
+
+            if (changes.Length == 0)
+            {
+                player.Message("BanX: Found nothing to undo.");
+                return;
+            }
+
+            BlockChangeContext context = BlockChangeContext.Drawn;
+            if (player.Info == target)
+            {
+                context |= BlockChangeContext.UndoneSelf;
+            }
+            else
+            {
+                context |= BlockChangeContext.UndoneOther;
+            }
+
+            int blocks = 0,
+                blocksDenied = 0;
+
+            UndoState undoState = player.DrawBegin(null);
+            Map map = player.World.Map;
+
+            for (int i = 0; i < changes.Length; i++)
+            {
+                DrawOneBlock(player, map, changes[i].OldBlock,
+                              changes[i].Coord, context,
+                              ref blocks, ref blocksDenied, undoState);
+            }
+
+            Logger.Log(LogType.UserActivity,
+                        "{0} undid {1} blocks changed by player {2} (on world {3})",
+                        player.Name,
+                        blocks,
+                        target.Name,
+                        player.World.Name);
+
+            DrawingFinished(player, "UndoPlayer'ed", blocks, blocksDenied);
+        }
+
+        #endregion
+
+
         #region DrawOperations & Brushes
 
         static readonly CommandDescriptor CdCuboid = new CommandDescriptor {
