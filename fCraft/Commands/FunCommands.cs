@@ -33,34 +33,60 @@ namespace fCraft
             CommandManager.RegisterCommand(CdLife);
             CommandManager.RegisterCommand(CdPossess);
             CommandManager.RegisterCommand(CdUnpossess);
-            Player.Moving += PlayerMoving;
+            CommandManager.RegisterCommand(CdSpeed);
+            Player.Moved += PlayerMoved;
         }
 
-        public static void PlayerMoving(object sender, fCraft.Events.PlayerMovingEventArgs e)
+        public static void PlayerMoved(object sender, fCraft.Events.PlayerMovedEventArgs e)
         {
-            if (e.Player.Info.IsFrozen || e.Player.SpectatedPlayer != null)
+            if (e.Player.Info.IsFrozen || e.Player.SpectatedPlayer != null || !e.Player.SpeedMode)
                 return;
-            Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-            Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+            Position oldPos = new Position(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+            Position newPos = new Position(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
 
-            if ((newPos.X == oldPos.X + 1) || (newPos.X == oldPos.X - 1) || (newPos.Y == oldPos.Y + 1) || (newPos.Y == oldPos.Y - 1))
+            if (newPos.X == oldPos.X + 1 || newPos.X == oldPos.X - 1 || newPos.Y == oldPos.Y + 1 || newPos.Y == oldPos.Y - 1)
             {
-                Position p = e.OldPosition;
-                double ksi = 2.0 * Math.PI * (-p.L) / 256.0;
+                Position p = e.NewPosition;
+                double ksi = 2.0 * Math.PI * (-0) / 256.0;
                 double phi = 2.0 * Math.PI * (p.R - 64) / 256.0;
                 double sphi = Math.Sin(phi);
                 double cphi = Math.Cos(phi);
                 double sksi = Math.Sin(ksi);
                 double cksi = Math.Cos(ksi);
-                Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 5 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
-                                                (int)(sphi * cksi * 5 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
-                                                (int)(sksi * 5 + cksi * (0.5 + 1)));
+                Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 4 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
+                                                (int)(sphi * cksi * 4 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
+                                                (int)(sksi * 4 + cksi * (0.5 + 1)));
                 BlockPos += p.ToBlockCoords();
                 if (e.Player.World.Map.InBounds(BlockPos) && e.Player.World.Map.GetBlock(BlockPos) == Block.Air)
                 {
                     Position send = BlockPos.ToPlayerCoords();
-                    e.Player.TeleportTo(new Position(send.X, send.Y, e.Player.Position.Z, e.Player.Position.R, e.Player.Position.L));
+                    e.Player.TeleportTo(new Position(send.X, send.Y, e.Player.Position.Z, e.NewPosition.R, e.NewPosition.L));
                 }
+            }
+        }
+
+        static readonly CommandDescriptor CdSpeed = new CommandDescriptor
+        {
+            Name = "Speed",
+            Category = CommandCategory.Fun,
+            Permissions = new[] { Permission.UseSpeedHack },
+            Usage = "/Speed",
+            Help = "Glitchy as hell, but scientifically proven to move you faster around the map",
+            Handler = SpeedHandler
+        };
+
+        static void SpeedHandler(Player player, Command cmd)
+        {
+            if (player.SpeedMode)
+            {
+                player.SpeedMode = false;
+                player.Message("You are no longer in speed mode.");
+                return;
+            }
+            else
+            {
+                player.SpeedMode = true;
+                player.Message("You are now in speedmode, type &H/Speed&S to deactivate");
             }
         }
 

@@ -346,7 +346,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/fly",
-            Help = "Allows a player to fly.",
+            Help = "Allows a player to fly on a sheet of glass.",
             UsableByFrozenPlayers = false,
             Handler = Fly
         };

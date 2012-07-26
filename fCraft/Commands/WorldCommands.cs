@@ -824,6 +824,11 @@ namespace fCraft {
                         player.Message("Turn physics on in your realm. Useage: /Realm physics [Plant|Water|Gun|Fireworks] On/Off.");
                         return;
                     }
+                    if (world.Name != player.Name)
+                    {
+                        player.Message("&WYou can only turn physics on in your realm");
+                        return;
+                    }
                     switch (phyOption.ToLower())
                     {
                         case "water":
