@@ -206,7 +206,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = true,
             Usage = "/Vote | Ask | Kick | Yes | No | Abort",
-            Help = "Creates a server-wide vote.",
+            Help = "&SCreates a server-wide vote.",
             Handler = VoteHandler
         };
 
@@ -320,7 +320,7 @@ namespace fCraft {
             Category = CommandCategory.Chat | CommandCategory.Fun,
             IsConsoleSafe = true,
             Usage = "/poke playername",
-            Help = "Pokes a Player.",
+            Help = "&SPokes a Player.",
             NotRepeatable = true,
             Handler = PokeHandler
         };
@@ -361,7 +361,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Usage = "/review",
             NotRepeatable = true,
-            Help = "Request an Op to review your build.",
+            Help = "&SRequest an Op to review your build.",
             Handler = Review
         };
 
@@ -431,7 +431,7 @@ namespace fCraft {
             DisableLogging = true,
             Permissions = new[] { Permission.Chat, Permission.Say },
             Usage = "/Say Message",
-            Help = "Shows a message in special color, without the player name prefix. " +
+            Help = "&SShows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
             Handler = SayHandler
         };
@@ -498,7 +498,7 @@ namespace fCraft {
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             Usage = "/Ignore [PlayerName]",
-            Help = "Temporarily blocks the other player from messaging you. " +
+            Help = "&STemporarily blocks the other player from messaging you. " +
                    "If no player name is given, lists all ignored players.",
             Handler = IgnoreHandler
         };
@@ -579,7 +579,7 @@ namespace fCraft {
             NotRepeatable = true,
             DisableLogging = true,
             Usage = "/Me Message",
-            Help = "Sends IRC-style action message prefixed with your name.",
+            Help = "&SSends IRC-style action message prefixed with your name.",
             Handler = MeHandler
         };
 
@@ -690,7 +690,7 @@ namespace fCraft {
             Name = "Clear",
             UsableByFrozenPlayers = true,
             Category = CommandCategory.Chat,
-            Help = "Clears the chat screen.",
+            Help = "&SClears the chat screen.",
             Handler = ClearHandler
         };
 
@@ -715,7 +715,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Category = CommandCategory.Chat,
             Usage = "/Timer <Duration> <Message>",
-            Help = "Starts a timer with a given duration and message. " +
+            Help = "&SStarts a timer with a given duration and message. " +
                    "As the timer counts down, announcements are shown globally. See also: &H/Help Timer Abort",
             HelpSections = new Dictionary<string, string> {
                 { "abort",  "&H/Timer Abort <TimerID>\n&S" +

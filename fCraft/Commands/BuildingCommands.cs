@@ -121,7 +121,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Tree },
             Usage = "/Tree Shape Height",
-            Help = "Plants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove",
+            Help = "&SPlants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove",
             Handler = TreeHandler
         };
 
@@ -188,7 +188,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Build },
             IsConsoleSafe = false,
             NotRepeatable = false,
-            Help = "Fills the selected rectangular area with a cylinder of blocks. " +
+            Help = "&SFills the selected rectangular area with a cylinder of blocks. " +
                    "Unless two blocks are specified, leaves the inside hollow.",
             UsableByFrozenPlayers = false,
             Handler = CylinderHandler
@@ -206,7 +206,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Place",
-            Help = "Places a block below your feet.",
+            Help = "&SPlaces a block below your feet.",
             UsableByFrozenPlayers = false,
             Handler = Place
         };
@@ -289,7 +289,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Tower [/Tower Remove]",
-            Help = "Toggles tower mode on for yourself. All Iron blocks will be replaced with towers.",
+            Help = "&SToggles tower mode on for yourself. All Iron blocks will be replaced with towers.",
             UsableByFrozenPlayers = false,
             Handler = towerHandler
         };
@@ -346,7 +346,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/fly",
-            Help = "Allows a player to fly.",
+            Help = "&SAllows a player to fly.",
             UsableByFrozenPlayers = false,
             Handler = Fly
         };
@@ -371,190 +371,6 @@ namespace fCraft {
             }
         }
 
-        #region banx
-        static readonly CommandDescriptor CdBanx = new CommandDescriptor
-        {
-            Name = "Banx",
-            Category = CommandCategory.Moderation,
-            IsConsoleSafe = false,
-            IsHidden = false,
-            Permissions = new[] { Permission.Ban },
-            Usage = "/Banx playerName reason",
-            Help = "Bans and undoes a players actions up to 50000 blocks",
-            Handler = BanXHandler
-        };
-
-        static void BanXHandler(Player player, Command cmd)
-        {
-            string ban = cmd.Next();
-
-            if (ban == null)
-            {
-                player.Message("&WError: Enter a player name to BanX");
-                return;
-            }
-
-            //parse
-            if (ban == "-")
-            {
-                if (player.LastUsedPlayerName != null)
-                {
-                    ban = player.LastUsedPlayerName;
-                }
-                else
-                {
-                    player.Message("Cannot repeat player name: you haven't used any names yet.");
-                    return;
-                }
-            }
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
-            if (target == null) return;
-            if (!Player.IsValidName(ban))
-            {
-                CdBanx.PrintUsage(player);
-                return;
-            }else{
-                UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
-
-                string reason = cmd.NextAll();
-
-                if (reason.Length < 1)
-                    reason = "Reason Undefined: BanX";
-                try{
-                    Player targetPlayer = target.PlayerObject;
-                    target.Ban(player, reason, false, true);
-                }catch (PlayerOpException ex){
-                    player.Message(ex.MessageColored);
-                    return;
-                }
-                    if (player.Can(Permission.Demote, target.Rank))
-                    {
-                        if (target.Rank != RankManager.LowestRank)
-                        {
-                            player.LastUsedPlayerName = target.Name;
-                            target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
-                        }
-                        Server.Players.Message("{0}&S was BanX'd by {1}&S (with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
-                        IRC.PlayerSomethingMessage(player, "BanX'd (with auto-demote)", target, reason);
-                        return;
-                    }
-                    else
-                    {
-                        player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
-                        Server.Players.Message("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason);
-                        IRC.PlayerSomethingMessage(player, "BanX'd", target, reason);
-                    }
-                player.Message("&SConfirm the undo with &A/ok");
-            }
-        }
-
-        static void UndoPlayerHandler2(Player player, Command cmd)
-        {
-            if (player.World == null) PlayerOpException.ThrowNoWorld(player);
-
-            if (!BlockDB.IsEnabledGlobally)
-            {
-                player.Message("&WBlockDB is disabled on this server.\nThe undo of the player's blocks failed.");
-                return;
-            }
-
-            World world = player.World;
-            if (!world.BlockDB.IsEnabled)
-            {
-                player.Message("&WBlockDB is disabled in this world.\nThe undo of the player's blocks failed.");
-                return;
-            }
-
-            string name = cmd.Next();
-            string range = cmd.Next();
-            if (name == null || range == null)
-            {
-                CdUndoPlayer.PrintUsage(player);
-                return;
-            }
-
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, name);
-            if (target == null) return;
-
-            if (player.Info != target && !player.Can(Permission.UndoOthersActions, target.Rank))
-            {
-                player.Message("You may only undo actions of players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit(Permission.UndoOthersActions).ClassyName);
-                player.Message("Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName);
-                return;
-            }
-
-            int count;
-            TimeSpan span;
-            BlockDBEntry[] changes;
-            if (Int32.TryParse(range, out count))
-            {
-                changes = world.BlockDB.Lookup(target, count);
-                if (changes.Length > 0)
-                {
-                    player.Confirm(cmd, "Undo last {0} changes made by player {1}&S?",
-                                    changes.Length, target.ClassyName);
-                    return;
-                }
-
-            }
-            else if (range.TryParseMiniTimespan(out span))
-            {
-                changes = world.BlockDB.Lookup(target, span);
-                if (changes.Length > 0)
-                {
-                    player.Confirm(cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
-                                    changes.Length, target.ClassyName, span.ToMiniString());
-                    return;
-                }
-            }
-            else
-            {
-                CdBanx.PrintUsage(player);
-                return;
-            }
-
-            if (changes.Length == 0)
-            {
-                player.Message("BanX: Found nothing to undo.");
-                return;
-            }
-
-            BlockChangeContext context = BlockChangeContext.Drawn;
-            if (player.Info == target)
-            {
-                context |= BlockChangeContext.UndoneSelf;
-            }
-            else
-            {
-                context |= BlockChangeContext.UndoneOther;
-            }
-
-            int blocks = 0,
-                blocksDenied = 0;
-
-            UndoState undoState = player.DrawBegin(null);
-            Map map = player.World.Map;
-
-            for (int i = 0; i < changes.Length; i++)
-            {
-                DrawOneBlock(player, map, changes[i].OldBlock,
-                              changes[i].Coord, context,
-                              ref blocks, ref blocksDenied, undoState);
-            }
-
-            Logger.Log(LogType.UserActivity,
-                        "{0} undid {1} blocks changed by player {2} (on world {3})",
-                        player.Name,
-                        blocks,
-                        target.Name,
-                        player.World.Name);
-
-            DrawingFinished(player, "UndoPlayer'ed", blocks, blocksDenied);
-        }
-        #endregion
-
-
         static readonly CommandDescriptor CdWalls = new CommandDescriptor
         {
             Name = "Walls",
@@ -563,7 +379,7 @@ namespace fCraft {
             IsHidden = false,
             Permissions = new[] { Permission.Draw },
             RepeatableSelection = true,
-            Help = "Fills a rectangular area of walls",
+            Help = "&SFills a rectangular area of walls",
             Handler = WallsHandler
         };
 
@@ -949,7 +765,7 @@ namespace fCraft {
             Name = "Bind",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
-            Help = "Assigns one blocktype to another. " +
+            Help = "&SAssigns one blocktype to another. " +
                    "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
                    "Calling &H/Bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
             Usage = "/Bind OriginalBlockType ReplacementBlockType",
@@ -1146,7 +962,7 @@ namespace fCraft {
             Name = "Undo",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
-            Help = "Selectively removes changes from your last drawing command. " +
+            Help = "&SSelectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             Handler = UndoHandler
         };
@@ -1205,7 +1021,7 @@ namespace fCraft {
             Name = "Redo",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
-            Help = "Selectively removes changes from your last drawing command. " +
+            Help = "&SSelectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             Handler = RedoHandler
         };
@@ -1259,7 +1075,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Usage = "/CopySlot [#]",
-            Help = "Selects a slot to copy to/paste from. The maximum number of slots is limited per-rank.",
+            Help = "&SSelects a slot to copy to/paste from. The maximum number of slots is limited per-rank.",
             Handler = CopySlotHandler
         };
 
@@ -1303,7 +1119,7 @@ namespace fCraft {
             Name = "Copy",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
-            Help = "Copy blocks for pasting. " +
+            Help = "&SCopy blocks for pasting. " +
                    "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/Copy&S from.",
             Handler = CopyHandler
@@ -1374,7 +1190,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
-            Help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
+            Help = "&SCopies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
                    "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/Cut&S from.",
             Usage = "/Cut [FillBlock]",
@@ -1706,7 +1522,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
-            Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
+            Help = "&SPastes previously copied blocks. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Alignment semantics are... complicated.",
             Usage = "/Paste [IncludedBlock [AnotherOne etc]]",
@@ -1763,7 +1579,7 @@ namespace fCraft {
             },
             RepeatableSelection = true,
             Usage = "/Restore FileName",
-            Help = "Selectively restores/pastes part of mapfile into the current world. "+
+            Help = "&SSelectively restores/pastes part of mapfile into the current world. "+
                    "If the filename contains spaces, surround it with quote marks.",
             Handler = RestoreHandler
         };
@@ -2239,7 +2055,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdStatic = new CommandDescriptor {
             Name = "Static",
             Category = CommandCategory.Building,
-            Help = "Toggles repetition of last selection on or off.",
+            Help = "&SToggles repetition of last selection on or off.",
             Handler = StaticHandler
         };
 

@@ -66,7 +66,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Can show an advanced list for a chosen section. "+ 
+            Help = "&SCan show an advanced list for a chosen section. "+ 
             "Type /List to display the sections",
             Usage = "/List SectionName",
             Handler = ListHandler
@@ -764,7 +764,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Usage = "/BanInfo [PlayerName|IPAddress]",
-            Help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
+            Help = "&SPrints information about past and present bans/unbans associated with the PlayerName or IP. " +
                    "If no name is given, this prints your own ban info.",
             Handler = BanInfoHandler
         };
@@ -1079,7 +1079,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Shows a list of all defined ranks.",
+            Help = "&SShows a list of all defined ranks.",
             Handler = RanksHandler
         };
 
@@ -1111,7 +1111,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Shows a list of rules defined by server operator(s).",
+            Help = "&SShows a list of rules defined by server operator(s).",
             Handler = RulesHandler
         };
 
@@ -1230,7 +1230,7 @@ namespace fCraft {
             Name = "Measure",
             Category = CommandCategory.Info | CommandCategory.Building,
             RepeatableSelection = true,
-            Help = "Shows information about a selection: width/length/height and volume.",
+            Help = "&SShows information about a selection: width/length/height and volume.",
             Handler = MeasureHandler
         };
 

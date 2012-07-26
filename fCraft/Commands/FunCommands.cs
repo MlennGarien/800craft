@@ -140,6 +140,7 @@ namespace fCraft
         }
 
         #endregion
+
         static readonly CommandDescriptor CdLife = new CommandDescriptor
         {
             Name = "Life",
@@ -148,7 +149,7 @@ namespace fCraft
             IsConsoleSafe = false,
             NotRepeatable = true,
             Usage = "/Life <command> [params]",
-            Help = "Google \"Conwey's Game of Life\"\n'/Life help' for more usage info\n(c) 2012 LaoTszy",
+            Help = "&SGoogle \"Conwey's Game of Life\"\n'&H/Life&S help' for more usage info\n(c) 2012 LaoTszy",
             UsableByFrozenPlayers = false,
             Handler = LifeHandlerFunc,
         };
@@ -161,7 +162,7 @@ namespace fCraft
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Firework",
-            Help = "Toggles Firework Mode on/off for yourself. " +
+            Help = "T&Soggles Firework Mode on/off for yourself. " +
             "All Gold blocks will be replaced with fireworks if " +
             "firework physics are enabled for the current world.",
             UsableByFrozenPlayers = false,
@@ -242,7 +243,7 @@ namespace fCraft
                 if (!cmd.HasNext)
                 {
                     p.Message("&H/Life <command> <params>. Commands are Help, Create, Delete, Start, Stop, Set, List, Print");
-                    p.Message("Type /Life help <command> for more information");
+                    p.Message("Type &H/Life help <command>&S for more information");
                     return;
                 }
 				LifeHandler.ProcessCommand(p, cmd);

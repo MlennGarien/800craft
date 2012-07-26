@@ -241,7 +241,10 @@ namespace fCraft {
             Aliases = new[] { "Sky" },
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             Permissions = new[] { Permission.Slap },
-            Help = "Slaps a player to the sky.",
+            Help = "Slaps a player to the sky. " +
+            "Availble items are: bakingtray, fish, bitchslap, and shoe.\n " +
+            "NOTE: Items are optional."
+            Usage = "/slap <item>",
             Handler = Slap
         };
 
@@ -341,7 +344,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Help = "Changes to players skin to a desired name. " + 
+            Help = "&SChanges to players skin to a desired name. " + 
             "If no playername is given, all changes are reverted. " + 
             "Note: The name above your head changes too",
             Usage = "/Impersonate PlayerName",
@@ -527,6 +530,187 @@ namespace fCraft {
             }
         }
 
+        static readonly CommandDescriptor CdBanx = new CommandDescriptor
+        {
+            Name = "Banx",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = false,
+            IsHidden = false,
+            Permissions = new[] { Permission.Ban },
+            Usage = "/Banx playerName reason",
+            Help = "Bans and undoes a players actions up to 50000 blocks",
+            Handler = BanXHandler
+        };
+
+        static void BanXHandler(Player player, Command cmd)
+        {
+            string ban = cmd.Next();
+
+            if (ban == null)
+            {
+                player.Message("&WError: Enter a player name to BanX");
+                return;
+            }
+
+            //parse
+            if (ban == "-")
+            {
+                if (player.LastUsedPlayerName != null)
+                {
+                    ban = player.LastUsedPlayerName;
+                }
+                else
+                {
+                    player.Message("Cannot repeat player name: you haven't used any names yet.");
+                    return;
+                }
+            }
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, ban);
+            if (target == null) return;
+            if (!Player.IsValidName(ban))
+            {
+                CdBanx.PrintUsage(player);
+                return;
+            }else{
+                UndoPlayerHandler2(player, new Command("/undox " + target.Name + " 50000"));
+
+                string reason = cmd.NextAll();
+
+                if (reason.Length < 1)
+                    reason = "Reason Undefined: BanX";
+                try{
+                    Player targetPlayer = target.PlayerObject;
+                    target.Ban(player, reason, false, true);
+                }catch (PlayerOpException ex){
+                    player.Message(ex.MessageColored);
+                    return;
+                }
+                    if (player.Can(Permission.Demote, target.Rank))
+                    {
+                        if (target.Rank != RankManager.LowestRank)
+                        {
+                            player.LastUsedPlayerName = target.Name;
+                            target.ChangeRank(player, RankManager.LowestRank, cmd.NextAll(), false, true, false);
+                        }
+                        Server.Players.Message("{0}&S was BanX'd by {1}&S (with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason);
+                        IRC.PlayerSomethingMessage(player, "BanX'd (with auto-demote)", target, reason);
+                        return;
+                    }
+                    else
+                    {
+                        player.Message("&WAuto demote failed: You didn't have the permissions to demote the target player");
+                        Server.Players.Message("{0}&S was BanX'd by {1}: &W{2}", target.ClassyName, player.ClassyName, reason);
+                        IRC.PlayerSomethingMessage(player, "BanX'd", target, reason);
+                    }
+                player.Message("&SConfirm the undo with &A/ok");
+            }
+        }
+
+        static void UndoPlayerHandler2(Player player, Command cmd)
+        {
+            if (player.World == null) PlayerOpException.ThrowNoWorld(player);
+
+            if (!BlockDB.IsEnabledGlobally)
+            {
+                player.Message("&WBlockDB is disabled on this server.\nThe undo of the player's blocks failed.");
+                return;
+            }
+
+            World world = player.World;
+            if (!world.BlockDB.IsEnabled)
+            {
+                player.Message("&WBlockDB is disabled in this world.\nThe undo of the player's blocks failed.");
+                return;
+            }
+
+            string name = cmd.Next();
+            string range = cmd.Next();
+            if (name == null || range == null)
+            {
+                CdUndoPlayer.PrintUsage(player);
+                return;
+            }
+
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, name);
+            if (target == null) return;
+
+            if (player.Info != target && !player.Can(Permission.UndoOthersActions, target.Rank))
+            {
+                player.Message("You may only undo actions of players ranked {0}&S or lower.",
+                                player.Info.Rank.GetLimit(Permission.UndoOthersActions).ClassyName);
+                player.Message("Player {0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName);
+                return;
+            }
+
+            int count;
+            TimeSpan span;
+            BlockDBEntry[] changes;
+            if (Int32.TryParse(range, out count))
+            {
+                changes = world.BlockDB.Lookup(target, count);
+                if (changes.Length > 0)
+                {
+                    player.Confirm(cmd, "Undo last {0} changes made by player {1}&S?",
+                                    changes.Length, target.ClassyName);
+                    return;
+                }
+
+            }
+            else if (range.TryParseMiniTimespan(out span))
+            {
+                changes = world.BlockDB.Lookup(target, span);
+                if (changes.Length > 0)
+                {
+                    player.Confirm(cmd, "Undo changes ({0}) made by {1}&S in the last {2}?",
+                                    changes.Length, target.ClassyName, span.ToMiniString());
+                    return;
+                }
+            }
+            else
+            {
+                CdBanx.PrintUsage(player);
+                return;
+            }
+
+            if (changes.Length == 0)
+            {
+                player.Message("BanX: Found nothing to undo.");
+                return;
+            }
+
+            BlockChangeContext context = BlockChangeContext.Drawn;
+            if (player.Info == target)
+            {
+                context |= BlockChangeContext.UndoneSelf;
+            }
+            else
+            {
+                context |= BlockChangeContext.UndoneOther;
+            }
+
+            int blocks = 0,
+                blocksDenied = 0;
+
+            UndoState undoState = player.DrawBegin(null);
+            Map map = player.World.Map;
+
+            for (int i = 0; i < changes.Length; i++)
+            {
+                DrawOneBlock(player, map, changes[i].OldBlock,
+                              changes[i].Coord, context,
+                              ref blocks, ref blocksDenied, undoState);
+            }
+
+            Logger.Log(LogType.UserActivity,
+                        "{0} undid {1} blocks changed by player {2} (on world {3})",
+                        player.Name,
+                        blocks,
+                        target.Name,
+                        player.World.Name);
+
+            DrawingFinished(player, "UndoPlayer'ed", blocks, blocksDenied);
+        }
+
         static readonly CommandDescriptor CdWarn = new CommandDescriptor
         {
             Name = "Warn",
@@ -534,7 +718,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             NotRepeatable = true,
             Permissions = new[] { Permission.Warn },
-            Help = "Warns a player and puts a black star next to their name for 20 minutes. During the 20 minutes, if they are warned again, they will get kicked.",
+            Help = "&SWarns a player and puts a black star next to their name for 20 minutes. During the 20 minutes, if they are warned again, they will get kicked.",
             Usage = "/Warn playername",
             Handler = Warn
         };
@@ -596,7 +780,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Warn },
             Usage = "/Unwarn PlayerName",
-            Help = "Unwarns a player",
+            Help = "&SUnwarns a player",
             Handler = UnWarn
         };
 
@@ -694,7 +878,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban },
             Usage = "/Ban PlayerName [Reason]",
-            Help = "Bans a specified player by name. Note: Does NOT ban IP. " +
+            Help = "&SBans a specified player by name. Note: Does NOT ban IP. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = BanHandler
         };
@@ -728,7 +912,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
             Usage = "/BanIP PlayerName|IPAddress [Reason]",
-            Help = "Bans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
+            Help = "&SBans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
             Handler = BanIPHandler
@@ -775,7 +959,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
             Usage = "/BanAll PlayerName|IPAddress [Reason]",
-            Help = "Bans the player's name, IP, and all other names associated with the IP. " +
+            Help = "&SBans the player's name, IP, and all other names associated with the IP. " +
                    "If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
@@ -823,7 +1007,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban },
             Usage = "/Unban PlayerName [Reason]",
-            Help = "Removes ban for a specified player. Does NOT remove associated IP bans. " +
+            Help = "&SRemoves ban for a specified player. Does NOT remove associated IP bans. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = UnbanHandler
         };
@@ -852,7 +1036,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
             Usage = "/UnbanIP PlayerName|IPaddress [Reason]",
-            Help = "Removes ban for a specified player's name and last known IP. " +
+            Help = "&SRemoves ban for a specified player's name and last known IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = UnbanIPHandler
@@ -892,7 +1076,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
             Usage = "/UnbanAll PlayerName|IPaddress [Reason]",
-            Help = "Removes ban for a specified player's name, last known IP, and all other names associated with the IP. " +
+            Help = "&SRemoves ban for a specified player's name, last known IP, and all other names associated with the IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = UnbanAllHandler
@@ -931,7 +1115,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
             Usage = "/BanEx +PlayerName&S or &H/BanEx -PlayerName",
-            Help = "Adds or removes an IP-ban exemption for an account. " +
+            Help = "&SAdds or removes an IP-ban exemption for an account. " +
                    "Exempt accounts can log in from any IP, including banned ones.",
             Handler = BanExHandler
         };
@@ -1179,7 +1363,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
             Usage = "/Unhide [silent]",
-            Help = "Disables the &H/Hide&S invisible mode. " +
+            Help = "&SDisables the &H/Hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
             Handler = UnhideHandler
         };
@@ -1223,7 +1407,7 @@ namespace fCraft {
             Name = "SetSpawn",
             Category = CommandCategory.Moderation | CommandCategory.World,
             Permissions = new[] { Permission.SetSpawn },
-            Help = "Assigns your current location to be the spawn point of the map/world. " +
+            Help = "&SAssigns your current location to be the spawn point of the map/world. " +
                    "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
             Usage = "/SetSpawn [PlayerName]",
             Handler = SetSpawnHandler
@@ -1348,7 +1532,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Teleport },
             Usage = "/TP PlayerName&S or &H/TP X Y Z",
-            Help = "Teleports you to a specified player's location. " +
+            Help = "&STeleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
             Handler = TPHandler
         };
@@ -1530,7 +1714,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring },
             Usage = "/WBring PlayerName WorldName",
-            Help = "Teleports a player to the given world's spawn.",
+            Help = "&STeleports a player to the given world's spawn.",
             Handler = WorldBringHandler
         };
 
@@ -1593,7 +1777,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring, Permission.BringAll },
             Usage = "/BringAll [@Rank [@AnotherRank]] [*|World [AnotherWorld]]",
-            Help = "Teleports all players from your world to you. " +
+            Help = "&STeleports all players from your world to you. " +
                    "If any world names are given, only teleports players from those worlds. " +
                    "If any rank names are given, only teleports players of those ranks.",
             Handler = BringAllHandler
@@ -1816,7 +2000,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },
-            Help = "Mutes a player for a specified length of time.",
+            Help = "&SMutes a player for a specified length of time.",
             Usage = "/Mute PlayerName Duration",
             Handler = MuteHandler
         };
@@ -1857,7 +2041,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },
-            Help = "Unmutes a player.",
+            Help = "&SUnmutes a player.",
             Usage = "/Unmute PlayerName",
             Handler = UnmuteHandler
         };
