@@ -103,9 +103,10 @@ namespace fCraft {
                 case "idles":
                 case "idle":
                     var Idles = Server.Players.Where(p => p.IdleTime.TotalMinutes > 5).ToArray();
+                    var visiblePlayers = Idles.Where(player.CanSee);
                     if (Idles.Count() > 0)
                         player.Message("Listing players idle for 5 mins or more: {0}",
-                                        Idles.JoinToString(r => String.Format("{0}", r.ClassyName)));
+                                        visiblePlayers.JoinToString(r => String.Format("{0}", r.ClassyName)));
                     else player.Message("No players have been idle for more than 5 minutes");
                     break;
                 case "portals":
