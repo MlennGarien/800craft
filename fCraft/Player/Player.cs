@@ -174,6 +174,7 @@ namespace fCraft {
         public bool Immortal = false;
 
         public OmegleBot OmBot;
+        public Position SpeedLastValidPosition;
 
         //general purpose state storage for plugins
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
