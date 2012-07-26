@@ -126,7 +126,12 @@ namespace fCraft {
 
         public static string ReqPath
         {
-            get { return Path.Combine(WorkingPath, ReqDirectory); }
+            get { return Path.Combine(WorkingPath, ReqDirectory ); }
+        }
+
+        public static string ReqTextPath
+        {
+            get { return Path.Combine(ReqDirectory, "requirements.txt"); }
         }
 
         /// <summary> Path where map backups are stored </summary>
