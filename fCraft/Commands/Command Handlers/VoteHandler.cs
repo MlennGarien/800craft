@@ -122,10 +122,7 @@ namespace fCraft
                         return;
                     }
                     Player target = Server.FindPlayerOrPrintMatches(player, toKick, false, true);
-                    if (!Player.IsValidName(target.Name))
-                    {
-                        return;
-                    }
+
                     if (!player.Can(Permission.MakeVoteKicks))
                     {
                         player.Message("You do not have permissions to start a VoteKick");
@@ -152,11 +149,7 @@ namespace fCraft
                     VoteThread = new Thread(new ThreadStart(delegate
                       {
                           TargetName = target.Name;
-                          if (!Player.IsValidName(TargetName))
-                          {
-                              player.Message("Invalid name");
-                              return;
-                          }
+
                           NewVote();
                           VoteStarter = player.ClassyName;
                           Server.Players.Message("{0}&S started a VoteKick for player: {1}", player.ClassyName, target.ClassyName);
