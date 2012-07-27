@@ -34,34 +34,42 @@ namespace fCraft
             CommandManager.RegisterCommand(CdPossess);
             CommandManager.RegisterCommand(CdUnpossess);
             CommandManager.RegisterCommand(CdSpeed);
-            Player.Moved += PlayerMoved;
+            Player.Moving += PlayerMoved;
         }
 
-        public static void PlayerMoved(object sender, fCraft.Events.PlayerMovedEventArgs e)
+        public static void PlayerMoved(object sender, fCraft.Events.PlayerMovingEventArgs e)
         {
             if (e.Player.Info.IsFrozen || e.Player.SpectatedPlayer != null || !e.Player.SpeedMode)
                 return;
-            Position oldPos = new Position(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
-            Position newPos = new Position(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
-
-            if (newPos.X == oldPos.X + 1 || newPos.X == oldPos.X - 1 || newPos.Y == oldPos.Y + 1 || newPos.Y == oldPos.Y - 1)
+            Vector3I oldPos = e.OldPosition.ToBlockCoords();
+            Vector3I newPos = e.NewPosition.ToBlockCoords();
+            //check if has moved 1 whole block
+            if (newPos.X == oldPos.X + 1 || newPos.X == oldPos.X-1 || newPos.Y == oldPos.Y + 1 || newPos.Y == oldPos.Y-1)
             {
-                Position p = e.NewPosition;
-                double ksi = 2.0 * Math.PI * (-0) / 256.0;
-                double phi = 2.0 * Math.PI * (p.R - 64) / 256.0;
-                double sphi = Math.Sin(phi);
-                double cphi = Math.Cos(phi);
-                double sksi = Math.Sin(ksi);
-                double cksi = Math.Cos(ksi);
-                Vector3I BlockPos = new Vector3I((int)(cphi * cksi * 4 - sphi * (0.5 + 1) - cphi * sksi * (0.5 + 1)),
-                                                (int)(sphi * cksi * 4 + cphi * (0.5 + 1) - sphi * sksi * (0.5 + 1)),
-                                                (int)(sksi * 4 + cksi * (0.5 + 1)));
-                BlockPos += p.ToBlockCoords();
-                if (e.Player.World.Map.InBounds(BlockPos) && e.Player.World.Map.GetBlock(BlockPos) == Block.Air)
+                Server.Players.Message("Old: " + newPos.ToString());
+                Vector3I move = newPos - oldPos;
+                int AccelerationFactor = 4;
+                Vector3I acceleratedNewPos = oldPos + move * AccelerationFactor;
+                //do not forget to check for all the null pointers here - TODO
+                Map m = e.Player.World.Map;
+                //check if can move through all the blocks along the path
+                Vector3F normal = move.Normalize();
+                Vector3I prevBlockPos = e.OldPosition.ToBlockCoords();
+                for (int i = 1; i <= AccelerationFactor * move.Length; ++i)
                 {
-                    Position send = BlockPos.ToPlayerCoords();
-                    e.Player.TeleportTo(new Position(send.X, send.Y, e.Player.Position.Z, e.NewPosition.R, e.NewPosition.L));
+                    Vector3I pos = (oldPos + i * normal).Round();
+                    if (prevBlockPos == pos) //didnt yet hit the next block
+                        continue;
+                    if (!m.InBounds(pos) || m.GetBlock(pos) != Block.Air) //got out of bounds or some solid block
+                    {
+                        acceleratedNewPos = (oldPos + normal * (i - 1)).Round();
+                        break;
+                    }
+                    prevBlockPos = pos;
                 }
+                //teleport keeping the same orientation
+                Server.Players.Message("New: "+ acceleratedNewPos.ToString());
+                e.Player.Send(PacketWriter.MakeSelfTeleport(new Position((short)(acceleratedNewPos.X * 32), (short)(acceleratedNewPos.Y * 32), e.Player.Position.Z, e.NewPosition.R, e.NewPosition.L)));
             }
         }
 
