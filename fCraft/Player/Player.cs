@@ -173,8 +173,8 @@ namespace fCraft {
         public DateTime LastTimeKilled;
         public bool Immortal = false;
 
-        public bool SpeedMode = false;
         public OmegleBot OmBot;
+        public Position SpeedLastValidPosition;
 
         //general purpose state storage for plugins
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();

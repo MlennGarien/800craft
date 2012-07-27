@@ -346,82 +346,26 @@ namespace fCraft {
                 delta.Z = 0;
 
             }
-            if (IsFlying)
-            {
-                Vector3I oldPosi = new Vector3I(oldPos.X / 32, oldPos.Y / 32, oldPos.Z / 32);
-                Vector3I newPosi = new Vector3I(newPos.X / 32, newPos.Y / 32, newPos.Z / 32);
-                //Checking e.Old vs e.New increases accuracy, checking old vs new uses a lot less updates
-                if ((oldPosi.X != newPosi.X) || (oldPosi.Y != newPosi.Y) || (oldPosi.Z != newPosi.Z))
-                {
-                    //finally, /fly decends
-                    if ((oldPos.Z > newPos.Z))
-                    {
-                        foreach (Vector3I block in FlyCache.Values)
-                        {
-                            SendNow(PacketWriter.MakeSetBlock(block, Block.Air));
-                            Vector3I removed;
-                            FlyCache.TryRemove(block.ToString(), out removed);
-                        }
-                    }
-                    // Create new block parts
-                    for (int i = -1; i <= 1; i++) //reduced width and length by 1
-                    {
-                        for (int j = -1; j <= 1; j++)
-                        {
-                            for (int k = 2; k <= 3; k++) //added a 2nd layer
-                            {
-                                Vector3I layer = new Vector3I(newPosi.X + i, newPosi.Y + j, newPosi.Z - k);
-                                if (World.Map.GetBlock(layer) == Block.Air)
-                                {
-                                    SendNow(PacketWriter.MakeSetBlock(layer, Block.Glass));
-                                    FlyCache.TryAdd(layer.ToString(), layer);
-                                }
-                            }
-                        }
-                    }
-
-
-                    // Remove old blocks
-                    foreach (Vector3I block in FlyCache.Values)
-                    {
-                        if (fCraft.Utils.FlyHandler.CanRemoveBlock(this, block, newPosi))
-                        {
-                            SendNow(PacketWriter.MakeSetBlock(block, Block.Air));
-                            Vector3I removed;
-                            FlyCache.TryRemove(block.ToString(), out removed);
-                        }
-                    }
-                }
-            }
-
             else if (!Can(Permission.UseSpeedHack))
             {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // speedhack detection
-                if (DetectMovementPacketSpam())
-                {
+                if( DetectMovementPacketSpam() ) {
                     return;
 
-                }
-                else if ((distSquared - delta.Z * delta.Z > AntiSpeedMaxDistanceSquared || delta.Z > AntiSpeedMaxJumpDelta) &&
-                         speedHackDetectionCounter >= 0)
-                {
+                } else if( (distSquared - delta.Z * delta.Z > AntiSpeedMaxDistanceSquared || delta.Z > AntiSpeedMaxJumpDelta) &&
+                           speedHackDetectionCounter >= 0 ) {
 
-                    if (speedHackDetectionCounter == 0)
-                    {
+                    if( speedHackDetectionCounter == 0 ) {
                         lastValidPosition = Position;
-                    }
-                    else if (speedHackDetectionCounter > 1)
-                    {
+                    } else if( speedHackDetectionCounter > 1 ) {
                         DenyMovement();
                         speedHackDetectionCounter = 0;
                         return;
                     }
                     speedHackDetectionCounter++;
 
-                }
-                else
-                {
+                } else {
                     speedHackDetectionCounter = 0;
                 }
             }

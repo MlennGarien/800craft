@@ -39,6 +39,7 @@ namespace fCraft.Utils
             if (instance == null)
             {
                 instance = new FlyHandler();
+                Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
                 Player.PlacingBlock += new EventHandler<Events.PlayerPlacingBlockEventArgs>(Player_Clicked);
             }
 
@@ -55,6 +56,64 @@ namespace fCraft.Utils
                         e.Result = CanPlaceResult.Revert; //nothing saves to blockcount or blockdb
                     }
                 }
+            }
+        }
+
+        private static void Player_Moved(object sender, Events.PlayerMovedEventArgs e)
+        {
+            try
+            {
+                if (e.Player.IsFlying)
+                {
+                    Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
+                    Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+                    //Checking e.Old vs e.New increases accuracy, checking old vs new uses a lot less updates
+                    if ((oldPos.X != newPos.X) || (oldPos.Y != newPos.Y) || (oldPos.Z != newPos.Z))
+                    {
+                        //finally, /fly decends
+                        if((e.OldPosition.Z > e.NewPosition.Z))
+                        {
+                            foreach (Vector3I block in e.Player.FlyCache.Values)
+                            {
+                                e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                                Vector3I removed;
+                                e.Player.FlyCache.TryRemove(block.ToString(), out removed);
+                            }
+                        }
+                        // Create new block parts
+                        for (int i = -1; i <= 1; i++) //reduced width and length by 1
+                        {
+                            for (int j = -1; j <= 1; j++)
+                            {
+                                for (int k = 2; k <= 3; k++) //added a 2nd layer
+                                {
+                                    Vector3I layer = new Vector3I(newPos.X + i, newPos.Y + j, newPos.Z - k);
+                                    if (e.Player.World.Map.GetBlock(layer) == Block.Air)
+                                    {
+                                        e.Player.Send(PacketWriter.MakeSetBlock(layer, Block.Glass));
+                                        e.Player.FlyCache.TryAdd(layer.ToString(), layer);
+                                    }
+                                }
+                            }
+                        }
+
+
+                        // Remove old blocks
+                        foreach (Vector3I block in e.Player.FlyCache.Values)
+                        {
+                            if (CanRemoveBlock(e.Player, block, newPos))
+                            {
+                                e.Player.Send(PacketWriter.MakeSetBlock(block, Block.Air));
+                                Vector3I removed;
+                                e.Player.FlyCache.TryRemove(block.ToString(), out removed);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(LogType.Error, "FlyHandler.Player_Moved: " + ex);
             }
         }
 
