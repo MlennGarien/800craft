@@ -132,7 +132,7 @@ namespace fCraft.Portals
                                                     return;
                                                 }
                                                 e.Player.StopSpectating();
-                                                e.Player.JoinWorldNow(WorldManager.FindWorldExact(portal.World), true, WorldChangeReason.Portal);
+                                                e.Player.JoinWorld(WorldManager.FindWorldExact(portal.World), WorldChangeReason.Portal);
                                                 e.Player.Message("You used portal: " + portal.Name);
                                                 break;
 
