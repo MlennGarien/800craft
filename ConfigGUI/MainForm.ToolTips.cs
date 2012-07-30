@@ -68,6 +68,14 @@ You can use any color codes, and these special variables:
     {SERVER_NAME} = server name (as defined in config)
     {RANK} = connecting player's rank" );
 
+            toolTip.SetToolTip(SwearEditor,
+@"Edit the list of Swearwords (swearwords.txt).
+Each swearword should be on a seperate line.");
+
+            toolTip.SetToolTip(ReqsEditor,
+@"Edit the list of requirements for the ranks
+on your server.");
+
         }
 
 
