@@ -46,7 +46,8 @@ namespace fCraft {
                 WorldListFileName,
                 AutoRankFileName,
                 BasscannonFileName,
-                ReqFileName
+                ReqFileName,
+                SwearWordsFileName
             };
 
             DataFilesToBackup = new[]{
@@ -112,6 +113,7 @@ namespace fCraft {
         public const string ReqFileName = "requirements.txt";
         public const string BasscannonFileName = "basscannon.txt";
         public const string PortalDBFileName = "PortalDB.txt";
+        public const string SwearWordsFileName = "swearwords.txt";
 
 
         public static string BlockDBPath {

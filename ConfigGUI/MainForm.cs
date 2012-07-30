@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Text;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -1620,6 +1621,19 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         private void vConsoleOptions_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void SwearEditor_Click(object sender, EventArgs e)
+        {
+            if (!System.IO.File.Exists(Paths.SwearWordsFileName))
+            {
+                TextWriter tsw = new StreamWriter(Paths.SwearWordsFileName);
+                tsw.Write("//This is where you edit the swearwords on your " +
+                    "server, each word should be on a seperate line.");
+                tsw.Close();
+                Process.Start(Paths.SwearWordsFileName);
+            }
+            else Process.Start(Paths.SwearWordsFileName);
         }
     }
 }
