@@ -96,6 +96,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             IsHidden = true,
             Permissions = new[] { Permission.ManageWorlds },
+            Help = "&SConverts personal worlds into realms.",
             Handler = FixRealms
         };
 
@@ -125,7 +126,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Usage = "/Nick PlayerName DisplayedName",
-            Help = "A shortcut for /Setinfo DisplayedName, it changes a player's displayedName",
+            Help = "&SA shortcut for /Setinfo DisplayedName, it changes a player's displayedName",
             Handler = NickHandler
         };
 
@@ -191,7 +192,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Help = "Writes out a number of statistics about the server. " +
+            Help = "&SWrites out a number of statistics about the server. " +
                    "Only non-banned players active in the last 30 days are counted.",
             Usage = "/DumpStats FileName",
             Handler = DumpStatsHandler
@@ -657,7 +658,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
-            Help = "If AutoRank is disabled, it can still be called manually using this command.",
+            Help = "&SIf AutoRank is disabled, it can still be called manually using this command.",
             Usage = "/AutoRankAll [FromRank]",
             Handler = AutoRankAllHandler
         };
@@ -781,7 +782,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Help = "Allows direct editing of players' database records. List of editable properties: " +
+            Help = "&SAllows direct editing of players' database records. List of editable properties: " +
                    "BanReason, DisplayedName, KickReason, PreviousRank, RankChangeType, " +
                    "RankReason, TimesKicked, TotalTime, UnbanReason. For detailed help see &H/Help SetInfo <Property>",
             HelpSections = new Dictionary<string, string>{
@@ -1123,7 +1124,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
-            Help = "Shuts down the server remotely after a given delay. " +
+            Help = "&SShuts down the server remotely after a given delay. " +
                    "A shutdown reason or message can be specified to be shown to players. " +
                    "Type &H/Shutdown abort&S to cancel.",
             Usage = "/Shutdown Delay [Reason]&S or &H/Shutdown abort",
@@ -1189,7 +1190,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
             IsConsoleSafe = true,
-            Help = "Restarts the server remotely after a given delay. " +
+            Help = "&SRestarts the server remotely after a given delay. " +
                    "A restart reason or message can be specified to be shown to players. " +
                    "Type &H/Restart abort&S to cancel.",
             Usage = "/Restart Delay [Reason]&S or &H/Restart abort",
@@ -1258,7 +1259,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Help = "Removes inactive players from the player database. Use with caution.",
+            Help = "&SRemoves inactive players from the player database. Use with caution.",
             Handler = PruneDBHandler
         };
 
@@ -1479,7 +1480,7 @@ namespace fCraft {
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Usage = "/InfoSwap Player1 Player2",
-            Help = "Swaps records between two players. EXPERIMENTAL, use at your own risk.",
+            Help = "&SSwaps records between two players. EXPERIMENTAL, use at your own risk.",
             Handler = DoPlayerDB
         };
 

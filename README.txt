@@ -1,11 +1,11 @@
-Thank you for downloading 800Craft, a custom Minecraft server based on fCraft.
+﻿Thank you for downloading 800Craft, a custom Minecraft server based on fCraft.
 
 Special thanks to fragmer, what a bro!
 
 
 === Installation (Windows) ====================================================
 
-80Craft requires Microsoft .NET Framework 4.0. Your system may already have it
+800Craft requires Microsoft .NET Framework 4.0. Your system may already have it
 installed, and you can download it from microsoft.com
 
 === Installation (Linux, Unix, MacOS X) =======================================

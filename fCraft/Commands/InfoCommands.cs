@@ -66,7 +66,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Can show an advanced list for a chosen section. "+ 
+            Help = "&SCan show an advanced list for a chosen section. "+ 
             "Type /List to display the sections",
             Usage = "/List SectionName",
             Handler = ListHandler
@@ -103,9 +103,10 @@ namespace fCraft {
                 case "idles":
                 case "idle":
                     var Idles = Server.Players.Where(p => p.IdleTime.TotalMinutes > 5).ToArray();
+                    var visiblePlayers = Idles.Where(player.CanSee);
                     if (Idles.Count() > 0)
                         player.Message("Listing players idle for 5 mins or more: {0}",
-                                        Idles.JoinToString(r => String.Format("{0}", r.ClassyName)));
+                                        visiblePlayers.JoinToString(r => String.Format("{0}", r.ClassyName)));
                     else player.Message("No players have been idle for more than 5 minutes");
                     break;
                 case "portals":
@@ -764,7 +765,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Usage = "/BanInfo [PlayerName|IPAddress]",
-            Help = "Prints information about past and present bans/unbans associated with the PlayerName or IP. " +
+            Help = "&SPrints information about past and present bans/unbans associated with the PlayerName or IP. " +
                    "If no name is given, this prints your own ban info.",
             Handler = BanInfoHandler
         };
@@ -1079,7 +1080,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Shows a list of all defined ranks.",
+            Help = "&SShows a list of all defined ranks.",
             Handler = RanksHandler
         };
 
@@ -1111,7 +1112,7 @@ namespace fCraft {
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Shows a list of rules defined by server operator(s).",
+            Help = "&SShows a list of rules defined by server operator(s).",
             Handler = RulesHandler
         };
 
@@ -1230,7 +1231,7 @@ namespace fCraft {
             Name = "Measure",
             Category = CommandCategory.Info | CommandCategory.Building,
             RepeatableSelection = true,
-            Help = "Shows information about a selection: width/length/height and volume.",
+            Help = "&SShows information about a selection: width/length/height and volume.",
             Handler = MeasureHandler
         };
 

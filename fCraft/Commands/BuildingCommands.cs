@@ -121,7 +121,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Tree },
             Usage = "/Tree Shape Height",
-            Help = "Plants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove",
+            Help = "&SPlants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove",
             Handler = TreeHandler
         };
 
@@ -188,7 +188,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Build },
             IsConsoleSafe = false,
             NotRepeatable = false,
-            Help = "Fills the selected rectangular area with a cylinder of blocks. " +
+            Help = "&SFills the selected rectangular area with a cylinder of blocks. " +
                    "Unless two blocks are specified, leaves the inside hollow.",
             UsableByFrozenPlayers = false,
             Handler = CylinderHandler
@@ -206,7 +206,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Place",
-            Help = "Places a block below your feet.",
+            Help = "&SPlaces a block below your feet.",
             UsableByFrozenPlayers = false,
             Handler = Place
         };
@@ -289,7 +289,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Tower [/Tower Remove]",
-            Help = "Toggles tower mode on for yourself. All Iron blocks will be replaced with towers.",
+            Help = "&SToggles tower mode on for yourself. All Iron blocks will be replaced with towers.",
             UsableByFrozenPlayers = false,
             Handler = towerHandler
         };
@@ -346,7 +346,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/fly",
-            Help = "Allows a player to fly on a sheet of glass.",
+            Help = "&SAllows a player to fly on a sheet of glass.",
             UsableByFrozenPlayers = false,
             Handler = Fly
         };
@@ -559,10 +559,11 @@ namespace fCraft {
         {
             Name = "Walls",
             IsConsoleSafe = false,
+            RepeatableSelection = true,
             Category = CommandCategory.Building,
             IsHidden = false,
             Permissions = new[] { Permission.Draw },
-            Help = "Fills a rectangular area of walls",
+            Help = "&SFills a rectangular area of walls",
             Handler = WallsHandler
         };
 
@@ -948,7 +949,7 @@ namespace fCraft {
             Name = "Bind",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
-            Help = "Assigns one blocktype to another. " +
+            Help = "&SAssigns one blocktype to another. " +
                    "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
                    "Calling &H/Bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
             Usage = "/Bind OriginalBlockType ReplacementBlockType",
@@ -1145,7 +1146,7 @@ namespace fCraft {
             Name = "Undo",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
-            Help = "Selectively removes changes from your last drawing command. " +
+            Help = "&SSelectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             Handler = UndoHandler
         };
@@ -1204,7 +1205,7 @@ namespace fCraft {
             Name = "Redo",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw },
-            Help = "Selectively removes changes from your last drawing command. " +
+            Help = "&SSelectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             Handler = RedoHandler
         };
@@ -1258,7 +1259,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Usage = "/CopySlot [#]",
-            Help = "Selects a slot to copy to/paste from. The maximum number of slots is limited per-rank.",
+            Help = "&SSelects a slot to copy to/paste from. The maximum number of slots is limited per-rank.",
             Handler = CopySlotHandler
         };
 
@@ -1302,7 +1303,7 @@ namespace fCraft {
             Name = "Copy",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
-            Help = "Copy blocks for pasting. " +
+            Help = "&SCopy blocks for pasting. " +
                    "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/Copy&S from.",
             Handler = CopyHandler
@@ -1373,7 +1374,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
-            Help = "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
+            Help = "&SCopies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
                    "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/Cut&S from.",
             Usage = "/Cut [FillBlock]",
@@ -1705,7 +1706,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
-            Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
+            Help = "&SPastes previously copied blocks. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
                    "Alignment semantics are... complicated.",
             Usage = "/Paste [IncludedBlock [AnotherOne etc]]",
@@ -1762,7 +1763,7 @@ namespace fCraft {
             },
             RepeatableSelection = true,
             Usage = "/Restore FileName",
-            Help = "Selectively restores/pastes part of mapfile into the current world. "+
+            Help = "&SSelectively restores/pastes part of mapfile into the current world. "+
                    "If the filename contains spaces, surround it with quote marks.",
             Handler = RestoreHandler
         };
@@ -1887,7 +1888,7 @@ namespace fCraft {
             Name = "Cancel",
             Category = CommandCategory.Building,
             NotRepeatable = true,
-            Help = "Cancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
+            Help = "&SCancels current selection (for drawing or zoning) operation, for instance if you misclicked on the first block. " +
                    "If you wish to stop a drawing in-progress, use &H/Undo&S instead.",
             Handler = CancelHandler
         };
@@ -2238,7 +2239,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdStatic = new CommandDescriptor {
             Name = "Static",
             Category = CommandCategory.Building,
-            Help = "Toggles repetition of last selection on or off.",
+            Help = "&SToggles repetition of last selection on or off.",
             Handler = StaticHandler
         };
 
