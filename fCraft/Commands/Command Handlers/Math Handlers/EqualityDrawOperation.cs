@@ -1,4 +1,4 @@
-﻿//Copyright (C) <2012>  <Jon Baker, Glenn Mariën and Lao Tszy>
+//Copyright (C) <2012>  <Jon Baker, Glenn Mariën and Lao Tszy>
 
     //This program is free software: you can redistribute it and/or modify
     //it under the terms of the GNU General Public License as published by
@@ -61,20 +61,31 @@ namespace fCraft
 			//do it 3 times, iterating axis in different order, to get to the closed surface as close as possible
 			InternalDraw(ref Coords.X, ref Coords.Y, ref Coords.Z,
 						Bounds.XMin, Bounds.XMax, Bounds.YMin, Bounds.YMax, Bounds.ZMin, Bounds.ZMax,
+						ref Coords.X, ref Coords.Y, ref Coords.Z,
+						Bounds.XMin, Bounds.XMax, Bounds.YMin, Bounds.YMax, Bounds.ZMin, Bounds.ZMax,
 						maxBlocksToDraw);
 			InternalDraw(ref Coords.X, ref Coords.Z, ref Coords.Y,
 						Bounds.XMin, Bounds.XMax, Bounds.ZMin, Bounds.ZMax, Bounds.YMin, Bounds.YMax,
+						ref Coords.X, ref Coords.Y, ref Coords.Z,
+						Bounds.XMin, Bounds.XMax, Bounds.YMin, Bounds.YMax, Bounds.ZMin, Bounds.ZMax,
 						maxBlocksToDraw);
 			InternalDraw(ref Coords.Y, ref Coords.Z, ref Coords.X,
 						Bounds.YMin, Bounds.YMax, Bounds.ZMin, Bounds.ZMax, Bounds.XMin, Bounds.XMax,
+						ref Coords.X, ref Coords.Y, ref Coords.Z,
+						Bounds.XMin, Bounds.XMax, Bounds.YMin, Bounds.YMax, Bounds.ZMin, Bounds.ZMax,
 						maxBlocksToDraw);
 			
 			IsDone = true;
 			return _count;
 		}
 
-		//this method exists to box coords nicely as ref params
-		private int InternalDraw(ref int arg1, ref int arg2, ref int arg3, int min1, int max1, int min2, int max2, int min3, int max3, int maxBlocksToDraw)
+		//this method exists to box coords nicely as ref params, note that the set of {arg1, arg2, arg3} must be the same with 
+		//{ xArg, yArg, zArg }
+		private int InternalDraw(ref int arg1, ref int arg2, ref int arg3, 
+			int min1, int max1, int min2, int max2, int min3, int max3, 
+			ref int argX, ref int argY, ref int argZ, 
+			int minX, int maxX, int minY, int maxY, int minZ, int maxZ, 
+			int maxBlocksToDraw)
 		{
 			_count = 0;
 			int exCount = 0;
@@ -89,10 +100,11 @@ namespace fCraft
 					{
 						try
 						{
+							arg3 = arg3Iterator;
 							Tuple<double, double> res=
-								_expression.EvaluateAsEquality(_scaler.ToFuncParam(arg1, min1, max1),
-									                     _scaler.ToFuncParam(arg2, min2, max2),
-														 _scaler.ToFuncParam(arg3Iterator, min3, max3));
+								_expression.EvaluateAsEquality(_scaler.ToFuncParam(argX, minX, maxX),
+									                     _scaler.ToFuncParam(argY, minY, maxY),
+														 _scaler.ToFuncParam(argZ, minZ, maxZ));
 							//decision: we cant only take points with 0 as comparison result as it will happen almost never.
 							//We are reacting on the changes of the comparison result sign 
 							arg3 = int.MaxValue;
