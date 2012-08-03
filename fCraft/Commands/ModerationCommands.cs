@@ -244,7 +244,7 @@ namespace fCraft {
             Help = "Slaps a player to the sky. " +
             "Availble items are: bakingtray, fish, bitchslap, and shoe.\n" +
             "NOTE: Items are optional.",
-            Usage = "/slap [item]",
+            Usage = "/Slap playerName item",
             Handler = Slap
         };
 
