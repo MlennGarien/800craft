@@ -1598,8 +1598,8 @@ namespace fCraft {
             if (variable.ToLower() == "terrain"){
                 if (valueText == null)
                 {
-                    player.Message("&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, woodpunk, fall, snow, tron, "+
-                    "mario, highres, 8bit, simple, indev, messa, portal, zelda ");
+                    player.Message("&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, prometheus, woodpunk, fall, snow, tron, "+
+                    "mario, highres, 8bit, simple, indev, messa, portal, dokucraft, doomcraft, hexeretic, zelda ");
                     return;
                 }
                 switch (valueText.ToLower()){
@@ -1618,6 +1618,9 @@ namespace fCraft {
                     case "shroom":
                         world.Terrain = "f31b086dbae92cc1741476a3697506192b8f5814";
                         break;
+                    case "prometheus":
+                        world.Terrain = "f66479f2d6c812806c3e768442d45a08a868ad16";
+                        break;
                     case "woodpunk":
                         world.Terrain = "dff99c37e4a792e10c3b775e6bded725f18ed6fe";
                         break;
@@ -1626,6 +1629,9 @@ namespace fCraft {
                         break;
                     case "highres":
                         world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
+                        break;
+                    case "hexeretic":
+                        world.Terrain = "d8e75476281087c8482ac636a8b8e4a59fadd525";
                         break;
                     case "tron":
                         world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
@@ -1639,8 +1645,14 @@ namespace fCraft {
                     case "fall":
                         world.Terrain = "b7c6dcb7a858639077f95ef94e8e2d51bedc3307";
                         break;
+                    case "dokucraft":
+                        world.Terrain = "a101cadafd02019e14d727d3329a923a40ef040b";
+                        break;
                     case "indev":
                         world.Terrain = "73d1ef4441725bdcc9ac3616205faa3dff46e12a";
+                        break;
+                    case "doomcraft":
+                        world.Terrain = "8b72beb6fea6ed1e01c1e32e08edf5f784bc919c";
                         break;
                     case "messa":
                         world.Terrain = "db0feeac8702704a3146a71365622db55fb5a4c4";
@@ -1654,9 +1666,9 @@ namespace fCraft {
                     case "zelda":
                         world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
                         break;
-                    default: 
-                        player.Message("&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, woodpunk, fall, snow, tron, " +
-                    "mario, highres, 8bit, simple, indev, messa, portal, zelda ");
+                    default:
+                        player.Message("&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, prometheus, woodpunk, fall, snow, tron, " +
+                    "mario, highres, 8bit, simple, indev, messa, portal, dokucraft, doomcraft, hexeretic, zelda ");
                         return;
                 }
                 player.Message("Terrain Changed for {0}", world.ClassyName);
