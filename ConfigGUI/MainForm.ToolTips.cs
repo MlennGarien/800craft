@@ -368,6 +368,7 @@ Affected commands:
     /AutoRankAll
     /MassRank
     /SetInfo
+    /Nick
     /InfoSwap
     /DumpStats";
     
