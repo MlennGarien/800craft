@@ -188,6 +188,7 @@ namespace fCraft {
             Permissions = new[] { Permission.Build },
             IsConsoleSafe = false,
             NotRepeatable = false,
+            RepeatableSelection = true,
             Help = "&SFills the selected rectangular area with a cylinder of blocks. " +
                    "Unless two blocks are specified, leaves the inside hollow.",
             UsableByFrozenPlayers = false,
