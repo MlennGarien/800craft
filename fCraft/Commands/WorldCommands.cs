@@ -246,7 +246,7 @@ namespace fCraft {
         {
             Name = "portal",
             Category = CommandCategory.World,
-            Permissions = new Permission[] { Permission.UsePortal },
+            Permissions = new Permission[] { Permission.ManagePortal },
             IsConsoleSafe = false,
             Usage = "/portal [create | remove | info | list | enable | disable ]",
             Help = "Controls portals, options are: create, remove, list, info, enable, disable\n&S" +
