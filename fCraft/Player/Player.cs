@@ -131,6 +131,26 @@ namespace fCraft {
             }
         }
 
+        ///<summary>Name formatted for title display.</summary>
+        [NotNull]
+        public string TitleName
+        {
+            get
+            {
+                string titleName = Name;
+                string displayedName = Name;
+                if (ConfigKey.RankPrefixesInList.Enabled())
+                {
+                    titleName = Info.Rank.Prefix + "[" + titleName + "]" + displayedName;
+                }
+                if (ConfigKey.RankColorsInChat.Enabled() && Info.Rank.Color != Color.White && iName == null)
+                {
+                    displayedName = Info.Rank.Color + "[" + titleName + "]" + displayedName;
+                }
+                return titleName;
+            }
+        }
+
         /// <summary> Name formatted for display in chat. </summary>
         [NotNull]
         public string ClassyName {

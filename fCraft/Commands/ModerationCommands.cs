@@ -67,6 +67,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdModerate);
             CommandManager.RegisterCommand(CdImpersonate);
             CommandManager.RegisterCommand(CdImmortal);
+            CommandManager.RegisterCommand(CdTitle);
         }
         #region 800Craft
 
@@ -85,6 +86,70 @@ namespace fCraft {
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
         public static List<string> BassText = new List<string>();
+
+        static readonly CommandDescriptor CdTitle = new CommandDescriptor
+        {
+            Name = "Title",
+            Category = CommandCategory.Moderation,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Usage = "/Title <Playername> <Title>",
+            Help = "&SChanges or sets a player's title.",
+            Handler = TitleHandler
+        };
+
+        static void TitleHandler(Player player, Command cmd)
+        {
+            string targetName = cmd.Next();
+            string titleName = cmd.NextAll();
+
+            if (targetName == null)
+            {
+                CdTitle.PrintUsage(player);
+                return;
+            }
+
+            PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetName);
+            if (info == null) return;
+            string oldTitle = info.TitleName;
+            if (titleName.Length == 0) titleName = null;
+            if (titleName == info.TitleName)
+            {
+                if (titleName == null)
+                {
+                    player.Message("Title: Title for {0} is not set.",
+                                    info.Name);
+                }
+                else
+                {
+                    player.Message("Title: Title for {0} is already set to \"{1}&S\"",
+                                    info.Name,
+                                    titleName);
+                }
+                return;
+            }
+            info.TitleName = titleName;
+
+            if (oldTitle == null)
+            {
+                player.Message("Title: Title for {0} set to \"{1}&S\"",
+                                info.Name,
+                                titleName);
+            }
+            else if (titleName == null)
+            {
+                player.Message("Title: Title for {0} was reset (was \"{1}&S\")",
+                                info.Name,
+                                oldTitle);
+            }
+            else
+            {
+                player.Message("Title: Title for {0} changed from \"{1}&S\" to \"{2}&S\"",
+                                info.Name,
+                                oldTitle,
+                                titleName);
+            }
+        }
 
         static readonly CommandDescriptor CdImmortal = new CommandDescriptor
         {
