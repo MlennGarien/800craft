@@ -1087,6 +1087,27 @@ namespace fCraft {
             return false;
         }
 
+     public Position getDirection() {
+         Position vector = new Position();
+
+         double rotX = this.Position.R;
+         double rotZ = this.Position.L;
+
+         vector.Z = (short)(Position.Z + (-Math.Sin(DegreeToRadians(rotZ))));
+ 
+         double h = Math.Cos(DegreeToRadians(rotZ));
+
+         vector.X = (short)(Position.X + (-h * Math.Sin(DegreeToRadians(rotX))));
+         vector.Y = (short)(Position.Y + (h * Math.Cos(DegreeToRadians(rotX))));
+
+         return vector;
+     }
+
+     private double DegreeToRadians(double angle)
+     {
+         return Math.PI * angle / 180.0;
+     }
+
 
         /// <summary>  Gets the block from given location in player's world,
         /// and sends it (async) to the player.

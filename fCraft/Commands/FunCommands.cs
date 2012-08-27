@@ -46,30 +46,11 @@ namespace fCraft
             //check if has moved 1 whole block
             if (newPos.X == oldPos.X + 1 || newPos.X == oldPos.X-1 || newPos.Y == oldPos.Y + 1 || newPos.Y == oldPos.Y-1)
             {
-                Server.Players.Message("Old: " + newPos.ToString());
-                Vector3I move = newPos - oldPos;
-                int AccelerationFactor = 4;
-                Vector3I acceleratedNewPos = oldPos + move * AccelerationFactor;
-                //do not forget to check for all the null pointers here - TODO
-                Map m = e.Player.World.Map;
-                //check if can move through all the blocks along the path
-                Vector3F normal = move.Normalize();
-                Vector3I prevBlockPos = e.OldPosition.ToBlockCoords();
-                for (int i = 1; i <= AccelerationFactor * move.Length; ++i)
-                {
-                    Vector3I pos = (oldPos + i * normal).Round();
-                    if (prevBlockPos == pos) //didnt yet hit the next block
-                        continue;
-                    if (!m.InBounds(pos) || m.GetBlock(pos) != Block.Air) //got out of bounds or some solid block
-                    {
-                        acceleratedNewPos = (oldPos + normal * (i - 1)).Round();
-                        break;
-                    }
-                    prevBlockPos = pos;
-                }
+                Server.Players.Message("&nOld: " + newPos.ToString());
+                Position SendPos = e.Player.getDirection();
                 //teleport keeping the same orientation
-                Server.Players.Message("New: "+ acceleratedNewPos.ToString());
-                e.Player.Send(PacketWriter.MakeSelfTeleport(new Position((short)(acceleratedNewPos.X * 32), (short)(acceleratedNewPos.Y * 32), e.Player.Position.Z, e.NewPosition.R, e.NewPosition.L)));
+                Server.Players.Message("&nNew: " + SendPos.ToString());
+                e.Player.Send(PacketWriter.MakeSelfTeleport(new Position((short)SendPos.X, (short)SendPos.Y, e.Player.Position.Z, e.NewPosition.R, e.NewPosition.L)));
             }
         }
 

@@ -804,11 +804,13 @@ namespace fCraft {
             while( hash.Length < 32 ) {
                 hash = "0" + hash;
             }
+            Logger.Log(LogType.Error, hash);
             MD5 hasher = MD5.Create();
             StringBuilder sb = new StringBuilder( 32 );
             foreach( byte b in hasher.ComputeHash( Encoding.ASCII.GetBytes( salt + name ) ) ) {
                 sb.AppendFormat( "{0:x2}", b );
             }
+            Logger.Log(LogType.Error, sb.ToString());
             return sb.ToString().Equals( hash, StringComparison.OrdinalIgnoreCase );
         }
 
