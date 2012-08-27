@@ -193,7 +193,6 @@ namespace fCraft {
         public DateTime LastTimeKilled;
         public bool Immortal = false;
 
-        public bool SpeedMode = false;
         public OmegleBot OmBot;
 
         //general purpose state storage for plugins

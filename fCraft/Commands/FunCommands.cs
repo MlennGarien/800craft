@@ -33,69 +33,6 @@ namespace fCraft
             CommandManager.RegisterCommand(CdLife);
             CommandManager.RegisterCommand(CdPossess);
             CommandManager.RegisterCommand(CdUnpossess);
-            CommandManager.RegisterCommand(CdSpeed);
-            Player.Moving += PlayerMoved;
-        }
-
-        public static void PlayerMoved(object sender, fCraft.Events.PlayerMovingEventArgs e)
-        {
-            if (e.Player.Info.IsFrozen || e.Player.SpectatedPlayer != null || !e.Player.SpeedMode)
-                return;
-            Vector3I oldPos = e.OldPosition.ToBlockCoords();
-            Vector3I newPos = e.NewPosition.ToBlockCoords();
-            //check if has moved 1 whole block
-            if (newPos.X == oldPos.X + 1 || newPos.X == oldPos.X-1 || newPos.Y == oldPos.Y + 1 || newPos.Y == oldPos.Y-1)
-            {
-                Server.Players.Message("Old: " + newPos.ToString());
-                Vector3I move = newPos - oldPos;
-                int AccelerationFactor = 4;
-                Vector3I acceleratedNewPos = oldPos + move * AccelerationFactor;
-                //do not forget to check for all the null pointers here - TODO
-                Map m = e.Player.World.Map;
-                //check if can move through all the blocks along the path
-                Vector3F normal = move.Normalize();
-                Vector3I prevBlockPos = e.OldPosition.ToBlockCoords();
-                for (int i = 1; i <= AccelerationFactor * move.Length; ++i)
-                {
-                    Vector3I pos = (oldPos + i * normal).Round();
-                    if (prevBlockPos == pos) //didnt yet hit the next block
-                        continue;
-                    if (!m.InBounds(pos) || m.GetBlock(pos) != Block.Air) //got out of bounds or some solid block
-                    {
-                        acceleratedNewPos = (oldPos + normal * (i - 1)).Round();
-                        break;
-                    }
-                    prevBlockPos = pos;
-                }
-                //teleport keeping the same orientation
-                Server.Players.Message("New: "+ acceleratedNewPos.ToString());
-                e.Player.Send(PacketWriter.MakeSelfTeleport(new Position((short)(acceleratedNewPos.X * 32), (short)(acceleratedNewPos.Y * 32), e.Player.Position.Z, e.NewPosition.R, e.NewPosition.L)));
-            }
-        }
-
-        static readonly CommandDescriptor CdSpeed = new CommandDescriptor
-        {
-            Name = "Speed",
-            Category = CommandCategory.Fun,
-            Permissions = new[] { Permission.UseSpeedHack },
-            Usage = "/Speed",
-            Help = "Glitchy as hell, but scientifically proven to move you faster around the map",
-            Handler = SpeedHandler
-        };
-
-        static void SpeedHandler(Player player, Command cmd)
-        {
-            if (player.SpeedMode)
-            {
-                player.SpeedMode = false;
-                player.Message("You are no longer in speed mode.");
-                return;
-            }
-            else
-            {
-                player.SpeedMode = true;
-                player.Message("You are now in speedmode, type &H/Speed&S to deactivate");
-            }
         }
 
         #region Possess / UnPossess
