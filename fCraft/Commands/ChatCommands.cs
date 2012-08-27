@@ -301,10 +301,8 @@ namespace fCraft {
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
-            if (target == null){
-                player.MessageNoPlayer(targetName);
+            if (target == null)
                 return;
-            }
             if (target == player) {
                 player.Message("&WYou cannot high five yourself.");
                 return;
