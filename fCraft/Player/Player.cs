@@ -10,6 +10,7 @@ using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
 using System.Collections.Concurrent;
+using System.Drawing;
 
 namespace fCraft {
     /// <summary> Callback for a player-made selection of one or more blocks on a map.
@@ -102,6 +103,9 @@ namespace fCraft {
 
         public Bot Bot;
         //public Alice Ali;
+
+        public static int FontSize = 8;
+        public Font font = new Font("Times New Roman", FontSize);
 
 
         /// <summary> Last command called by the player. </summary>

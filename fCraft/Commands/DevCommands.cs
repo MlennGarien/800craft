@@ -19,7 +19,7 @@ namespace fCraft
             CommandManager.RegisterCommand(CdFeed);
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
-            // CommandManager.RegisterCommand(CdGame);
+            //CommandManager.RegisterCommand(CdGame);
 
             Player.JoinedWorld += fCraft.Events.FeedEvents.PlayerJoiningWorld;
         }
@@ -208,12 +208,6 @@ namespace fCraft
             }
             else
             {
-                if (!File.Exists("font.png"))
-                {
-                    player.Message("The font file could not be found. Font.png needs to be in the server root.");
-                    return;
-                }
-                FontHandler.Init("font.png");//move to system
                 player.Message("Write: Click 2 blocks or use &H/Mark&S to set direction.");
                 player.SelectionStart(2, WriteCallback, sentence, Permission.Draw);
             }
@@ -227,16 +221,36 @@ namespace fCraft
             {
                 marks[0].Z++;
             }
-            if (player.LastUsedBlockType == Block.Undefined)
-            {
+            if (player.LastUsedBlockType == Block.Undefined){
                 block = Block.Stone;
-            }
-            else
-            {
+            }else{
                 block = player.LastUsedBlockType;
             }
-            FontHandler render = new FontHandler(block, marks, player.World, player);
-            render.Render(sentence);
+            Direction direction = Direction.Null;
+            if (Math.Abs(marks[1].X - marks[0].X) > Math.Abs(marks[1].Y - marks[0].Y))
+            {
+                if (marks[0].X < marks[1].X)
+                {
+                    direction = Direction.one;
+                }
+                else
+                {
+                    direction = Direction.two;
+                }
+            }
+            else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y))
+            {
+                if (marks[0].Y < marks[1].Y)
+                {
+                    direction = Direction.three;
+                }
+                else
+                {
+                    direction = Direction.four;
+                }
+            }
+            FontHandler render = new FontHandler(block, marks, player, direction);
+            render.Init(player, sentence);
             if (render.blockCount > 0)
             {
                 player.Message("/Write: Writing '{0}' using {1} blocks of {2}", sentence, render.blockCount, block.ToString());
