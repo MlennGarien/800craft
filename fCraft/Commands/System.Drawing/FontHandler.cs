@@ -5,18 +5,33 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
+//Copyright (C) <2012> <Jon Baker, Glenn Mariën and Lao Tszy>
+
+//This program is free software: you can redistribute it and/or modify
+//it under the terms of the GNU General Public License as published by
+//the Free Software Foundation, either version 3 of the License, or
+//(at your option) any later version.
+
+//This program is distributed in the hope that it will be useful,
+//but WITHOUT ANY WARRANTY; without even the implied warranty of
+//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//GNU General Public License for more details.
+
+//You should have received a copy of the GNU General Public License
+//along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace fCraft
 {
     public class FontHandler
     {
-        public Player player;
-        public int blockCount;
-        public Vector3I[] marks;
-        int blocks = 0,
-            blocksDenied = 0;
-        fCraft.Drawing.UndoState undoState;
-        Direction direction;
+        public Player player; //player using command
+        public int blockCount; //blockcount for player message. ++ when drawing
+        public Vector3I[] marks; //the marks. [0] is 1st position, [1] is 2nd
+        int blocks = 0, //drawn blocks
+            blocksDenied = 0; //denied blocks (zones, ect)
+        fCraft.Drawing.UndoState undoState; //undostate
+        Direction direction; //direction of the blocks (x++-- ect)
 
+        //instance
         public FontHandler(Block textColor, Vector3I[] Marks, Player p, Direction dir)
         {
             direction = dir;
@@ -32,19 +47,20 @@ namespace fCraft
 
         public void CreateGraphicsAndDraw(Player player, string Sentence)
         {
-            SizeF size = MeasureTextSize(Sentence, player.font);
-            using (Bitmap img = new Bitmap((int)size.Width + 1, (int)size.Height + 1))
+            SizeF size = MeasureTextSize(Sentence, player.font); //measure the text size to create a bmp)
+            using (Bitmap img = new Bitmap((int)size.Width, (int)size.Height)) //IDisposable
             {
                 using (Graphics g = Graphics.FromImage(img))
                 {
-                    g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height);
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g.DrawString(Sentence, player.font, Brushes.Black, new PointF(0, 0));
-                    Draw(img);
+                    g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height); //make background
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel; //fix to bleeding
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //not sure if this helps
+                    g.DrawString(Sentence, player.font, Brushes.Black, new PointF(0, 0)); //draw some sexytext
+                    Draw(img); //make the blockupdates
                 }
             }
         }
+        //Measure the size of the string length using IDisposable
         public static SizeF MeasureTextSize(string text, Font font)
         {
             using (Bitmap bmp = new Bitmap(1, 1))
@@ -58,7 +74,7 @@ namespace fCraft
 
         public void Draw(Bitmap img)
         {
-            img.RotateFlip(RotateFlipType.Rotate180FlipX);
+            img.RotateFlip(RotateFlipType.Rotate180FlipX); //flip image
             switch (direction)
             {
                 case Direction.one:
@@ -123,7 +139,7 @@ namespace fCraft
                     break;
             }
         }
-
+        //stores information needed for each pixel
         public struct PixelData
         {
             public static int X;
@@ -132,7 +148,7 @@ namespace fCraft
             public static Block BlockColor;
         }
 
-
+        //stolen from BuildingCommands
         #region DrawOneBlock
         static void DrawOneBlock(Player player, Map map, Block drawBlock, Vector3I coord,
                                  BlockChangeContext context, ref int blocks, ref int blocksDenied, fCraft.Drawing.UndoState undoState)
