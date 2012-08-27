@@ -121,28 +121,38 @@ namespace fCraft
                         player.Message("Target cannot be empty. " + Usage);
                         return;
                     }
+
                     Player target = Server.FindPlayerOrPrintMatches(player, toKick, false, true);
+
+                    if (target == null)
+                    {
+                        // FIX: Target is null when no such player is online, this caused crashes
+                        return;
+                    }
+
                     if (!Player.IsValidName(target.Name))
                     {
                         return;
                     }
+
                     if (!player.Can(Permission.MakeVoteKicks))
                     {
                         player.Message("You do not have permissions to start a VoteKick");
                         return;
                     }
+
                     if (VoteIsOn)
                     {
                         player.Message("A vote has already started. Each vote lasts 1 minute.");
                         return;
                     }
+
                     if (VoteKickReason.Length < 3)
                     {
                         player.Message("Invalid reason");
                         return;
                     }
-                    if (target == null)
-                        return;
+
                     if (target == player)
                     {
                         player.Message("You cannot VoteKick yourself, lol");
@@ -239,8 +249,28 @@ namespace fCraft
             {
                 Server.Players.Message("{0}&S wanted to get {1} kicked. Reason: {2} \n&SResults are in! Yes: &A{3} &SNo: &C{4}", VoteStarter,
                                       TargetName, VoteKickReason, VotedYes, VotedNo);
-                Player target = Server.FindPlayerOrPrintMatches(Player.Console, TargetName, true, true);
-                if (!target.IsOnline)
+
+                Player target = null;
+
+                try
+                {
+                    target = Server.FindPlayerOrPrintMatches(Player.Console, TargetName, true, true);
+                }
+                catch (Exception ex)
+                {
+                    // Log exception
+                    Logger.Log(LogType.Error, ex.Message);
+
+                    // Notify users
+                    Server.Message("Unexpected error while trying to execute votekick");
+
+                    // Unable to find target so quit.
+                    VoteIsOn = false;
+                    TargetName = null;
+                    return;
+                }
+
+                if (target == null)
                 {
                     Server.Message("{0}&S is offline", target.ClassyName);
                     return;

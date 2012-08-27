@@ -283,6 +283,7 @@
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.SwearEditor = new System.Windows.Forms.Button();
             this.MaxCapsValue = new System.Windows.Forms.NumericUpDown();
             this.MaxCaps = new System.Windows.Forms.Label();
             this.HbBox1 = new System.Windows.Forms.CheckBox();
@@ -302,6 +303,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.ReqsEditor = new System.Windows.Forms.Button();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -3378,6 +3380,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.ReqsEditor);
+            this.groupBox3.Controls.Add(this.SwearEditor);
             this.groupBox3.Controls.Add(this.MaxCapsValue);
             this.groupBox3.Controls.Add(this.MaxCaps);
             this.groupBox3.Controls.Add(this.HbBox1);
@@ -3389,6 +3393,16 @@
             this.groupBox3.TabIndex = 27;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Configurations";
+            // 
+            // SwearEditor
+            // 
+            this.SwearEditor.Location = new System.Drawing.Point(442, 65);
+            this.SwearEditor.Name = "SwearEditor";
+            this.SwearEditor.Size = new System.Drawing.Size(125, 23);
+            this.SwearEditor.TabIndex = 25;
+            this.SwearEditor.Text = "Edit Profanity List";
+            this.SwearEditor.UseVisualStyleBackColor = true;
+            this.SwearEditor.Click += new System.EventHandler(this.SwearEditor_Click);
             // 
             // MaxCapsValue
             // 
@@ -3611,6 +3625,16 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
+            // 
+            // ReqsEditor
+            // 
+            this.ReqsEditor.Location = new System.Drawing.Point(442, 94);
+            this.ReqsEditor.Name = "ReqsEditor";
+            this.ReqsEditor.Size = new System.Drawing.Size(125, 23);
+            this.ReqsEditor.TabIndex = 26;
+            this.ReqsEditor.Text = "Edit Requirements";
+            this.ReqsEditor.UseVisualStyleBackColor = true;
+            this.ReqsEditor.Click += new System.EventHandler(this.ReqsEditor_Click);
             // 
             // MainForm
             // 
@@ -3999,5 +4023,7 @@
         private System.Windows.Forms.TextBox SwearBox;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button SwearEditor;
+        private System.Windows.Forms.Button ReqsEditor;
     }
 }

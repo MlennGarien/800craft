@@ -21,6 +21,10 @@ namespace fCraft {
         [CanBeNull]
         public string DisplayedName;
 
+        /// <summary>Player's title.</summary>
+        [CanBeNull]
+        public string TitleName;
+
         /// <summary> Player's unique numeric ID. Issued on first join. </summary>
         public int ID;
 
@@ -1322,6 +1326,10 @@ namespace fCraft {
         public string ClassyName {
             get {
                 StringBuilder sb = new StringBuilder();
+                if ( TitleName != null )
+                {
+                    sb.Append(TitleName);
+                }
                 if( ConfigKey.RankColorsInChat.Enabled() ) {
                     sb.Append( Rank.Color );
                 }

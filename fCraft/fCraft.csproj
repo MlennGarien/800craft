@@ -193,6 +193,8 @@
     <Compile Include="Player\Position.cs" />
     <Compile Include="Player\Rank.cs" />
     <Compile Include="Player\RankManager.cs" />
+    <Compile Include="Plugins\PluginConfig.cs" />
+    <Compile Include="Plugins\PluginConfigSerializer.cs" />
     <Compile Include="Plugins\SecurityController.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\PluginManager.cs" />

@@ -46,7 +46,8 @@ namespace fCraft {
                 WorldListFileName,
                 AutoRankFileName,
                 BasscannonFileName,
-                ReqFileName
+                ReqFileName,
+                SwearWordsFileName
             };
 
             DataFilesToBackup = new[]{
@@ -112,6 +113,7 @@ namespace fCraft {
         public const string ReqFileName = "requirements.txt";
         public const string BasscannonFileName = "basscannon.txt";
         public const string PortalDBFileName = "PortalDB.txt";
+        public const string SwearWordsFileName = "swearwords.txt";
 
 
         public static string BlockDBPath {
@@ -125,6 +127,11 @@ namespace fCraft {
         public static string ReqPath
         {
             get { return Path.Combine(WorkingPath, ReqDirectory); }
+        }
+
+        public static string ReqTextPath
+        {
+            get { return Path.Combine(ReqDirectory, "requirements.txt"); }
         }
 
         /// <summary> Path where map backups are stored </summary>
