@@ -94,7 +94,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Usage = "/Title <Playername> <Title>",
-            Help = "&SChanges or sets a player's title.",
+            Help = "&HChanges or sets a player's title.",
             Handler = TitleHandler
         };
 
@@ -103,7 +103,7 @@ namespace fCraft {
             string targetName = cmd.Next();
             string titleName = cmd.NextAll();
 
-            if (targetName == null)
+            if ( string.IsNullOrEmpty(targetName))
             {
                 CdTitle.PrintUsage(player);
                 return;
@@ -127,6 +127,15 @@ namespace fCraft {
                                     titleName);
                 }
                 return;
+            }
+            //check the title, is it a title?
+            if (titleName != null)
+            {
+                string StripT = Color.StripColors(titleName);
+                if (!StripT.StartsWith("[") && !StripT.EndsWith("]"))
+                {
+                    titleName = info.Rank.Color + "[" + titleName + info.Rank.Color + "]";
+                }
             }
             info.TitleName = titleName;
 

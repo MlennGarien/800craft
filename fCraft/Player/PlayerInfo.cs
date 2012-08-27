@@ -464,7 +464,8 @@ namespace fCraft {
             Int32.TryParse( fields[20], out info.TimesVisited );
             if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
             // field 23 are no longer in use
-            Int32.TryParse(fields[22], out info.PromoCount);
+            Int32.TryParse(fields[22], out info.PromoCount); //promocount
+            if (fields[23].Length > 0) info.TitleName = fields[23].ToString(); //titlename
 
             if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
             if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
@@ -1007,7 +1008,10 @@ namespace fCraft {
             sb.Append( ',' );
 
             if (PromoCount > 0) sb.Digits(PromoCount); //22
-            sb.Append(',', 2); //23 no longer in use
+            sb.Append(','); //23 is now titlename
+
+            sb.Append(TitleName); //23
+            sb.Append(',');
             
 
             if( PreviousRank != null ) sb.Append( PreviousRank.FullName ); // 24
@@ -1136,6 +1140,7 @@ namespace fCraft {
             Write7BitEncodedInt( writer, TimesVisited ); // 26
             Write7BitEncodedInt( writer, MessagesWritten ); // 27
             Write7BitEncodedInt(writer, PromoCount); //22 (?)
+            WriteString(writer, TitleName); //23 (?)
             Write7BitEncodedInt( writer, TimesKickedOthers ); // 28
             Write7BitEncodedInt( writer, TimesBannedOthers ); // 29
 

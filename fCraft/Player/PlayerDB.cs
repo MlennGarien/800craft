@@ -40,7 +40,7 @@ namespace fCraft {
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
                               "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate," +
                               "LastFailedLoginIP,UNUSED,FirstLoginDate,LastLoginDate,TotalTime," +
-                              "BlocksBuilt,BlocksDeleted,TimesVisited,MessagesWritten,PromoCount,UNUSED," +
+                              "BlocksBuilt,BlocksDeleted,TimesVisited,MessagesWritten,PromoCount,TitleName," +
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
                               "LastKickBy,LastKickReason,BannedUntil,IsFrozen,FrozenBy,FrozenOn,MutedUntil,MutedBy," +
