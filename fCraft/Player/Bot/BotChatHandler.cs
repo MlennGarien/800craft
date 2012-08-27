@@ -1,7 +1,8 @@
 ﻿//Written by Matt Gonzalez
 //with help from Nicholas H.Tollervey's ConsoleBot2.5
 //and AIML base files from the A.L.I.C.E Bot project
-using System;
+
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -68,4 +69,4 @@ namespace fCraft
             return (res.Output);
         }
     }
-}
+}*/

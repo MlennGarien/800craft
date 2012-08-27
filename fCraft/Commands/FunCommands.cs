@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RandomMaze;
-using AIMLbot;
 using System.Threading;
 
 namespace fCraft

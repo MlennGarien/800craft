@@ -15,10 +15,72 @@ namespace fCraft
 
         public static void Init()
         {
+            CommandManager.RegisterCommand(CdWrite);
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
             // CommandManager.RegisterCommand(CdGame);
         }
+        static readonly CommandDescriptor CdWrite = new CommandDescriptor
+        {
+            Name = "Write",
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            RepeatableSelection = true,
+            IsConsoleSafe = true,
+            Help = "/Write message then click 2 blocks. The first is the starting point, the second is the direction",
+            Handler = WriteHandler,
+        };
+
+        //TODO: Use SizeF and add a collection of fonts. Performance++
+        static void WriteHandler(Player player, Command cmd)
+        {
+            string sentence = cmd.NextAll();
+            if (sentence.Length < 1)
+            {
+                player.Message("&A/Write Sentence");
+                return;
+            }
+            else
+            {
+                if (!File.Exists("font.png"))
+                {
+                    player.Message("The font file could not be found. Font.png needs to be in the server root.");
+                    return;
+                }
+                FontHandler.Init("font.png");//move to system
+                player.Message("Write: Click 2 blocks or use &H/Mark&S to set direction.");
+                player.SelectionStart(2, WriteCallback, sentence, Permission.Draw);
+            }
+        }
+
+        static void WriteCallback(Player player, Vector3I[] marks, object tag)
+        {
+            Block block = new Block();
+            string sentence = (string)tag;
+            if (sentence.Contains("g") || sentence.Contains("j") || sentence.Contains("q") || sentence.Contains("p") || sentence.Contains("y"))
+            {
+                marks[0].Z++;
+            }
+            if (player.LastUsedBlockType == Block.Undefined)
+            {
+                block = Block.Stone;
+            }
+            else
+            {
+                block = player.LastUsedBlockType;
+            }
+            FontHandler render = new FontHandler(block, marks, player.World, player);
+            render.Render(sentence);
+            if (render.blockCount > 0)
+            {
+                player.Message("/Write: Writing '{0}' using {1} blocks of {2}", sentence, render.blockCount, block.ToString());
+            }
+            else
+            {
+                player.Message("&WNo direction was set");
+            }
+        }
+    
 
         static readonly CommandDescriptor CdGame = new CommandDescriptor
         {

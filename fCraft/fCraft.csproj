@@ -88,9 +88,6 @@
     <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AIMLbot">
-      <HintPath>..\AIMLbot.dll</HintPath>
-    </Reference>
     <Reference Include="ServiceStack.Text">
       <HintPath>.\ServiceStack.Text.dll</HintPath>
     </Reference>
@@ -99,6 +96,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
@@ -124,6 +122,7 @@
     <Compile Include="Commands\DevCommands.cs" />
     <Compile Include="Commands\FunCommands.cs" />
     <Compile Include="Commands\MathCommands.cs" />
+    <Compile Include="Commands\System.Drawing\FontHandler.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
