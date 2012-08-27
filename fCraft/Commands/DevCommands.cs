@@ -217,48 +217,40 @@ namespace fCraft
         {
             Block block = new Block();
             string sentence = (string)tag;
-            if (sentence.Contains("g") || sentence.Contains("j") || sentence.Contains("q") || sentence.Contains("p") || sentence.Contains("y"))
-            {
+            //sentence bug fix kinda
+            if (sentence.Contains("g") || sentence.Contains("j") || sentence.Contains("q") || 
+                sentence.Contains("p") || sentence.Contains("y")){
                 marks[0].Z++;
             }
+            //block bugfix kinda
             if (player.LastUsedBlockType == Block.Undefined){
                 block = Block.Stone;
             }else{
                 block = player.LastUsedBlockType;
             }
+            //find the direction (needs attention)
             Direction direction = Direction.Null;
-            if (Math.Abs(marks[1].X - marks[0].X) > Math.Abs(marks[1].Y - marks[0].Y))
-            {
-                if (marks[0].X < marks[1].X)
-                {
+            if (Math.Abs(marks[1].X - marks[0].X) > Math.Abs(marks[1].Y - marks[0].Y)){
+                if (marks[0].X < marks[1].X){
                     direction = Direction.one;
-                }
-                else
-                {
+                }else{
                     direction = Direction.two;
                 }
-            }
-            else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y))
-            {
-                if (marks[0].Y < marks[1].Y)
-                {
+            }else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y)){
+                if (marks[0].Y < marks[1].Y){
                     direction = Direction.three;
-                }
-                else
-                {
+                }else{
                     direction = Direction.four;
                 }
             }
-            FontHandler render = new FontHandler(block, marks, player, direction);
-            render.Init(player, sentence);
-            if (render.blockCount > 0)
-            {
+            FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
+            render.CreateGraphicsAndDraw(player, sentence); //render the sentence
+            if (render.blockCount > 0){
                 player.Message("/Write: Writing '{0}' using {1} blocks of {2}", sentence, render.blockCount, block.ToString());
-            }
-            else
-            {
+            }else{
                 player.Message("&WNo direction was set");
             }
+            render = null; //get lost
         }
     
 
