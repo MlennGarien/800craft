@@ -25,14 +25,49 @@ namespace fCraft
         public static void Init()
         {
             CommandManager.RegisterCommand(CdWrite);
-            CommandManager.RegisterCommand(CdFeed);
+            CommandManager.RegisterCommand(CdSetFont);
+            //CommandManager.RegisterCommand(CdFeed);
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
             //CommandManager.RegisterCommand(CdGame);
 
-            Player.JoinedWorld += fCraft.Events.FeedEvents.PlayerJoiningWorld;
+            //Player.JoinedWorld += fCraft.Events.FeedEvents.PlayerJoiningWorld;
         }
 
+        static CommandDescriptor CdSetFont = new CommandDescriptor()
+        {
+            Name = "SetFont",
+            Aliases = new[] { "FontSet", "Font"},
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            IsConsoleSafe = false,
+            Help = "Sets the properties for /Write",
+            Handler = SetFontHandler,
+            Usage = "/SetFont <Font | Size | Style> <Variable>"
+        };
+
+        static void SetFontHandler(Player player, Command cmd)
+        {
+            string Param = cmd.Next();
+            string Variable = cmd.Next();
+            if (Param == null || Variable == null)
+            {
+                CdSetFont.PrintUsage(player);
+                return;
+            }
+            if (Param.ToLower() == "size")
+            {
+                int Size = -1;
+                int.TryParse(Variable, out Size);
+                if (Size == -1)
+                {
+                    player.Message("&WInvalid size, use a number");
+                    return;
+                }
+                player.font = new System.Drawing.Font(player.font.FontFamily, Size);
+                player.Message("Done");
+            }
+        }
         static CommandDescriptor CdFeed = new CommandDescriptor()
         {
             Name = "Feed",

@@ -48,55 +48,23 @@ namespace fCraft
         public void CreateGraphicsAndDraw(Player player, string Sentence)
         {
             SizeF size = MeasureTextSize(Sentence, player.font); //measure the text size to create a bmp)
-            using (Bitmap img = new Bitmap((int)size.Width, (int)size.Height)) //IDisposable
+            Bitmap img = new Bitmap((int)size.Width, (int)size.Height);
+            using (Graphics g = Graphics.FromImage(img))
             {
-                using (Graphics g = Graphics.FromImage(img))
-                {
-                    g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height); //make background
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel; //fix to bleeding
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //not sure if this helps
-                    g.DrawString(Sentence, player.font, Brushes.Black, 0, 0); //draw some sexytext
-                    Draw(img); //make the blockupdates
-                }
+                g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height); //make background
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel; //fix to bleeding
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //not sure if this helps
+                g.DrawString(Sentence, player.font, Brushes.Black, 0, 0); //draw some sexytext
+                img = Crop(img); //crop the image to fix all problems with location
+                if (img == null) return; //check the output of crop
+                img.RotateFlip(RotateFlipType.Rotate180FlipX);
+                Draw(img); //make the blockupdates
+                img.Dispose();
             }
         }
-        //Measure the size of the string length using IDisposable
-        public static SizeF MeasureTextSize(string text, Font font)
-        {
-            using (Bitmap bmp = new Bitmap(1, 1))
-            {
-                using (Graphics g = Graphics.FromImage(bmp))
-                {
-                    return g.MeasureString(text, font);
-                }
-            }
-        }
-
         public void Draw(Bitmap img)
         {
-            //TODO gather width offset
-            img.RotateFlip(RotateFlipType.Rotate180FlipX); //flip image
-            //Check for offsets, due to crappy rotationflip
-            int HeightOffset = 0;
-            int WidthOffset = 0;
-            bool FoundOffset = false;
-            int Count = 0;
-            for (int x = 0; x < img.Width; x++)
-            {
-                for (int y = 0; y < img.Height; y++)
-                {
-                    if (img.GetPixel(x, y).ToArgb() != System.Drawing.Color.White.ToArgb())
-                    {
-                        if (!FoundOffset)
-                        {
-                            HeightOffset = y;
-                            WidthOffset = x;
-                            FoundOffset = true;
-                        }
-                        Count++;
-                    }
-                }
-            }
+            int Count = 5;
             if (!player.CanDraw(Count))
             {
                 player.MessageNow(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
@@ -113,7 +81,7 @@ namespace fCraft
                             if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I((PixelData.X + x) - WidthOffset, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I((PixelData.X + x), PixelData.Y, (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -128,7 +96,7 @@ namespace fCraft
                             if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I((PixelData.X - x) + WidthOffset, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I((PixelData.X - x), PixelData.Y, (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -143,7 +111,7 @@ namespace fCraft
                             if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X, (PixelData.Y + y) - WidthOffset, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X, (PixelData.Y + y), (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -158,13 +126,104 @@ namespace fCraft
                             if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X, ((PixelData.Y) - y) + WidthOffset, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X, ((PixelData.Y) - y), (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
                         }
                     }
                     break;
+            }
+        }
+
+        #region Helpers
+
+        public static Bitmap Crop(Bitmap bmp)
+        {
+            int w = bmp.Width;
+            int h = bmp.Height;
+            Func<int, bool> allWhiteRow = row =>
+            {
+                for (int i = 0; i < w; ++i)
+                    if (bmp.GetPixel(i, row).R != 255)
+                        return false;
+                return true;
+            };
+            Func<int, bool> allWhiteColumn = col =>
+            {
+                for (int i = 0; i < h; ++i)
+                    if (bmp.GetPixel(col, i).R != 255)
+                        return false;
+                return true;
+            };
+            int topmost = 0;
+            for (int row = 0; row < h; ++row)
+            {
+                if (allWhiteRow(row))
+                    topmost = row;
+                else break;
+            }
+            int bottommost = 0;
+            for (int row = h - 1; row >= 0; --row)
+            {
+                if (allWhiteRow(row))
+                    bottommost = row;
+                else break;
+            }
+            int leftmost = 0, rightmost = 0;
+            for (int col = 0; col < w; ++col)
+            {
+                if (allWhiteColumn(col))
+                    leftmost = col;
+                else
+                    break;
+            }
+            for (int col = w - 1; col >= 0; --col)
+            {
+                if (allWhiteColumn(col))
+                    rightmost = col;
+                else
+                    break;
+            }
+            if (rightmost == 0) rightmost = w; // As reached left
+            if (bottommost == 0) bottommost = h; // As reached top.
+            int croppedWidth = rightmost - leftmost;
+            int croppedHeight = bottommost - topmost;
+            if (croppedWidth == 0)
+            {// No border on left or right
+                leftmost = 0;
+                croppedWidth = w;
+            }
+            if (croppedHeight == 0)
+            {// No border on top or bottom
+                topmost = 0;
+                croppedHeight = h;
+            } try
+            {
+                var target = new Bitmap(croppedWidth, croppedHeight);
+                using (Graphics g = Graphics.FromImage(target))
+                {
+                    g.DrawImage(bmp,
+                      new RectangleF(0, 0, croppedWidth, croppedHeight),
+                      new RectangleF(leftmost, topmost, croppedWidth, croppedHeight),
+                      GraphicsUnit.Pixel);
+                }
+                return target;
+            }
+            catch
+            {
+                return null; //do nothing
+            }
+        }
+        //Measure the size of the string length using IDisposable
+        public static SizeF MeasureTextSize(string text, Font font)
+        {
+            using (Bitmap bmp = new Bitmap(1, 1))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    return g.MeasureString(text, font);
+                }
             }
         }
         //stores information needed for each pixel
@@ -207,6 +266,7 @@ namespace fCraft
             }
             blocks++;
         }
+        #endregion
         #endregion
     }
 }

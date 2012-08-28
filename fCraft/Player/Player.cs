@@ -104,8 +104,7 @@ namespace fCraft {
         public Bot Bot;
         //public Alice Ali;
 
-        public static int FontSize = 48;
-        public Font font = new Font("Times New Roman", FontSize);
+        public Font font = new Font("Times New Roman", 14);
 
 
         /// <summary> Last command called by the player. </summary>
