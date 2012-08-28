@@ -55,7 +55,7 @@ namespace fCraft
                     g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height); //make background
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel; //fix to bleeding
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //not sure if this helps
-                    g.DrawString(Sentence, player.font, Brushes.Black, new PointF(0, 0)); //draw some sexytext
+                    g.DrawString(Sentence, player.font, Brushes.Black, 0, 0); //draw some sexytext
                     Draw(img); //make the blockupdates
                 }
             }
@@ -74,7 +74,20 @@ namespace fCraft
 
         public void Draw(Bitmap img)
         {
+            //TODO gather width offset
             img.RotateFlip(RotateFlipType.Rotate180FlipX); //flip image
+            int HeightOffset = 0;
+            for (int x = 0; x < img.Width; x++)
+            {
+                for (int y = 0; y < img.Height; y++)
+                {
+                    if (img.GetPixel(x, y).ToArgb() != System.Drawing.Color.White.ToArgb())
+                    {
+                        HeightOffset = y;
+                        break;
+                    }
+                }
+            }
             switch (direction)
             {
                 case Direction.one:
@@ -85,7 +98,7 @@ namespace fCraft
                             if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X + x, PixelData.Y, (PixelData.Z + z) - 4), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X + x, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -100,7 +113,7 @@ namespace fCraft
                             if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X - x, PixelData.Y, (PixelData.Z + z) - 4), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X - x, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -115,7 +128,7 @@ namespace fCraft
                             if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X, PixelData.Y + y, (PixelData.Z + z) - 4), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X, PixelData.Y + y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -130,7 +143,7 @@ namespace fCraft
                             if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X, (PixelData.Y)  - y, (PixelData.Z + z) - 4), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X, (PixelData.Y)  - y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }

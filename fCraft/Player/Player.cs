@@ -104,7 +104,7 @@ namespace fCraft {
         public Bot Bot;
         //public Alice Ali;
 
-        public static int FontSize = 8;
+        public static int FontSize = 48;
         public Font font = new Font("Times New Roman", FontSize);
 
 
