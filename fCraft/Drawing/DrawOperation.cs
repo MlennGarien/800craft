@@ -247,7 +247,7 @@ namespace fCraft.Drawing {
 
 
         // Contributed by Conrad "Redshift" Morgan
-        protected static IEnumerable<Vector3I> LineEnumerator( Vector3I a, Vector3I b ) {
+        protected static IEnumerable<Vector3I> LineEnumerator( Vector3I a, Vector3I b) {
             Vector3I pixel = a;
             Vector3I d = b - a;
             Vector3I inc = new Vector3I( Math.Sign( d.X ),

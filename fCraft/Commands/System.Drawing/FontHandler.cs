@@ -78,16 +78,30 @@ namespace fCraft
             img.RotateFlip(RotateFlipType.Rotate180FlipX); //flip image
             //Check for offsets, due to crappy rotationflip
             int HeightOffset = 0;
+            int WidthOffset = 0;
+            bool FoundOffset = false;
+            int Count = 0;
             for (int x = 0; x < img.Width; x++)
             {
                 for (int y = 0; y < img.Height; y++)
                 {
                     if (img.GetPixel(x, y).ToArgb() != System.Drawing.Color.White.ToArgb())
                     {
-                        HeightOffset = y;
-                        break;
+                        if (!FoundOffset)
+                        {
+                            HeightOffset = y;
+                            WidthOffset = x;
+                            FoundOffset = true;
+                        }
+                        Count++;
                     }
                 }
+            }
+            if (!player.CanDraw(Count))
+            {
+                player.MessageNow(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.Info.Rank.DrawLimit, Count));
+                return;
             }
             switch (direction)
             {
@@ -99,7 +113,7 @@ namespace fCraft
                             if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X + x, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I((PixelData.X + x) - WidthOffset, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -114,7 +128,7 @@ namespace fCraft
                             if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X - x, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I((PixelData.X - x) + WidthOffset, PixelData.Y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -129,7 +143,7 @@ namespace fCraft
                             if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X, PixelData.Y + y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X, (PixelData.Y + y) - WidthOffset, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }
@@ -144,7 +158,7 @@ namespace fCraft
                             if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
                             {
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
-                                      new Vector3I(PixelData.X, (PixelData.Y)  - y, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
+                                      new Vector3I(PixelData.X, ((PixelData.Y) - y) + WidthOffset, (PixelData.Z + z) - HeightOffset), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
                                 blockCount++;
                             }

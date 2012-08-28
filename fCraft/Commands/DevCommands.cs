@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using LibNbt;
-using LibNbt.Exceptions;
-using LibNbt.Queries;
-using LibNbt.Tags;
 //Copyright (C) <2012> <Jon Baker, Glenn Mariën and Lao Tszy>
 
 //This program is free software: you can redistribute it and/or modify

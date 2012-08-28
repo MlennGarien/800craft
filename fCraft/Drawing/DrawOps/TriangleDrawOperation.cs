@@ -73,7 +73,7 @@ namespace fCraft.Drawing {
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             if( isLine ) {
-                foreach( var p in LineEnumerator( a, b ) ) {
+                foreach( var p in LineEnumerator( a, b) ) {
                     Coords = p;
                     if( DrawOneBlock() ) {
                         blocksDone++;

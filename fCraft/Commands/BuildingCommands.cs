@@ -704,8 +704,9 @@ namespace fCraft {
             Handler = LineHandler
         };
 
-        static void LineHandler( Player player, Command cmd ) {
-            DrawOperationBegin( player, cmd, new LineDrawOperation( player ) );
+        static void LineHandler(Player player, Command cmd)
+        {
+            DrawOperationBegin(player, cmd, new LineDrawOperation(player));
         }
 
 
