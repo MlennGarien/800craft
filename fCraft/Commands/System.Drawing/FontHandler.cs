@@ -198,8 +198,7 @@ namespace fCraft
             {// No border on top or bottom
                 topmost = 0;
                 croppedHeight = h;
-            } try
-            {
+            } try{
                 var target = new Bitmap(croppedWidth, croppedHeight);
                 using (Graphics g = Graphics.FromImage(target))
                 {

@@ -261,11 +261,6 @@ namespace fCraft
         {
             Block block = new Block();
             string sentence = (string)tag;
-            //sentence bug fix kinda
-            if (sentence.Contains("g") || sentence.Contains("j") || sentence.Contains("q") || 
-                sentence.Contains("p") || sentence.Contains("y")){
-                marks[0].Z++;
-            }
             //block bugfix kinda
             if (player.LastUsedBlockType == Block.Undefined){
                 block = Block.Stone;
