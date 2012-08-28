@@ -68,6 +68,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdImpersonate);
             CommandManager.RegisterCommand(CdImmortal);
             CommandManager.RegisterCommand(CdTitle);
+            Server.ShutdownBegan += ServerShutdownTempbans;
         }
         #region 800Craft
 
@@ -481,10 +482,8 @@ namespace fCraft {
             // find the target
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches(player, targetName);
 
-            if (target == null){
-                player.MessageNoPlayer(targetName);
+            if (target == null)
                 return;
-            };
 
             if (target.Name == player.Name){
                 player.Message("Trying to T-Ban yourself? Fail!");
@@ -506,6 +505,7 @@ namespace fCraft {
                     Player targetPlayer = target.PlayerObject;
                     target.Ban(player, "You were Banned for " + timeString, false, true);
                     Server.TempBans.Add(targetPlayer);
+                    target.IsTempbanned = true;
                 }
                 catch (PlayerOpException ex){
                     player.Message(ex.MessageColored);
@@ -528,7 +528,21 @@ namespace fCraft {
         {
             if (!target.IsBanned) return;
             else
+            {
                 target.Unban(player, "Tempban Expired", true, true);
+                target.IsTempbanned = false;
+            }
+        }
+
+        public static void ServerShutdownTempbans(object sender, ShutdownEventArgs e)
+        {
+            foreach (Player p in Server.Players)
+            {
+                if (p.Info.IsTempbanned)
+                {
+                    Untempban(Player.Console, p.Info);
+                }
+            }
         }
 
         static readonly CommandDescriptor CdBasscannon = new CommandDescriptor

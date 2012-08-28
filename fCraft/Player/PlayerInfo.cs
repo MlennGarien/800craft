@@ -136,13 +136,7 @@ namespace fCraft {
         public string WarnedBy = "";
         public DateTime WarnedOn;
 
-        public bool IsTempbanned
-        {
-            get
-            {
-                return DateTime.UtcNow < MutedUntil;
-            }
-        }
+        public bool IsTempbanned;
 
         public bool UnWarn()
         {

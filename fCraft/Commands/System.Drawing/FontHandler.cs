@@ -153,6 +153,7 @@ namespace fCraft
         static void DrawOneBlock(Player player, Map map, Block drawBlock, Vector3I coord,
                                  BlockChangeContext context, ref int blocks, ref int blocksDenied, fCraft.Drawing.UndoState undoState)
         {
+            if (map == null) return;
             if (player == null) throw new ArgumentNullException("player");
 
             if (!map.InBounds(coord)) return;
