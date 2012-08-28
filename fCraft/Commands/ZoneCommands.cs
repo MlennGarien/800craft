@@ -380,7 +380,7 @@ namespace fCraft {
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
             Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName] [msg=CustomDenyMessage]",
-            Help = "&SAllows editing the zone permissions after creation. " +
+            Help = "&HAllows editing the zone permissions after creation. " +
                    "You can change the rank restrictions, and include or exclude individual players."+
 				   " The custom deny message must be the last pararameter since the rest of the command past the 'msg=' will be considered as the new message",
             Handler = ZoneEditHandler
@@ -581,7 +581,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Usage = "/Zones [WorldName]",
-            Help = "&SLists all zones defined on the current map/world.",
+            Help = "&HLists all zones defined on the current map/world.",
             Handler = ZoneListHandler
         };
 
@@ -636,7 +636,7 @@ namespace fCraft {
             Name = "ZMark",
             Category = CommandCategory.Zone | CommandCategory.Building,
             Usage = "/ZMark ZoneName",
-            Help = "&SUses zone boundaries to make a selection.",
+            Help = "&HUses zone boundaries to make a selection.",
             Handler = ZoneMarkHandler
         };
 
@@ -722,7 +722,7 @@ namespace fCraft {
             Name = "ZRename",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
-            Help = "&SRenames a zone",
+            Help = "&HRenames a zone",
             Usage = "/ZRename OldName NewName",
             Handler = ZoneRenameHandler
         };
@@ -787,7 +787,7 @@ namespace fCraft {
             Name = "ZTest",
             Category = CommandCategory.Zone | CommandCategory.Info,
             RepeatableSelection = true,
-            Help = "&SAllows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
+            Help = "&HAllows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
             Handler = ZoneTestHandler
         };
 

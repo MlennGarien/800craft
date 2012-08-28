@@ -1047,7 +1047,7 @@ namespace fCraft {
             Permissions = new[] { Permission.ManageWorlds },
             IsConsoleSafe = true,
             Usage = "/guestwipe",
-            Help = "&SWipes a map with the name 'Guest'.",
+            Help = "&HWipes a map with the name 'Guest'.",
             Handler = Guestwipe
         };
 
@@ -1069,7 +1069,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageBlockDB },
             Usage = "/BlockDB <WorldName> <Operation>",
-            Help = "&SManages BlockDB on a given world. " +
+            Help = "&HManages BlockDB on a given world. " +
                    "Operations are: On, Off, Clear, Limit, TimeLimit, Preload. " +
                    "See &H/Help BlockDB <Operation>&S for operation-specific help. " +
                    "If no operation is given, world's BlockDB status is shown. " +
@@ -1528,7 +1528,7 @@ namespace fCraft {
             Name = "Env",
             Category = CommandCategory.World,
             Permissions = new[] { Permission.ManageWorlds },
-            Help = "&SPrints or changes the environmental variables for a given world. " +
+            Help = "&HPrints or changes the environmental variables for a given world. " +
                    "Variables are: clouds, fog, sky, level, edge, terrain, realistic " +
                    "See &H/Help env <Variable>&S for details about each variable. " +
                    "Type &H/Env <WorldName> normal&S to reset everything for a world.",
@@ -2552,7 +2552,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WAccess [WorldName [RankName]]",
-            Help = "&SShows access permission for player's current world. " +
+            Help = "&HShows access permission for player's current world. " +
                    "If optional WorldName parameter is given, shows access permission for another world. " +
                    "If RankName parameter is also given, sets access permission for specified world.",
             Handler = WorldAccessHandler
@@ -2799,7 +2799,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WBuild [WorldName [RankName]]",
-            Help = "&SShows build permissions for player's current world. " +
+            Help = "&HShows build permissions for player's current world. " +
                    "If optional WorldName parameter is given, shows build permission for another world. " +
                    "If RankName parameter is also given, sets build permission for specified world.",
             Handler = WorldBuildHandler
@@ -3043,7 +3043,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WFlush [WorldName]",
-            Help = "&SFlushes the update buffer on specified map by causing players to rejoin. " +
+            Help = "&HFlushes the update buffer on specified map by causing players to rejoin. " +
                    "Makes cuboids and other draw commands finish REALLY fast.",
             Handler = WorldFlushHandler
         };
@@ -3084,7 +3084,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WHide WorldName",
-            Help = "&SHides the specified world from the &H/Worlds&S list. " +
+            Help = "&HHides the specified world from the &H/Worlds&S list. " +
                    "Hidden worlds can be seen by typing &H/Worlds all",
             Handler = WorldHideHandler
         };
@@ -3115,7 +3115,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WUnhide WorldName",
-            Help = "&SUnhides the specified world from the &H/Worlds&S list. " +
+            Help = "&HUnhides the specified world from the &H/Worlds&S list. " +
                    "Hidden worlds can be listed by typing &H/Worlds all",
             Handler = WorldUnhideHandler
         };
@@ -3462,7 +3462,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WMain [@RankName] [WorldName]",
-            Help = "&SSets the specified world as the new main world. " +
+            Help = "&HSets the specified world as the new main world. " +
                    "Main world is what newly-connected players join first. " +
                    "You can specify a rank name to set a different starting world for that particular rank.",
             Handler = WorldMainHandler
@@ -3610,7 +3610,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WRename OldName NewName",
-            Help = "&SChanges the name of a world. Does not require any reloading.",
+            Help = "&HChanges the name of a world. Does not require any reloading.",
             Handler = WorldRenameHandler
         };
 

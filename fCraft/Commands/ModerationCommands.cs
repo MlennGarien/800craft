@@ -418,7 +418,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },
-            Help = "&SChanges to players skin to a desired name. " + 
+            Help = "&HChanges to players skin to a desired name. " + 
             "If no playername is given, all changes are reverted. " + 
             "Note: The name above your head changes too",
             Usage = "/Impersonate PlayerName",
@@ -624,7 +624,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             NotRepeatable = true,
             Permissions = new[] { Permission.Warn },
-            Help = "&SWarns a player and puts a black star next to their name for 20 minutes. During the 20 minutes, if they are warned again, they will get kicked.",
+            Help = "&HWarns a player and puts a black star next to their name for 20 minutes. During the 20 minutes, if they are warned again, they will get kicked.",
             Usage = "/Warn playername",
             Handler = Warn
         };
@@ -686,7 +686,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Warn },
             Usage = "/Unwarn PlayerName",
-            Help = "&SUnwarns a player",
+            Help = "&HUnwarns a player",
             Handler = UnWarn
         };
 
@@ -784,7 +784,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban },
             Usage = "/Ban PlayerName [Reason]",
-            Help = "&SBans a specified player by name. Note: Does NOT ban IP. " +
+            Help = "&HBans a specified player by name. Note: Does NOT ban IP. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = BanHandler
         };
@@ -818,7 +818,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
             Usage = "/BanIP PlayerName|IPAddress [Reason]",
-            Help = "&SBans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
+            Help = "&HBans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
             Handler = BanIPHandler
@@ -865,7 +865,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
             Usage = "/BanAll PlayerName|IPAddress [Reason]",
-            Help = "&SBans the player's name, IP, and all other names associated with the IP. " +
+            Help = "&HBans the player's name, IP, and all other names associated with the IP. " +
                    "If player is not online, last known IP associated with the name is used. " +
                    "You can also type in the IP address directly. " +
                    "Any text after PlayerName/IP will be saved as a memo. ",
@@ -913,7 +913,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban },
             Usage = "/Unban PlayerName [Reason]",
-            Help = "&SRemoves ban for a specified player. Does NOT remove associated IP bans. " +
+            Help = "&HRemoves ban for a specified player. Does NOT remove associated IP bans. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = UnbanHandler
         };
@@ -942,7 +942,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
             Usage = "/UnbanIP PlayerName|IPaddress [Reason]",
-            Help = "&SRemoves ban for a specified player's name and last known IP. " +
+            Help = "&HRemoves ban for a specified player's name and last known IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = UnbanIPHandler
@@ -982,7 +982,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
             Usage = "/UnbanAll PlayerName|IPaddress [Reason]",
-            Help = "&SRemoves ban for a specified player's name, last known IP, and all other names associated with the IP. " +
+            Help = "&HRemoves ban for a specified player's name, last known IP, and all other names associated with the IP. " +
                    "You can also type in the IP address directly. " +
                    "Any text after the player name will be saved as a memo. ",
             Handler = UnbanAllHandler
@@ -1021,7 +1021,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Ban, Permission.BanIP },
             Usage = "/BanEx +PlayerName&S or &H/BanEx -PlayerName",
-            Help = "&SAdds or removes an IP-ban exemption for an account. " +
+            Help = "&HAdds or removes an IP-ban exemption for an account. " +
                    "Exempt accounts can log in from any IP, including banned ones.",
             Handler = BanExHandler
         };
@@ -1222,7 +1222,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
             Usage = "/Hide [silent]",
-            Help = "&SEnables invisible mode. It looks to other players like you left the server, " +
+            Help = "&HEnables invisible mode. It looks to other players like you left the server, " +
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
                    "Great way to spy on griefers and scare newbies. " +
                    "Call &H/Unhide&S to reveal yourself.",
@@ -1269,7 +1269,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
             Usage = "/Unhide [silent]",
-            Help = "&SDisables the &H/Hide&S invisible mode. " +
+            Help = "&HDisables the &H/Hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
             Handler = UnhideHandler
         };
@@ -1313,7 +1313,7 @@ namespace fCraft {
             Name = "SetSpawn",
             Category = CommandCategory.Moderation | CommandCategory.World,
             Permissions = new[] { Permission.SetSpawn },
-            Help = "&SAssigns your current location to be the spawn point of the map/world. " +
+            Help = "&HAssigns your current location to be the spawn point of the map/world. " +
                    "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
             Usage = "/SetSpawn [PlayerName]",
             Handler = SetSpawnHandler
@@ -1438,7 +1438,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Teleport },
             Usage = "/TP PlayerName&S or &H/TP X Y Z",
-            Help = "&STeleports you to a specified player's location. " +
+            Help = "&HTeleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
             Handler = TPHandler
         };
@@ -1620,7 +1620,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring },
             Usage = "/WBring PlayerName WorldName",
-            Help = "&STeleports a player to the given world's spawn.",
+            Help = "&HTeleports a player to the given world's spawn.",
             Handler = WorldBringHandler
         };
 
@@ -1683,7 +1683,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring, Permission.BringAll },
             Usage = "/BringAll [@Rank [@AnotherRank]] [*|World [AnotherWorld]]",
-            Help = "&STeleports all players from your world to you. " +
+            Help = "&HTeleports all players from your world to you. " +
                    "If any world names are given, only teleports players from those worlds. " +
                    "If any rank names are given, only teleports players of those ranks.",
             Handler = BringAllHandler
@@ -1906,7 +1906,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },
-            Help = "&SMutes a player for a specified length of time.",
+            Help = "&HMutes a player for a specified length of time.",
             Usage = "/Mute PlayerName Duration",
             Handler = MuteHandler
         };
@@ -1947,7 +1947,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Mute },
-            Help = "&SUnmutes a player.",
+            Help = "&HUnmutes a player.",
             Usage = "/Unmute PlayerName",
             Handler = UnmuteHandler
         };

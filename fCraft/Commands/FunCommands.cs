@@ -119,7 +119,7 @@ namespace fCraft
             IsConsoleSafe = false,
             NotRepeatable = true,
             Usage = "/Life <command> [params]",
-            Help = "&SGoogle \"Conwey's Game of Life\"\n'&H/Life help'&S for more usage info\n(c) 2012 LaoTszy",
+            Help = "&HGoogle \"Conwey's Game of Life\"\n'&H/Life help'&S for more usage info\n(c) 2012 LaoTszy",
             UsableByFrozenPlayers = false,
             Handler = LifeHandlerFunc,
         };
@@ -132,7 +132,7 @@ namespace fCraft
             IsConsoleSafe = false,
             NotRepeatable = false,
             Usage = "/Firework",
-            Help = "&SToggles Firework Mode on/off for yourself. " +
+            Help = "&HToggles Firework Mode on/off for yourself. " +
             "All Gold blocks will be replaced with fireworks if " +
             "firework physics are enabled for the current world.",
             UsableByFrozenPlayers = false,

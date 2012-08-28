@@ -76,6 +76,7 @@ namespace fCraft
         {
             //TODO gather width offset
             img.RotateFlip(RotateFlipType.Rotate180FlipX); //flip image
+            //Check for offsets, due to crappy rotationflip
             int HeightOffset = 0;
             for (int x = 0; x < img.Width; x++)
             {
