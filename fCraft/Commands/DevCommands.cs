@@ -34,6 +34,19 @@ namespace fCraft
             //Player.JoinedWorld += fCraft.Events.FeedEvents.PlayerJoiningWorld;
         }
 
+        static string[] GetFontSectionList() {
+            if( Directory.Exists( Paths.FontsPath ) ) {
+                string[] sections = Directory.GetFiles( Paths.FontsPath, "*.ttf", SearchOption.TopDirectoryOnly )
+                                             .Select( name => Path.GetFileNameWithoutExtension( name ) )
+                                             .Where( name => !String.IsNullOrEmpty( name ) )
+                                             .ToArray();
+                if( sections.Length != 0 ) {
+                    return sections;
+                }
+            }
+            return null;
+        }
+
         static CommandDescriptor CdSetFont = new CommandDescriptor()
         {
             Name = "SetFont",
@@ -52,6 +65,79 @@ namespace fCraft
                 CdSetFont.PrintUsage(player);
                 return;
             }
+            if (Param.ToLower() == "font")
+            {
+                string sectionName = cmd.NextAll();
+                if (sectionName.Length < 1)
+                {
+                    CdSetFont.PrintUsage(player);
+                    return;
+                }
+
+                // if a section name is given, but no section files exist
+                if (!Directory.Exists(Paths.FontsPath))
+                {
+                    player.Message("There are no fonts available for this server. Font is set to default: {0}", player.font.FontFamily.Name);
+                    return;
+                }
+
+                string fontFileName = null;
+                string[] sectionFiles = Directory.GetFiles(Paths.FontsPath,
+                                                            "*.ttf",
+                                                            SearchOption.TopDirectoryOnly);
+
+                for (int i = 0; i < sectionFiles.Length; i++)
+                {
+                    string sectionFullName = Path.GetFileNameWithoutExtension(sectionFiles[i]);
+                    if (sectionFullName == null) continue;
+                    if (sectionFullName.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (sectionFullName.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // if there is an exact match, break out of the loop early
+                            fontFileName = sectionFiles[i];
+                            break;
+
+                        }
+                        else if (fontFileName == null)
+                        {
+                            // if there is a partial match, keep going to check for multiple matches
+                            fontFileName = sectionFiles[i];
+
+                        }
+                        else
+                        {
+                            var matches = sectionFiles.Select(f => Path.GetFileNameWithoutExtension(f))
+                                                      .Where(sn => sn != null && sn.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase));
+                            // if there are multiple matches, print a list
+                            player.Message("Multiple font files matched \"{0}\": {1}",
+                                            sectionName, matches.JoinToString());
+                            return;
+                        }
+                    }
+                }
+
+                if (fontFileName != null)
+                {
+                    string sectionFullName = Path.GetFileNameWithoutExtension(fontFileName);
+                    player.Message("Your font has changed to \"{0}\":", sectionFullName);
+                    //change font here
+                    player.font = new System.Drawing.Font(player.LoadFontFamily(fontFileName), player.font.Size);
+                }
+                else
+                {
+                    var sectionList = GetFontSectionList();
+                    if (sectionList == null)
+                    {
+                        player.Message("No fonts have been found.");
+                    }
+                    else
+                    {
+                        player.Message("No fonts found for \"{0}\". Available fonts: {1}",
+                                        sectionName, sectionList.JoinToString());
+                    }
+                }
+            }
             if (Param.ToLower() == "size"){
                 int Size = -1;
                 if (cmd.NextInt(out Size)){
@@ -67,25 +153,48 @@ namespace fCraft
                 }
                 return;
             }
-            //Y u no work?
             if (Param.ToLower() == "style"){
                 string StyleType = cmd.Next();
+                bool Append = false;
                 if (StyleType == null){
                     CdSetFont.PrintUsage(player);
                     return;
                 }
+                if (StyleType.StartsWith("+")){
+                    Append = true;
+                    StyleType = StyleType.Replace("+", "");
+                }
+                System.Drawing.FontStyle OldStyle = player.font.Style;
                 if (StyleType.ToLower() == "bold" || StyleType.ToLower() == "b"){
-                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Bold);
+                    if (Append){
+                        player.font = new System.Drawing.Font(player.font, player.font.Style | System.Drawing.FontStyle.Bold);
+                    }else{
+                        player.font = new System.Drawing.Font(player.font, System.Drawing.FontStyle.Bold);
+                    }
                 }
                 if (StyleType.ToLower() == "italic" || StyleType.ToLower() == "i"){
-                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Italic);
+                    if (Append){
+                        player.font = new System.Drawing.Font(player.font, player.font.Style | System.Drawing.FontStyle.Italic);
+                    }else{
+                        player.font = new System.Drawing.Font(player.font, System.Drawing.FontStyle.Italic);
+                    }
                 }
                 if (StyleType.ToLower() == "underlined" || StyleType.ToLower() == "u"){
-                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Underline);
+                    if (Append){
+                        player.font = new System.Drawing.Font(player.font, player.font.Style | System.Drawing.FontStyle.Underline);
+                    }else{
+                        player.font = new System.Drawing.Font(player.font, System.Drawing.FontStyle.Underline);
+                    }
                 }else{
-                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Regular);
+                    player.font = new System.Drawing.Font(player.font, System.Drawing.FontStyle.Regular);
+                    
                 }
-                player.Message("SetFont: Font Style changed to " + player.font.Style);
+                if (OldStyle == player.font.Style)
+                {
+                    player.Message("&WSetFont: Chosen style is not compatible with this font");
+                    return;
+                }
+                player.Message("SetFont: Font Style changed from {0} to {1}", OldStyle, player.font.Style);
             }
         }
         static CommandDescriptor CdFeed = new CommandDescriptor()
@@ -301,14 +410,24 @@ namespace fCraft
                     direction = Direction.four;
                 }
             }
-            FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
-            render.CreateGraphicsAndDraw(sentence); //render the sentence
-            if (render.blockCount > 0){
-                player.Message("/Write: Writing '{0}' using {1} blocks of {2}", sentence, render.blockCount, block.ToString());
-            }else{
-                player.Message("&WNo direction was set");
+            try
+            {
+                FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
+                render.CreateGraphicsAndDraw(sentence); //render the sentence
+                if (render.blockCount > 0)
+                {
+                    player.Message("/Write: Writing '{0}' using {1} blocks of {2}", sentence, render.blockCount, block.ToString());
+                }
+                else
+                {
+                    player.Message("&WNo direction was set");
+                }
+                render = null; //get lost
             }
-            render = null; //get lost
+            catch (Exception e)
+            {
+                player.Message(e.Message);
+            }
         }
     
 

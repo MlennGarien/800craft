@@ -99,6 +99,8 @@ namespace fCraft {
 
         public const string RulesDirectory = "rules";
 
+        public const string FontsDirectory = "fonts";
+
         public const string HeartbeatDataFileName = "heartbeatdata.txt";
 
         public const string UpdaterFileName = "UpdateInstaller.exe";
@@ -122,6 +124,11 @@ namespace fCraft {
 
         public static string RulesPath {
             get { return Path.Combine( WorkingPath, RulesDirectory ); }
+        }
+
+        public static string FontsPath
+        {
+            get { return Path.Combine(WorkingPath, FontsDirectory); }
         }
 
         public static string ReqPath
