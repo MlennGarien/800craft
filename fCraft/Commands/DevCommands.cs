@@ -46,26 +46,40 @@ namespace fCraft
             Usage = "/SetFont <Font | Size | Style> <Variable>"
         };
 
-        static void SetFontHandler(Player player, Command cmd)
-        {
+        static void SetFontHandler(Player player, Command cmd){
             string Param = cmd.Next();
-            string Variable = cmd.Next();
-            if (Param == null || Variable == null)
-            {
+            if (Param == null){
                 CdSetFont.PrintUsage(player);
                 return;
             }
-            if (Param.ToLower() == "size")
-            {
+            if (Param.ToLower() == "size"){
                 int Size = -1;
-                int.TryParse(Variable, out Size);
-                if (Size == -1)
-                {
-                    player.Message("&WInvalid size, use a number");
+                if (cmd.NextInt(out Size)){
+                    player.Message("SetFont: Size changed from {0} to {1} ({2})", player.font.Size, Size, player.font.FontFamily);
+                    player.font = new System.Drawing.Font(player.font.FontFamily, Size);
+                }else{
+                    player.Message("&WInvalid size, use /SetFont Size FontSize (a number)");
                     return;
                 }
-                player.font = new System.Drawing.Font(player.font.FontFamily, Size);
-                player.Message("Done");
+                return;
+            }
+            if (Param.ToLower() == "style"){
+                string StyleType = cmd.Next();
+                if (StyleType == null){
+                    CdSetFont.PrintUsage(player);
+                    return;
+                }
+                if (StyleType.ToLower() == "bold" || StyleType.ToLower() == "b"){
+                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Bold);
+                }
+                if (StyleType.ToLower() == "italic" || StyleType.ToLower() == "i"){
+                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Italic);
+                }
+                if (StyleType.ToLower() == "underlined" || StyleType.ToLower() == "u"){
+                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Underline);
+                }else{
+                    player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Regular);
+                }
             }
         }
         static CommandDescriptor CdFeed = new CommandDescriptor()
@@ -236,22 +250,20 @@ namespace fCraft
             Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.DrawAdvanced },
             RepeatableSelection = true,
-            IsConsoleSafe = true,
-            Help = "/Write message then click 2 blocks. The first is the starting point, the second is the direction",
+            IsConsoleSafe = false,
+            Help = "/Write, then click 2 blocks. The first is the starting point, the second is the direction",
+            Usage = "/Write Sentence",
             Handler = WriteHandler,
         };
 
-        //TODO: Use SizeF and add a collection of fonts. Performance++
+        //TODO: add a collection of fonts. Performance++
         static void WriteHandler(Player player, Command cmd)
         {
             string sentence = cmd.NextAll();
-            if (sentence.Length < 1)
-            {
-                player.Message("&A/Write Sentence");
+            if (sentence.Length < 1){
+                CdWrite.PrintUsage(player);
                 return;
-            }
-            else
-            {
+            }else{
                 player.Message("Write: Click 2 blocks or use &H/Mark&S to set direction.");
                 player.SelectionStart(2, WriteCallback, sentence, Permission.Draw);
             }
@@ -283,7 +295,7 @@ namespace fCraft
                 }
             }
             FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
-            render.CreateGraphicsAndDraw(player, sentence); //render the sentence
+            render.CreateGraphicsAndDraw(sentence); //render the sentence
             if (render.blockCount > 0){
                 player.Message("/Write: Writing '{0}' using {1} blocks of {2}", sentence, render.blockCount, block.ToString());
             }else{
@@ -302,7 +314,6 @@ namespace fCraft
             Usage = "/Unfinished command.",
             Handler = GameHandler
         };
-
         private static void GameHandler(Player player, Command cmd)
         {
             string GameMode = cmd.Next();
