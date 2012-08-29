@@ -65,74 +65,47 @@ namespace fCraft
                 CdSetFont.PrintUsage(player);
                 return;
             }
-            if (Param.ToLower() == "font")
-            {
+            if (Param.ToLower() == "font"){
                 string sectionName = cmd.NextAll();
-                if (sectionName.Length < 1)
-                {
-                    CdSetFont.PrintUsage(player);
-                    return;
-                }
-
-                // if a section name is given, but no section files exist
-                if (!Directory.Exists(Paths.FontsPath))
-                {
+                if (!Directory.Exists(Paths.FontsPath)){
                     player.Message("There are no fonts available for this server. Font is set to default: {0}", player.font.FontFamily.Name);
                     return;
                 }
-
                 string fontFileName = null;
-                string[] sectionFiles = Directory.GetFiles(Paths.FontsPath,
-                                                            "*.ttf",
-                                                            SearchOption.TopDirectoryOnly);
-
-                for (int i = 0; i < sectionFiles.Length; i++)
-                {
+                string[] sectionFiles = Directory.GetFiles(Paths.FontsPath, "*.ttf", SearchOption.TopDirectoryOnly);
+                if (sectionName.Length < 1){
+                    var sectionList = GetFontSectionList();
+                    player.Message("{0} Fonts Available: {1}", sectionList.Length, sectionList.JoinToString()); //print the folder contents
+                    return;
+                }
+                for (int i = 0; i < sectionFiles.Length; i++){
                     string sectionFullName = Path.GetFileNameWithoutExtension(sectionFiles[i]);
                     if (sectionFullName == null) continue;
-                    if (sectionFullName.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (sectionFullName.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            // if there is an exact match, break out of the loop early
+                    if (sectionFullName.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase)){
+                        if (sectionFullName.Equals(sectionName, StringComparison.OrdinalIgnoreCase)){
                             fontFileName = sectionFiles[i];
                             break;
-
-                        }
-                        else if (fontFileName == null)
-                        {
-                            // if there is a partial match, keep going to check for multiple matches
+                        }else if (fontFileName == null){
                             fontFileName = sectionFiles[i];
-
-                        }
-                        else
-                        {
+                        }else{
                             var matches = sectionFiles.Select(f => Path.GetFileNameWithoutExtension(f))
                                                       .Where(sn => sn != null && sn.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase));
-                            // if there are multiple matches, print a list
                             player.Message("Multiple font files matched \"{0}\": {1}",
                                             sectionName, matches.JoinToString());
                             return;
                         }
                     }
                 }
-
-                if (fontFileName != null)
-                {
+                if (fontFileName != null){
                     string sectionFullName = Path.GetFileNameWithoutExtension(fontFileName);
                     player.Message("Your font has changed to \"{0}\":", sectionFullName);
                     //change font here
                     player.font = new System.Drawing.Font(player.LoadFontFamily(fontFileName), player.font.Size);
-                }
-                else
-                {
+                }else{
                     var sectionList = GetFontSectionList();
-                    if (sectionList == null)
-                    {
+                    if (sectionList == null){
                         player.Message("No fonts have been found.");
-                    }
-                    else
-                    {
+                    }else{
                         player.Message("No fonts found for \"{0}\". Available fonts: {1}",
                                         sectionName, sectionList.JoinToString());
                     }

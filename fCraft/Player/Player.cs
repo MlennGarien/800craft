@@ -104,11 +104,11 @@ namespace fCraft {
         public Bot Bot;
         //public Alice Ali;
 
-        public Font font = new Font("Comic Sans MS", 14, FontStyle.Regular, GraphicsUnit.Pixel);
+        public Font font = new Font("Times New Roman", 14, FontStyle.Regular, GraphicsUnit.Pixel);
         System.Drawing.Text.PrivateFontCollection FontC;
         public FontFamily LoadFontFamily(string fileName)
         {
-            FontC = new System.Drawing.Text.PrivateFontCollection();//here is where we assing memory space to FontC
+            FontC = new System.Drawing.Text.PrivateFontCollection();//assing memory space to FontC
             FontC.AddFontFile(fileName);//we add the full path of the ttf file
             return FontC.Families[0];//returns the family object as usual.
         }
