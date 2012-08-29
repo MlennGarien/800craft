@@ -45,21 +45,19 @@ namespace fCraft
 
         public void CreateGraphicsAndDraw(string Sentence){
             SizeF size = MeasureTextSize(Sentence, player.font); //measure the text size to create a bmp)
-            Bitmap img = new Bitmap((int)size.Width, (int)size.Height);
-            using (Graphics g = Graphics.FromImage(img)){
-                g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height); //make background
+            Bitmap img = new Bitmap((int)size.Width, (int)size.Height); //make an image based on string size
+            using (Graphics g = Graphics.FromImage(img)){ //IDisposable
+                g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height); //make background, else crop will not work
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel; //fix to bleeding
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //not sure if this helps
                 g.DrawString(Sentence, player.font, Brushes.Black, 0, 0); //draw some sexytext
                 img = Crop(img); //crop the image to fix all problems with location
-                if (img == null) return; //check the output of crop
-                img.RotateFlip(RotateFlipType.Rotate180FlipX);
+                img.RotateFlip(RotateFlipType.Rotate180FlipX); //flip this badboy
                 Draw(img); //make the blockupdates
-                img.Dispose();
+                img.Dispose(); //gtfo homeslice
             }
         }
-        public void Draw(Bitmap img)
-        {
+        public void Draw(Bitmap img){
             //guess how big the draw will be
             int Count = 0;
             for (int x = 0; x < img.Width; x++){

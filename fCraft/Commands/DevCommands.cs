@@ -37,7 +37,7 @@ namespace fCraft
         static CommandDescriptor CdSetFont = new CommandDescriptor()
         {
             Name = "SetFont",
-            Aliases = new[] { "FontSet", "Font"},
+            Aliases = new[] { "FontSet", "Font", "Sf"},
             Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.DrawAdvanced },
             IsConsoleSafe = false,
@@ -55,7 +55,11 @@ namespace fCraft
             if (Param.ToLower() == "size"){
                 int Size = -1;
                 if (cmd.NextInt(out Size)){
-                    player.Message("SetFont: Size changed from {0} to {1} ({2})", player.font.Size, Size, player.font.FontFamily);
+                    if (Size > 48 || Size < 10){
+                        player.Message("&WIncorrect size: Size needs to be between 10 and 48"); 
+                        return;
+                    }
+                    player.Message("SetFont: Size changed from {0} to {1} ({2})", player.font.Size, Size, player.font.FontFamily.Name);
                     player.font = new System.Drawing.Font(player.font.FontFamily, Size);
                 }else{
                     player.Message("&WInvalid size, use /SetFont Size FontSize (a number)");
@@ -63,6 +67,7 @@ namespace fCraft
                 }
                 return;
             }
+            //Y u no work?
             if (Param.ToLower() == "style"){
                 string StyleType = cmd.Next();
                 if (StyleType == null){
@@ -80,6 +85,7 @@ namespace fCraft
                 }else{
                     player.font = new System.Drawing.Font(player.font.FontFamily, player.font.Size, System.Drawing.FontStyle.Regular);
                 }
+                player.Message("SetFont: Font Style changed to " + player.font.Style);
             }
         }
         static CommandDescriptor CdFeed = new CommandDescriptor()
@@ -247,6 +253,7 @@ namespace fCraft
         static readonly CommandDescriptor CdWrite = new CommandDescriptor
         {
             Name = "Write",
+            Aliases = new[]{ "Text", "Wt" },
             Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.DrawAdvanced },
             RepeatableSelection = true,
