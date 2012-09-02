@@ -12,42 +12,29 @@ namespace fCraft
         private static World _world;
         private static int _humanCount = 0;
         private static SchedulerTask _task;
-        public static ZombieGame instance;
         public static DateTime startTime;
         public static DateTime lastChecked;
         private static bool _started = false;
 
-        private ZombieGame()
+        public ZombieGame(World world)
         {
-          
+            _world = world;
+            startTime = DateTime.Now;
+            _humanCount = _world.Players.Length;
+            _task = new SchedulerTask(Interval, false).RunForever(TimeSpan.FromSeconds(1));
+            _world.gameMode = GameMode.ZombieSurvival;
+            Player.Moved += OnPlayerMoved;
+            Player.JoinedWorld += OnChangedWorld;
         }
 
-        public static ZombieGame GetInstance(World world)
-        {
-            if (instance == null)
-            {
-                _world = world;
-                instance = new ZombieGame();
-                startTime = DateTime.Now;
-                _humanCount = _world.Players.Length;
-                _world.Players.Message(_humanCount.ToString());
-                Player.Moved += OnPlayerMoved;
-                _task = new SchedulerTask(Interval, true).RunForever(TimeSpan.FromSeconds(1));
-                //_world.positions = new Player[_world.Map.Width,
-                       // _world.Map.Length, _world.Map.Height];
-                _world.gameMode = GameMode.ZombieSurvival;
-            }
-            return instance;
-        }
-
-        public static void Start(){
+        public void Start(){
             _world.gameMode = GameMode.ZombieSurvival; //set the game mode
             _humanCount = _world.Players.Where(p => p.iName != _zomb).Count(); //count all players
-            Scheduler.NewTask(t => _world.Players.Message("&WThe will be starting soon..."))
+            Scheduler.NewTask(t => _world.Players.Message("&WThe game will be starting soon..."))
                 .RunRepeating(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(20), 2);
         }
 
-        public static void Stop(Player player)
+        public void Stop(Player player)
         {
             if (player != null){
                 _world.Players.Message("{0}&S stopped the game of Infection on world {1}", 
@@ -57,20 +44,20 @@ namespace fCraft
             _world.gameMode = GameMode.NULL;
             _humanCount = 0;
             _task = null;
-            instance = null;
             _started = false;
+            Player.Moved -= OnPlayerMoved;
+            Player.JoinedWorld -= OnChangedWorld;
         }
 
-        public static void RandomPick(){
+        public void RandomPick(){
             Random rand = new Random();
             int min = 1, max = _world.Players.Length, num;
             num = rand.Next(min, max + 1);
-            _world.Players.Message(num.ToString());
             Player p = _world.Players[num - 1];
             toZombie(null, p);
         }
-        public static Random rand = new Random();
-        public static void Interval(SchedulerTask task)
+        Random rand = new Random();
+        public void Interval(SchedulerTask task)
         {
             //check to stop Interval
             if (_world.gameMode != GameMode.ZombieSurvival || _world == null)
@@ -88,21 +75,7 @@ namespace fCraft
                         Stop(null);
                         return;
                     }*/
-                    foreach (Player p in _world.Players)
-                    {
-                        int x = rand.Next(2, _world.Map.Width);
-                        int y = rand.Next(2, _world.Map.Length);
-                        int z1 = 0;
-                        for (int z = _world.Map.Height - 1; z > 0; z--)
-                        {
-                            if (_world.Map.GetBlock(x, y, z) != Block.Air)
-                            {
-                                z1 = z + 3;
-                                break;
-                            }
-                        }
-                        p.TeleportTo(new Position(x, y, z1 + 2).ToVector3I().ToPlayerCoords());
-                    }
+                    ShufflePlayerPositions();
                     _started = true;
                     RandomPick();
                     lastChecked = DateTime.Now;
@@ -112,11 +85,20 @@ namespace fCraft
             //calculate humans
             _humanCount = _world.Players.Where(p => p.iName != _zomb).Count();
             //check if zombies have won already
-            if (_humanCount == 0)
+            if (_started)
             {
-                _world.Players.Message("&WThe Humans have failed to survive... &9ZOMBIES WIN!");
-                Stop(null);
-                return;
+                if (_humanCount == 1 && _world.Players.Count() == 1)
+                {
+                    _world.Players.Message("&WThe Zombies have failed to infect everyone... &9HUMANS WIN!");
+                    Stop(null);
+                    return;
+                }
+                if (_humanCount == 0)
+                {
+                    _world.Players.Message("&WThe Humans have failed to survive... &9ZOMBIES WIN!");
+                    Stop(null);
+                    return;
+                }
             }
             //check if 5mins is up and all zombies have failed
             if (_started && startTime != null && (DateTime.Now - startTime).TotalMinutes > 6)
@@ -138,12 +120,48 @@ namespace fCraft
             }
         }
 
-        static void OnPlayerMoved(object sender, PlayerMovedEventArgs e){
+        void OnChangedWorld(object sender, PlayerJoinedWorldEventArgs e)
+        {
+            if (e.OldWorld != null)
+            {
+                if (e.OldWorld.gameMode == GameMode.ZombieSurvival && e.NewWorld != e.OldWorld)
+                {
+                    if(e.Player.iName != null)
+                    RevertPlayerName(e.Player);
+                }
+                else if (e.OldWorld.gameMode != GameMode.ZombieSurvival && e.NewWorld.gameMode == GameMode.ZombieSurvival)
+                {
+                    if (e.NewWorld.Players.Where(p => p.iName == _zomb).Count() > 0)
+                    {
+                        e.Player.iName = _zomb;
+                        e.Player.entityChanged = true;
+                        e.Player.Message("&WYou arrived late, so you are " + _zomb);
+                    }
+                    if (e.Player.IsUsingWoM) e.Player.Message("&HUsing WoM? Be sure to turn off hacks");
+                }
+            }
+        }
+
+        void OnPlayerMoved(object sender, PlayerMovedEventArgs e){
             if (e.Player.World.gameMode == GameMode.ZombieSurvival){
                 if (e.Player.World.Name == _world.Name && _world != null){
                     if (e.NewPosition != null){
                         Vector3I oldPos = new Vector3I(e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32);
                         Vector3I newPos = new Vector3I(e.NewPosition.X / 32, e.NewPosition.Y / 32, e.NewPosition.Z / 32);
+
+                        if (oldPos.X != newPos.X || oldPos.Y != newPos.Y || oldPos.Z != newPos.Z)
+                        {
+                            if (!_world.Map.InBounds(newPos))
+                            {
+                                e.Player.TeleportTo(_world.Map.Spawn);
+                                newPos = (Vector3I)_world.Map.Spawn;
+                            }
+                            if (oldPos.X - newPos.X > 1 || oldPos.Y - newPos.Y > 1 || newPos.X - oldPos.X > 1 || newPos.Y - oldPos.Y > 1)
+                            {
+                                e.Player.TeleportTo(e.OldPosition);
+                                newPos = oldPos;
+                            }
+                        }
                         if (_world.Map.InBounds(newPos)){
                             if (oldPos.X != newPos.X || oldPos.Y != newPos.Y || oldPos.Z != newPos.Z){
                                 foreach (Player p in _world.Players){
@@ -158,8 +176,23 @@ namespace fCraft
                 }
             }
         }
+        void ShufflePlayerPositions()
+        {
+            foreach (Player p in _world.Players){
+                int x = rand.Next(2, _world.Map.Width);
+                int y = rand.Next(2, _world.Map.Length);
+                int z1 = 0;
+                for (int z = _world.Map.Height - 1; z > 0; z--){
+                    if (_world.Map.GetBlock(x, y, z) != Block.Air){
+                        z1 = z + 3;
+                        break;
+                    }
+                }
+                p.TeleportTo(new Position(x, y, z1 + 2).ToVector3I().ToPlayerCoords());
+            }
+        }
 
-        static public void toZombie(Player infector, Player target){
+        public void toZombie(Player infector, Player target){
             if (infector == null){
                 _world.Players.Message("{0}&S has been the first to get &cInfected. &9Panic!!!!!",
                         target.ClassyName);
@@ -185,13 +218,13 @@ namespace fCraft
             }
         }
 
-        public static void RevertNames(){
+        void RevertNames(){
             foreach (Player p in _world.Players){
                 RevertPlayerName(p);
             }
         }
 
-        public static void RevertPlayerName(Player p){
+        public void RevertPlayerName(Player p){
             if (p.iName == _zomb){
                 p.iName = null;
                 p.entityChanged = true;

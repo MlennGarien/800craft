@@ -24,15 +24,16 @@ namespace fCraft
 
         public static void Init()
         {
-            CommandManager.RegisterCommand(CdWrite);
-            CommandManager.RegisterCommand(CdSetFont);
+            //CommandManager.RegisterCommand(CdWrite);
+            //CommandManager.RegisterCommand(CdSetFont);
             //CommandManager.RegisterCommand(CdFeed);
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
-            //CommandManager.RegisterCommand(CdGame);
+             //CommandManager.RegisterCommand(CdGame);
 
             //Player.JoinedWorld += fCraft.Events.FeedEvents.PlayerJoiningWorld;
         }
+
 
         static string[] GetFontSectionList() {
             if( Directory.Exists( Paths.FontsPath ) ) {
@@ -128,7 +129,7 @@ namespace fCraft
             }
             if (Param.ToLower() == "style"){
                 string StyleType = cmd.Next();
-                bool Append = false;
+                bool Append = false; //remove this, change to if(hasNext()) bold, italic, UL. if font.canhavestyle(bold) else message
                 if (StyleType == null){
                     CdSetFont.PrintUsage(player);
                     return;
@@ -382,23 +383,20 @@ namespace fCraft
                 }else{
                     direction = Direction.four;
                 }
-            }
-            try
-            {
+            }try{
                 FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
                 render.CreateGraphicsAndDraw(sentence); //render the sentence
-                if (render.blockCount > 0)
-                {
-                    player.Message("/Write: Writing '{0}' using {1} blocks of {2}", sentence, render.blockCount, block.ToString());
-                }
-                else
-                {
+                if (render.blockCount > 0){
+                    player.Message("/Write (Size {0}, Font {1}: Writing '{2}' using {3} blocks of {4}", 
+                        player.font.Size, 
+                        player.font.FontFamily.Name, 
+                        sentence, render.blockCount, 
+                        block.ToString());
+                }else{
                     player.Message("&WNo direction was set");
                 }
                 render = null; //get lost
-            }
-            catch (Exception e)
-            {
+            }catch (Exception e){
                 player.Message(e.Message);
             }
         }
@@ -427,8 +425,8 @@ namespace fCraft
             {
                 if (Option.ToLower() == "start")
                 {
-                    ZombieGame.GetInstance(player.World);
-                    ZombieGame.Start();
+                    ZombieGame game = new ZombieGame(player.World); //move to world
+                    game.Start();
                     return;
                 }
                 else

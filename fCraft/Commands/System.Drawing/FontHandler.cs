@@ -48,8 +48,7 @@ namespace fCraft
             Bitmap img = new Bitmap((int)size.Width, (int)size.Height); //make an image based on string size
             using (Graphics g = Graphics.FromImage(img)){ //IDisposable
                 g.FillRectangle(Brushes.White, 0, 0, img.Width, img.Height); //make background, else crop will not work
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel; //fix to bleeding
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; //not sure if this helps
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit; //fix to bleeding
                 g.DrawString(Sentence, player.font, Brushes.Black, 0, 0); //draw some sexytext
                 img = Crop(img); //crop the image to fix all problems with location
                 img.RotateFlip(RotateFlipType.Rotate180FlipX); //flip this badboy
