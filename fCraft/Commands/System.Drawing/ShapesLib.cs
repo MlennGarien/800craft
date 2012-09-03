@@ -23,6 +23,8 @@ namespace fCraft
 {
     public class ShapesLib
     {
+        #region Instancing
+
         public Player player; //player using command
         public int blockCount; //blockcount for player message. ++ when drawing
         int blocks = 0, //drawn blocks
@@ -47,8 +49,10 @@ namespace fCraft
             Radius = radius;
         }
 
+        #endregion
+
         #region GoldenSpiral
-        public void CreateGraphicsAndDraw()
+        public void DrawSpiral()
         {
             DrawBitmap(Radius, Radius);
         }
@@ -209,15 +213,17 @@ namespace fCraft
         #endregion
 
         #region Polygon
-        private void DrawRegularPolygon(int sides, int radius, int startingAngle, Point center, Size canvasSize, bool FillPoly)
+        public void DrawRegularPolygon(int sides, int startingAngle, bool FillPoly)
         {
             //Get the location for each vertex of the polygon
-            Point[] verticies = CalculateVertices(sides, radius, startingAngle, center);
+            Point center = new Point(Radius /2, Radius / 2);
+            Point[] verticies = CalculateVertices(sides, Radius / 2, startingAngle, center);
 
             //Render the polygon
-            Bitmap polygon = new Bitmap(radius *2, radius*2);
+            Bitmap polygon = new Bitmap(Radius+ 1, Radius+ 1);
             using (Graphics g = Graphics.FromImage(polygon))
             {
+                g.FillRectangle(Brushes.White, 0, 0, polygon.Width, polygon.Height);
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.DrawPolygon(Pens.Black, verticies);
                 if (FillPoly)
@@ -227,6 +233,7 @@ namespace fCraft
                 }
             }
             polygon = Crop(polygon);
+            polygon.RotateFlip(RotateFlipType.Rotate180FlipX);
             Draw(polygon);
             polygon.Dispose();
         }
@@ -250,6 +257,185 @@ namespace fCraft
         }
         #endregion
 
+        #region Multi-point star
+
+        // Draw the indicated star in the rectangle.
+        public void DrawStar(int num_points, int Radius, bool Fill)
+        {
+            Bitmap bmp = new Bitmap(Radius, Radius);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.FillRectangle(Brushes.White, 0, 0, bmp.Width, bmp.Height);
+                // Get the star's points.
+                PointF[] star_points = MakeStarPoints(-Math.PI / 2, num_points, Radius / 2);
+
+                // Draw the star.
+                SolidBrush brush = new SolidBrush(System.Drawing.Color.Black);
+                if (Fill)
+                {
+                    g.FillPolygon(brush, star_points);
+                }
+                g.DrawPolygon(Pens.Black, star_points);
+                bmp = Crop(bmp);
+                bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
+                Draw(bmp);
+                bmp.Dispose();
+            }
+        }
+
+        // Generate the points for a star.
+        private PointF[] MakeStarPoints(double start_theta, int num_points, int Radius)
+        {
+            double theta, dtheta;
+            PointF[] result;
+            float cx = Radius;
+            float cy = Radius;
+            int skip = (int)((num_points - 1) / 2.0);
+
+            // If this is a polygon, don't bother with concave points.
+            if (skip == 1)
+            {
+                result = new PointF[num_points];
+                theta = start_theta;
+                dtheta = 2 * Math.PI / num_points;
+                for (int i = 0; i < num_points; i++)
+                {
+                    result[i] = new PointF(
+                        (float)(cx + cx * Math.Cos(theta)),
+                        (float)(cy + cy * Math.Sin(theta)));
+                    theta += dtheta;
+                }
+                return result;
+            }
+
+            // Find the radius for the concave vertices.
+            double concave_radius = CalculateConcaveRadius(num_points, skip);
+
+            // Make the points.
+            result = new PointF[2 * num_points];
+            theta = start_theta;
+            dtheta = Math.PI / num_points;
+            for (int i = 0; i < num_points; i++)
+            {
+                result[2 * i] = new PointF(
+                    (float)(cx + cx * Math.Cos(theta)),
+                    (float)(cy + cy * Math.Sin(theta)));
+                theta += dtheta;
+                result[2 * i + 1] = new PointF(
+                    (float)(cx + cx * Math.Cos(theta) * concave_radius),
+                    (float)(cy + cy * Math.Sin(theta) * concave_radius));
+                theta += dtheta;
+            }
+            return result;
+        }
+
+        // Calculate the inner star radius.
+        private double CalculateConcaveRadius(int num_points, int skip)
+        {
+            // For really small numbers of points.
+            if (num_points < 5) return 0.33f;
+
+            // Calculate angles to key points.
+            double dtheta = 2 * Math.PI / num_points;
+            double theta00 = -Math.PI / 2;
+            double theta01 = theta00 + dtheta * skip;
+            double theta10 = theta00 + dtheta;
+            double theta11 = theta10 - dtheta * skip;
+
+            // Find the key points.
+            PointF pt00 = new PointF(
+                (float)Math.Cos(theta00),
+                (float)Math.Sin(theta00));
+            PointF pt01 = new PointF(
+                (float)Math.Cos(theta01),
+                (float)Math.Sin(theta01));
+            PointF pt10 = new PointF(
+                (float)Math.Cos(theta10),
+                (float)Math.Sin(theta10));
+            PointF pt11 = new PointF(
+                (float)Math.Cos(theta11),
+                (float)Math.Sin(theta11));
+
+            // See where the segments connecting the points intersect.
+            bool lines_intersect, segments_intersect;
+            PointF intersection, close_p1, close_p2;
+            FindIntersection(pt00, pt01, pt10, pt11,
+                out lines_intersect, out segments_intersect,
+                out intersection, out close_p1, out close_p2);
+
+            // Calculate the distance between the
+            // point of intersection and the center.
+            return Math.Sqrt(
+                intersection.X * intersection.X +
+                  intersection.Y * intersection.Y);
+        }
+
+        // Find the point of intersection between
+        // the lines p1 --> p2 and p3 --> p4.
+        private void FindIntersection(PointF p1, PointF p2, PointF p3, PointF p4,
+            out bool lines_intersect, out bool segments_intersect,
+            out PointF intersection, out PointF close_p1, out PointF close_p2)
+        {
+            // Get the segments' parameters.
+            float dx12 = p2.X - p1.X;
+            float dy12 = p2.Y - p1.Y;
+            float dx34 = p4.X - p3.X;
+            float dy34 = p4.Y - p3.Y;
+
+            // Solve for t1 and t2
+            float denominator = (dy12 * dx34 - dx12 * dy34);
+
+            float t1;
+            try
+            {
+                t1 = ((p1.X - p3.X) * dy34 + (p3.Y - p1.Y) * dx34) / denominator;
+            }
+            catch
+            {
+                // The lines are parallel (or close enough to it).
+                lines_intersect = false;
+                segments_intersect = false;
+                intersection = new PointF(float.NaN, float.NaN);
+                close_p1 = new PointF(float.NaN, float.NaN);
+                close_p2 = new PointF(float.NaN, float.NaN);
+                return;
+            }
+            lines_intersect = true;
+
+            float t2 = ((p3.X - p1.X) * dy12 + (p1.Y - p3.Y) * dx12) / -denominator;
+
+            // Find the point of intersection.
+            intersection = new PointF(p1.X + dx12 * t1, p1.Y + dy12 * t1);
+
+            // The segments intersect if t1 and t2 are between 0 and 1.
+            segments_intersect = ((t1 >= 0) && (t1 <= 1) && (t2 >= 0) && (t2 <= 1));
+
+            // Find the closest points on the segments.
+            if (t1 < 0)
+            {
+                t1 = 0;
+            }
+            else if (t1 > 1)
+            {
+                t1 = 1;
+            }
+
+            if (t2 < 0)
+            {
+                t2 = 0;
+            }
+            else if (t2 > 1)
+            {
+                t2 = 1;
+            }
+
+            close_p1 = new PointF(p1.X + dx12 * t1, p1.Y + dy12 * t1);
+            close_p2 = new PointF(p3.X + dx34 * t2, p3.Y + dy34 * t2);
+        }
+
+        #endregion
+
+        #region Draw
         public void Draw(Bitmap img){
             //guess how big the draw will be
             int Count = 0;
@@ -262,7 +448,7 @@ namespace fCraft
             }
             //check if player can make the drawing
             if (!player.CanDraw(Count)){
-                player.MessageNow(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                player.Message(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.Info.Rank.DrawLimit, Count));
                 return;
             }
@@ -320,10 +506,11 @@ namespace fCraft
                     break; //if blockcount = 0, message is shown and returned
             }
         }
+        #endregion
+
         #region Helpers
 
-        private Point DegreesToXY(float degrees, float radius, Point origin)
-        {
+        private Point DegreesToXY(float degrees, float radius, Point origin){
             Point xy = new Point();
             double radians = degrees * Math.PI / 180.0;
 
@@ -332,6 +519,7 @@ namespace fCraft
 
             return xy;
         }
+
         public static Bitmap Crop(Bitmap bmp)
         {
             int w = bmp.Width;
@@ -351,29 +539,25 @@ namespace fCraft
                 return true;
             };
             int topmost = 0;
-            for (int row = 0; row < h; ++row)
-            {
+            for (int row = 0; row < h; ++row){
                 if (allWhiteRow(row))
                     topmost = row;
                 else break;
             }
             int bottommost = 0;
-            for (int row = h - 1; row >= 0; --row)
-            {
+            for (int row = h - 1; row >= 0; --row){
                 if (allWhiteRow(row))
                     bottommost = row;
                 else break;
             }
             int leftmost = 0, rightmost = 0;
-            for (int col = 0; col < w; ++col)
-            {
+            for (int col = 0; col < w; ++col){
                 if (allWhiteColumn(col))
                     leftmost = col;
                 else
                     break;
             }
-            for (int col = w - 1; col >= 0; --col)
-            {
+            for (int col = w - 1; col >= 0; --col){
                 if (allWhiteColumn(col))
                     rightmost = col;
                 else
@@ -383,29 +567,23 @@ namespace fCraft
             if (bottommost == 0) bottommost = h; // As reached top.
             int croppedWidth = rightmost - leftmost;
             int croppedHeight = bottommost - topmost;
-            if (croppedWidth == 0)
-            {// No border on left or right
+            if (croppedWidth == 0){// No border on left or right
                 leftmost = 0;
                 croppedWidth = w;
             }
-            if (croppedHeight == 0)
-            {// No border on top or bottom
+            if (croppedHeight == 0){// No border on top or bottom
                 topmost = 0;
                 croppedHeight = h;
-            } try
-            {
+            }try{
                 var target = new Bitmap(croppedWidth, croppedHeight);
-                using (Graphics g = Graphics.FromImage(target))
-                {
+                using (Graphics g = Graphics.FromImage(target)){
                     g.DrawImage(bmp,
                       new RectangleF(0, 0, croppedWidth, croppedHeight),
                       new RectangleF(leftmost, topmost, croppedWidth, croppedHeight),
                       GraphicsUnit.Pixel);
                 }
                 return target;
-            }
-            catch
-            {
+            }catch{
                 return bmp; //return original image, I guess
             }
         }

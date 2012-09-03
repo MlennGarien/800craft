@@ -352,18 +352,51 @@ namespace fCraft
 
         static void Draw2DHandler(Player player, Command cmd)
         {
-            int radius;
-            if(cmd.NextInt(out radius))
+            string Shape = cmd.Next();
+            if (Shape == null)
             {
-                player.Message("Draw2D(Shape): Click 2 blocks or use &H/Mark&S to set direction.");
-                player.SelectionStart(2, Draw2DCallback, radius, Permission.Draw);
+                CdDraw2D.PrintUsage(player);
+                return;
             }
+            switch (Shape.ToLower())
+            {
+                case "polygon":
+                case "star":
+                case "spiral":
+                    break;
+                default:
+                    CdDraw2D.PrintUsage(player);
+                return;
+            }
+            int radius = 0;
+            int Points = 0;
+            if (!cmd.NextInt(out radius))
+            {
+                radius = 20;
+            }
+            if (!cmd.NextInt(out Points))
+            {
+                Points = 5;
+            }
+            Draw2DData tag = new Draw2DData() { Shape = Shape, Points = Points, Radius = radius };
+            player.Message("Draw2D({0}): Click 2 blocks or use &H/Mark&S to set direction.", Shape);
+            player.SelectionStart(2, Draw2DCallback, tag, Permission.Draw);
+        }
+
+        struct Draw2DData
+        {
+            public int Radius;
+            public int Points;
+            public string Shape;
         }
 
         static void Draw2DCallback(Player player, Vector3I[] marks, object tag)
         {
             Block block = new Block();
-            int radius = (int)tag;
+            Draw2DData data = (Draw2DData)tag;
+            int radius = data.Radius;
+            int Points = data.Points;
+            string Shape = data.Shape;
             if (player.LastUsedBlockType == Block.Undefined)
             {
                 block = Block.Stone;
@@ -395,16 +428,31 @@ namespace fCraft
                 {
                     direction = Direction.four;
                 }
-            } try
-            {
+            }try{
                 ShapesLib lib = new ShapesLib(block, marks, player, radius, direction);
-                lib.CreateGraphicsAndDraw();
+                switch (Shape.ToLower())
+                {
+                    case "polygon":
+                        lib.DrawRegularPolygon(Points, 18, true);
+                        break;
+                    case "star":
+                        lib.DrawStar(Points, radius, true);
+                        break;
+                    case "spiral":
+                        lib.DrawSpiral();
+                        break;
+                    default:
+                        player.Message("&WUnknown shape");
+                        CdDraw2D.PrintUsage(player);
+                        lib = null;
+                        return;
+                }
+                
                 if (lib.blockCount > 0)
                 {
-                    player.Message("/Draw2D: Drawing {0} with a size of '{1}x{2}' using {3} blocks of {4}",
-                        "shape",
-                        "width",
-                        "height",
+                    player.Message("/Draw2D: Drawing {0} with a radius '{1}' using {2} blocks of {3}",
+                        Shape,
+                        radius,
                         lib.blockCount,
                         block.ToString());
                 }
