@@ -47,6 +47,7 @@ namespace fCraft
             Radius = radius;
         }
 
+        #region GoldenSpiral
         public void CreateGraphicsAndDraw()
         {
             DrawBitmap(Radius, Radius);
@@ -204,37 +205,67 @@ namespace fCraft
             RemoveRight,
             RemoveBottom
         }
-        public void Draw(Bitmap img)
+
+        #endregion
+
+        #region Polygon
+        private Bitmap DrawRegularPolygon(int sides, int radius, int startingAngle, Point center, Size canvasSize)
         {
+            //Get the location for each vertex of the polygon
+            Point[] verticies = CalculateVertices(sides, radius, startingAngle, center);
+
+            //Render the polygon
+            Bitmap polygon = new Bitmap(radius *2, radius*2);
+            using (Graphics g = Graphics.FromImage(polygon))
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.DrawPolygon(Pens.Black, verticies);
+            }
+
+            return polygon;
+        }
+
+        private Point[] CalculateVertices(int sides, int radius, int startingAngle, Point center)
+        {
+            if (sides < 3)
+                throw new ArgumentException("Polygon must have 3 sides or more.");
+
+            List<Point> points = new List<Point>();
+            float step = 360.0f / sides;
+
+            float angle = startingAngle;
+            for (double i = startingAngle; i < startingAngle + 360.0; i += step)
+            {
+                points.Add(DegreesToXY(angle, radius, center));
+                angle += step;
+            }
+
+            return points.ToArray();
+        }
+        #endregion
+
+        public void Draw(Bitmap img){
             //guess how big the draw will be
             int Count = 0;
-            for (int x = 0; x < img.Width; x++)
-            {
-                for (int z = 0; z < img.Height; z++)
-                {
-                    if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
-                    {
+            for (int x = 0; x < img.Width; x++){
+                for (int z = 0; z < img.Height; z++){
+                    if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb()){
                         Count++;
                     }
                 }
             }
             //check if player can make the drawing
-            if (!player.CanDraw(Count))
-            {
+            if (!player.CanDraw(Count)){
                 player.MessageNow(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.Info.Rank.DrawLimit, Count));
                 return;
             }
             //check direction and draw
-            switch (direction)
-            {
+            switch (direction){
                 case Direction.one:
-                    for (int x = 0; x < img.Width; x++)
-                    {
-                        for (int z = 0; z < img.Height; z++)
-                        {
-                            if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
-                            {
+                    for (int x = 0; x < img.Width; x++){
+                        for (int z = 0; z < img.Height; z++){
+                            if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb()){
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
                                       new Vector3I((PixelData.X + x), PixelData.Y, (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
@@ -244,12 +275,9 @@ namespace fCraft
                     }
                     break;
                 case Direction.two:
-                    for (int x = 0; x < img.Width; x++)
-                    {
-                        for (int z = 0; z < img.Height; z++)
-                        {
-                            if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb())
-                            {
+                    for (int x = 0; x < img.Width; x++){
+                        for (int z = 0; z < img.Height; z++){
+                            if (img.GetPixel(x, z).ToArgb() != System.Drawing.Color.White.ToArgb()){
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
                                       new Vector3I((PixelData.X - x), PixelData.Y, (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
@@ -259,12 +287,9 @@ namespace fCraft
                     }
                     break;
                 case Direction.three:
-                    for (int y = 0; y < img.Width; y++)
-                    {
-                        for (int z = 0; z < img.Height; z++)
-                        {
-                            if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
-                            {
+                    for (int y = 0; y < img.Width; y++){
+                        for (int z = 0; z < img.Height; z++){
+                            if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb()){
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
                                       new Vector3I(PixelData.X, (PixelData.Y + y), (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
@@ -274,12 +299,9 @@ namespace fCraft
                     }
                     break;
                 case Direction.four:
-                    for (int y = 0; y < img.Width; y++)
-                    {
-                        for (int z = 0; z < img.Height; z++)
-                        {
-                            if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb())
-                            {
+                    for (int y = 0; y < img.Width; y++){
+                        for (int z = 0; z < img.Height; z++){
+                            if (img.GetPixel(y, z).ToArgb() != System.Drawing.Color.White.ToArgb()){
                                 DrawOneBlock(player, player.World.Map, PixelData.BlockColor,
                                       new Vector3I(PixelData.X, ((PixelData.Y) - y), (PixelData.Z + z)), BlockChangeContext.Drawn,
                                       ref blocks, ref blocksDenied, undoState);
@@ -293,6 +315,17 @@ namespace fCraft
             }
         }
         #region Helpers
+
+        private Point DegreesToXY(float degrees, float radius, Point origin)
+        {
+            Point xy = new Point();
+            double radians = degrees * Math.PI / 180.0;
+
+            xy.X = (int)(Math.Cos(radians) * radius + origin.X);
+            xy.Y = (int)(Math.Sin(-radians) * radius + origin.Y);
+
+            return xy;
+        }
         public static Bitmap Crop(Bitmap bmp)
         {
             int w = bmp.Width;
