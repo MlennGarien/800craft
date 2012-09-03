@@ -174,168 +174,6 @@ namespace fCraft
                 player.Message("SetFont: Font Style changed from {0} to {1}", OldStyle, player.font.Style);
             }
         }
-        static CommandDescriptor CdFeed = new CommandDescriptor()
-        {
-            Name = "Feed",
-            Category = CommandCategory.Building,
-            Permissions = new Permission[] { Permission.EditPlayerDB },
-            RepeatableSelection = true,
-            IsConsoleSafe = false,
-            Help = "/Feed then click two positions. Will create a 60 block feed in the direction of the 2nd block",
-            Handler = FeedHandler,
-        };
-
-        static void FeedHandler(Player player, Command cmd)
-        {
-            string Option = cmd.Next();
-            if (Option == null)
-            {
-                player.Message("Argument cannot be null, try /Feed <create | remove | list>");
-                return;
-            }
-            if (!File.Exists("plugins/font.png"))
-            {
-                player.Message("The font file could not be found");
-                return;
-            }
-
-            if (Option.ToLower() == "create")
-            {
-                player.Message("Feed: Click 2 blocks or use &H/Mark&S to set direction.");
-                player.SelectionStart(2, FeedCallback, Option, Permission.Draw);
-            }
-            if (Option.ToLower() == "list")
-            {
-                FeedData[] list = FeedData.FeedList.OrderBy(feed => feed.Id).ToArray();
-                if (list.Length == 0)
-                {
-                    player.Message("No feeds running.");
-                }
-                else
-                {
-                    player.Message("There are {0} feeds running:", list.Length);
-                    foreach (FeedData data in list)
-                    {
-                        player.Message("  #{0} ({1},{2},{3}) World: {4}",
-                                        data.Id, data.StartPos.X, data.StartPos.Y, data.StartPos.Z, data.world.ClassyName);
-                    }
-                }
-                return;
-            }
-
-            if (Option.ToLower() == "remove" || Option.ToLower() == "stop")
-            {
-                int Id;
-                if (cmd.NextInt(out Id))
-                {
-                    FeedData data = FeedData.FindFeedById(Id);
-                    if (data == null)
-                    {
-                        player.Message("Given feed (#{0}) does not exist.", Id);
-                    }
-                    else
-                    {
-                        data.started = false;
-                        FeedData.RemoveFeedFromList(data);
-                        player.Message("Feed #" + Id + " has been removed");
-                    }
-                }
-                else
-                {
-                    player.Message("&WUnable to remove any feeds. Try /Feed remove <ID>");
-                }
-                return;
-            }
-            else
-            {
-                player.Message("&WUnknown argument. Check /Help Feed");
-                return;
-            }
-        }
-
-
-        static void FeedCallback(Player player, Vector3I[] marks, object tag)
-        {
-            Direction direction = Direction.Null;
-            if (Math.Abs(marks[1].X - marks[0].X) > Math.Abs(marks[1].Y - marks[0].Y))
-            {
-                if (marks[0].X < marks[1].X)
-                {
-                    direction = Direction.one;
-                }
-                else
-                {
-                    direction = Direction.two;
-                }
-            }
-            else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y))
-            {
-                if (marks[0].Y < marks[1].Y)
-                {
-                    direction = Direction.three;
-                }
-                else
-                {
-                    direction = Direction.four;
-                }
-            }
-            else return;
-            FeedData data = new FeedData(Block.Lava, marks[0], "plugins/font.png", player.World, direction);
-            data.StartPos = marks[0];
-            int x1 = 0, y1 = 0, z1 = 0;
-            switch (direction)
-            {
-                case Direction.one:
-                    for (int x = data.StartPos.X; x < data.StartPos.X + 60; x++)
-                    {
-                        for (int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++)
-                        {
-                            player.World.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)data.StartPos.Y, (short)z, Block.Black));
-                            x1 = x; z1 = z;
-                        }
-                    }
-                    data.EndPos = new Vector3I(x1, marks[0].Y, z1);
-                    data.FinishPos = new Vector3I(x1, marks[0].Y, z1);
-                    break;
-
-                case Direction.two:
-                    for (int x = data.StartPos.X; x > data.StartPos.X - 60; x--)
-                    {
-                        for (int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++)
-                        {
-                            player.World.Map.QueueUpdate(new BlockUpdate(null, (short)x, (short)data.StartPos.Y, (short)z, Block.Black));
-                            x1 = x; z1 = z;
-                        }
-                    }
-                    data.EndPos = new Vector3I(x1, marks[0].Y, z1);
-                    data.FinishPos = new Vector3I(x1, marks[0].Y, z1);
-                    break;
-                case Direction.three:
-                    for (int y = data.StartPos.Y; y < data.StartPos.Y + 60; y++)
-                    {
-                        for (int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++)
-                        {
-                            player.World.Map.QueueUpdate(new BlockUpdate(null, (short)data.StartPos.X, (short)y, (short)z, Block.Black));
-                            y1 = y; z1 = z;
-                        }
-                    }
-                    data.EndPos = new Vector3I(marks[0].X, y1, z1);
-                    data.FinishPos = new Vector3I(marks[0].X, y1, z1);
-                    break;
-                case Direction.four:
-                    for (int y = data.StartPos.Y; y > data.StartPos.Y - 60; y--)
-                    {
-                        for (int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++)
-                        {
-                            player.World.Map.QueueUpdate(new BlockUpdate(null, (short)data.StartPos.X, (short)y, (short)z, Block.Black));
-                            y1 = y; z1 = z;
-                        }
-                    }
-                    data.EndPos = new Vector3I(marks[0].X, y1, z1);
-                    data.FinishPos = new Vector3I(marks[0].X, y1, z1);
-                    break;
-            }
-        }
 
         static readonly CommandDescriptor CdDraw2D = new CommandDescriptor
         {
@@ -344,9 +182,12 @@ namespace fCraft
             Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.DrawAdvanced },
             RepeatableSelection = true,
-            IsConsoleSafe = false,
-            Help = "/Write, then click 2 blocks. The first is the starting point, the second is the direction",
-            Usage = "/Write Sentence",
+            IsConsoleSafe = true,
+            Help = "/Draw2D, then select a shape (Polygon, spiral, star). You can then choose a radius "+
+            " for the shape before selecting two points."+
+            "Example: /Draw2d Polygon 50. Polygon and triangle can be used with any number of points "+
+            "exceeding 3, which should follow the radius argument",
+            Usage = "/Draw2D <Shape> <Radius> <Points> <Fill(true/false)>",
             Handler = Draw2DHandler,
         };
 
@@ -378,7 +219,12 @@ namespace fCraft
             {
                 Points = 5;
             }
-            Draw2DData tag = new Draw2DData() { Shape = Shape, Points = Points, Radius = radius };
+            bool fill = true;
+            if (cmd.HasNext)
+            {
+                fill = bool.Parse(cmd.Next());
+            }
+            Draw2DData tag = new Draw2DData() { Shape = Shape, Points = Points, Radius = radius, Fill = fill };
             player.Message("Draw2D({0}): Click 2 blocks or use &H/Mark&S to set direction.", Shape);
             player.SelectionStart(2, Draw2DCallback, tag, Permission.Draw);
         }
@@ -388,6 +234,7 @@ namespace fCraft
             public int Radius;
             public int Points;
             public string Shape;
+            public bool Fill;
         }
 
         static void Draw2DCallback(Player player, Vector3I[] marks, object tag)
@@ -396,6 +243,7 @@ namespace fCraft
             Draw2DData data = (Draw2DData)tag;
             int radius = data.Radius;
             int Points = data.Points;
+            bool fill = data.Fill;
             string Shape = data.Shape;
             if (player.LastUsedBlockType == Block.Undefined)
             {
@@ -406,37 +254,17 @@ namespace fCraft
                 block = player.LastUsedBlockType;
             }
             //find the direction (needs attention)
-            Direction direction = Direction.Null;
-            if (Math.Abs(marks[1].X - marks[0].X) > Math.Abs(marks[1].Y - marks[0].Y))
+            Direction direction = DirectionFinder.GetDirection(marks); 
+            try
             {
-                if (marks[0].X < marks[1].X)
-                {
-                    direction = Direction.one;
-                }
-                else
-                {
-                    direction = Direction.two;
-                }
-            }
-            else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y))
-            {
-                if (marks[0].Y < marks[1].Y)
-                {
-                    direction = Direction.three;
-                }
-                else
-                {
-                    direction = Direction.four;
-                }
-            }try{
                 ShapesLib lib = new ShapesLib(block, marks, player, radius, direction);
                 switch (Shape.ToLower())
                 {
                     case "polygon":
-                        lib.DrawRegularPolygon(Points, 18, true);
+                        lib.DrawRegularPolygon(Points, 18, fill);
                         break;
                     case "star":
-                        lib.DrawStar(Points, radius, true);
+                        lib.DrawStar(Points, radius, fill);
                         break;
                     case "spiral":
                         lib.DrawSpiral();
@@ -504,20 +332,8 @@ namespace fCraft
                 block = player.LastUsedBlockType;
             }
             //find the direction (needs attention)
-            Direction direction = Direction.Null;
-            if (Math.Abs(marks[1].X - marks[0].X) > Math.Abs(marks[1].Y - marks[0].Y)){
-                if (marks[0].X < marks[1].X){
-                    direction = Direction.one;
-                }else{
-                    direction = Direction.two;
-                }
-            }else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y)){
-                if (marks[0].Y < marks[1].Y){
-                    direction = Direction.three;
-                }else{
-                    direction = Direction.four;
-                }
-            }try{
+            Direction direction = DirectionFinder.GetDirection(marks);
+            try{
                 FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
                 render.CreateGraphicsAndDraw(sentence); //render the sentence
                 if (render.blockCount > 0){

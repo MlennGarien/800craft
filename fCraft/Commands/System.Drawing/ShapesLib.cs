@@ -143,6 +143,7 @@ namespace fCraft
                     gr.DrawLines(Pens.Blue, new_points.ToArray());
                 }
                 bm = Crop(bm);
+                bm.RotateFlip(RotateFlipType.Rotate180FlipX);
                 Draw(bm);
                 bm.Dispose();
             }

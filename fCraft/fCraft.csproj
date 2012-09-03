@@ -127,6 +127,7 @@
     <Compile Include="Commands\System.Drawing\FontHandler.cs" />
     <Compile Include="Commands\System.Drawing\ShapesLib.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
+    <Compile Include="Drawing\DrawImg.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="Portals\PortalException.cs" />
     <Compile Include="Portals\PortalHandler.cs" />
     <Compile Include="Portals\PortalRange.cs" />
+    <Compile Include="Utils\Direction.cs" />
     <Compile Include="Utils\HeartbeatSaverUtil.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
