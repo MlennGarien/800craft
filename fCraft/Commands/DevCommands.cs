@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Drawing;
 //Copyright (C) <2012> <Jon Baker, Glenn Mariën and Lao Tszy>
 
 //This program is free software: you can redistribute it and/or modify
@@ -24,8 +25,9 @@ namespace fCraft
 
         public static void Init()
         {
-            //CommandManager.RegisterCommand(CdWrite);
-            //CommandManager.RegisterCommand(CdSetFont);
+            CommandManager.RegisterCommand(CdWrite);
+            CommandManager.RegisterCommand(CdDraw2D);
+            CommandManager.RegisterCommand(CdSetFont);
             //CommandManager.RegisterCommand(CdFeed);
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
@@ -55,7 +57,7 @@ namespace fCraft
             Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.DrawAdvanced },
             IsConsoleSafe = false,
-            Help = "Sets the properties for /Write",
+            Help = "Sets the properties for /Write, such as: font, style and size",
             Handler = SetFontHandler,
             Usage = "/SetFont <Font | Size | Style> <Variable>"
         };
@@ -69,6 +71,7 @@ namespace fCraft
             if (Param.ToLower() == "font"){
                 string sectionName = cmd.NextAll();
                 if (!Directory.Exists(Paths.FontsPath)){
+                    Directory.CreateDirectory(Paths.FontsPath);
                     player.Message("There are no fonts available for this server. Font is set to default: {0}", player.font.FontFamily.Name);
                     return;
                 }
@@ -122,7 +125,7 @@ namespace fCraft
                     player.Message("SetFont: Size changed from {0} to {1} ({2})", player.font.Size, Size, player.font.FontFamily.Name);
                     player.font = new System.Drawing.Font(player.font.FontFamily, Size);
                 }else{
-                    player.Message("&WInvalid size, use /SetFont Size FontSize (a number)");
+                    player.Message("&WInvalid size, use /SetFont Size FontSize. Example: /SetFont Size 14");
                     return;
                 }
                 return;
@@ -333,6 +336,89 @@ namespace fCraft
                     break;
             }
         }
+
+        static readonly CommandDescriptor CdDraw2D = new CommandDescriptor
+        {
+            Name = "Draw2D",
+            Aliases = new[] { "D2d"},
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            RepeatableSelection = true,
+            IsConsoleSafe = false,
+            Help = "/Write, then click 2 blocks. The first is the starting point, the second is the direction",
+            Usage = "/Write Sentence",
+            Handler = Draw2DHandler,
+        };
+
+        static void Draw2DHandler(Player player, Command cmd)
+        {
+            int radius;
+            if(cmd.NextInt(out radius))
+            {
+                player.Message("Draw2D(Shape): Click 2 blocks or use &H/Mark&S to set direction.");
+                player.SelectionStart(2, Draw2DCallback, radius, Permission.Draw);
+            }
+        }
+
+        static void Draw2DCallback(Player player, Vector3I[] marks, object tag)
+        {
+            Block block = new Block();
+            int radius = (int)tag;
+            if (player.LastUsedBlockType == Block.Undefined)
+            {
+                block = Block.Stone;
+            }
+            else
+            {
+                block = player.LastUsedBlockType;
+            }
+            //find the direction (needs attention)
+            Direction direction = Direction.Null;
+            if (Math.Abs(marks[1].X - marks[0].X) > Math.Abs(marks[1].Y - marks[0].Y))
+            {
+                if (marks[0].X < marks[1].X)
+                {
+                    direction = Direction.one;
+                }
+                else
+                {
+                    direction = Direction.two;
+                }
+            }
+            else if (Math.Abs(marks[1].X - marks[0].X) < Math.Abs(marks[1].Y - marks[0].Y))
+            {
+                if (marks[0].Y < marks[1].Y)
+                {
+                    direction = Direction.three;
+                }
+                else
+                {
+                    direction = Direction.four;
+                }
+            } try
+            {
+                ShapesLib lib = new ShapesLib(block, marks, player, radius, direction);
+                lib.CreateGraphicsAndDraw();
+                if (lib.blockCount > 0)
+                {
+                    player.Message("/Draw2D: Drawing {0} with a size of '{1}x{2}' using {3} blocks of {4}",
+                        "shape",
+                        "width",
+                        "height",
+                        lib.blockCount,
+                        block.ToString());
+                }
+                else
+                {
+                    player.Message("&WNo direction was set");
+                }
+                lib= null; //get lost
+            }
+            catch (Exception e)
+            {
+                player.Message(e.Message);
+            }
+        }
         static readonly CommandDescriptor CdWrite = new CommandDescriptor
         {
             Name = "Write",
@@ -400,7 +486,6 @@ namespace fCraft
                 player.Message(e.Message);
             }
         }
-    
 
         static readonly CommandDescriptor CdGame = new CommandDescriptor
         {
