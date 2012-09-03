@@ -209,7 +209,7 @@ namespace fCraft
         #endregion
 
         #region Polygon
-        private Bitmap DrawRegularPolygon(int sides, int radius, int startingAngle, Point center, Size canvasSize)
+        private void DrawRegularPolygon(int sides, int radius, int startingAngle, Point center, Size canvasSize, bool FillPoly)
         {
             //Get the location for each vertex of the polygon
             Point[] verticies = CalculateVertices(sides, radius, startingAngle, center);
@@ -218,11 +218,17 @@ namespace fCraft
             Bitmap polygon = new Bitmap(radius *2, radius*2);
             using (Graphics g = Graphics.FromImage(polygon))
             {
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.DrawPolygon(Pens.Black, verticies);
+                if (FillPoly)
+                {
+                    SolidBrush brush = new SolidBrush(System.Drawing.Color.Black);
+                    g.FillPolygon(brush, verticies);
+                }
             }
-
-            return polygon;
+            polygon = Crop(polygon);
+            Draw(polygon);
+            polygon.Dispose();
         }
 
         private Point[] CalculateVertices(int sides, int radius, int startingAngle, Point center)
