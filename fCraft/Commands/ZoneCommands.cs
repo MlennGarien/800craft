@@ -126,7 +126,33 @@ namespace fCraft {
                 player.Message("Doors are only allowed to be {0} blocks", maxDoorBlocks);
                 return;
             }
-
+            if (!player.Info.Rank.AllowSecurityCircumvention)
+            {
+                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed(player.Info);
+                switch (buildCheck)
+                {
+                    case SecurityCheckResult.BlackListed:
+                        player.Message("Cannot add a door to world {0}&S: You are barred from building here.",
+                                        player.World.ClassyName);
+                        return;
+                    case SecurityCheckResult.RankTooLow:
+                        player.Message("Cannot add a door to world {0}&S: You are not allowed to build here.",
+                                        player.World.ClassyName);
+                        return;
+                    //case SecurityCheckResult.RankTooHigh:
+                }
+            }
+            for (int x = sx; x < ex; x++){
+                for (int y = sy; y < ey; y++){
+                    for (int z = sh; z < eh; z++){
+                        if (player.CanPlace(player.World.Map, new Vector3I(x, y, z), Block.Wood, BlockChangeContext.Manual) != CanPlaceResult.Allowed){
+                            player.Message("Cannot add a door to world {0}&S: Build permissions in this area replied with 'denied'.",
+                                        player.World.ClassyName);
+                            return;
+                        }
+                    }
+                }
+            }
             Zone door = (Zone)tag;
             door.Create(new BoundingBox(marks[0], marks[1]), player.Info);
             player.WorldMap.Zones.Add(door);

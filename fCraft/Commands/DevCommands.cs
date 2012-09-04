@@ -334,7 +334,9 @@ namespace fCraft
             //find the direction (needs attention)
             Direction direction = DirectionFinder.GetDirection(marks);
             try{
-                FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
+                Drawing.DrawImg img = new Drawing.DrawImg();
+                img.DrawImage(1, direction, marks[0], player, "http://i.imgur.com/yBhoD.png");
+                /*FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
                 render.CreateGraphicsAndDraw(sentence); //render the sentence
                 if (render.blockCount > 0){
                     player.Message("/Write (Size {0}, Font {1}: Writing '{2}' using {3} blocks of {4}", 
@@ -345,7 +347,7 @@ namespace fCraft
                 }else{
                     player.Message("&WNo direction was set");
                 }
-                render = null; //get lost
+                render = null; //get lost*/
             }catch (Exception e){
                 player.Message(e.Message);
             }
