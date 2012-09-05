@@ -225,7 +225,12 @@ Thanks again to fragmer, what a bro.
 Thanks to 800Craft code contributers:
     Rebelliousdude, boblol0909, WaterGod469 and Maicke98 for trying. 
 
-With testing from Pure2K12 and Xanderortiz.
+With testing from Pure2K12, LeChosenOne and Xanderortiz.
+
+And suggestions from Project-Vanilla and the Au70 Community
+
+Thanks to Minecraft servers that helped test and improve 800Craft:
+    Au70 Galaxy, Project Vanilla and [AWESOME+PROTECTED] Xander Ortiz
 
 Thanks to fCraft code contributors and modders:
     Asiekierka, Dag10, Destroyer, FontPeg, M1_Abrams, Optical-Lza,
@@ -239,9 +244,6 @@ Thanks to people who supported fCraft development through donations:
 Thanks to people whose code has been ported to fCraft:
     Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove,
     Paul Bourke
-
-Thanks to Minecraft servers that helped test and improve 800Craft:
-    Au70 Galaxy, Project Vanilla.
 
 Thanks to Minecraft servers that helped test and improve fCraft:
     TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,

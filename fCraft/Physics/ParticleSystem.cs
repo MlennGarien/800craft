@@ -40,7 +40,7 @@ namespace fCraft
         private int _nextZ;
         private Block _block;
         private bool _first = true;
-        private int _maxFall = new Random().Next(2, 4);
+        private int _maxFall = new Random().Next(2, 5);
         private int Count = 0;
 
         public FireworkParticle(World world, Vector3I pos, Block block)
@@ -73,8 +73,6 @@ namespace fCraft
             _world.Map.QueueUpdate(new BlockUpdate(null, (short)_startingPos.X, (short)_startingPos.Y, (short)_nextZ, _block));
             return _rand.Next(100, 401);
         }
-
-
     }
 
     public class Particle : PhysicsTask

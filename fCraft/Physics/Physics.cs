@@ -69,8 +69,11 @@ namespace fCraft.Physics
                             e.Player.Message("&WThere are too many active fireworks on this world");
                             return;
                         }
-                        world.FireworkCount++;
-                        world.AddPhysicsTask(new Firework(world, e.Coords), 300);
+                        else
+                        {
+                            world.FireworkCount++;
+                            world.AddPhysicsTask(new Firework(world, e.Coords), 300);
+                        }
                     }
                 }
             }

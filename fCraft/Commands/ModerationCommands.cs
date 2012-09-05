@@ -702,10 +702,7 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
 
             if (target == null)
-            {
-                player.MessageNoPlayer(name);
                 return;
-            }
 
             if (player.Can(Permission.Warn, target.Info.Rank))
             {

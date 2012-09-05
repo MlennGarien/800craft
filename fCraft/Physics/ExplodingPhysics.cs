@@ -231,11 +231,7 @@ namespace fCraft
                         Random rand = new Random();
                         int blockId = new Random().Next(1, 9);
                         Block fBlock = new Block();
-                        if (blockId == 1)
-                        {
-                            fBlock = Block.Lava;
-                        }
-                        if (blockId <= 6 && blockId != 1)
+                        if (blockId <= 6)
                         {
                             fBlock = (Block)rand.Next(21, 33);
                         }
@@ -262,7 +258,10 @@ namespace fCraft
                     if (_notSent)
                     {
                         if (_world.Map.GetBlock(_pos) != Block.Gold)
+                        {
+                            _world.FireworkCount--;
                             return 0;
+                        }
                     }
                     _notSent = false;
                     _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_z, Block.Gold));
@@ -275,6 +274,7 @@ namespace fCraft
                     return Delay;
                 }
             }
+            _world.FireworkCount--;
             return 0;
         }
     }
