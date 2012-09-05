@@ -1327,7 +1327,14 @@ namespace fCraft {
                 StringBuilder sb = new StringBuilder();
                 if ( TitleName != null )
                 {
-                    sb.Append(TitleName);
+                    if (ConfigKey.RankPrefixesInList.Enabled())
+                    {
+                        sb.Append(Rank.Prefix + "[" + TitleName + Rank.Color + "] ");
+                    }
+                    if (ConfigKey.RankColorsInChat.Enabled())
+                    {
+                        sb.Append(Rank.Color + "[" + TitleName + Rank.Color + "] ");
+                    }
                 }
                 if( ConfigKey.RankColorsInChat.Enabled() ) {
                     sb.Append( Rank.Color );
@@ -1335,7 +1342,7 @@ namespace fCraft {
                 if( DisplayedName != null ) {
                     sb.Append( DisplayedName );
                 } else {
-                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                    if( ConfigKey.RankPrefixesInChat.Enabled() && TitleName != null ) {
                         sb.Append( Rank.Prefix );
                     }
                     sb.Append( Name );
