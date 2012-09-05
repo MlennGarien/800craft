@@ -425,7 +425,7 @@ namespace fCraft {
         /// <param name="message"> Message to check. </param>
         /// <returns> True if message contains invalid chars. False if message is clean. </returns>
         public static bool ContainsInvalidChars( string message ) {
-            return false;// message.Any(t => t < ' ' || t == '&' || t > '~');
+            return message.Any(t => t < ' ' || t == '&' || t > '~');
         }
 
 

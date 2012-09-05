@@ -231,11 +231,11 @@ namespace fCraft
                             wrapIndex = inputIndex;
                             wrapColor = color;
                         }
-                        /*if (!IsWordChar(ch))
+                        if (!IsWordChar(ch))
                         {
                             // replace unprintable chars with '?'
                             ch = (byte)'?';
-                        }*/
+                        }
                         if (!Append(ch))
                         {
                             if (hadSpace)
@@ -322,7 +322,7 @@ namespace fCraft
 
         static bool IsWordChar(byte ch)
         {
-            return (ch > (byte)' ' && ch <= (byte)'~');
+            return (ch > (byte)' ' && ch <= (byte)'~') || (ch >= (byte)1 && ch <= (byte)31) ;
         }
 
         static bool ProcessColor(ref byte ch)

@@ -591,7 +591,7 @@ namespace fCraft {
 
             string msg = cmd.NextAll().Trim();
             if( msg.Length > 0 ) {
-                Chat.SendMe( player, msg + '▲');
+                Chat.SendMe( player, msg);
             } else {
                 CdMe.PrintUsage( player );
             }
