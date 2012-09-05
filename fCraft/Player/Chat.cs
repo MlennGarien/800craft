@@ -167,11 +167,9 @@ namespace fCraft {
         static List<EmoteData> EmoteTriggers = null;
         public static string ParseEmotes(string rawMessage)
         {
-            if (EmoteTriggers == null)
-            {
+            if (EmoteTriggers == null){
                 EmoteTriggers = new List<EmoteData>();
-                lock (EmoteTriggers)
-                {
+                lock (EmoteTriggers){
                     EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
@@ -193,21 +191,31 @@ namespace fCraft {
                 }
             }
             byte[] stored = new byte[1];
-            StringBuilder sb1 = new StringBuilder(rawMessage);
-            lock (EmoteTriggers)
-            {
-                foreach(EmoteData ed in EmoteTriggers)
-                {
+            lock (EmoteTriggers){
+                foreach(EmoteData ed in EmoteTriggers){
                     string s = ed.Emote;
                     stored[0] = (byte)ed.ID;
-                    sb1.Replace(s, enc.GetString(stored));
-                    if (rawMessage.EndsWith(s))
-                    {
-                        sb1.Append('.');
+                    string s1 = enc.GetString(stored);
+                    if (rawMessage.Contains(s)){
+                        switch (ed.ID){
+                            case 7:
+                            case 12:
+                            case 19:
+                            case 22:
+                            case 24:
+                            case 25:
+                                s1 = s1 + " '";
+                                break;
+                            default: break;
+                        }
+                        if (rawMessage.EndsWith(s)){
+                            s1 = s1 + "'";
+                        }
+                        rawMessage = rawMessage.Replace(s, s1);
                     }
                 }
             }
-            return sb1.ToString();
+            return rawMessage;
         }
 
         public static bool SendAdmin(Player player, string rawMessage)

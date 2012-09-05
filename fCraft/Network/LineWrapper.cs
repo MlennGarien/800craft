@@ -322,7 +322,7 @@ namespace fCraft
 
         static bool IsWordChar(byte ch)
         {
-            return (ch > (byte)' ' && ch <= (byte)'~') || (ch >= (byte)1 && ch <= (byte)31) ;
+            return (ch > (byte)' ' && ch <= (byte)'~') || (ch >= (byte)1 && ch <= (byte)31);
         }
 
         static bool ProcessColor(ref byte ch)
