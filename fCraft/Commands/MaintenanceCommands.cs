@@ -145,7 +145,6 @@ namespace fCraft {
             if (info == null) return;
             string oldDisplayedName = info.DisplayedName;
             if (valName.Length == 0) valName = null;
-            if (valName.Length > 0) valName = Chat.ParseEmotes(valName);
             if (valName == info.DisplayedName)
             {
                 if (valName == null)
@@ -967,7 +966,6 @@ namespace fCraft {
                 case "dn":
                     string oldDisplayedName = info.DisplayedName;
                     if( valName.Length == 0 ) valName = null;
-                    if (valName.Length > 0) valName = Chat.ParseEmotes(valName);
                     if( valName == info.DisplayedName ) {
                         if( valName == null ) {
                             player.Message( "SetInfo: DisplayedName for {0} is not set.",
