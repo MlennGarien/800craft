@@ -13,6 +13,7 @@ namespace fCraft {
     public static class Chat {
         public static List<string> Swears = new List<string>();
         public static IEnumerable<Regex> badWordMatchers;
+        static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
         /// <summary> Sends a global (white) chat. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -26,7 +27,7 @@ namespace fCraft {
                 player.Message("&WError: Server Moderation is activated. Message failed to send");
                 return false;
             }
-
+            rawMessage = ParseEmotes(rawMessage);
             rawMessage = rawMessage.Replace("$name", "Hello my name is " + player.ClassyName);
             rawMessage = rawMessage.Replace("$kicks", "I have kicked " + player.Info.TimesKickedOthers.ToString() + " players.");
             rawMessage = rawMessage.Replace("$bans", "I have banned " + player.Info.TimesBannedOthers.ToString() + " players.");
@@ -157,6 +158,56 @@ namespace fCraft {
             Logger.Log( LogType.GlobalChat,
                         "{0}: {1}", player.Name, OriginalMessage );
             return true;
+        }
+        struct EmoteData
+        {
+            public string Emote;
+            public byte ID;
+        }
+        static List<EmoteData> EmoteTriggers = null;
+        public static string ParseEmotes(string rawMessage)
+        {
+            if (EmoteTriggers == null)
+            {
+                EmoteTriggers = new List<EmoteData>();
+                lock (EmoteTriggers)
+                {
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(diamond)", ID = 4 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(bullet)", ID = 7 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(hole)", ID = 8 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(male)", ID = 11 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(female)", ID = 12 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(sun)", ID = 15 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(right)", ID = 16 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(left)", ID = 17 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(double)", ID = 19 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(half)", ID = 22 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(uparrow)", ID = 24 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(downarrow)", ID = 25 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(rightarrow)", ID = 26 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(up)", ID = 30 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(down)", ID = 31 });
+                }
+            }
+            byte[] stored = new byte[1];
+            StringBuilder sb1 = new StringBuilder(rawMessage);
+            lock (EmoteTriggers)
+            {
+                foreach(EmoteData ed in EmoteTriggers)
+                {
+                    string s = ed.Emote;
+                    stored[0] = (byte)ed.ID;
+                    sb1.Replace(s, enc.GetString(stored));
+                    if (rawMessage.EndsWith(s))
+                    {
+                        sb1.Append('.');
+                    }
+                }
+            }
+            return sb1.ToString();
         }
 
         public static bool SendAdmin(Player player, string rawMessage)
@@ -374,7 +425,7 @@ namespace fCraft {
         /// <param name="message"> Message to check. </param>
         /// <returns> True if message contains invalid chars. False if message is clean. </returns>
         public static bool ContainsInvalidChars( string message ) {
-            return message.Any( t => t < ' ' || t == '&' || t > '~' );
+            return false;// message.Any(t => t < ' ' || t == '&' || t > '~');
         }
 
 

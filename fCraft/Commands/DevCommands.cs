@@ -32,8 +32,6 @@ namespace fCraft
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
              //CommandManager.RegisterCommand(CdGame);
-
-            //Player.JoinedWorld += fCraft.Events.FeedEvents.PlayerJoiningWorld;
         }
 
 
