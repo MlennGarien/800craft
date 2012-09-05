@@ -14,6 +14,8 @@ namespace fCraft {
         public static List<string> Swears = new List<string>();
         public static IEnumerable<Regex> badWordMatchers;
         static System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+
+        #region SendGlobal
         /// <summary> Sends a global (white) chat. </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -103,44 +105,6 @@ namespace fCraft {
                 rawMessage = output;
             }
 
-            /*if (player.World != null)
-            {
-                if (player.World.GameOn)
-                {
-                    if (Games.MineChallenge.mode == Games.MineChallenge.GameMode.math1)
-                    {
-                        if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
-                        {
-                            Games.MineChallenge.completed.Add(player);
-                            player.Message("&8Correct!");
-                            if (player.World.blueTeam.Contains(player)) player.World.blueScore++;
-                            else player.World.redScore++;
-                        }
-                        else
-                        {
-                            player.Message("&8Incorrect");
-                        } 
-                        return false;
-                    }
-
-                    if (Games.MineChallenge.mode == Games.MineChallenge.GameMode.math2)
-                    {
-                        if (rawMessage == Games.MineChallenge.answer.ToString() && !Games.MineChallenge.completed.Contains(player))
-                        {
-                            Games.MineChallenge.completed.Add(player);
-                            player.Message("&8Correct!");
-                            if (player.World.blueTeam.Contains(player)) player.World.blueScore++;
-                            else player.World.redScore++;
-                        }
-                        else
-                        {
-                            player.Message("&8Incorrect");
-                        } 
-                        return false;
-                    }
-                }
-            }*/
-
             var recepientList = Server.Players.NotIgnoring(player);
 
             string formattedMessage = String.Format( "{0}&F: {1}",
@@ -159,6 +123,9 @@ namespace fCraft {
                         "{0}: {1}", player.Name, OriginalMessage );
             return true;
         }
+        #endregion
+
+        #region Emotes
         struct EmoteData
         {
             public string Emote;
@@ -204,7 +171,7 @@ namespace fCraft {
                             case 22:
                             case 24:
                             case 25:
-                                s1 = s1 + " '";
+                                s1 = s1 + "' ";
                                 break;
                             default: break;
                         }
@@ -218,11 +185,14 @@ namespace fCraft {
             return rawMessage;
         }
 
+        #endregion
+
+        #region SendAdmin
         public static bool SendAdmin(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
-
+            rawMessage = ParseEmotes(rawMessage);
             var recepientList = Server.Players.Can(Permission.ReadAdminChat)
                                               .NotIgnoring(player);
 
@@ -241,12 +211,14 @@ namespace fCraft {
             Logger.Log(LogType.GlobalChat, "(Admin){0}: {1}", player.Name, rawMessage);
             return true;
         }
+        #endregion
 
-       public static bool SendCustom(Player player, string rawMessage)
+        #region SendCustom
+        public static bool SendCustom(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
-
+            rawMessage = ParseEmotes(rawMessage);
             var recepientList = Server.Players.Can(Permission.ReadCustomChat)
                                               .NotIgnoring(player);
 
@@ -265,8 +237,9 @@ namespace fCraft {
             Logger.Log(LogType.GlobalChat, "({2}){0}: {1}", player.Name, rawMessage, ConfigKey.CustomChatName.GetString());
             return true;
         }
+        #endregion
 
-
+        #region SendMe
         /// <summary> Sends an action message (/Me). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -274,7 +247,7 @@ namespace fCraft {
         public static bool SendMe( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
+            rawMessage = ParseEmotes(rawMessage);
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "&M*{0} {1}",
@@ -293,8 +266,9 @@ namespace fCraft {
                         "(me){0}: {1}", player.Name, rawMessage );
             return true;
         }
+        #endregion
 
-
+        #region SendPM
         /// <summary> Sends a private message (PM). Does NOT send a copy of the message to the sender. </summary>
         /// <param name="from"> Sender player. </param>
         /// <param name="to"> Recepient player. </param>
@@ -305,7 +279,7 @@ namespace fCraft {
             if( to == null ) throw new ArgumentNullException( "to" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             var recepientList = new[] { to };
-
+            rawMessage = ParseEmotes(rawMessage);
             string formattedMessage = String.Format( "&Pfrom {0}: {1}",
                                                      from.Name, rawMessage );
 
@@ -322,8 +296,9 @@ namespace fCraft {
                         from.Name, to.Name, rawMessage );
             return true;
         }
+        #endregion
 
-
+        #region SendRank
         /// <summary> Sends a rank-wide message (@@Rank message). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rank"> Target rank. </param>
@@ -333,7 +308,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
+            rawMessage = ParseEmotes(rawMessage);
             var recepientList = rank.Players.NotIgnoring( player ).Union( player );
 
             string formattedMessage = String.Format( "&P({0}&P){1}: {2}",
@@ -354,8 +329,9 @@ namespace fCraft {
                         rank.Name, player.Name, rawMessage );
             return true;
         }
+        #endregion
 
-
+        #region SendSay
         /// <summary> Sends a global announcement (/Say). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -363,7 +339,7 @@ namespace fCraft {
         public static bool SendSay( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
+            rawMessage = ParseEmotes(rawMessage);
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = Color.Say + rawMessage;
@@ -380,8 +356,9 @@ namespace fCraft {
                         "(say){0}: {1}", player.Name, rawMessage );
             return true;
         }
+        #endregion
 
-
+        #region SendStaff
         /// <summary> Sends a staff message (/Staff). </summary>
         /// <param name="player"> Player writing the message. </param>
         /// <param name="rawMessage"> Message text. </param>
@@ -389,7 +366,7 @@ namespace fCraft {
         public static bool SendStaff( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-
+            rawMessage = ParseEmotes(rawMessage);
             var recepientList = Server.Players.Can( Permission.ReadStaffChat )
                                               .NotIgnoring( player )
                                               .Union( player );
@@ -410,6 +387,7 @@ namespace fCraft {
                         "(staff){0}: {1}", player.Name, rawMessage );
             return true;
         }
+        #endregion
 
 
         static bool SendInternal( [NotNull] ChatSendingEventArgs e ) {
@@ -557,6 +535,7 @@ namespace fCraft {
     }
 }
 
+#region Events
 
 namespace fCraft.Events {
     public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
@@ -596,4 +575,5 @@ namespace fCraft.Events {
         public IEnumerable<Player> RecepientList { get; private set; }
         public int RecepientCount { get; private set; }
     }
+#endregion
 }
