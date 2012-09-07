@@ -29,7 +29,7 @@ namespace fCraft {
                 player.Message("&WError: Server Moderation is activated. Message failed to send");
                 return false;
             }
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             rawMessage = rawMessage.Replace("$name", "Hello my name is " + player.ClassyName);
             rawMessage = rawMessage.Replace("$kicks", "I have kicked " + player.Info.TimesKickedOthers.ToString() + " players.");
             rawMessage = rawMessage.Replace("$bans", "I have banned " + player.Info.TimesBannedOthers.ToString() + " players.");
@@ -132,14 +132,17 @@ namespace fCraft {
             public byte ID;
         }
         static List<EmoteData> EmoteTriggers = null;
-        public static string ParseEmotes(string rawMessage)
+        public static string ParseEmotes(string rawMessage, bool DisplayedName)
         {
             if (EmoteTriggers == null){
                 EmoteTriggers = new List<EmoteData>();
                 lock (EmoteTriggers){
                     EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(:))", ID = 1 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(:P)", ID = 2 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(<3)", ID = 3 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(diamond)", ID = 4 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(bullet)", ID = 7 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(hole)", ID = 8 });
@@ -147,10 +150,13 @@ namespace fCraft {
                     EmoteTriggers.Add(new EmoteData() { Emote = "(female)", ID = 12 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(sun)", ID = 15 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(right)", ID = 16 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(>)", ID = 16 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(left)", ID = 17 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(<)", ID = 17 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(double)", ID = 19 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(half)", ID = 22 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(uparrow)", ID = 24 });
+                    EmoteTriggers.Add(new EmoteData() { Emote = "(^)", ID = 24 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(downarrow)", ID = 25 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(rightarrow)", ID = 26 });
                     EmoteTriggers.Add(new EmoteData() { Emote = "(up)", ID = 30 });
@@ -175,8 +181,12 @@ namespace fCraft {
                                 break;
                             default: break;
                         }
-                        if (rawMessage.EndsWith(s)){
-                            s1 = s1 + "'";
+                        if (!DisplayedName)
+                        {
+                            if (rawMessage.EndsWith(s))
+                            {
+                                s1 = s1 + ".";
+                            }
                         }
                         rawMessage = rawMessage.Replace(s, s1);
                     }
@@ -192,7 +202,7 @@ namespace fCraft {
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.Can(Permission.ReadAdminChat)
                                               .NotIgnoring(player);
 
@@ -218,7 +228,7 @@ namespace fCraft {
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.Can(Permission.ReadCustomChat)
                                               .NotIgnoring(player);
 
@@ -247,7 +257,7 @@ namespace fCraft {
         public static bool SendMe( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "&M*{0} {1}",
@@ -279,7 +289,7 @@ namespace fCraft {
             if( to == null ) throw new ArgumentNullException( "to" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             var recepientList = new[] { to };
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             string formattedMessage = String.Format( "&Pfrom {0}: {1}",
                                                      from.Name, rawMessage );
 
@@ -308,7 +318,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = rank.Players.NotIgnoring( player ).Union( player );
 
             string formattedMessage = String.Format( "&P({0}&P){1}: {2}",
@@ -339,7 +349,7 @@ namespace fCraft {
         public static bool SendSay( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = Color.Say + rawMessage;
@@ -366,7 +376,7 @@ namespace fCraft {
         public static bool SendStaff( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage);
+            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.Can( Permission.ReadStaffChat )
                                               .NotIgnoring( player )
                                               .Union( player );

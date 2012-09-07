@@ -1327,7 +1327,7 @@ namespace fCraft {
                 StringBuilder sb = new StringBuilder();
                 if ( TitleName != null )
                 {
-                    TitleName = Chat.ParseEmotes(TitleName);
+                    TitleName = Chat.ParseEmotes(TitleName, true);
                     if (ConfigKey.RankPrefixesInList.Enabled())
                     {
                         sb.Append(Rank.Prefix + "[" + TitleName + Rank.Color + "] ");
@@ -1343,7 +1343,7 @@ namespace fCraft {
                 if( DisplayedName != null ) {
                     if (sb.Length > 0)
                     {
-                        DisplayedName = Chat.ParseEmotes(DisplayedName);
+                        DisplayedName = Chat.ParseEmotes(DisplayedName, true);
                     }
                     sb.Append( DisplayedName );
                 } else {

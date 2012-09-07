@@ -96,6 +96,7 @@ namespace fCraft
 
         protected override int PerformInternal()
         {
+            if (_world == null || _map == null) return 0;
 			if (!_world.plantPhysics || 0 >= _rndCoords.Length) //+sanity check, now we are sure that we have at least 1 element in _rndCoords
                 return 0;
 
@@ -107,6 +108,7 @@ namespace fCraft
             bool shadowed = false;
             for (short z = (short)(_map.Height - 1); z >= 0; --z)
             {
+                if (_map == null) return 0;
                 Block b = _map.GetBlock(c.X, c.Y, z);
 
                 if (!shadowed && Block.Dirt == b) //we have found dirt and there were nothing casting shadows above, so change it to grass and return

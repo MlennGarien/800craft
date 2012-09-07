@@ -30,7 +30,7 @@ namespace fCraft
 {
     class RealmHandler
     {
-        public static void RealmLoad(Player player, Command cmd, string fileName, string worldName)
+        public static void RealmLoad(Player player, Command cmd, string fileName, string worldName, string buildRankName, string accessRankName)
         {
 
             if (worldName == null && player.World == null)
@@ -83,8 +83,6 @@ namespace fCraft
                 realm.IsHidden = false;
                 realm.IsRealm = true;
                 WorldManager.SaveWorldList();
-
-
             }
             else
             {
@@ -95,8 +93,6 @@ namespace fCraft
                     return;
                 }
 
-                string buildRankName = cmd.Next();
-                string accessRankName = cmd.Next();
                 Rank buildRank = RankManager.DefaultBuildRank;
                 Rank accessRank = null;
                 if (buildRankName != null)
@@ -182,8 +178,6 @@ namespace fCraft
                         Logger.Log(LogType.UserActivity,
                                     "{0} loaded new map for realm \"{1}\" from {2}",
                                     player.Name, realm.Name, fullFileName);
-                        
-
                     }
                     else
                     {

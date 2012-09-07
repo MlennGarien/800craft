@@ -655,7 +655,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             Usage = "/Realm <Option>. /Help Realm for a list of commands.",
             Help = "/Realm &A| Help | Join | Like | Home | Flush | Spawn " +
-            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Physics",
+            "| Review | Create | Allow | Unallow | Ban | Unban | Activate | Physics | Env | Control",
             Handler = Realm,
         };
 
@@ -671,6 +671,20 @@ namespace fCraft {
             {
                 default:
                     CdRealm.PrintUsage(player);
+                    break;
+
+                case "env":
+                    if (player.World.Name == player.Name)
+                    {
+                        string variable = cmd.Next();
+                        string valueText = cmd.Next();
+                        EnvHandler(player, new Command("/Env " + player.World.Name + " " + variable + " " + valueText));
+                    }
+                    else
+                    {
+                        player.Message("&WYou need to be in your realm");
+                        return;
+                    }
                     break;
 
                 case "review":
@@ -712,67 +726,22 @@ namespace fCraft {
 
                 case "create":
 
-                    string create = cmd.Next();
+                    string Theme = cmd.Next();
+                    string Template = cmd.Next();
                     if (player.World.Name == player.Name)
                     {
                         player.Message("You cannot create a new Realm when you are inside your Realm");
                         return;
                     }
 
-                    if (create == null)
+                    if (Theme == null || Template == null)
                     {
-                        player.Message("Realm create. Use /realm create [ThemeType]" +
-                            " Theme types include | flat | hills | hell | island | swamp | desert | arctic | forest | ");
+                        player.Message("&HUse /realm create [ThemeType] [TerrainType]\n" +
+                            "&9Available themes: Grass, " + Enum.GetNames(typeof(MapGenTheme)).JoinToString() + '\n' +
+                              "&EAvailable terrain types: Empty, Ocean, " + Enum.GetNames(typeof(MapGenTemplate)).JoinToString() + '\n');
+                        return;
                     }
-
-                    if (create == "flat")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "grass", "flat");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
-                    if (create == "hills")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "grass", "hills");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
-                    if (create == "island")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "desert", "island");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
-                    if (create == "hell")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "hell", "streams");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
-                    if (create == "swamp")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "swamp", "river");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
-                    if (create == "desert")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "desert", "flat");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
-                    if (create == "arctic")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "arctic", "ice");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
-                    if (create == "forest")
-                    {
-                        RealmHandler.RealmCreate(player, cmd, "forest", "hills");
-                        player.Message("You have created a Realm. Activate it with /realm activate");
-                    }
-
+                    RealmHandler.RealmCreate(player, cmd, Theme, Template);
                     break;
 
                 case "home":
@@ -793,12 +762,35 @@ namespace fCraft {
                             player.Message("You cannot use /Realm activate when you are in your Realm");
                             return;
                         }
-                        RealmHandler.RealmLoad(player, cmd, player.Name + ".fcm", player.Name);
-                        RealmHandler.RealmBuild(player, cmd, player.Name, RankManager.HighestRank.Name, null);
-                        RealmHandler.RealmBuild(player, cmd, player.Name, "+" + player.Name, null);
+                        RealmHandler.RealmLoad(player, cmd, player.Name + ".fcm", player.Name, RankManager.HighestRank.Name, RankManager.DefaultBuildRank.Name);
+                        World realmworld = WorldManager.FindWorldExact(player.Name);
+                        if (realmworld == null) return;
+                        if (!realmworld.AccessSecurity.Check(player.Info))
+                        {
+                            realmworld.AccessSecurity.Include(player.Info);
+                        }
+                        if (!realmworld.BuildSecurity.Check(player.Info))
+                        {
+                            realmworld.BuildSecurity.Include(player.Info);
+                        }
                         WorldManager.SaveWorldList();
                         break;
                     }
+
+                case "control":
+                    World w1 = WorldManager.FindWorldExact(player.Name);
+                    if (w1 == null) return;
+                    if (!w1.AccessSecurity.Check(player.Info))
+                        {
+                            w1.AccessSecurity.Include(player.Info);
+                            player.Message("You have regained access control of your realm");
+                        }
+                        if (!w1.BuildSecurity.Check(player.Info))
+                        {
+                            w1.BuildSecurity.Include(player.Info);
+                            player.Message("You have regained building control of your realm");
+                        }
+                    break;
 
                 case "spawn":
 
@@ -1566,21 +1558,18 @@ namespace fCraft {
             }
             string worldName = cmd.Next();
             World world;
-            if( worldName == null ) {
-                world = player.World;
-                if( world == null ) {
-                    player.Message( "When used from console, /Env requires a world name." );
-                    return;
-                }
-            } else {
-                world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if( world == null ) return;
+            if (worldName == null){
+                player.MessageNoWorld(worldName);
+                return;
+            }else{
+                world = WorldManager.FindWorldOrPrintMatches(player, worldName);
+                if (world == null) return;
             }
 
             string variable = cmd.Next();
             string valueText = cmd.Next();
             if( variable == null ) {
-                player.Message( "Environment settings for world {0}&S:", world.ClassyName );
+                player.Message( "Environment settings for {0}&S:", world.ClassyName );
                 player.Message( "  Cloud: {0}   Fog: {1}   Sky: {2}",
                                 world.CloudColor == -1 ? "normal" : '#' + world.CloudColor.ToString( "X6" ),
                                 world.FogColor == -1 ? "normal" : '#' + world.FogColor.ToString( "X6" ),
@@ -1696,10 +1685,10 @@ namespace fCraft {
                     world.SkyColor = -1;
                     world.EdgeLevel = -1;
                     world.EdgeBlock = Block.Water;
-                    player.Message( "Reset enviroment settings for world {0}", world.ClassyName );
+                    player.Message( "Reset enviroment settings for {0}", world.ClassyName );
                     WorldManager.SaveWorldList();
                 } else {
-                    player.Confirm( cmd, "Reset enviroment settings for world {0}&S?", world.ClassyName );
+                    player.Confirm( cmd, "Reset enviroment settings for {0}&S?", world.ClassyName );
                 }
                 return;
             }
