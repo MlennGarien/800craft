@@ -126,42 +126,62 @@ namespace fCraft {
         #endregion
 
         #region Emotes
-        struct EmoteData
+        public struct EmoteData
         {
             public string Emote;
             public byte ID;
         }
         static List<EmoteData> EmoteTriggers = null;
+
+        public static EmoteData[] EmotesArray()
+        {
+            if (EmoteTriggers != null)
+            {
+                return EmoteTriggers.ToArray();
+            }
+            else
+            {
+                AddEmotes();
+                return EmoteTriggers.ToArray();
+            }
+        }
+
+        static void AddEmotes()
+        {
+            EmoteTriggers = new List<EmoteData>();
+            lock (EmoteTriggers)
+            {
+                EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(:))", ID = 1 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(:P)", ID = 2 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(<3)", ID = 3 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(diamond)", ID = 4 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(bullet)", ID = 7 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(hole)", ID = 8 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(male)", ID = 11 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(female)", ID = 12 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(sun)", ID = 15 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(right)", ID = 16 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(>)", ID = 16 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(left)", ID = 17 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(<)", ID = 17 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(double)", ID = 19 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(half)", ID = 22 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(uparrow)", ID = 24 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(^)", ID = 24 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(downarrow)", ID = 25 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(rightarrow)", ID = 26 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(up)", ID = 30 });
+                EmoteTriggers.Add(new EmoteData() { Emote = "(down)", ID = 31 });
+            }
+        }
+
         public static string ParseEmotes(string rawMessage, bool DisplayedName)
         {
             if (EmoteTriggers == null){
-                EmoteTriggers = new List<EmoteData>();
-                lock (EmoteTriggers){
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(:))", ID = 1 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(:P)", ID = 2 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(<3)", ID = 3 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(diamond)", ID = 4 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(bullet)", ID = 7 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(hole)", ID = 8 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(male)", ID = 11 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(female)", ID = 12 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(sun)", ID = 15 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(right)", ID = 16 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(>)", ID = 16 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(left)", ID = 17 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(<)", ID = 17 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(double)", ID = 19 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(half)", ID = 22 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(uparrow)", ID = 24 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(^)", ID = 24 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(downarrow)", ID = 25 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(rightarrow)", ID = 26 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(up)", ID = 30 });
-                    EmoteTriggers.Add(new EmoteData() { Emote = "(down)", ID = 31 });
-                }
+                AddEmotes();
             }
             byte[] stored = new byte[1];
             lock (EmoteTriggers){

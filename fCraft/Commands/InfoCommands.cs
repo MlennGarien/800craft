@@ -78,14 +78,29 @@ namespace fCraft {
             if (Option == null)
             {
                 CdList.PrintUsage(player);
-                player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10");
+                player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10, Emotes");
                 return;
             }
             switch (Option.ToLower())
             {
                 default:
                     CdList.PrintUsage(player);
-                    player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10");
+                    player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10, Emotes");
+                    break;
+                case "emotes":
+                    string s = "";
+                    foreach(Chat.EmoteData data in Chat.EmotesArray())
+                    {
+                        if (data.ID == 31)
+                        {
+                            s += data.Emote + " = " + Chat.ParseEmotes(data.Emote, false);
+                        }
+                        else
+                        {
+                            s += data.Emote + " = " + Chat.ParseEmotes(data.Emote, true) + ", ";
+                        }
+                    }
+                    player.Message("&HAvailable emotes:&S " + s);
                     break;
                 case "top10":
                     List<World> WorldNames = new List<World>(WorldManager.Worlds.Where(w => w.VisitCount > 0)
