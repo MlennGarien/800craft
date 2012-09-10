@@ -5,6 +5,7 @@ using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 using System.IO;
+using System.Drawing;
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
     /// and switching block placement modes (paint, bind). </summary>
@@ -95,6 +96,10 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdTower);
             CommandManager.RegisterCommand(CdCylinder);
             CommandManager.RegisterCommand(CdCenter);
+
+            CommandManager.RegisterCommand(CdWrite);
+            CommandManager.RegisterCommand(CdDraw2D);
+            CommandManager.RegisterCommand(CdSetFont);
         }
 
         #region 800Craft
@@ -113,6 +118,333 @@ namespace fCraft {
 
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+        static CommandDescriptor CdSetFont = new CommandDescriptor()
+        {
+            Name = "SetFont",
+            Aliases = new[] { "FontSet", "Font", "Sf" },
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            IsConsoleSafe = false,
+            Help = "Sets the properties for /Write, such as: font and size",
+            Handler = SetFontHandler,
+            Usage = "/SetFont < Font | Size | Reset > <Variable>"
+        };
+
+        static void SetFontHandler(Player player, Command cmd)
+        {
+            string Param = cmd.Next();
+            if (Param == null)
+            {
+                CdSetFont.PrintUsage(player);
+                return;
+            }
+            if (Param.ToLower() == "reset")
+            {
+                player.font = new Font("Times New Roman", 20, FontStyle.Regular);
+                player.Message("SetFont: Font reverted back to default ({0} size {1})",
+                    player.font.FontFamily.Name, player.font.Size);
+                return;
+            }
+            if (Param.ToLower() == "font")
+            {
+                string sectionName = cmd.NextAll();
+                if (!Directory.Exists(Paths.FontsPath))
+                {
+                    Directory.CreateDirectory(Paths.FontsPath);
+                    player.Message("There are no fonts available for this server. Font is set to default: {0}", player.font.FontFamily.Name);
+                    return;
+                }
+                string fontFileName = null;
+                string[] sectionFiles = Directory.GetFiles(Paths.FontsPath, "*.ttf", SearchOption.TopDirectoryOnly);
+                if (sectionName.Length < 1)
+                {
+                    var sectionList = GetFontSectionList();
+                    player.Message("{0} fonts Available: {1}", sectionList.Length, sectionList.JoinToString()); //print the folder contents
+                    return;
+                }
+                for (int i = 0; i < sectionFiles.Length; i++)
+                {
+                    string sectionFullName = Path.GetFileNameWithoutExtension(sectionFiles[i]);
+                    if (sectionFullName == null) continue;
+                    if (sectionFullName.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (sectionFullName.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            fontFileName = sectionFiles[i];
+                            break;
+                        }
+                        else if (fontFileName == null)
+                        {
+                            fontFileName = sectionFiles[i];
+                        }
+                        else
+                        {
+                            var matches = sectionFiles.Select(f => Path.GetFileNameWithoutExtension(f))
+                                                      .Where(sn => sn != null && sn.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase));
+                            player.Message("Multiple font files matched \"{0}\": {1}",
+                                            sectionName, matches.JoinToString());
+                            return;
+                        }
+                    }
+                }
+                if (fontFileName != null)
+                {
+                    string sectionFullName = Path.GetFileNameWithoutExtension(fontFileName);
+                    player.Message("Your font has changed to \"{0}\":", sectionFullName);
+                    //change font here
+                    player.font = new System.Drawing.Font(player.LoadFontFamily(fontFileName), player.font.Size);
+                    return;
+                }
+                else
+                {
+                    var sectionList = GetFontSectionList();
+                    if (sectionList == null)
+                    {
+                        player.Message("No fonts have been found.");
+                    }
+                    else
+                    {
+                        player.Message("No fonts found for \"{0}\". Available fonts: {1}",
+                                        sectionName, sectionList.JoinToString());
+                    }
+                }
+            }
+            if (Param.ToLower() == "size")
+            {
+                int Size = -1;
+                if (cmd.NextInt(out Size))
+                {
+                    if (Size > 48 || Size < 10)
+                    {
+                        player.Message("&WIncorrect font size ({0}): Size needs to be between 10 and 48", Size);
+                        return;
+                    }
+                    player.Message("SetFont: Size changed from {0} to {1} ({2})", player.font.Size, Size, player.font.FontFamily.Name);
+                    player.font = new System.Drawing.Font(player.font.FontFamily, Size);
+                }
+                else
+                {
+                    player.Message("&WInvalid size, use /SetFont Size FontSize. Example: /SetFont Size 14");
+                    return;
+                }
+                return;
+            }
+            else
+            {
+                CdSetFont.PrintUsage(player);
+                return;
+            }
+        }
+
+        static readonly CommandDescriptor CdDraw2D = new CommandDescriptor
+        {
+            Name = "Draw2D",
+            Aliases = new[] { "D2d" },
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            RepeatableSelection = true,
+            IsConsoleSafe = true,
+            Help = "/Draw2D, then select a shape (Polygon, spiral, star). You can then choose a radius " +
+            " for the shape before selecting two points." +
+            "Example: /Draw2d Polygon 50. Polygon and triangle can be used with any number of points " +
+            "exceeding 3, which should follow the radius argument",
+            Usage = "/Draw2D <Shape> <Radius> <Points> <Fill(true/false)>",
+            Handler = Draw2DHandler,
+        };
+
+        static void Draw2DHandler(Player player, Command cmd)
+        {
+            string Shape = cmd.Next();
+            if (Shape == null)
+            {
+                CdDraw2D.PrintUsage(player);
+                return;
+            }
+            switch (Shape.ToLower())
+            {
+                case "polygon":
+                case "star":
+                case "spiral":
+                    break;
+                default:
+                    CdDraw2D.PrintUsage(player);
+                    return;
+            }
+            int radius = 0;
+            int Points = 0;
+            if (!cmd.NextInt(out radius))
+            {
+                radius = 20;
+            }
+            if (!cmd.NextInt(out Points))
+            {
+                Points = 5;
+            }
+            bool fill = true;
+            if (cmd.HasNext)
+            {
+                try
+                {
+                    fill = bool.Parse(cmd.Next());
+                }
+                catch { fill = true; }
+            }
+            Draw2DData tag = new Draw2DData() { Shape = Shape, Points = Points, Radius = radius, Fill = fill };
+            player.Message("Draw2D({0}): Click 2 blocks or use &H/Mark&S to set direction.", Shape);
+            player.SelectionStart(2, Draw2DCallback, tag, Permission.Draw);
+        }
+
+        struct Draw2DData
+        {
+            public int Radius;
+            public int Points;
+            public string Shape;
+            public bool Fill;
+        }
+
+        static void Draw2DCallback(Player player, Vector3I[] marks, object tag)
+        {
+            Block block = new Block();
+            Draw2DData data = (Draw2DData)tag;
+            int radius = data.Radius;
+            int Points = data.Points;
+            bool fill = data.Fill;
+            string Shape = data.Shape;
+            if (player.LastUsedBlockType == Block.Undefined)
+            {
+                block = Block.Stone;
+            }
+            else
+            {
+                block = player.LastUsedBlockType;
+            }
+            //find the direction (needs attention)
+            Direction direction = DirectionFinder.GetDirection(marks);
+            try
+            {
+                ShapesLib lib = new ShapesLib(block, marks, player, radius, direction);
+                switch (Shape.ToLower())
+                {
+                    case "polygon":
+                        lib.DrawRegularPolygon(Points, 18, fill);
+                        break;
+                    case "star":
+                        lib.DrawStar(Points, radius, fill);
+                        break;
+                    case "spiral":
+                        lib.DrawSpiral();
+                        break;
+                    default:
+                        player.Message("&WUnknown shape");
+                        CdDraw2D.PrintUsage(player);
+                        lib = null;
+                        return;
+                }
+
+                if (lib.blockCount > 0)
+                {
+                    player.Message("/Draw2D: Drawing {0} with a radius '{1}' using {2} blocks of {3}",
+                        Shape,
+                        radius,
+                        lib.blockCount,
+                        block.ToString());
+                }
+                else
+                {
+                    player.Message("&WNo direction was set");
+                }
+                lib = null; //get lost
+            }
+            catch (Exception e)
+            {
+                player.Message(e.Message);
+            }
+        }
+        static readonly CommandDescriptor CdWrite = new CommandDescriptor
+        {
+            Name = "Write",
+            Aliases = new[] { "Text", "Wt" },
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            RepeatableSelection = true,
+            IsConsoleSafe = false,
+            Help = "/Write, then click 2 blocks. The first is the starting point, the second is the direction",
+            Usage = "/Write Sentence",
+            Handler = WriteHandler,
+        };
+
+        //TODO: add a collection of fonts. Performance++
+        static void WriteHandler(Player player, Command cmd)
+        {
+            string sentence = cmd.NextAll();
+            if (sentence.Length < 1)
+            {
+                CdWrite.PrintUsage(player);
+                return;
+            }
+            else
+            {
+                player.Message("Write: Click 2 blocks or use &H/Mark&S to set direction.");
+                player.SelectionStart(2, WriteCallback, sentence, Permission.Draw);
+            }
+        }
+
+        static void WriteCallback(Player player, Vector3I[] marks, object tag)
+        {
+            Block block = new Block();
+            string sentence = (string)tag;
+            //block bugfix kinda
+            if (player.LastUsedBlockType == Block.Undefined)
+            {
+                block = Block.Stone;
+            }
+            else
+            {
+                block = player.LastUsedBlockType;
+            }
+            //find the direction (needs attention)
+            Direction direction = DirectionFinder.GetDirection(marks);
+            try
+            {
+                FontHandler render = new FontHandler(block, marks, player, direction); //create new instance
+                render.CreateGraphicsAndDraw(sentence); //render the sentence
+                if (render.blockCount > 0)
+                {
+                    player.Message("/Write (Size {0}, Font {1}: Writing '{2}' using {3} blocks of {4}",
+                        player.font.Size,
+                        player.font.FontFamily.Name,
+                        sentence, render.blockCount,
+                        block.ToString());
+                }
+                else
+                {
+                    player.Message("&WNo direction was set");
+                }
+                render = null; //get lost
+            }
+            catch (Exception e)
+            {
+                player.Message(e.Message);
+            }
+        }
+
+        static string[] GetFontSectionList()
+        {
+            if (Directory.Exists(Paths.FontsPath))
+            {
+                string[] sections = Directory.GetFiles(Paths.FontsPath, "*.ttf", SearchOption.TopDirectoryOnly)
+                                             .Select(name => Path.GetFileNameWithoutExtension(name))
+                                             .Where(name => !String.IsNullOrEmpty(name))
+                                             .ToArray();
+                if (sections.Length != 0)
+                {
+                    return sections;
+                }
+            }
+            return null;
+        }
+
 
 
         static readonly CommandDescriptor CdTree = new CommandDescriptor
