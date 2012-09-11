@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Net;
 using System.IO;
+using System.Threading;
 
 namespace fCraft.Drawing
 {
     public class DrawImageOperation
     {
-        int blocks = 0, //drawn blocks
+        public int blocks = 0, //drawn blocks
             blocksDenied = 0; //denied blocks (zones, ect)
         fCraft.Drawing.UndoState undoState; //undostate
 
@@ -18,7 +19,7 @@ namespace fCraft.Drawing
         {
 
         }
-        void DrawImage(byte popType, Direction direct, Vector3I cpos, Player player, string url)
+        public void DrawImage(byte popType, Direction direct, Vector3I cpos, Player player, string url)
         {
             undoState = player.DrawBegin(null);
             Bitmap myBitmap = null;
@@ -41,7 +42,10 @@ namespace fCraft.Drawing
                     myBitmap = new Bitmap(inputStream);
                 }
             }
-            if (myBitmap == null) return;
+            if (myBitmap == null)
+            {
+                throw new Exception("&WCould not download given url");
+            }
             myBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             int direction = 0;
             if (direct == Direction.one) direction = 0;
@@ -56,149 +60,150 @@ namespace fCraft.Drawing
             }
             List<ColorBlock> refCol = popRefCol(popType);
             ColorBlock colblock;
-            double[] distance = new double[refCol.Count]; // Array of distances between color pulled from image to the referance colors.
-
-            int position; // This is the block selector for when we find which distance is the shortest.
-
-            for (int k = 0; k < myBitmap.Width; k++)
+            double[] distance = new double[refCol.Count];
+            try
             {
-                for (int i = 0; i < myBitmap.Height; i++)
+                Thread printThread = new Thread(new ThreadStart(delegate
                 {
-                    if (layer)
+                    int position;
+                    for (int k = 0; k < myBitmap.Width; k++)
                     {
-                        colblock.z = cpos.Z;
-                        if (direction <= 1)
+                        for (int i = 0; i < myBitmap.Height; i++)
                         {
-                            if (direction == 0) { colblock.x = (ushort)(cpos.X + k); colblock.y = (ushort)(cpos.Y - i); }
-                            else { colblock.x = (ushort)(cpos.X - k); colblock.y = (ushort)(cpos.Y + i); }
-                            //colblock.z = (ushort)(cpos.z - i);
-                        }
-                        else
-                        {
-                            if (direction == 2) { colblock.y = (ushort)(cpos.Y + k); colblock.x = (ushort)(cpos.X + i); }
-                            else { colblock.y = (ushort)(cpos.Y - k); colblock.x = (ushort)(cpos.X - i); }
-                            //colblock.x = (ushort)(cpos.x - i);
-                        }
-                    }
-                    else
-                    {
-                        colblock.z = (ushort)(cpos.Z + i);
-                        if (direction <= 1)
-                        {
-
-                            if (direction == 0) colblock.x = (ushort)(cpos.X + k);
-                            else colblock.x = (ushort)(cpos.X - k);
-                            colblock.y = cpos.Y;
-                        }
-                        else
-                        {
-                            if (direction == 2) colblock.y = (ushort)(cpos.Y + k);
-                            else colblock.y = (ushort)(cpos.Y - k);
-                            colblock.x = cpos.X;
-                        }
-                    }
-
-
-                    colblock.r = myBitmap.GetPixel(k, i).R;
-                    colblock.g = myBitmap.GetPixel(k, i).G;
-                    colblock.b = myBitmap.GetPixel(k, i).B;
-                    colblock.a = myBitmap.GetPixel(k, i).A;
-
-                    if (popType == 6)
-                    {
-                        if ((colblock.r + colblock.g + colblock.b) / 3 < (256 / 4))
-                        {
-                            colblock.type = (byte)Block.Obsidian;
-                        }
-                        else if (((colblock.r + colblock.g + colblock.b) / 3) >= (256 / 4) && ((colblock.r + colblock.g + colblock.b) / 3) < (256 / 4) * 2)
-                        {
-                            colblock.type = (byte)Block.Black;
-                        }
-                        else if (((colblock.r + colblock.g + colblock.b) / 3) >= (256 / 4) * 2 && ((colblock.r + colblock.g + colblock.b) / 3) < (256 / 4) * 3)
-                        {
-                            colblock.type = (byte)Block.Gray;
-                        }
-                        else
-                        {
-                            colblock.type = (byte)Block.White;
-                        }
-                    }
-                    else
-                    {
-                        for (int j = 0; j < distance.Length; j++) // Calculate distances between the colors in the image and the set referance colors, and store them.
-                        {
-                            distance[j] = Math.Sqrt(Math.Pow((colblock.r - refCol[j].r), 2) + Math.Pow((colblock.b - refCol[j].b), 2) + Math.Pow((colblock.g - refCol[j].g), 2));
-                        }
-
-                        position = 0;
-                        double minimum = distance[0];
-                        for (int h = 1; h < distance.Length; h++) // Find the smallest distance in the array of distances.
-                        {
-                            if (distance[h] < minimum)
+                            if (layer)
                             {
-                                minimum = distance[h];
-                                position = h;
-                            }
-                        }
-
-
-                        colblock.type = refCol[position].type; // Set the block we found closest to the image to the block we are placing.
-
-                        if (popType == 1)
-                        {
-                            if (position <= 20)
-                            {
-                                if (direction == 0)
+                                colblock.z = cpos.Z;
+                                if (direction <= 1)
                                 {
-                                    colblock.y = (ushort)(colblock.y + 1);
+                                    if (direction == 0) { colblock.x = (ushort)(cpos.X + k); colblock.y = (ushort)(cpos.Y - i); }
+                                    else { colblock.x = (ushort)(cpos.X - k); colblock.y = (ushort)(cpos.Y + i); }
                                 }
-                                else if (direction == 2)
+                                else
                                 {
-                                    colblock.x = (ushort)(colblock.x - 1);
-                                }
-                                else if (direction == 1)
-                                {
-                                    colblock.y = (ushort)(colblock.y - 1);
-                                }
-                                else if (direction == 3)
-                                {
-                                    colblock.x = (ushort)(colblock.x + 1);
+                                    if (direction == 2) { colblock.y = (ushort)(cpos.Y + k); colblock.x = (ushort)(cpos.X + i); }
+                                    else { colblock.y = (ushort)(cpos.Y - k); colblock.x = (ushort)(cpos.X - i); }
                                 }
                             }
-                        }
-                        else if (popType == 3)
-                        {
-                            if (position <= 3)
+                            else
                             {
-                                if (direction == 0)
+                                colblock.z = (ushort)(cpos.Z + i);
+                                if (direction <= 1)
                                 {
-                                    colblock.y = (ushort)(colblock.y + 1);
+                                    if (direction == 0) colblock.x = (ushort)(cpos.X + k);
+                                    else colblock.x = (ushort)(cpos.X - k);
+                                    colblock.y = cpos.Y;
                                 }
-                                else if (direction == 2)
+                                else
                                 {
-                                    colblock.x = (ushort)(colblock.x - 1);
-                                }
-                                else if (direction == 1)
-                                {
-                                    colblock.y = (ushort)(colblock.y - 1);
-                                }
-                                else if (direction == 3)
-                                {
-                                    colblock.x = (ushort)(colblock.x + 1);
+                                    if (direction == 2) colblock.y = (ushort)(cpos.Y + k);
+                                    else colblock.y = (ushort)(cpos.Y - k);
+                                    colblock.x = cpos.X;
                                 }
                             }
+
+                            colblock.r = myBitmap.GetPixel(k, i).R;
+                            colblock.g = myBitmap.GetPixel(k, i).G;
+                            colblock.b = myBitmap.GetPixel(k, i).B;
+                            colblock.a = myBitmap.GetPixel(k, i).A;
+
+                            if (popType == 6)
+                            {
+                                if ((colblock.r + colblock.g + colblock.b) / 3 < (256 / 4))
+                                {
+                                    colblock.type = (byte)Block.Obsidian;
+                                }
+                                else if (((colblock.r + colblock.g + colblock.b) / 3) >= (256 / 4) && ((colblock.r + colblock.g + colblock.b) / 3) < (256 / 4) * 2)
+                                {
+                                    colblock.type = (byte)Block.Black;
+                                }
+                                else if (((colblock.r + colblock.g + colblock.b) / 3) >= (256 / 4) * 2 && ((colblock.r + colblock.g + colblock.b) / 3) < (256 / 4) * 3)
+                                {
+                                    colblock.type = (byte)Block.Gray;
+                                }
+                                else
+                                {
+                                    colblock.type = (byte)Block.White;
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 0; j < distance.Length; j++) // Calculate distances between the colors in the image and the set referance colors, and store them.
+                                {
+                                    distance[j] = Math.Sqrt(Math.Pow((colblock.r - refCol[j].r), 2) + Math.Pow((colblock.b - refCol[j].b), 2) + Math.Pow((colblock.g - refCol[j].g), 2));
+                                }
+
+                                position = 0;
+                                double minimum = distance[0];
+                                for (int h = 1; h < distance.Length; h++) // Find the smallest distance in the array of distances.
+                                {
+                                    if (distance[h] < minimum)
+                                    {
+                                        minimum = distance[h];
+                                        position = h;
+                                    }
+                                }
+
+                                colblock.type = refCol[position].type; // Set the block we found closest to the image to the block we are placing.
+
+                                if (popType == 1)
+                                {
+                                    if (position <= 20)
+                                    {
+                                        if (direction == 0)
+                                        {
+                                            colblock.y = (ushort)(colblock.y + 1);
+                                        }
+                                        else if (direction == 2)
+                                        {
+                                            colblock.x = (ushort)(colblock.x - 1);
+                                        }
+                                        else if (direction == 1)
+                                        {
+                                            colblock.y = (ushort)(colblock.y - 1);
+                                        }
+                                        else if (direction == 3)
+                                        {
+                                            colblock.x = (ushort)(colblock.x + 1);
+                                        }
+                                    }
+                                }
+                                else if (popType == 3)
+                                {
+                                    if (position <= 3)
+                                    {
+                                        if (direction == 0)
+                                        {
+                                            colblock.y = (ushort)(colblock.y + 1);
+                                        }
+                                        else if (direction == 2)
+                                        {
+                                            colblock.x = (ushort)(colblock.x - 1);
+                                        }
+                                        else if (direction == 1)
+                                        {
+                                            colblock.y = (ushort)(colblock.y - 1);
+                                        }
+                                        else if (direction == 3)
+                                        {
+                                            colblock.x = (ushort)(colblock.x + 1);
+                                        }
+                                    }
+                                }
+                            }
+                            if (colblock.a < 20) colblock.type = (byte)Block.Air;
+                            DrawOneBlock(player, player.World.Map, (Block)colblock.type,
+                                              new Vector3I((colblock.x), colblock.y, (colblock.z)), BlockChangeContext.Drawn,
+                                              ref blocks, ref blocksDenied, undoState);
                         }
                     }
-
-                    //ALPHA HANDLING (REAL HARD STUFF, YO)
-                    if (colblock.a < 20) colblock.type = (byte)Block.Air;
-                    DrawOneBlock(player, player.World.Map, (Block)colblock.type,
-                                      new Vector3I((colblock.x), colblock.y, (colblock.z)), BlockChangeContext.Drawn,
-                                      ref blocks, ref blocksDenied, undoState);
-                    //FindReference.placeBlock(p.level, p, colblock.x, colblock.y, colblock.z, colblock.type);
-                }
+                })); printThread.Start();
+            }
+            catch (Exception e)
+            {
+                player.Message(e.Message);
             }
         }
+        
         #endregion
 
         #region Helpers

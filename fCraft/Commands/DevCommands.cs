@@ -25,14 +25,75 @@ namespace fCraft
 
         public static void Init()
         {
+            /*
+             * NOTE: These commands are unfinished, under development and non-supported.
+             * If you are using a dev build of 800Craft, please comment these the below out to ensure 
+             * stability.
+             * */
+
             //CommandManager.RegisterCommand(CdFeed);
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
-             //CommandManager.RegisterCommand(CdGame);
+            //CommandManager.RegisterCommand(CdGame);
+            CommandManager.RegisterCommand(CdDrawImage);
+        }
+
+        static readonly CommandDescriptor CdDrawImage= new CommandDescriptor
+        {
+            Name = "DrawImage",
+            Aliases = new[]{ "Drawimg", "Imgdraw", "ImgPrint" },
+            Category = CommandCategory.World,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            IsConsoleSafe = false,
+            Usage = "/DrawImage http://WebsiteUrl.com/picture.jpg",
+            Handler = DrawImageHandler
+        };
+        static void DrawImageHandler(Player player, Command cmd)
+        {
+            string Url = cmd.Next();
+            if (string.IsNullOrEmpty(Url))
+            {
+                CdDrawImage.PrintUsage(player);
+                return;
+            }
+            else
+            {
+                player.Message("DrawImage: Click 2 blocks or use &H/Mark&S to set direction.");
+                player.SelectionStart(2, DrawImgCallback, Url, Permission.DrawAdvanced);
+            }
+        }
+
+        static void DrawImgCallback(Player player, Vector3I[] marks, object tag)
+        {
+            try{
+                player.MessageNow("&HDrawImg: Downloading image from given URL");
+            }
+            catch { }
+            string Url = (string)tag;
+            if (!Url.ToLower().StartsWith("http://")) Url = "http://" + Url;
+            Direction direction = DirectionFinder.GetDirection(marks);
+            try
+            {
+                fCraft.Drawing.DrawImageOperation Op = new Drawing.DrawImageOperation();//create new instance
+                Op.DrawImage(1, direction, marks[0], player, Url);
+                if (Op.blocks > 0)
+                {
+                    player.Message("DrawImg: Drawing {0}",
+                        Url, Op.blocks);
+                }
+                else
+                {
+                    player.Message("&WNo direction was set");
+                }
+                Op = null; //get lost
+            }
+            catch (Exception e)
+            {
+                player.Message(e.Message);
+            }
         }
 
 
-        
         static readonly CommandDescriptor CdGame = new CommandDescriptor
         {
             Name = "Game",

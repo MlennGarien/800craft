@@ -9,8 +9,10 @@ using System.Drawing;
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
     /// and switching block placement modes (paint, bind). </summary>
-    static class BuildingCommands {
+    static class BuildingCommands
+    {
 
+        #region Init
         public static int MaxUndoCount = 2000000;
 
         const string GeneralDrawingHelp = " Use &H/Cancel&S to cancel selection mode. " +
@@ -101,6 +103,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdDraw2D);
             CommandManager.RegisterCommand(CdSetFont);
         }
+        #endregion
 
         #region 800Craft
 
@@ -386,7 +389,7 @@ namespace fCraft {
             else
             {
                 player.Message("Write: Click 2 blocks or use &H/Mark&S to set direction.");
-                player.SelectionStart(2, WriteCallback, sentence, Permission.Draw);
+                player.SelectionStart(2, WriteCallback, sentence, Permission.DrawAdvanced);
             }
         }
 
@@ -1130,7 +1133,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Fill
 
         static readonly CommandDescriptor CdFill2D = new CommandDescriptor {
@@ -1173,7 +1175,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Block Commands
 
@@ -1358,6 +1359,7 @@ namespace fCraft {
 
         #endregion
 
+        #region Drawing Helpers
 
         static void DrawOneBlock( [NotNull] Player player, [NotNull] Map map, Block drawBlock, Vector3I coord,
                                   BlockChangeContext context, ref int blocks, ref int blocksDenied, UndoState undoState ) {
@@ -1407,6 +1409,7 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
         #region Replace
 
@@ -1478,7 +1481,6 @@ namespace fCraft {
             ReplaceHandlerInternal( replaceBrush, player, cmd );
         }
         #endregion
-
 
         #region Undo / Redo
 
@@ -1590,7 +1592,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Copy and Paste
 
@@ -2086,7 +2087,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Restore
 
         const BlockChangeContext RestoreContext = BlockChangeContext.Drawn | BlockChangeContext.Restored;
@@ -2185,7 +2185,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Mark, Cancel
 
         static readonly CommandDescriptor CdMark = new CommandDescriptor {
@@ -2247,7 +2246,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region UndoPlayer and UndoArea
 
@@ -2574,7 +2572,7 @@ namespace fCraft {
 
         #endregion
 
-
+        #region Static
 
         static readonly CommandDescriptor CdStatic = new CommandDescriptor {
             Name = "Static",
@@ -2597,5 +2595,7 @@ namespace fCraft {
                 player.IsRepeatingSelection = true;
             }
         }
+
+        #endregion
     }
 }

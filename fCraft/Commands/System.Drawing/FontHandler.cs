@@ -23,6 +23,7 @@ namespace fCraft
 {
     public class FontHandler
     {
+        #region Instance and Drawing
         public Player player; //player using command
         public int blockCount; //blockcount for player message. ++ when drawing
         int blocks = 0, //drawn blocks
@@ -126,6 +127,8 @@ namespace fCraft
                     break; //if blockcount = 0, message is shown and returned
             }
         }
+        #endregion
+
         #region Helpers
         public static Bitmap Crop(Bitmap bmp){
             int w = bmp.Width;

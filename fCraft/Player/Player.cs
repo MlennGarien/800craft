@@ -34,7 +34,7 @@ namespace fCraft {
         /// Note that Player.Console.World is always null,
         /// and that prevents console from calling certain commands (like /TP). </summary>
         public static Player Console, AutoRank;
-
+        public bool IsAway;
 
         #region Properties
 
@@ -155,12 +155,14 @@ namespace fCraft {
         public MetadataCollection<object> Metadata { get; private set; }
 
         #endregion
-        public bool IsAway;
 
+        #region Flying
         public bool IsFlying = false;
         public ConcurrentDictionary<String, Vector3I> FlyCache;
         public readonly object FlyLock = new object();
+        #endregion
 
+        #region PhysicsHelpers
         public ConcurrentDictionary<String, Vector3I> TowerCache = new ConcurrentDictionary<String, Vector3I>();
         public bool towerMode = false;
         public Vector3I towerOrigin;
@@ -174,18 +176,45 @@ namespace fCraft {
         public byte blueOut;
         public byte orangeOut;
         public bool GunMode = false;
-
-        public bool GlobalChat = false;
+        
 
         public bool fireworkMode = false;
 
+        //Physics
+        public DateTime DrownTime;
+        public DateTime LastTimeTNTFired = DateTime.MinValue;
+        //note that this method updates the fired time, assuming that following this check the TNT will be fired
+        //this is a bad design generally, but sometimes its tempting to dont give a fuck
+        public bool CanFireTNT()
+        {
+            bool ret = (DateTime.UtcNow - LastTimeTNTFired) > TimeSpan.FromSeconds(1);
+            if (ret)
+                LastTimeTNTFired = DateTime.UtcNow;
+            return ret;
+        }
+        #endregion
+
+        #region Killing
         public DateTime LastTimeKilled;
         public bool Immortal = false;
+        //Kill protection
+        public bool CanBeKilled()
+        {
+            if (Immortal) return false;
+            if ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15)
+            {
+                return false;
+            }
+            return true;
+        }
+        #endregion
 
-        //general purpose state storage for plugins
+        #region General purpose state storage for plugins
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
         public IDictionary<string, object> PublicAuxStateObjects { get { return _publicAuxStateObjects; } }
+        #endregion
 
+        #region Portals
         //Portals
         public bool StandingInPortal = false;
         public bool CanUsePortal = true;
@@ -196,32 +225,9 @@ namespace fCraft {
         public DateTime LastWarnedPortal;
         public bool PortalsEnabled = true;
         public readonly object PortalLock = new object();
+        #endregion
 
-        //Physics
-        public DateTime DrownTime;
-    	public DateTime LastTimeTNTFired=DateTime.MinValue;
-        //note that this method updates the fired time, assuming that following this check the TNT will be fired
-        //this is a bad design generally, but sometimes its tempting to dont give a fuck
-        public bool CanFireTNT()
-        {
-            bool ret = (DateTime.UtcNow - LastTimeTNTFired) > TimeSpan.FromSeconds(1);
-            if (ret)
-                LastTimeTNTFired = DateTime.UtcNow;
-            return ret;
-        }
-
-        //Kill protection
-        public bool CanBeKilled()
-        {
-            if (Immortal) return false;
-			if ((DateTime.UtcNow - LastTimeKilled).TotalSeconds < 15)
-            {
-                return false;
-            }
-            return true;
-        }
-		
-
+        #region Game
         //List of weapons usable in game modes
         //byte ID will be used for gungame
         public enum GameWeapon : byte
@@ -241,7 +247,7 @@ namespace fCraft {
         //if null, default skin is used
         public string iName = null;
         public bool entityChanged = false;
-
+        #endregion
 
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
@@ -264,7 +270,6 @@ namespace fCraft {
             {
                 throw new ArgumentOutOfRangeException("context");
             }
-
 
             // Check if player can ban/unban in general
             if (!player.Can(Permission.Kick))
