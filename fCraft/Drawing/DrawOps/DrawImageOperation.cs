@@ -47,6 +47,14 @@ namespace fCraft.Drawing
                 throw new Exception("&WCould not download given url");
             }
             myBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            if (myBitmap.Width > player.World.Map.Width)
+            {
+                myBitmap = resizeImage(myBitmap, player.World.Map.Width, myBitmap.Height);
+            }
+            if (myBitmap.Height > player.World.Map.Height)
+            {
+                myBitmap = resizeImage(myBitmap, myBitmap.Width, player.World.Map.Height);
+            }
             int direction = 0;
             if (direct == Direction.one) direction = 0;
             if (direct == Direction.two) direction = 1;
@@ -207,6 +215,51 @@ namespace fCraft.Drawing
         #endregion
 
         #region Helpers
+
+        Bitmap resizeImage(Bitmap imgPhoto, int Width, int Height)
+        {
+            int sourceWidth = imgPhoto.Width;
+            int sourceHeight = imgPhoto.Height;
+            int sourceX = 0;
+            int sourceY = 0;
+            int destX = 0;
+            int destY = 0;
+
+            float nPercent = 0;
+            float nPercentW = 0;
+            float nPercentH = 0;
+
+            nPercentW = ((float)Width / (float)sourceWidth);
+            nPercentH = ((float)Height / (float)sourceHeight);
+            if (nPercentH < nPercentW){
+                nPercent = nPercentH;
+                destX = Convert.ToInt16((Width - (sourceWidth * nPercent)) / 2);
+            }else{
+                nPercent = nPercentW;
+                destY = Convert.ToInt16((Height - (sourceHeight * nPercent)) / 2);
+            }
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+            Bitmap bmPhoto = new Bitmap(Width, Height,
+                              System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            bmPhoto.SetResolution(imgPhoto.HorizontalResolution,
+                             imgPhoto.VerticalResolution);
+
+            using (Graphics grPhoto = Graphics.FromImage(bmPhoto))
+            {
+                grPhoto.Clear(System.Drawing.Color.White);
+                grPhoto.InterpolationMode =
+                        System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                grPhoto.DrawImage(imgPhoto,
+                    new Rectangle(destX, destY, destWidth, destHeight),
+                    new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
+                    GraphicsUnit.Pixel);
+                grPhoto.Dispose();
+                bmPhoto = FontHandler.Crop(bmPhoto);
+                return bmPhoto;
+            }
+        }
 
         static List<ColorBlock> popRefCol(byte popType)
         {

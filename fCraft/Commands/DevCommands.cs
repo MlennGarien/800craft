@@ -42,10 +42,11 @@ namespace fCraft
         {
             Name = "DrawImage",
             Aliases = new[]{ "Drawimg", "Imgdraw", "ImgPrint" },
-            Category = CommandCategory.World,
+            Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.DrawAdvanced },
             IsConsoleSafe = false,
             Usage = "/DrawImage http://WebsiteUrl.com/picture.jpg",
+            Help = "Draws an image file from a website in minecraft blocks",
             Handler = DrawImageHandler
         };
         static void DrawImageHandler(Player player, Command cmd)
@@ -72,19 +73,17 @@ namespace fCraft
             string Url = (string)tag;
             if (!Url.ToLower().StartsWith("http://")) Url = "http://" + Url;
             Direction direction = DirectionFinder.GetDirection(marks);
+            if(direction == Direction.Null)
+            {
+                player.Message("&WNo direction was set");
+                return;
+            }
             try
             {
                 fCraft.Drawing.DrawImageOperation Op = new Drawing.DrawImageOperation();//create new instance
                 Op.DrawImage(1, direction, marks[0], player, Url);
-                if (Op.blocks > 0)
-                {
-                    player.Message("DrawImg: Drawing {0}",
-                        Url, Op.blocks);
-                }
-                else
-                {
-                    player.Message("&WNo direction was set");
-                }
+                player.Message("DrawImg: Drawing {0}",
+                    Url, Op.blocks);
                 Op = null; //get lost
             }
             catch (Exception e)
