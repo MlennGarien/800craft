@@ -411,7 +411,7 @@ namespace fCraft {
                 render.CreateGraphicsAndDraw(sentence); //render the sentence
                 if (render.blockCount > 0)
                 {
-                    player.Message("/Write (Size {0}, Font {1}: Writing '{2}' using {3} blocks of {4}",
+                    player.Message("/Write (Size {0}, {1}: Writing '{2}' using {3} blocks of {4}",
                         player.font.Size,
                         player.font.FontFamily.Name,
                         sentence, render.blockCount,
@@ -426,6 +426,7 @@ namespace fCraft {
             catch (Exception e)
             {
                 player.Message(e.Message);
+                Logger.Log(LogType.Error, "WriteCommand: " + e);
             }
         }
 
@@ -445,13 +446,11 @@ namespace fCraft {
             return null;
         }
 
-
-
         static readonly CommandDescriptor CdTree = new CommandDescriptor
         {
             Name = "Tree",
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Tree },
+            Permissions = new[] { Permission.DrawAdvanced },
             Usage = "/Tree Shape Height",
             Help = "&HPlants a tree of given shape and height. Available shapes: Normal, Bamboo, Palm, Cone, Round, Rainforest, Mangrove",
             Handler = TreeHandler
@@ -478,6 +477,13 @@ namespace fCraft {
             if (height < 6 || height > 1024)
             {
                 player.Message("Tree height must be 6 blocks or above");
+                return;
+            }
+            int volume = (int)Math.Pow(height, 3);
+            if (!player.CanDraw(volume))
+            {
+                player.MessageNow(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.Info.Rank.DrawLimit, volume));
                 return;
             }
 

@@ -1041,7 +1041,6 @@ namespace fCraft {
             owner.Add( new XElement( Permission.ReloadConfig.ToString() ) );
             owner.Add( new XElement( Permission.ShutdownServer.ToString() ) );
             owner.Add( new XElement(Permission.Basscannon.ToString() ) );
-            owner.Add( new XElement(Permission.Tree.ToString() ) );
             owner.Add( new XElement(Permission.UsePortal.ToString() ) );
             owner.Add( new XElement(Permission.ManagePortal.ToString() ) );
             owner.Add( new XElement(Permission.HighFive.ToString() ) );

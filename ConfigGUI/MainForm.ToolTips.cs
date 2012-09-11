@@ -613,11 +613,6 @@ Affected command:
 @"Ability to create a Tower.
 Affected command:
     /Tower";
-    
-                vPermissions.Items[(int)Permission.Tree].ToolTipText =
-@"Ability to create a tree.
-Affected command:
-    /Tree";
                
                vPermissions.Items[(int)Permission.Troll].ToolTipText =
 @"Ability to troll players.

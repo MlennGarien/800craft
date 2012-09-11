@@ -126,11 +126,14 @@ namespace fCraft {
         #endregion
 
         #region Emotes
-        public struct EmoteData
+        public struct EmoteData //Contains all data needed for the emotes. Emote is the trigger word, 
+            //example (bullet). ID is the byte value of the char
         {
             public string Emote;
             public byte ID;
         }
+
+        //this list will be loaded with the list of emotes and their replacement values
         static List<EmoteData> EmoteTriggers = null;
 
         public static EmoteData[] EmotesArray()
@@ -146,6 +149,7 @@ namespace fCraft {
             }
         }
 
+        //a method to add all the emotes into EmoteTriggers. You can add your own triggers here
         static void AddEmotes()
         {
             EmoteTriggers = new List<EmoteData>();
@@ -178,41 +182,42 @@ namespace fCraft {
             }
         }
 
-        public static string ParseEmotes(string rawMessage, bool DisplayedName)
+        //this is the main method. This parses the emotes, correct glitches and makes the emotes safe to display
+        public static string ParseEmotes(string rawMessage, bool SentencePart)
         {
-            if (EmoteTriggers == null){
+            if (EmoteTriggers == null){ //until a message is made, the list is null, so fill it up here
                 AddEmotes();
             }
-            byte[] stored = new byte[1];
+            byte[] stored = new byte[1]; //this byte represents the emoticon, to be used in GetString(
             lock (EmoteTriggers){
-                foreach(EmoteData ed in EmoteTriggers){
-                    string s = ed.Emote;
-                    stored[0] = (byte)ed.ID;
-                    string s1 = enc.GetString(stored);
-                    if (rawMessage.Contains(s)){
-                        switch (ed.ID){
+                foreach(EmoteData ed in EmoteTriggers){ //scroll through the emotes, replacing each trigger word with the emote
+                    string s = ed.Emote; //s is the emote trigger
+                    stored[0] = (byte)ed.ID; //stored is the byte char for the emote
+                    string s1 = enc.GetString(stored); //s1 is the emote
+                        switch (ed.ID){ //this fixes glitches. Each ID appends a ' to resolve overlapping of letters
                             case 7:
                             case 12:
-                            case 19:
                             case 22:
                             case 24:
                             case 25:
+                                s1 = s1 + "-";
+                                break;
+                            case 19:
                                 s1 = s1 + "' ";
                                 break;
                             default: break;
                         }
-                        if (!DisplayedName)
+                        if (!SentencePart) //if sentence being parsed definately ends with no following text (not a displayedname, ect)
                         {
                             if (rawMessage.EndsWith(s))
                             {
-                                s1 = s1 + ".";
+                                s1 = s1 + "."; //append a period. A emoticon ONLY shows if some text follows the emoticon (excluding a blank space)
                             }
                         }
-                        rawMessage = rawMessage.Replace(s, s1);
+                        rawMessage = rawMessage.Replace(s, s1); //replace the triggerword with the emoticon
                     }
                 }
-            }
-            return rawMessage;
+            return rawMessage; //return the new sentence
         }
 
         #endregion

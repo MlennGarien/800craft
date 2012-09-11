@@ -1330,11 +1330,11 @@ namespace fCraft {
                     TitleName = Chat.ParseEmotes(TitleName, true);
                     if (ConfigKey.RankPrefixesInList.Enabled())
                     {
-                        sb.Append(Rank.Prefix + "[" + TitleName + Rank.Color + "] ");
+                        sb.Append(Rank.Prefix + TitleName);
                     }
                     if (ConfigKey.RankColorsInChat.Enabled())
                     {
-                        sb.Append(Rank.Color + "[" + TitleName + Rank.Color + "] ");
+                        sb.Append(Rank.Color + TitleName);
                     }
                 }
                 if( ConfigKey.RankColorsInChat.Enabled() ) {

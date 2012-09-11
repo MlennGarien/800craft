@@ -81,34 +81,6 @@ namespace fCraft {
                 player.Message("Your quit message is now set to: {0}", Msg);
             }
         }
-        static readonly CommandDescriptor CdOmegle = new CommandDescriptor
-        {
-            Name = "Om",
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = false,
-            Permissions = new[] { Permission.Chat },
-            Usage = "/Om Message",
-            Help = "Yes, help.",
-            Handler = OmHandler
-        };
-
-        static void OmHandler(Player player, Command cmd)
-        {
-            if (player.OmBot == null)
-            {
-                player.OmBot = new OmegleBot(player);
-            }
-            else
-            {
-                string Message = cmd.NextAll();
-                if (Message == null)
-                {
-                    player.Message("Your message cannot be zero length");
-                    return;
-                }
-                player.OmBot.Say(Message);
-            }
-        }
 
         static readonly CommandDescriptor CdRageQuit = new CommandDescriptor
         {

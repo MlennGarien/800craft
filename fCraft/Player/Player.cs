@@ -182,8 +182,6 @@ namespace fCraft {
         public DateTime LastTimeKilled;
         public bool Immortal = false;
 
-        public OmegleBot OmBot;
-
         //general purpose state storage for plugins
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
         public IDictionary<string, object> PublicAuxStateObjects { get { return _publicAuxStateObjects; } }
