@@ -256,7 +256,7 @@ namespace fCraft.Drawing
                     new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
                     GraphicsUnit.Pixel);
                 grPhoto.Dispose();
-                bmPhoto = FontHandler.Crop(bmPhoto);
+                bmPhoto = FontHandler.Crop(bmPhoto); 
                 return bmPhoto;
             }
         }
