@@ -45,8 +45,9 @@ namespace fCraft
             Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.DrawAdvanced },
             IsConsoleSafe = false,
-            Usage = "/DrawImage http://WebsiteUrl.com/picture.jpg",
-            Help = "Draws an image file from a website in minecraft blocks",
+            Usage = "/DrawImage WebsiteUrl.com/picture.jpg",
+            Help = "Draws an image file from a website in minecraft blocks. " +
+            "If your url is from imgur.com, you can type ++ followed by the image code. Example: ++kbFRo.png",
             Handler = DrawImageHandler
         };
         static void DrawImageHandler(Player player, Command cmd)
@@ -66,12 +67,16 @@ namespace fCraft
 
         static void DrawImgCallback(Player player, Vector3I[] marks, object tag)
         {
-            try{
-                player.MessageNow("&HDrawImg: Downloading image from given URL");
+            
+            string Url = (string)tag;
+            if (Url.StartsWith("++")) Url = Url.Replace("++", "i.imgur.com/");
+            if (!Url.ToLower().StartsWith("http://")) Url = "http://" + Url;
+
+            try
+            {
+                player.MessageNow("&HDrawImg: Downloading image from {0}", Url);
             }
             catch { }
-            string Url = (string)tag;
-            if (!Url.ToLower().StartsWith("http://")) Url = "http://" + Url;
             Direction direction = DirectionFinder.GetDirection(marks);
             if(direction == Direction.Null)
             {
@@ -88,7 +93,7 @@ namespace fCraft
             }
             catch (Exception e)
             {
-                player.Message(e.Message);
+                player.Message(Color.Warning + e.Message);
             }
         }
 

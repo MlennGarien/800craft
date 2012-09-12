@@ -19,32 +19,42 @@ namespace fCraft.Drawing
         {
 
         }
+
         public void DrawImage(byte popType, Direction direct, Vector3I cpos, Player player, string url)
         {
             undoState = player.DrawBegin(null);
             Bitmap myBitmap = null;
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-            // Check that the remote file was found. The ContentType
-            // check is performed since a request for a non-existent
-            // image file might be redirected to a 404-page, which would
-            // yield the StatusCode "OK", even though the image was not
-            // found.
-            if ((response.StatusCode == HttpStatusCode.OK ||
-                response.StatusCode == HttpStatusCode.Moved ||
-                response.StatusCode == HttpStatusCode.Redirect) &&
-                response.ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
+            request.Timeout = 5000;
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             {
-                // if the remote file was found, download oit
-                using (Stream inputStream = response.GetResponseStream())
-                {
-                    myBitmap = new Bitmap(inputStream);
+                // Check that the remote file was found. The ContentType
+                // check is performed since a request for a non-existent
+                // image file might be redirected to a 404-page, which would
+                // yield the StatusCode "OK", even though the image was not
+                // found.
+                if ((response.StatusCode == HttpStatusCode.OK ||
+                    response.StatusCode == HttpStatusCode.Moved ||
+                    response.StatusCode == HttpStatusCode.Redirect) &&
+                    response.ContentType.StartsWith("image", StringComparison.OrdinalIgnoreCase)){
+                    // if the remote file was found, download it
+                    using (Stream inputStream = response.GetResponseStream())
+                    {
+                        myBitmap = new Bitmap(inputStream);
+                    }
                 }
             }
             if (myBitmap == null)
             {
                 throw new Exception("&WCould not download given url");
+            }
+            int Volume = myBitmap.Height * myBitmap.Width;
+            if (!player.CanDraw(Volume))
+            {
+                player.Message(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                               player.Info.Rank.DrawLimit, Volume));
+                myBitmap.Dispose();
+                return;
             }
             myBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             if (myBitmap.Width > player.World.Map.Width)
@@ -60,12 +70,7 @@ namespace fCraft.Drawing
             if (direct == Direction.two) direction = 1;
             if (direct == Direction.three) direction = 2;
             if (direct == Direction.four) direction = 3;
-            bool layer = false;
-            if (layer)
-            {
-                if (popType == 1) popType = 2;
-                if (popType == 3) popType = 4;
-            }
+
             List<ColorBlock> refCol = popRefCol(popType);
             ColorBlock colblock;
             double[] distance = new double[refCol.Count];
@@ -78,35 +83,18 @@ namespace fCraft.Drawing
                     {
                         for (int i = 0; i < myBitmap.Height; i++)
                         {
-                            if (layer)
+                            colblock.z = (ushort)(cpos.Z + i);
+                            if (direction <= 1)
                             {
-                                colblock.z = cpos.Z;
-                                if (direction <= 1)
-                                {
-                                    if (direction == 0) { colblock.x = (ushort)(cpos.X + k); colblock.y = (ushort)(cpos.Y - i); }
-                                    else { colblock.x = (ushort)(cpos.X - k); colblock.y = (ushort)(cpos.Y + i); }
-                                }
-                                else
-                                {
-                                    if (direction == 2) { colblock.y = (ushort)(cpos.Y + k); colblock.x = (ushort)(cpos.X + i); }
-                                    else { colblock.y = (ushort)(cpos.Y - k); colblock.x = (ushort)(cpos.X - i); }
-                                }
+                                if (direction == 0) colblock.x = (ushort)(cpos.X + k);
+                                else colblock.x = (ushort)(cpos.X - k);
+                                colblock.y = cpos.Y;
                             }
                             else
                             {
-                                colblock.z = (ushort)(cpos.Z + i);
-                                if (direction <= 1)
-                                {
-                                    if (direction == 0) colblock.x = (ushort)(cpos.X + k);
-                                    else colblock.x = (ushort)(cpos.X - k);
-                                    colblock.y = cpos.Y;
-                                }
-                                else
-                                {
-                                    if (direction == 2) colblock.y = (ushort)(cpos.Y + k);
-                                    else colblock.y = (ushort)(cpos.Y - k);
-                                    colblock.x = cpos.X;
-                                }
+                                if (direction == 2) colblock.y = (ushort)(cpos.Y + k);
+                                else colblock.y = (ushort)(cpos.Y - k);
+                                colblock.x = cpos.X;
                             }
 
                             colblock.r = myBitmap.GetPixel(k, i).R;
@@ -200,7 +188,7 @@ namespace fCraft.Drawing
                             }
                             if (colblock.a < 20) colblock.type = (byte)Block.Air;
                             DrawOneBlock(player, player.World.Map, (Block)colblock.type,
-                                              new Vector3I((colblock.x), colblock.y, (colblock.z)), BlockChangeContext.Drawn,
+                                              new Vector3I(colblock.x, colblock.y, colblock.z), BlockChangeContext.Drawn,
                                               ref blocks, ref blocksDenied, undoState);
                         }
                     }
@@ -208,7 +196,7 @@ namespace fCraft.Drawing
             }
             catch (Exception e)
             {
-                player.Message(e.Message);
+                player.Message(Color.Warning + e.Message);
             }
         }
         
@@ -231,10 +219,13 @@ namespace fCraft.Drawing
 
             nPercentW = ((float)Width / (float)sourceWidth);
             nPercentH = ((float)Height / (float)sourceHeight);
-            if (nPercentH < nPercentW){
+            if (nPercentH < nPercentW)
+            {
                 nPercent = nPercentH;
                 destX = Convert.ToInt16((Width - (sourceWidth * nPercent)) / 2);
-            }else{
+            }
+            else
+            {
                 nPercent = nPercentW;
                 destY = Convert.ToInt16((Height - (sourceHeight * nPercent)) / 2);
             }
@@ -251,12 +242,10 @@ namespace fCraft.Drawing
                 grPhoto.Clear(System.Drawing.Color.White);
                 grPhoto.InterpolationMode =
                         System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                grPhoto.DrawImage(imgPhoto,
-                    new Rectangle(destX, destY, destWidth, destHeight),
-                    new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight),
-                    GraphicsUnit.Pixel);
-                grPhoto.Dispose();
-                bmPhoto = FontHandler.Crop(bmPhoto); 
+                grPhoto.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                grPhoto.DrawImage(imgPhoto, new Rectangle(destX, destY, destWidth, destHeight),
+                    new Rectangle(sourceX, sourceY, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
+                bmPhoto = FontHandler.Crop(bmPhoto);
                 return bmPhoto;
             }
         }

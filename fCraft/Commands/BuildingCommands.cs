@@ -485,7 +485,7 @@ namespace fCraft {
             int volume = (int)Math.Pow(height, 3);
             if (!player.CanDraw(volume))
             {
-                player.MessageNow(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                player.Message(String.Format("You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                                player.Info.Rank.DrawLimit, volume));
                 return;
             }
