@@ -46,7 +46,7 @@ namespace fCraft.Drawing
             }
             if (myBitmap == null)
             {
-                throw new Exception("&WCould not download given url");
+                throw new Exception("&WDrawImg: Could not download given url");
             }
             int Volume = myBitmap.Height * myBitmap.Width;
             if (!player.CanDraw(Volume))
@@ -196,7 +196,7 @@ namespace fCraft.Drawing
             }
             catch (Exception e)
             {
-                player.Message(Color.Warning + e.Message);
+                player.Message(Color.Warning + "DrawImg: " + e.Message);
             }
         }
         

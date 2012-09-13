@@ -35,68 +35,7 @@ namespace fCraft
             //CommandManager.RegisterCommand(CdBot);
             //CommandManager.RegisterCommand(CdSpell);
             //CommandManager.RegisterCommand(CdGame);
-            CommandManager.RegisterCommand(CdDrawImage);
         }
-
-        static readonly CommandDescriptor CdDrawImage= new CommandDescriptor
-        {
-            Name = "DrawImage",
-            Aliases = new[]{ "Drawimg", "Imgdraw", "ImgPrint" },
-            Category = CommandCategory.Building,
-            Permissions = new Permission[] { Permission.DrawAdvanced },
-            IsConsoleSafe = false,
-            Usage = "/DrawImage WebsiteUrl.com/picture.jpg",
-            Help = "Draws an image file from a website in minecraft blocks. " +
-            "If your url is from imgur.com, you can type ++ followed by the image code. Example: ++kbFRo.png",
-            Handler = DrawImageHandler
-        };
-        static void DrawImageHandler(Player player, Command cmd)
-        {
-            string Url = cmd.Next();
-            if (string.IsNullOrEmpty(Url))
-            {
-                CdDrawImage.PrintUsage(player);
-                return;
-            }
-            else
-            {
-                player.Message("DrawImage: Click 2 blocks or use &H/Mark&S to set direction.");
-                player.SelectionStart(2, DrawImgCallback, Url, Permission.DrawAdvanced);
-            }
-        }
-
-        static void DrawImgCallback(Player player, Vector3I[] marks, object tag)
-        {
-            
-            string Url = (string)tag;
-            if (Url.StartsWith("++")) Url = Url.Replace("++", "i.imgur.com/");
-            if (!Url.ToLower().StartsWith("http://")) Url = "http://" + Url;
-
-            try
-            {
-                player.MessageNow("&HDrawImg: Downloading image from {0}", Url);
-            }
-            catch { }
-            Direction direction = DirectionFinder.GetDirection(marks);
-            if(direction == Direction.Null)
-            {
-                player.Message("&WNo direction was set");
-                return;
-            }
-            try
-            {
-                fCraft.Drawing.DrawImageOperation Op = new Drawing.DrawImageOperation();//create new instance
-                Op.DrawImage(1, direction, marks[0], player, Url);
-                player.Message("DrawImg: Drawing {0}",
-                    Url, Op.blocks);
-                Op = null; //get lost
-            }
-            catch (Exception e)
-            {
-                player.Message(Color.Warning + e.Message);
-            }
-        }
-
 
         static readonly CommandDescriptor CdGame = new CommandDescriptor
         {

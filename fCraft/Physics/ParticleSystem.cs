@@ -123,6 +123,7 @@ namespace fCraft
                 {
                     _prevBlock = _map.GetBlock(pos);
                     if (Block.Undefined != _prevBlock) //out of bounds!
+                        if (owner.CanPlace(_map, pos, Block.Wood, BlockChangeContext.Manual) == CanPlaceResult.Allowed)
                         UpdateMap(new BlockUpdate(null, pos, block));
                 }
             }
@@ -142,13 +143,16 @@ namespace fCraft
             }
 
             //delete at the previous position, restore water unconditionally, lava only when bullet is still there to prevent restoration of explosion lava
-            if (_prevBlock != Block.Water)
-                _prevBlock = _map.GetBlock(_pos) == _block ? //is the bullet still here
-                    (_prevBlock == Block.Lava ? Block.Lava : Block.Air)  //yes, then either restore lava or set air
-                    : Block.Undefined; //no, it was removed by some other process, do nothing then
+            if (_prevBlock != Block.Water) _prevBlock = Block.Air;
+            //edit: lazyfix, dont restore lava coz tnt.
 
             if (Block.Undefined != _prevBlock)
-                UpdateMap(new BlockUpdate(null, _pos, _prevBlock));
+            {
+                if (_owner.CanPlace(_map, _pos, Block.Wood, BlockChangeContext.Manual) == CanPlaceResult.Allowed)
+                {
+                    UpdateMap(new BlockUpdate(null, _pos, _prevBlock));
+                }
+            }
 
             List<BlockUpdate> updates = new List<BlockUpdate>();
             for (int i = 0; i < _behavior.MovesPerProcessingStep && _restDistance > 0; ++i)
@@ -176,10 +180,18 @@ namespace fCraft
                     && updates[idx].Y == _pos.Y
                     && updates[idx].Z == _pos.Z)
                 {
-                    updates[idx] = new BlockUpdate(null, _pos, _block);
+                    if (_owner.CanPlace(_map, _pos, Block.Wood, BlockChangeContext.Manual) == CanPlaceResult.Allowed)
+                    {
+                        updates[idx] = new BlockUpdate(null, _pos, _block);
+                    }
                 }
                 else
-					updates.Add(new BlockUpdate(null, _pos, _block));
+                {
+                    if (_owner.CanPlace(_map, _pos, Block.Wood, BlockChangeContext.Manual) == CanPlaceResult.Allowed)
+                    {
+                        updates.Add(new BlockUpdate(null, _pos, _block));
+                    }
+                }
             }
 
             for (int i = 0; i < updates.Count; ++i)
@@ -239,6 +251,7 @@ namespace fCraft
 				world.AddPhysicsTask(new TNTTask(world, pos, owner, false, true), _r.Next(150, 300));
 			}
 			if (Block.Air != block && Block.Water != block && Block.Lava != block)
+                if (owner.CanPlace(world.Map, pos, Block.Wood, BlockChangeContext.Manual) == CanPlaceResult.Allowed)
 				updates.Add(new BlockUpdate(null, pos, Block.Air));
 			return true;
         }

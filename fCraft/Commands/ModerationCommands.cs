@@ -270,6 +270,7 @@ namespace fCraft {
         internal static void KillHandler(Player player, Command cmd)
         {
             string name = cmd.Next();
+            string OReason = cmd.NextAll();
             if (name == null){
                 player.Message("Please enter a name");
                 return;
@@ -299,7 +300,14 @@ namespace fCraft {
                 if (player.Can(Permission.Kill, target.Info.Rank)){
                     target.TeleportTo(player.World.Map.Spawn);
                     player.Info.LastUsedKill = DateTime.Now;
-                    Server.Players.CanSee(target).Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
+                    if (!string.IsNullOrWhiteSpace(OReason))
+                    {
+                        Server.Players.CanSee(target).Union(target).Message("{0}&C was &4Killed&C by {1}&W: {2}", target.ClassyName, player.ClassyName, OReason);
+                    }
+                    else
+                    {
+                        Server.Players.CanSee(target).Union(target).Message("{0}&C was &4Killed&C by {1}", target.ClassyName, player.ClassyName);
+                    }
                     return;
                 }else{
                     player.Message("You can only Kill players ranked {0}&S or lower",

@@ -102,6 +102,7 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdWrite);
             CommandManager.RegisterCommand(CdDraw2D);
             CommandManager.RegisterCommand(CdSetFont);
+            CommandManager.RegisterCommand(CdDrawImage);
         }
         #endregion
 
@@ -121,6 +122,62 @@ namespace fCraft {
 
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+        static readonly CommandDescriptor CdDrawImage = new CommandDescriptor
+        {
+            Name = "DrawImage",
+            Aliases = new[] { "Drawimg", "Imgdraw", "ImgPrint" },
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.DrawAdvanced },
+            IsConsoleSafe = false,
+            Usage = "/DrawImage WebsiteUrl.com/picture.jpg",
+            Help = "Draws an image file from a website in minecraft blocks. " +
+            "If your url is from imgur.com, you can type ++ followed by the image code. Example: ++kbFRo.png",
+            Handler = DrawImageHandler
+        };
+        static void DrawImageHandler(Player player, Command cmd)
+        {
+            string Url = cmd.Next();
+            if (string.IsNullOrEmpty(Url))
+            {
+                CdDrawImage.PrintUsage(player);
+                return;
+            }
+            else
+            {
+                player.Message("DrawImage: Click 2 blocks or use &H/Mark&S to set direction.");
+                player.SelectionStart(2, DrawImgCallback, Url, Permission.DrawAdvanced);
+            }
+        }
+
+        static void DrawImgCallback(Player player, Vector3I[] marks, object tag)
+        {
+            string Url = (string)tag;
+            if (Url.StartsWith("++")) Url = Url.Replace("++", "i.imgur.com/");
+            if (!Url.ToLower().StartsWith("http://")) Url = "http://" + Url;
+
+            player.MessageNow("&HDrawImg: Downloading image from {0}", Url);
+
+            Direction direction = DirectionFinder.GetDirection(marks);
+            if (direction == Direction.Null)
+            {
+                player.Message("&WNo direction was set");
+                return;
+            }
+            DrawImageOperation Op = null;
+            try
+            {
+                Op = new DrawImageOperation();//create new instance
+                Op.DrawImage(1, direction, marks[0], player, Url);
+                player.Message("DrawImg: Drawing {0}",
+                    Url, Op.blocks);
+            }
+            catch (Exception e)
+            {
+                player.Message(Color.Warning + "DrawImg: " + e.Message);
+            }
+            Op = null; //get lost
+        }
 
         static CommandDescriptor CdSetFont = new CommandDescriptor()
         {
@@ -248,11 +305,11 @@ namespace fCraft {
             Permissions = new Permission[] { Permission.DrawAdvanced },
             RepeatableSelection = true,
             IsConsoleSafe = true,
-            Help = "/Draw2D, then select a shape (Polygon, spiral, star). You can then choose a radius " +
+            Help = "/Draw2D, then select a shape (Polygon, spiral, star). You can then choose a size in blocks " +
             " for the shape before selecting two points." +
             "Example: /Draw2d Polygon 50. Polygon and triangle can be used with any number of points " +
-            "exceeding 3, which should follow the radius argument",
-            Usage = "/Draw2D <Shape> <Radius> <Points> <Fill(true/false)>",
+            "exceeding 3, which should follow the 'Size' argument",
+            Usage = "/Draw2D <Shape> <Size> <Points> <Fill: true/false>",
             Handler = Draw2DHandler,
         };
 
@@ -287,15 +344,14 @@ namespace fCraft {
             bool fill = true;
             if (cmd.HasNext)
             {
-                try
+                if (!bool.TryParse(cmd.Next(), out fill))
                 {
-                    fill = bool.Parse(cmd.Next());
+                    fill = true;
                 }
-                catch { fill = true; }
             }
             Draw2DData tag = new Draw2DData() { Shape = Shape, Points = Points, Radius = radius, Fill = fill };
             player.Message("Draw2D({0}): Click 2 blocks or use &H/Mark&S to set direction.", Shape);
-            player.SelectionStart(2, Draw2DCallback, tag, Permission.Draw);
+            player.SelectionStart(2, Draw2DCallback, tag, Permission.DrawAdvanced);
         }
 
         struct Draw2DData
@@ -322,7 +378,6 @@ namespace fCraft {
             {
                 block = player.LastUsedBlockType;
             }
-            //find the direction (needs attention)
             Direction direction = DirectionFinder.GetDirection(marks);
             try
             {
@@ -347,7 +402,7 @@ namespace fCraft {
 
                 if (lib.blockCount > 0)
                 {
-                    player.Message("/Draw2D: Drawing {0} with a radius '{1}' using {2} blocks of {3}",
+                    player.Message("/Draw2D: Drawing {0} with a size of '{1}' using {2} blocks of {3}",
                         Shape,
                         radius,
                         lib.blockCount,

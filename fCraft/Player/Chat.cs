@@ -153,33 +153,30 @@ namespace fCraft {
         static void AddEmotes()
         {
             EmoteTriggers = new List<EmoteData>();
-            lock (EmoteTriggers)
-            {
-                EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(:))", ID = 1 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(:P)", ID = 2 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(<3)", ID = 3 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(diamond)", ID = 4 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(bullet)", ID = 7 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(hole)", ID = 8 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(male)", ID = 11 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(female)", ID = 12 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(sun)", ID = 15 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(right)", ID = 16 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(>)", ID = 16 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(left)", ID = 17 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(<)", ID = 17 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(double)", ID = 19 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(half)", ID = 22 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(uparrow)", ID = 24 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(^)", ID = 24 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(downarrow)", ID = 25 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(rightarrow)", ID = 26 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(up)", ID = 30 });
-                EmoteTriggers.Add(new EmoteData() { Emote = "(down)", ID = 31 });
-            }
+            EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(:))", ID = 1 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(:P)", ID = 2 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(<3)", ID = 3 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(diamond)", ID = 4 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(bullet)", ID = 7 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(hole)", ID = 8 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(male)", ID = 11 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(female)", ID = 12 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(sun)", ID = 15 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(right)", ID = 16 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(>)", ID = 16 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(left)", ID = 17 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(<)", ID = 17 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(double)", ID = 19 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(half)", ID = 22 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(uparrow)", ID = 24 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(^)", ID = 24 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(downarrow)", ID = 25 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(rightarrow)", ID = 26 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(up)", ID = 30 });
+            EmoteTriggers.Add(new EmoteData() { Emote = "(down)", ID = 31 });
         }
 
         //this is the main method. This parses the emotes, correct glitches and makes the emotes safe to display
@@ -189,34 +186,34 @@ namespace fCraft {
                 AddEmotes();
             }
             byte[] stored = new byte[1]; //this byte represents the emoticon, to be used in GetString(
-            lock (EmoteTriggers){
-                foreach(EmoteData ed in EmoteTriggers){ //scroll through the emotes, replacing each trigger word with the emote
-                    string s = ed.Emote; //s is the emote trigger
-                    stored[0] = (byte)ed.ID; //stored is the byte char for the emote
-                    string s1 = enc.GetString(stored); //s1 is the emote
-                        switch (ed.ID){ //this fixes glitches. Each ID appends a ' to resolve overlapping of letters
-                            case 7:
-                            case 12:
-                            case 22:
-                            case 24:
-                            case 25:
-                                s1 = s1 + "-";
-                                break;
-                            case 19:
-                                s1 = s1 + "' ";
-                                break;
-                            default: break;
-                        }
-                        if (!SentencePart) //if sentence being parsed definately ends with no following text (not a displayedname, ect)
-                        {
-                            if (rawMessage.EndsWith(s))
-                            {
-                                s1 = s1 + "."; //append a period. A emoticon ONLY shows if some text follows the emoticon (excluding a blank space)
-                            }
-                        }
-                        rawMessage = rawMessage.Replace(s, s1); //replace the triggerword with the emoticon
+            foreach (EmoteData ed in EmoteTriggers)
+            { //scroll through the emotes, replacing each trigger word with the emote
+                string s = ed.Emote; //s is the emote trigger
+                stored[0] = (byte)ed.ID; //stored is the byte char for the emote
+                string s1 = enc.GetString(stored); //s1 is the emote
+                switch (ed.ID)
+                { //this fixes glitches. Each ID appends a ' to resolve overlapping of letters
+                    case 7:
+                    case 12:
+                    case 22:
+                    case 24:
+                    case 25:
+                        s1 = s1 + "-";
+                        break;
+                    case 19:
+                        s1 = s1 + "' ";
+                        break;
+                    default: break;
+                }
+                if (!SentencePart) //if sentence being parsed definately ends with no following text (not a displayedname, ect)
+                {
+                    if (rawMessage.EndsWith(s))
+                    {
+                        s1 = s1 + "."; //append a period. A emoticon ONLY shows if some text follows the emoticon (excluding a blank space)
                     }
                 }
+                rawMessage = rawMessage.Replace(s, s1); //replace the triggerword with the emoticon
+            } 
             return rawMessage; //return the new sentence
         }
 

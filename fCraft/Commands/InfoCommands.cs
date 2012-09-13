@@ -38,6 +38,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand(CdReqs);
             CommandManager.RegisterCommand(CdList);
+            CommandManager.RegisterCommand(CdWhoIs);
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
@@ -59,6 +60,71 @@ namespace fCraft {
 
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+        static readonly CommandDescriptor CdWhoIs = new CommandDescriptor
+        {
+            Name = "WhoIs",
+            Category = CommandCategory.Info,
+            Permissions = new Permission[] { Permission.ViewOthersInfo },
+            IsConsoleSafe = false,
+            Usage = "/Whois DisplayedName",
+            Handler = WhoIsHandler
+        };
+        private static void WhoIsHandler(Player player, Command cmd)
+        {
+            string Name = cmd.Next();
+            if (string.IsNullOrEmpty(Name))
+            {
+                CdWhoIs.PrintUsage(player);
+                return;
+            }
+            Name = Name.ToLower();
+            PlayerInfo[] Names = PlayerDB.PlayerInfoList.Where(p => p.DisplayedName != null &&
+                Color.StripColors(p.DisplayedName.ToLower()).StartsWith(Name) ||
+                Color.StripColors(p.DisplayedName.ToLower()).StartsWith(Name))
+                                         .OrderBy(p => p.Rank.Index)
+                                         .Reverse()
+                                         .ToArray();
+            if (Names.Length < 1)
+            {
+                player.Message("&WNo results found");
+                return;
+            }
+            if (Names.Length == 1)
+            {
+                player.Message("One player found with that displayedName: {0}", Names[0].Rank.Color + Names[0].Name);
+                return;
+            }
+            if (Names.Length <= 30)
+            {
+                MessageManyMatches(player, Names);
+            }
+            else
+            {
+                int offset;
+                if (!cmd.NextInt(out offset)) offset = 0;
+                if (offset >= Names.Length)
+                    offset = Math.Max(0, Names.Length - 30);
+                PlayerInfo[] Part = Names.Skip(offset).Take(30).ToArray();
+                MessageManyMatches(player, Part);
+                if (offset + Part.Length < Names.Length)
+                    player.Message("Showing {0}-{1} (out of {2}). Next: &H/Whois {3} {4}",
+                                    offset + 1, offset + Part.Length, Names.Length,
+                                    Name, offset + Part.Length);
+                else
+                    player.Message("Showing matches {0}-{1} (out of {2}).",
+                                    offset + 1, offset + Part.Length, Names.Length);
+            }
+        }
+
+        static void MessageManyMatches(Player player, PlayerInfo[] names)
+        {
+            if (names == null) throw new ArgumentNullException("names");
+
+            string nameList = names.JoinToString(", ", p => p.Rank.Color + p.Name + "&S(" + p.ClassyName + "&S)");
+            player.Message("More than one player matched with that displayedName: {0}",
+                     nameList);
+        }
 
         static readonly CommandDescriptor CdList = new CommandDescriptor
         {
@@ -121,7 +187,7 @@ namespace fCraft {
                     var visiblePlayers = Idles.Where(player.CanSee);
                     if (Idles.Count() > 0)
                         player.Message("Listing players idle for 5 mins or more: {0}",
-                                        visiblePlayers.JoinToString(r => String.Format("{0}", r.ClassyName)));
+                                        visiblePlayers.JoinToString(r => String.Format("{0}&S (Idle {1}", r.ClassyName, r.IdleTime.ToMiniString())));
                     else player.Message("No players have been idle for more than 5 minutes");
                     break;
                 case "portals":
@@ -376,7 +442,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "Info",
-            Aliases = new[] { "whois", "whowas" },
+            Aliases = new[] { "whowas" },
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
