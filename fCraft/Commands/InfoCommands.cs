@@ -81,39 +81,35 @@ namespace fCraft {
             Name = Name.ToLower();
             PlayerInfo[] Names = PlayerDB.PlayerInfoList.Where(p => p.DisplayedName != null &&
                 Color.StripColors(p.DisplayedName.ToLower()).StartsWith(Name) ||
-                Color.StripColors(p.DisplayedName.ToLower()).StartsWith(Name))
+                Color.StripColors(p.DisplayedName.ToLower()).Contains(Name))
                                          .OrderBy(p => p.Rank.Index)
                                          .Reverse()
                                          .ToArray();
-            if (Names.Length < 1)
-            {
-                player.Message("&WNo results found");
+            if (Names.Length < 1){
+                player.Message("&WNo results found with that DisplayedName");
                 return;
             }
-            if (Names.Length == 1)
-            {
-                player.Message("One player found with that displayedName: {0}", Names[0].Rank.Color + Names[0].Name);
+            if (Names.Length == 1){
+                player.Message("One player found with that DisplayedName: {0}", Names[0].Rank.Color + Names[0].Name);
                 return;
             }
-            if (Names.Length <= 30)
-            {
+            if (Names.Length <= 30){
                 MessageManyMatches(player, Names);
-            }
-            else
-            {
+            }else{
                 int offset;
                 if (!cmd.NextInt(out offset)) offset = 0;
                 if (offset >= Names.Length)
                     offset = Math.Max(0, Names.Length - 30);
                 PlayerInfo[] Part = Names.Skip(offset).Take(30).ToArray();
                 MessageManyMatches(player, Part);
-                if (offset + Part.Length < Names.Length)
+                if (offset + Part.Length < Names.Length){
                     player.Message("Showing {0}-{1} (out of {2}). Next: &H/Whois {3} {4}",
                                     offset + 1, offset + Part.Length, Names.Length,
                                     Name, offset + Part.Length);
-                else
+                }else{
                     player.Message("Showing matches {0}-{1} (out of {2}).",
                                     offset + 1, offset + Part.Length, Names.Length);
+                }
             }
         }
 
@@ -122,7 +118,7 @@ namespace fCraft {
             if (names == null) throw new ArgumentNullException("names");
 
             string nameList = names.JoinToString(", ", p => p.Rank.Color + p.Name + "&S(" + p.ClassyName + "&S)");
-            player.Message("More than one player matched with that displayedName: {0}",
+            player.Message("More than one player matched with that DisplayedName: {0}",
                      nameList);
         }
 

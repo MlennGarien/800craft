@@ -20,7 +20,7 @@ namespace fCraft {
             324,
             new DateTime( 2012, 09, 15, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev
+            ReleaseFlags.Feature | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -30,7 +30,7 @@ namespace fCraft {
             get { return "800Craft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.205";
+        public const string LatestStable = "0.207";
 
         public static string UpdateUrl { get; set; }
 
