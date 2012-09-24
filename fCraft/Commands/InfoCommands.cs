@@ -78,13 +78,11 @@ namespace fCraft {
                 CdWhoIs.PrintUsage(player);
                 return;
             }
-            Name = Name.ToLower();
+            Name = Color.StripColors(Name.ToLower());
             PlayerInfo[] Names = PlayerDB.PlayerInfoList.Where(p => p.DisplayedName != null &&
-                Color.StripColors(p.DisplayedName.ToLower()).StartsWith(Name) ||
                 Color.StripColors(p.DisplayedName.ToLower()).Contains(Name))
-                                         .OrderBy(p => p.Rank.Index)
-                                         .Reverse()
                                          .ToArray();
+            Array.Sort(Names, new PlayerInfoComparer(player));
             if (Names.Length < 1){
                 player.Message("&WNo results found with that DisplayedName");
                 return;
