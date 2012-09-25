@@ -1628,7 +1628,7 @@ namespace fCraft {
 
         #region Static Utilities
 
-        static readonly Uri PaidCheckUri = new Uri( "http://www.minecraft.net/haspaid.jsp?user=" );
+        static readonly Uri PaidCheckUri = new Uri( "http://minecraft.net/haspaid.jsp?user=" );
         const int PaidCheckTimeout = 5000;
 
 
