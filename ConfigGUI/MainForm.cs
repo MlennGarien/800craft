@@ -1654,16 +1654,15 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if (!System.IO.Directory.Exists(Paths.ReqPath))
             {
                 System.IO.Directory.CreateDirectory(Paths.ReqPath);
-                System.IO.Path.Combine(Paths.ReqPath, "requirements.txt");
-                File.WriteAllText(Path.Combine(Paths.ReqPath, "requirements.txt"), "//" +
-                    "This is the requirements file, here is where you list the requirements " +
+                System.IO.Path.Combine(Paths.ReqPath, "howto.txt");
+                File.WriteAllText(Path.Combine(Paths.ReqPath, "howto.txt"),
+                    "This folder is where you list the requirements " +
                     "for your server's ranks. You can either list all of the requirements " +
                     "here or you can split it into sections by creating text documents in " +
-                    "this same directory(requirements folder) (sections are the most preferable). Make sure " +
+                    "this same directory (requirements folder) (sections are the most preferable).\n Make sure " +
                     "the text documents are the same name of the rank you are listing " +
                     "the requirements for. If you wish to use color codes use & instead of %");
                 Process.Start(Paths.ReqTextPath);
-
             }
 
             else if (!System.IO.File.Exists(Paths.ReqTextPath))
@@ -1671,7 +1670,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 Process.Start(Paths.ReqDirectory);
             }
 
-            else if (System.IO.File.Exists(Paths.ReqTextPath))
+            else
             {
                 Process.Start(Paths.ReqTextPath);
             }
