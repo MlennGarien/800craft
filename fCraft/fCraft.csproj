@@ -146,9 +146,6 @@
     <Compile Include="Games\Spell.cs" />
     <Compile Include="Games\ZombieGame.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
-    <Compile Include="Network\Hb1.cs" />
-    <Compile Include="Network\Hb2.cs" />
-    <Compile Include="Network\Hb3.cs" />
     <Compile Include="Network\UPnP.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\Life\Life2d.cs" />

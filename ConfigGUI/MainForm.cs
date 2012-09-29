@@ -1625,17 +1625,28 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void SwearEditor_Click(object sender, EventArgs e)
         {
-            if (!System.IO.File.Exists(Paths.SwearWordsFileName))
+            if (!File.Exists(Paths.SwearWordsFileName))
             {
-                TextWriter tsw = new StreamWriter(Paths.SwearWordsFileName);
-                tsw.Write("//This is where you edit the swearwords on your " +
-                    "server, each word should be on a seperate line." +
-                    "WARNING: Make sure to delete this line when you're " +
-                    "finished reading it!");
-                tsw.Close();
-                Process.Start(Paths.SwearWordsFileName);
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("#This txt file should be filled with bad words that you want to be filtered out");
+                sb.AppendLine("#I have included some examples, excuse my language :P");
+                sb.AppendLine("fuck");
+                sb.AppendLine("fucking");
+                sb.AppendLine("fucked");
+                sb.AppendLine("dick");
+                sb.AppendLine("bitch");
+                sb.AppendLine("shit");
+                sb.AppendLine("shitting");
+                sb.AppendLine("shithead");
+                sb.AppendLine("cunt");
+                sb.AppendLine("nigger");
+                sb.AppendLine("wanker");
+                sb.AppendLine("wank");
+                sb.AppendLine("wanking");
+                sb.AppendLine("piss");
+                File.WriteAllText("SwearWords.txt", sb.ToString());
             }
-            else Process.Start(Paths.SwearWordsFileName);
+            Process.Start(Paths.SwearWordsFileName);
         }
 
         private void ReqsEditor_Click(object sender, EventArgs e)

@@ -115,7 +115,7 @@ namespace fCraft {
         public const string ReqFileName = "requirements.txt";
         public const string BasscannonFileName = "basscannon.txt";
         public const string PortalDBFileName = "PortalDB.txt";
-        public const string SwearWordsFileName = "swearwords.txt";
+        public const string SwearWordsFileName = "SwearWords.txt";
 
 
         public static string BlockDBPath {
