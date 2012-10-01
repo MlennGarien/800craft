@@ -49,7 +49,7 @@ namespace fCraft.ServerCLI {
 
                 Server.InitServer();
 
-                CheckForUpdates();
+                Updater.UpdateCheck();
                 Console.Title = "800Craft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
 
                 if( !ConfigKey.ProcessPriority.IsBlank() ) {

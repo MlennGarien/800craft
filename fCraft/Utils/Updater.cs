@@ -10,15 +10,16 @@ using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
+using System.IO;
 
 namespace fCraft {
     /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            208,
-            326,
-            new DateTime( 2012, 09, 25, 1, 0, 0, DateTimeKind.Utc ),
+            209,
+            329,
+            new DateTime( 2012, 09, 30, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Feature | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange
 #if DEBUG
@@ -30,7 +31,7 @@ namespace fCraft {
             get { return "800Craft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.207";
+        public const string LatestStable = "0.209";
 
         public static string UpdateUrl { get; set; }
 
@@ -38,7 +39,41 @@ namespace fCraft {
             UpdateCheckTimeout = 4000;
             UpdateUrl = "http://au70.net/UpdateCheck.php?r={0}";
         }
+        public static void UpdateCheck()
+        {
+            try
+            { int WebVersion;
+                string DownloadLocation;
+                using (WebClient client = new WebClient())
+                {
+                    using (Stream stream = client.OpenRead("http://forums.au70.net/update800craft.txt"))
+                    {
+                        stream.ReadTimeout = 1000;
+                        using (StreamReader reader = new StreamReader(stream))
+                        {
+                            string s = reader.ReadLine();
+                            s = s.Substring(0, 5);
+                            if (!int.TryParse(s.Replace(".", ""), out WebVersion))
+                            {
+                                Logger.Log(LogType.Warning, "Could not parse version value in updater ({0})",s);
+                            }
+                            DownloadLocation = reader.ReadLine();
+                        }
+                    }
+                    if (WebVersion != 0 && DownloadLocation != null)
+                    {
+                        if (WebVersion > Updater.CurrentRelease.Version)
+                        {
+                            Logger.Log(LogType.Warning, "An update of 800Craft is available, you can get it at: " + DownloadLocation);
+                        }
+                    }
+                }
+            }
+            catch
+            {
 
+            }
+        }
 
         public static int UpdateCheckTimeout { get; set; }
 

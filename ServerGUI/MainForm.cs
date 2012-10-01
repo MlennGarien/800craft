@@ -61,7 +61,8 @@ namespace fCraft.ServerGUI {
                 UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
                 if (updaterMode != UpdaterMode.Disabled)
                 {
-                    UpdaterResult update = Updater.CheckForUpdates();
+                    Updater.UpdateCheck();
+                    /*UpdaterResult update = Updater.CheckForUpdates();
                     if (shutdownPending) return;
                     if (update.UpdateAvailable)
                     {
@@ -77,7 +78,7 @@ namespace fCraft.ServerGUI {
                         {
                             new UpdateWindow(update).ShowDialog();
                         }
-                    }
+                    }*/
                 }
 
                 // set process priority
