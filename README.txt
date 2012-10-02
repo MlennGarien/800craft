@@ -22,6 +22,10 @@ To run ".exe" files with Mono, use the following syntax:
 Mono 2.6.4: "mono SomeFile.exe"
 Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
 
+If you're intending to run a public server that appears on minecraft.net's server list, 
+you need to import https certificates to tell mono you trust them, this can be done by 
+running mozroots --import --ask-remove as the 800Craft user on your system.
+
 === Initial Setup =============================================================
 
 Before starting the server for the first time, run ConfigGUI.exe to choose
