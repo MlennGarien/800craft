@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Collections;
 using fCraft.Events;
+using System.Xml.Linq;
 
 namespace fCraft.Physics
 {
@@ -51,6 +52,117 @@ namespace fCraft.Physics
             Player.Clicking += WaterPhysics.towerRemove;
             Player.PlacingBlock += PlayerPlacingPhysics;
         }
+
+        #region Serialization
+
+        public const string XmlRootName = "Physics";
+        public const string XmlRootName2 = "OtherPhysics";
+
+        public static XElement SaveSettings(World world)
+        {
+            return SaveSettings(XmlRootName, world);
+        }
+
+        public static XElement SaveOtherSettings(World world)
+        {
+            return SaveOtherSettings(XmlRootName2, world);
+        }
+
+        public static XElement SaveSettings(string rootName, World world)
+        {
+            XElement root = new XElement(rootName);
+            if (world.plantPhysics)
+            {
+                root.Add(new XAttribute("plantPhysics", true));
+            }
+            if (world.tntPhysics)
+            {
+                root.Add(new XAttribute("tntPhysics", true));
+            }
+            if (world.waterPhysics)
+            {
+                root.Add(new XAttribute("waterPhysics", true));
+            }
+            return root;
+        }
+        public static XElement SaveOtherSettings(string rootName, World world)
+        {
+            XElement root = new XElement(rootName);
+            if (world.fireworkPhysics)
+            {
+                root.Add(new XAttribute("fireworkPhysics", true));
+            }
+            if (world.sandPhysics)
+            {
+                root.Add(new XAttribute("sandPhysics", true));
+            }
+            if (world.gunPhysics)
+            {
+                root.Add(new XAttribute("gunPhysics", true));
+            }
+            return root;
+        }
+        
+
+        public static void LoadSettings(XElement el, World world)
+        {
+            XAttribute temp;
+            if ((temp = el.Attribute("plantPhysics")) != null)
+            {
+                bool isPhy;
+                if (bool.TryParse(temp.Value, out isPhy))
+                {
+                    world.EnablePlantPhysics(Player.Console, false);
+                }
+            }
+            if ((temp = el.Attribute("tntPhysics")) != null)
+            {
+                bool isPhy;
+                if (bool.TryParse(temp.Value, out isPhy))
+                {
+                    world.EnableTNTPhysics(Player.Console, false);
+                }
+            }
+            if ((temp = el.Attribute("waterPhysics")) != null)
+            {
+                bool isPhy;
+                if (bool.TryParse(temp.Value, out isPhy))
+                {
+                    world.EnableWaterPhysics(Player.Console, false);
+                }
+            }
+        }
+
+        public static void LoadOtherSettings(XElement el, World world)
+        {
+            XAttribute temp;
+            if ((temp = el.Attribute("sandPhysics")) != null)
+            {
+                bool isPhy;
+                if (bool.TryParse(temp.Value, out isPhy))
+                {
+                    world.EnableSandPhysics(Player.Console, false);
+                }
+            }
+            if ((temp = el.Attribute("fireworkPhysics")) != null)
+            {
+                bool isPhy;
+                if (bool.TryParse(temp.Value, out isPhy))
+                {
+                    world.EnableFireworkPhysics(Player.Console, false);
+                }
+            }
+            if ((temp = el.Attribute("gunPhysics")) != null)
+            {
+                bool isPhy;
+                if (bool.TryParse(temp.Value, out isPhy))
+                {
+                    world.EnableGunPhysics(Player.Console, false);
+                }
+            }
+        }
+
+        #endregion
 
         public static void PlayerPlacingPhysics(object sender, PlayerPlacingBlockEventArgs e)
         {

@@ -237,6 +237,7 @@ namespace fCraft {
                 default: CdPhysics.PrintUsage(player);
                     break;
             }
+            WorldManager.SaveWorldList();
         }
         #endregion
 

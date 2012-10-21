@@ -225,6 +225,18 @@ namespace fCraft {
                 world.BlockDB.LoadSettings( blockEl );
             }
 
+            XElement PhyEl = el.Element(Physics.Physics.XmlRootName);
+            if (PhyEl != null)
+            {
+                Physics.Physics.LoadSettings(PhyEl, world);
+            }
+
+            XElement PhyEl2 = el.Element(Physics.Physics.XmlRootName2);
+            if (PhyEl2 != null)
+            {
+                Physics.Physics.LoadOtherSettings(PhyEl2, world);
+            }
+
             XElement envEl = el.Element( EnvironmentXmlTagName );
             if( envEl != null ) {
                 if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
@@ -390,6 +402,9 @@ namespace fCraft {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
                     temp.Add( world.BlockDB.SaveSettings() );
+
+                    temp.Add(Physics.Physics.SaveSettings(world));
+                    temp.Add(Physics.Physics.SaveOtherSettings(world));
 
                     World world1 = world;
                     foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
