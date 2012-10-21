@@ -737,12 +737,13 @@ namespace fCraft {
 
                     if (Theme == null || Template == null)
                     {
-                        player.Message("&HUse /realm create [ThemeType] [TerrainType]\n" +
+                        player.Message("&HUse /Realm create [ThemeType] [TerrainType]\n" +
                             "&9Available themes: Grass, " + Enum.GetNames(typeof(MapGenTheme)).JoinToString() + '\n' +
                               "&EAvailable terrain types: Empty, Ocean, " + Enum.GetNames(typeof(MapGenTemplate)).JoinToString() + '\n');
                         return;
                     }
                     RealmHandler.RealmCreate(player, cmd, Theme, Template);
+                    player.Message("&9You can now activate your realm by typing /Realm Activate");
                     break;
 
                 case "home":
@@ -791,7 +792,8 @@ namespace fCraft {
                             w1.BuildSecurity.Include(player.Info);
                             player.Message("You have regained building control of your realm");
                         }
-                    break;
+                        w1.IsRealm = true;
+                        break;
 
                 case "spawn":
 

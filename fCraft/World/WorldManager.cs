@@ -152,19 +152,6 @@ namespace fCraft {
                             worldName, ex.Message );
                 return;
             }
-            if ((tempAttr = el.Attribute("realm")) != null)
-            {
-                if (tempAttr.Value == "yes")
-                {
-                    world.IsRealm = true;
-                }
-                else
-                {
-                    Logger.Log(LogType.Warning,
-                                "WorldManager: Could not parse \"realm\" attribute of world \"{0}\", assuming NOT a realm.",
-                                worldName);
-                }
-            }
 
             if( (tempAttr = el.Attribute( "hidden" )) != null ) {
                 bool isHidden;
@@ -235,6 +222,12 @@ namespace fCraft {
             if (PhyEl2 != null)
             {
                 Physics.Physics.LoadOtherSettings(PhyEl2, world);
+            }
+
+            XElement RealmEl = el.Element(world.RealmXMLRootName);
+            if (RealmEl != null)
+            {
+                world.LoadRealmState(RealmEl);
             }
 
             XElement envEl = el.Element( EnvironmentXmlTagName );
@@ -394,10 +387,6 @@ namespace fCraft {
                     {
                         temp.Add(new XAttribute("visitCount", world.VisitCount));
                     }
-                    if (world.IsRealm)
-                    {
-                        temp.Add(new XAttribute("realm", "yes"));
-                    }
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
                     }
@@ -405,6 +394,8 @@ namespace fCraft {
 
                     temp.Add(Physics.Physics.SaveSettings(world));
                     temp.Add(Physics.Physics.SaveOtherSettings(world));
+
+                    temp.Add(world.SaveRealmState());
 
                     World world1 = world;
                     foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {

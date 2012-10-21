@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Threading;
 using fCraft.Physics;
+using System.Xml.Linq;
 
 namespace fCraft {
     public sealed class World : IClassy {
@@ -63,7 +64,38 @@ namespace fCraft {
         /// (waiting for block updates to finish processing before unloading). </summary>
         public bool IsPendingMapUnload { get; private set; }
 
+        #region Realm State Serialization
 
+        public string RealmXMLRootName = "RealmState";
+
+        public XElement SaveRealmState()
+        {
+            return SaveRealmState(RealmXMLRootName);
+        }
+
+        public XElement SaveRealmState(string rootName)
+        {
+            XElement root = new XElement(rootName);
+            if (IsRealm)
+            {
+                root.Add(new XAttribute("IsRealm", true));
+            }
+            return root;
+        }
+        public void LoadRealmState(XElement el)
+        {
+            XAttribute temp;
+            if ((temp = el.Attribute("IsRealm")) != null)
+            {
+                bool isRealm;
+                if (bool.TryParse(temp.Value, out isRealm))
+                {
+                    IsRealm = true;
+                }
+            }
+        }
+
+        #endregion
 
         [NotNull]
         public SecurityController AccessSecurity { get; internal set; }
