@@ -17,7 +17,7 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            209,
+            208,
             329,
             new DateTime( 2012, 09, 30, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
@@ -39,11 +39,13 @@ namespace fCraft {
             UpdateCheckTimeout = 4000;
             UpdateUrl = "http://au70.net/UpdateCheck.php?r={0}";
         }
-        public static void UpdateCheck()
+        public static int WebVersion;
+        public static string DownloadLocation;
+        public static string UpdaterLocation;
+        public static bool UpdateCheck()
         {
             try
-            { int WebVersion;
-                string DownloadLocation;
+            { 
                 using (WebClient client = new WebClient())
                 {
                     using (Stream stream = client.OpenRead("http://forums.au70.net/update800craft.txt"))
@@ -56,22 +58,27 @@ namespace fCraft {
                             if (!int.TryParse(s.Replace(".", ""), out WebVersion))
                             {
                                 Logger.Log(LogType.Warning, "Could not parse version value in updater ({0})",s);
+                                return false;
                             }
                             DownloadLocation = reader.ReadLine();
+                            UpdaterLocation = reader.ReadLine();
                         }
                     }
-                    if (WebVersion != 0 && DownloadLocation != null)
+                    if (WebVersion != 0 && DownloadLocation != null && UpdaterLocation != null)
                     {
                         if (WebVersion > Updater.CurrentRelease.Version)
                         {
                             Logger.Log(LogType.Warning, "An update of 800Craft is available, you can get it at: " + DownloadLocation);
+                            
+                            return true;
                         }
                     }
                 }
+                return false;
             }
             catch
             {
-
+                return false;
             }
         }
 

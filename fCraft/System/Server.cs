@@ -272,7 +272,7 @@ namespace fCraft {
             Config.RunSelfTest();
 #else
             // delete the old updater, if exists
-            File.Delete( Paths.UpdaterFileName );
+            //File.Delete( Paths.UpdaterFileName );
             File.Delete( "fCraftUpdater.exe" ); // pre-0.600
 #endif
 

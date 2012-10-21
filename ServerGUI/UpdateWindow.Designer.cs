@@ -104,10 +104,9 @@
             this.lVersion.AutoSize = true;
             this.lVersion.Location = new System.Drawing.Point(12, 25);
             this.lVersion.Name = "lVersion";
-            this.lVersion.Size = new System.Drawing.Size(266, 26);
+            this.lVersion.Size = new System.Drawing.Size(146, 26);
             this.lVersion.TabIndex = 6;
-            this.lVersion.Text = "Currently installed version: {0}\r\nNewest available version: {1} (released {2:0} d" +
-    "ays ago)";
+            this.lVersion.Text = "Currently installed version: {0}\r\nNewest available version: {1}";
             // 
             // tChangeLog
             // 

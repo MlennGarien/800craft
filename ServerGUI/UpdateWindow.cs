@@ -8,22 +8,18 @@ using System.IO;
 
 namespace fCraft.ServerGUI {
     public sealed partial class UpdateWindow : Form {
-        readonly UpdaterResult updateResult;
         readonly string updaterFullPath;
         readonly WebClient downloader = new WebClient();
         readonly bool autoUpdate;
         bool closeFormWhenDownloaded;
 
-        public UpdateWindow( UpdaterResult update ) {
+        public UpdateWindow() {
             InitializeComponent();
             updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdaterFileName );
-            updateResult = update;
             autoUpdate = (ConfigKey.UpdaterMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto);
-            CreateDetailedChangeLog();
             lVersion.Text = String.Format( lVersion.Text,
                                            Updater.CurrentRelease.VersionString,
-                                           updateResult.LatestRelease.VersionString,
-                                           updateResult.LatestRelease.Age.TotalDays );
+                                           Updater.WebVersion);
             Shown += Download;
         }
 
@@ -32,7 +28,7 @@ namespace fCraft.ServerGUI {
             xShowDetails.Focus();
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
-            downloader.DownloadFileAsync( updateResult.DownloadUri, updaterFullPath );
+            downloader.DownloadFileAsync( new Uri(Updater.UpdaterLocation), updaterFullPath );
         }
 
 
@@ -72,33 +68,13 @@ namespace fCraft.ServerGUI {
             Server.Shutdown( new ShutdownParams( ShutdownReason.Restarting, TimeSpan.Zero, true, false ), false );
         }
 
-
-        void CreateDetailedChangeLog() {
-            StringBuilder sb = new StringBuilder();
-            foreach( ReleaseInfo release in updateResult.History ) {
-                sb.AppendFormat( "{0} - {1:0} days ago - {2}",
-                                 release.VersionString,
-                                 release.Age.TotalDays,
-                                 String.Join( ", ", release.FlagsList ) );
-                sb.AppendLine();
-                if( xShowDetails.Checked ) {
-                    sb.AppendFormat( "    {0}", String.Join( Environment.NewLine + "    ", release.ChangeLog ) );
-                } else {
-                    sb.AppendFormat( "    {0}", release.Summary );
-                }
-                sb.AppendLine().AppendLine();
-            }
-            tChangeLog.Text = sb.ToString();
-        }
-
         private void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
-            CreateDetailedChangeLog();
         }
 
         private void bUpdateLater_Click( object sender, EventArgs e ) {
             Updater.RunAtShutdown = true;
             Logger.Log( LogType.SystemActivity,
-                        "An fCraft update will be applied next time the server is shut down or restarted." );
+                        "An 800Craft update will be applied next time the server is shut down or restarted." );
             Close();
         }
 
