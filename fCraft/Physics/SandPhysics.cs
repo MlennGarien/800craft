@@ -61,7 +61,7 @@ namespace fCraft
                     {
                         return 0;
                     }
-                    if (Physics.Physics.BlockThrough(nblock))
+                    if (Physics.BlockThrough(nblock))
                     {
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos + 1), Block.Air));
                         _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, _type));

@@ -14,7 +14,6 @@
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Threading;
-using fCraft.Physics;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Util = RandomMaze.MazeUtil;

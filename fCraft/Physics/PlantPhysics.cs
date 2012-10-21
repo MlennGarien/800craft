@@ -17,7 +17,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using fCraft.Events;
-using fCraft.Physics;
 using System.Threading;
 using System.Diagnostics;
 using System.IO;
@@ -49,7 +48,7 @@ namespace fCraft
 						{
 							world.Map.QueueUpdate(new BlockUpdate(null, z, Block.Dirt));
 						}
-						else if (Physics.Physics.CanSquash(world.Map.GetBlock(z)) && e.NewBlock!=Block.Air)
+						else if (Physics.CanSquash(world.Map.GetBlock(z)) && e.NewBlock!=Block.Air)
 						{
 							e.Result = CanPlaceResult.Revert;
 							Player.RaisePlayerPlacedBlockEvent(player, world.Map, z, world.Map.GetBlock(z), e.NewBlock, BlockChangeContext.Physics);

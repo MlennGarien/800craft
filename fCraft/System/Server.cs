@@ -300,7 +300,7 @@ namespace fCraft {
             // Init IRC
             IRC.Init();
             GunClass.Init();
-            Physics.Physics.Load();
+            Physics.Load();
             HeartbeatSaverUtil.Init();
 
             if( ConfigKey.AutoRankEnabled.Enabled() ) {

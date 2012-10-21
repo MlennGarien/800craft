@@ -212,16 +212,16 @@ namespace fCraft {
                 world.BlockDB.LoadSettings( blockEl );
             }
 
-            XElement PhyEl = el.Element(Physics.Physics.XmlRootName);
+            XElement PhyEl = el.Element(Physics.XmlRootName);
             if (PhyEl != null)
             {
-                Physics.Physics.LoadSettings(PhyEl, world);
+                Physics.LoadSettings(PhyEl, world);
             }
 
-            XElement PhyEl2 = el.Element(Physics.Physics.XmlRootName2);
+            XElement PhyEl2 = el.Element(Physics.XmlRootName2);
             if (PhyEl2 != null)
             {
-                Physics.Physics.LoadOtherSettings(PhyEl2, world);
+                Physics.LoadOtherSettings(PhyEl2, world);
             }
 
             XElement RealmEl = el.Element(world.RealmXMLRootName);
@@ -392,8 +392,8 @@ namespace fCraft {
                     }
                     temp.Add( world.BlockDB.SaveSettings() );
 
-                    temp.Add(Physics.Physics.SaveSettings(world));
-                    temp.Add(Physics.Physics.SaveOtherSettings(world));
+                    temp.Add(Physics.SaveSettings(world));
+                    temp.Add(Physics.SaveOtherSettings(world));
 
                     temp.Add(world.SaveRealmState());
 

@@ -21,7 +21,7 @@ using System.Collections;
 using fCraft.Events;
 using System.Xml.Linq;
 
-namespace fCraft.Physics
+namespace fCraft
 {
     /// <summary>
     //  ░░░▄▄▄▄▀▀▀▀▀▀▀▀▄▄▄▄▄▄
