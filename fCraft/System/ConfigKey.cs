@@ -536,10 +536,6 @@ Each state increases the maximum potential memory use per-player.",
 If disabled, heartbeat data is written to heartbeatdata.txt." )]
         HeartbeatEnabled,
 
-        [BoolKey( ConfigSection.Advanced, true,
-@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/" )]
-        HeartbeatToWoMDirect,
-
         [BoolKey( ConfigSection.Advanced, false,
 @"If enabled, allows changing worlds' environment settings for WoM clients via /Env" )]
         WoMEnableEnvExtensions,

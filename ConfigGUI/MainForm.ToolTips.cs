@@ -831,8 +831,6 @@ or type in address/port manually below.";
 
             toolTip.SetToolTip( xIP, ConfigKey.IP.GetDescription() );
             toolTip.SetToolTip( tIP, ConfigKey.IP.GetDescription() );
-
-            toolTip.SetToolTip( xHeartbeatToWoMDirect, ConfigKey.HeartbeatToWoMDirect.GetDescription() );
         }
     }
 }

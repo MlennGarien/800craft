@@ -91,7 +91,6 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -267,7 +266,6 @@
             this.gAdvancedMisc = new System.Windows.Forms.GroupBox();
             this.nMaxUndoStates = new System.Windows.Forms.NumericUpDown();
             this.lMaxUndoStates = new System.Windows.Forms.Label();
-            this.xHeartbeatToWoMDirect = new System.Windows.Forms.CheckBox();
             this.lIPWarning = new System.Windows.Forms.Label();
             this.tIP = new System.Windows.Forms.TextBox();
             this.xIP = new System.Windows.Forms.CheckBox();
@@ -283,6 +281,7 @@
             this.xSubmitCrashReports = new System.Windows.Forms.CheckBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.ReqsEditor = new System.Windows.Forms.Button();
             this.SwearEditor = new System.Windows.Forms.Button();
             this.MaxCapsValue = new System.Windows.Forms.NumericUpDown();
             this.MaxCaps = new System.Windows.Forms.Label();
@@ -303,7 +302,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.ReqsEditor = new System.Windows.Forms.Button();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -1140,13 +1139,6 @@
             this.xRankColorsInChat.TabIndex = 0;
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 256);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 241);
-            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -3013,9 +3005,9 @@
             this.gPerformance.Controls.Add(this.nThrottling);
             this.gPerformance.Controls.Add(this.lThrottling);
             this.gPerformance.Controls.Add(this.lThrottlingUnits);
-            this.gPerformance.Location = new System.Drawing.Point(8, 328);
+            this.gPerformance.Location = new System.Drawing.Point(8, 311);
             this.gPerformance.Name = "gPerformance";
-            this.gPerformance.Size = new System.Drawing.Size(636, 151);
+            this.gPerformance.Size = new System.Drawing.Size(636, 158);
             this.gPerformance.TabIndex = 2;
             this.gPerformance.TabStop = false;
             this.gPerformance.Text = "Performance";
@@ -3163,7 +3155,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gAdvancedMisc.Controls.Add(this.nMaxUndoStates);
             this.gAdvancedMisc.Controls.Add(this.lMaxUndoStates);
-            this.gAdvancedMisc.Controls.Add(this.xHeartbeatToWoMDirect);
             this.gAdvancedMisc.Controls.Add(this.lIPWarning);
             this.gAdvancedMisc.Controls.Add(this.tIP);
             this.gAdvancedMisc.Controls.Add(this.xIP);
@@ -3176,7 +3167,7 @@
             this.gAdvancedMisc.Controls.Add(this.xNoPartialPositionUpdates);
             this.gAdvancedMisc.Location = new System.Drawing.Point(8, 118);
             this.gAdvancedMisc.Name = "gAdvancedMisc";
-            this.gAdvancedMisc.Size = new System.Drawing.Size(636, 204);
+            this.gAdvancedMisc.Size = new System.Drawing.Size(636, 177);
             this.gAdvancedMisc.TabIndex = 1;
             this.gAdvancedMisc.TabStop = false;
             this.gAdvancedMisc.Text = "Miscellaneous";
@@ -3207,16 +3198,6 @@
             this.lMaxUndoStates.Size = new System.Drawing.Size(72, 15);
             this.lMaxUndoStates.TabIndex = 22;
             this.lMaxUndoStates.Text = "states, up to";
-            // 
-            // xHeartbeatToWoMDirect
-            // 
-            this.xHeartbeatToWoMDirect.AutoSize = true;
-            this.xHeartbeatToWoMDirect.Location = new System.Drawing.Point(6, 176);
-            this.xHeartbeatToWoMDirect.Name = "xHeartbeatToWoMDirect";
-            this.xHeartbeatToWoMDirect.Size = new System.Drawing.Size(354, 19);
-            this.xHeartbeatToWoMDirect.TabIndex = 21;
-            this.xHeartbeatToWoMDirect.Text = "Send heartbeats to WoM Direct (direct.worldofminecraft.net).";
-            this.xHeartbeatToWoMDirect.UseVisualStyleBackColor = true;
             // 
             // lIPWarning
             // 
@@ -3393,6 +3374,16 @@
             this.groupBox3.TabIndex = 27;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Configurations";
+            // 
+            // ReqsEditor
+            // 
+            this.ReqsEditor.Location = new System.Drawing.Point(442, 94);
+            this.ReqsEditor.Name = "ReqsEditor";
+            this.ReqsEditor.Size = new System.Drawing.Size(125, 23);
+            this.ReqsEditor.TabIndex = 26;
+            this.ReqsEditor.Text = "Edit Requirements";
+            this.ReqsEditor.UseVisualStyleBackColor = true;
+            this.ReqsEditor.Click += new System.EventHandler(this.ReqsEditor_Click);
             // 
             // SwearEditor
             // 
@@ -3626,15 +3617,12 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // ReqsEditor
+            // chatPreview
             // 
-            this.ReqsEditor.Location = new System.Drawing.Point(442, 94);
-            this.ReqsEditor.Name = "ReqsEditor";
-            this.ReqsEditor.Size = new System.Drawing.Size(125, 23);
-            this.ReqsEditor.TabIndex = 26;
-            this.ReqsEditor.Text = "Edit Requirements";
-            this.ReqsEditor.UseVisualStyleBackColor = true;
-            this.ReqsEditor.Click += new System.EventHandler(this.ReqsEditor_Click);
+            this.chatPreview.Location = new System.Drawing.Point(7, 256);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 241);
+            this.chatPreview.TabIndex = 2;
             // 
             // MainForm
             // 
@@ -3991,7 +3979,6 @@
         private System.Windows.Forms.CheckBox xBlockDBAutoEnable;
         private System.Windows.Forms.CheckBox xBlockDBEnabled;
         private System.Windows.Forms.CheckBox xWoMEnableEnvExtensions;
-        private System.Windows.Forms.CheckBox xHeartbeatToWoMDirect;
         private System.Windows.Forms.NumericUpDown nCopyPasteSlots;
         private System.Windows.Forms.Label lCopyPasteSlots;
         private System.Windows.Forms.DataGridViewTextBoxColumn dgvcName;

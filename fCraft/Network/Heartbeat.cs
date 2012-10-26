@@ -12,7 +12,6 @@ namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
         static readonly Uri MinecraftNetUri;
-        static readonly Uri WoMDirectUri;
 
         /// <summary> Delay between sending heartbeats. Default: 25s </summary>
         public static TimeSpan Delay { get; set; }
@@ -28,7 +27,6 @@ namespace fCraft {
 
         static Heartbeat() {
             MinecraftNetUri = new Uri( "https://minecraft.net/heartbeat.jsp" );
-            WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
             Delay = TimeSpan.FromSeconds( 25 );
             Timeout = TimeSpan.FromSeconds( 10 );
             Salt = Server.GetRandomString( 32 );
@@ -38,9 +36,6 @@ namespace fCraft {
         static void OnServerShutdown( object sender, ShutdownEventArgs e ) {
             if( minecraftNetRequest != null ) {
                 minecraftNetRequest.Abort();
-            }
-            if( womDirectRequest != null ) {
-                womDirectRequest.Abort();
             }
         }
 
@@ -55,9 +50,6 @@ namespace fCraft {
 
             if( ConfigKey.HeartbeatEnabled.Enabled() ) {
                 SendMinecraftNetBeat();
-                if( ConfigKey.IsPublic.Enabled() && ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
-                    SendWoMDirectBeat();
-                }
 
             } else {
                 // If heartbeats are disabled, the server data is written
@@ -77,8 +69,7 @@ namespace fCraft {
             }
         }
 
-        static HttpWebRequest minecraftNetRequest,
-                              womDirectRequest;
+        static HttpWebRequest minecraftNetRequest;
 
         static void SendMinecraftNetBeat() {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
@@ -89,22 +80,6 @@ namespace fCraft {
             var state = new HeartbeatRequestState( minecraftNetRequest, data, true );
             minecraftNetRequest.BeginGetResponse( ResponseCallback, state );
         }
-
-
-        static void SendWoMDirectBeat() {
-            HeartbeatData data = new HeartbeatData( WoMDirectUri );
-
-            // we dont want WoM redirecting back to minecraft.net
-            data.CustomData["noforward"] = "1";
-
-            if( !RaiseHeartbeatSendingEvent( data, WoMDirectUri, false ) ) {
-                return;
-            }
-            womDirectRequest = CreateRequest( data.CreateUri() );
-            var state = new HeartbeatRequestState( womDirectRequest, data, false );
-            womDirectRequest.BeginGetResponse( ResponseCallback, state );
-        }
-
 
         // Creates an asynchrnous HTTP request to the given URL
         static HttpWebRequest CreateRequest( Uri uri ) {
