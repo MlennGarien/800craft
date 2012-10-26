@@ -27,7 +27,7 @@ namespace fCraft
         const string DefaultLogFileName = "800Craft.log",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
-        static readonly Uri CrashReportUri = new Uri("http://au70.net/crashreport.php");
+        static readonly Uri CrashReportUri = new Uri("http://forums.au70.net/bugs/crashreport.php");
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
         static readonly string SessionStart = DateTime.Now.ToString(LongDateFormat); // localized
@@ -221,26 +221,28 @@ namespace fCraft
                     }
                     sb.Append("&os=").Append(Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString);
 
-                    if (exception is TargetInvocationException)
-                    {
-                        exception = (exception).InnerException;
-                    }
-                    else if (exception is TypeInitializationException)
-                    {
-                        exception = (exception).InnerException;
-                    }
                     sb.Append("&exceptiontype=").Append(Uri.EscapeDataString(exception.GetType().ToString()));
                     sb.Append("&exceptionmessage=").Append(Uri.EscapeDataString(exception.Message));
-                    sb.Append("&exceptionstacktrace=").Append(Uri.EscapeDataString(exception.StackTrace));
-
-                    if (File.Exists(Paths.ConfigFileName))
+                    sb.Append("&exceptionstacktrace=");
+                    if (exception.StackTrace != null)
                     {
-                        sb.Append("&config=").Append(Uri.EscapeDataString(File.ReadAllText(Paths.ConfigFileName)));
+                        sb.Append(Uri.EscapeDataString(exception.StackTrace));
                     }
                     else
                     {
-                        sb.Append("&config=");
+                        sb.Append("(none)");
                     }
+
+                    sb.Append("&config=");
+                    if (File.Exists(Paths.ConfigFileName))
+                    {
+                        sb.Append(Uri.EscapeDataString(File.ReadAllText(Paths.ConfigFileName)));
+                    }
+
+                    string assemblies = AppDomain.CurrentDomain
+                                                 .GetAssemblies()
+                                                 .JoinToString(Environment.NewLine, asm => asm.FullName);
+                    sb.Append("&asm=").Append(Uri.EscapeDataString(assemblies));
 
                     string[] lastFewLines;
                     lock (LogLock)
@@ -250,7 +252,6 @@ namespace fCraft
                     sb.Append("&log=").Append(Uri.EscapeDataString(String.Join(Environment.NewLine, lastFewLines)));
 
                     byte[] formData = Encoding.UTF8.GetBytes(sb.ToString());
-
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(CrashReportUri);
                     request.Method = "POST";
                     request.Timeout = 15000; // 15s timeout
@@ -282,7 +283,7 @@ namespace fCraft
 
                     if (responseString != null && responseString.StartsWith("ERROR"))
                     {
-                        Log(LogType.Error, "Crash report could not be processed by au70.net.");
+                        Log(LogType.Error, "Crash report could not be processed by 800Craft.net.");
                     }
                     else
                     {
@@ -296,12 +297,10 @@ namespace fCraft
                             Log(LogType.SystemActivity, "Crash report submitted.");
                         }
                     }
-
-
                 }
                 catch (Exception ex)
                 {
-                    Log(LogType.Warning, "Logger.SubmitCrashReport: {0}", ex.Message);
+                    Log(LogType.Warning, "Logger.SubmitCrashReport: {0}", ex);
                 }
             }
         }
@@ -315,12 +314,11 @@ namespace fCraft
             string message = null;
             try
             {
-                if (ex is FileNotFoundException && ex.Message.Contains("Version=3.5"))
+                if ((ex is FileNotFoundException && ex.Message.Contains("Version=3.5")) || (ex is FileNotFoundException && ex.Message.Contains("Version=3.5")))
                 {
                     message = "Your crash was likely caused by using a wrong version of .NET or Mono runtime. " +
-                              "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
+                              "Please update to Microsoft .NET Framework 4 (Windows) OR Mono 2.8+ (Linux, Unix, Mac OS X).";
                     return true;
-
                 }
                 else if (ex.Message.Contains("libMonoPosixHelper") ||
                          ex is EntryPointNotFoundException && ex.Message.Contains("CreateZStream"))
@@ -329,7 +327,6 @@ namespace fCraft
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
                               "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";
                     return true;
-
                 }
                 else if (ex is MissingMemberException || ex is TypeLoadException)
                 {
@@ -338,20 +335,17 @@ namespace fCraft
                               "make sure to use the correct revision (as specified by mod developers). " +
                               "If your own modifications stopped working, your may need to make some updates.";
                     return true;
-
                 }
                 else if (ex is UnauthorizedAccessException)
                 {
                     message = "800Craft was blocked from accessing a file or resource. " +
                               "Make sure that correct permissions are set for the 800Craft files, folders, and processes.";
                     return true;
-
                 }
                 else if (ex is OutOfMemoryException)
                 {
                     message = "800Craft ran out of memory. Make sure there is enough RAM to run.";
                     return true;
-
                 }
                 else if (ex is SystemException && ex.Message == "Can't find current process")
                 {
@@ -364,19 +358,16 @@ namespace fCraft
                     message = "Some Windows settings are preventing 800Craft from doing player name verification. " +
                               "See http://support.microsoft.com/kb/811833";
                     return true;
-
                 }
                 else if (ex.StackTrace.Contains("__Error.WinIOError"))
                 {
                     message = "A filesystem-related error has occured. Make sure that only one instance of 800Craft is running, " +
                               "and that no other processes are using server's files or directories.";
                     return true;
-
                 }
                 else if (ex.Message.Contains("UNSTABLE"))
                 {
                     return true;
-
                 }
                 else
                 {
@@ -558,7 +549,6 @@ namespace fCraft
 
         #endregion
     }
-
 
     #region Enums
 

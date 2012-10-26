@@ -42,21 +42,15 @@ namespace fCraft {
         public static int WebVersion;
         public static string DownloadLocation;
         public static string UpdaterLocation;
-        public static bool UpdateCheck()
-        {
-            try
-            { 
-                using (WebClient client = new WebClient())
-                {
-                    using (Stream stream = client.OpenRead("http://forums.au70.net/update800craft.txt"))
-                    {
+        public static bool UpdateCheck(){
+            try{ 
+                using (WebClient client = new WebClient()){
+                    using (Stream stream = client.OpenRead("http://forums.au70.net/update800craft.txt")){
                         stream.ReadTimeout = 1000;
-                        using (StreamReader reader = new StreamReader(stream))
-                        {
+                        using (StreamReader reader = new StreamReader(stream)){
                             string s = reader.ReadLine();
                             s = s.Substring(0, 5);
-                            if (!int.TryParse(s.Replace(".", ""), out WebVersion))
-                            {
+                            if (!int.TryParse(s.Replace(".", ""), out WebVersion)){
                                 Logger.Log(LogType.Warning, "Could not parse version value in updater ({0})",s);
                                 return false;
                             }
@@ -64,20 +58,15 @@ namespace fCraft {
                             UpdaterLocation = reader.ReadLine();
                         }
                     }
-                    if (WebVersion != 0 && DownloadLocation != null && UpdaterLocation != null)
-                    {
-                        if (WebVersion > Updater.CurrentRelease.Version)
-                        {
+                    if (WebVersion != 0 && DownloadLocation != null && UpdaterLocation != null){
+                        if (WebVersion > Updater.CurrentRelease.Version){
                             Logger.Log(LogType.Warning, "An update of 800Craft is available, you can get it at: " + DownloadLocation);
-                            
                             return true;
                         }
                     }
                 }
                 return false;
-            }
-            catch
-            {
+            }catch{
                 return false;
             }
         }
