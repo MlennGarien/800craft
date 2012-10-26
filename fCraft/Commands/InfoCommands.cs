@@ -148,7 +148,36 @@ namespace fCraft {
                     player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10, Emotes");
                     break;
                 case "emotes":
-                    //emotes coded here
+                    string Usage = "Shows a list of all available emotes and their keywords. " +
+                   "There are 31 emotes, spanning 3 pages. Use &h/List emotes 2&s and &h/List emotes 3&s to see pages 2 and 3.";
+                    int page = 1;
+            if( cmd.HasNext ) {
+                if( !cmd.NextInt( out page ) ) {
+                    player.Message(Usage);
+                    return;
+                }
+            }
+            if( page < 1 || page > 3 ) {
+                player.Message(Usage);
+                return;
+            }
+
+            var emoteChars = Chat.EmoteKeywords
+                                 .Values
+                                 .Distinct()
+                                 .Skip( ( page - 1 ) * 11 )
+                                 .Take( 11 );
+
+            player.Message( "List of emotes, page {0} of 3:", page );
+            foreach( char ch in emoteChars ) {
+                char ch1 = ch;
+                string keywords = Chat.EmoteKeywords
+                                      .Where( pair => pair.Value == ch1 )
+                                      .Select( kvp => "{&F" + kvp.Key.UppercaseFirst() + "&7}" )
+                                      .JoinToString( " " );
+                player.Message( "&F  {0} &7= {1}", ch, keywords );
+            }
+
                     break;
                 case "top10":
                     List<World> WorldNames = new List<World>(WorldManager.Worlds.Where(w => w.VisitCount > 0)
