@@ -19,37 +19,44 @@ namespace fCraft
         const string DefaultPrefixString = "> ";
         static readonly byte[] DefaultPrefix;
 
+
         static LineWrapper()
         {
             DefaultPrefix = Encoding.ASCII.GetBytes(DefaultPrefixString);
         }
 
-        const int LineSize = 64;
-        const int MaxPrefixSize = 32;
+
+        const int MaxPrefixSize = 48;
         const int PacketSize = 66; // opcode + id + 64
-        const byte NoColor = (byte)'f';
+        const byte DefaultColor = (byte)'f';
 
         public Packet Current { get; private set; }
 
-        byte color,
-             lastColor;
-        bool hadColor, // used to see if white (&f) colorcodes should be inserted
-             hadSpace; // used to see if a word needs to be forcefully wrapped (i.e. doesnt fit in one line)
-        int spaceCount,
-            wordLength; // used to see whether to wrap at hyphens
+        bool expectingColor;// whether next input character is expected to be a color code
+        byte color,         // color that the next inserted character should be
+             lastColor;     // used to detect duplicate color codes
+
+        bool endsWithSymbol; // used to guarantee suffixes for symbols ("emotes")
+
+        bool hadColor,      // used to see if white (&f) colorcodes should be inserted
+             canWrap;       // used to see if a word needs to be forcefully wrapped (i.e. doesnt fit in one line)
+
+        int spaceCount,     // used to track spacing between words
+            wordLength;     // used to see whether to wrap at hyphens
+
+        readonly byte[] prefix;
 
         readonly byte[] input;
         int inputIndex;
 
         byte[] output;
-        int outputStart, outputIndex;
+        int outputStart,
+            outputIndex;
 
-        readonly byte[] prefix;
-
-        int wrapIndex,
-            wrapOutputIndex;
-        byte wrapColor;
-        bool expectingColor;
+        int wrapInputIndex,     // index of the nearest line-wrapping opportunity in the input buffer 
+            wrapOutputIndex;    // corresponding index in the output buffer
+        byte wrapColor;         // value of "color" field at the wrapping point
+        bool wrapEndsWithSymbol; // value of "endsWithSymbol" field at the wrapping point
 
 
         LineWrapper([NotNull] string message)
@@ -74,10 +81,10 @@ namespace fCraft
 
         public void Reset()
         {
-            color = NoColor;
+            color = DefaultColor;
             wordLength = 0;
             inputIndex = 0;
-            wrapIndex = 0;
+            wrapInputIndex = 0;
             wrapOutputIndex = 0;
         }
 
@@ -88,36 +95,41 @@ namespace fCraft
             {
                 return false;
             }
-            hadColor = false;
 
             output = new byte[PacketSize];
             output[0] = (byte)OpCode.Message;
+            Current = new Packet(output);
+
+            hadColor = false;
+            canWrap = false;
+            expectingColor = false;
 
             outputStart = 2;
             outputIndex = outputStart;
             spaceCount = 0;
-            lastColor = NoColor;
-            Current = new Packet(output);
 
-            wrapColor = NoColor;
-            expectingColor = false;
+            lastColor = DefaultColor;
+            endsWithSymbol = false;
+
             wrapOutputIndex = outputStart;
+            wrapColor = color;
+            wrapEndsWithSymbol = false;
 
             // Prepend line prefix, if needed
             if (inputIndex > 0 && prefix.Length > 0)
             {
                 int preBufferInputIndex = inputIndex;
                 byte preBufferColor = color;
-                color = NoColor;
+                color = DefaultColor;
                 inputIndex = 0;
-                wrapIndex = 0;
+                wrapInputIndex = 0;
                 wordLength = 0;
                 while (inputIndex < prefix.Length)
                 {
                     byte ch = prefix[inputIndex];
                     if (ProcessChar(ch))
                     {
-                        // Should never happen, since prefix is under 32 chars
+                        // Should never happen, since prefix is under 48 chars
                         throw new Exception("Prefix required wrapping.");
                     }
                     inputIndex++;
@@ -128,8 +140,8 @@ namespace fCraft
             }
 
             wordLength = 0;
-            wrapIndex = inputIndex;
-            hadSpace = false;
+            wrapInputIndex = inputIndex;
+            canWrap = false; // to prevent linewrapping at prefix
 
             // Append as much of the remaining input as possible
             while (inputIndex < input.Length)
@@ -144,6 +156,7 @@ namespace fCraft
                 inputIndex++;
             }
 
+            // No more input (last line)
             PrepareOutput();
             return true;
         }
@@ -154,57 +167,55 @@ namespace fCraft
             switch (ch)
             {
                 case (byte)' ':
-                    hadSpace = true;
+                    canWrap = true;
                     expectingColor = false;
                     if (spaceCount == 0)
                     {
                         // first space after a word, set wrapping point
-                        wrapIndex = inputIndex;
+                        wrapInputIndex = inputIndex;
                         wrapOutputIndex = outputIndex;
                         wrapColor = color;
+                        wrapEndsWithSymbol = endsWithSymbol;
                     }
                     spaceCount++;
                     break;
 
                 case (byte)'&':
-                    if (expectingColor)
-                    {
-                        // skip double ampersands
-                        expectingColor = false;
-                    }
-                    else
-                    {
-                        expectingColor = true;
-                    }
+                    // skip double ampersands
+                    expectingColor = !expectingColor;
                     break;
 
                 case (byte)'-':
                     if (spaceCount > 0)
                     {
                         // set wrapping point, if at beginning of a word
-                        wrapIndex = inputIndex;
+                        wrapInputIndex = inputIndex;
                         wrapColor = color;
+                        wrapEndsWithSymbol = endsWithSymbol;
                     }
                     expectingColor = false;
                     if (!Append(ch))
                     {
-                        if (hadSpace)
+                        if (canWrap)
                         {
                             // word doesn't fit in line, backtrack to wrapping point
-                            inputIndex = wrapIndex;
+                            inputIndex = wrapInputIndex;
                             outputIndex = wrapOutputIndex;
                             color = wrapColor;
-                        }// else force wrap (word is too long), don't backtrack
+                            endsWithSymbol = wrapEndsWithSymbol;
+                        } // else force wrap (word is too long), don't backtrack
                         return true;
                     }
                     spaceCount = 0;
                     if (wordLength > 2)
                     {
                         // allow wrapping after hyphen, if at least 2 word characters precede this hyphen
-                        wrapIndex = inputIndex + 1;
+                        wrapInputIndex = inputIndex + 1;
                         wrapOutputIndex = outputIndex;
                         wrapColor = color;
+                        wrapEndsWithSymbol = endsWithSymbol;
                         wordLength = 0;
+                        canWrap = true;
                     }
                     break;
 
@@ -217,33 +228,42 @@ namespace fCraft
                     if (expectingColor)
                     {
                         expectingColor = false;
-                        if (ProcessColor(ref ch))
+                        if (ch == 'N' || ch == 'n')
                         {
+                            // newline
+                            inputIndex++;
+                            return true;
+                        }
+                        else if (ProcessColor(ref ch))
+                        {
+                            // valid colorcode
                             color = ch;
                             hadColor = true;
-                        }// else colorcode is invalid, skip
+                        } // else colorcode is invalid, skip
                     }
                     else
                     {
                         if (spaceCount > 0)
                         {
                             // set wrapping point, if at beginning of a word
-                            wrapIndex = inputIndex;
+                            wrapInputIndex = inputIndex;
                             wrapColor = color;
+                            wrapEndsWithSymbol = endsWithSymbol;
                         }
-                        if (!IsWordChar(ch))
+                        if (ch == 0 || ch > 127)
                         {
                             // replace unprintable chars with '?'
                             ch = (byte)'?';
                         }
                         if (!Append(ch))
                         {
-                            if (hadSpace)
+                            if (canWrap)
                             {
-                                inputIndex = wrapIndex;
+                                inputIndex = wrapInputIndex;
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
-                            }// else word is too long, dont backtrack to wrap
+                                endsWithSymbol = wrapEndsWithSymbol;
+                            } // else word is too long, dont backtrack to wrap
                             return true;
                         }
                     }
@@ -260,6 +280,10 @@ namespace fCraft
             {
                 output[i] = (byte)' ';
             }
+            if (endsWithSymbol)
+            {
+                output[65] = (byte)'.';
+            }
 #if DEBUG_LINE_WRAPPER
             Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
             Console.WriteLine();
@@ -269,20 +293,48 @@ namespace fCraft
 
         bool Append(byte ch)
         {
+            bool prependColor =
+                // color changed since last inserted character
+                lastColor != color ||
+                // no characters have been inserted, but color codes have been encountered
+                (color == DefaultColor && hadColor && outputIndex == outputStart);
+
             // calculate the number of characters to insert
-            int bytesToInsert = 1;
-            if (ch == (byte)'&') bytesToInsert++;
-
-            bool prependColor = (lastColor != color || (color == NoColor && hadColor && outputIndex == outputStart));
-
+            int bytesToInsert = 1 + spaceCount;
             if (prependColor) bytesToInsert += 2;
-            if (outputIndex + bytesToInsert + spaceCount > PacketSize)
+
+            // calculating requirements for the next symbol
+            if (ch < ' ')
+            {
+                switch (ch)
+                {
+                    case 7:
+                    case 25:
+                        bytesToInsert += 3; // 2 spaces pad AND 1-char terminator
+                        break;
+                    case 9:
+                    case 22:
+                    case 24:
+                        bytesToInsert += 2; // 2 spaces pad OR 1-char terminator
+                        break;
+                    case 12:
+                    case 18:
+                    case 19:
+                        bytesToInsert += 2; // 2 spaces pad OR 2-char terminator
+                        break;
+                    default:
+                        bytesToInsert += 1; // 1-char terminator
+                        break;
+                }
+            }
+
+            if (outputIndex + bytesToInsert > PacketSize)
             {
 #if DEBUG_LINE_WRAPPER
                 Console.WriteLine( "X ii={0} ({1}+{2}+{3}={4}) wl={5} wi={6} woi={7}",
                                    inputIndex,
                                    outputIndex, bytesToInsert, spaceCount, outputIndex + bytesToInsert + spaceCount,
-                                   wordLength, wrapIndex, wrapOutputIndex );
+                                   wordLength, wrapInputIndex, wrapOutputIndex );
 #endif
                 return false;
             }
@@ -295,7 +347,10 @@ namespace fCraft
                 lastColor = color;
             }
 
+#if DEBUG_LINE_WRAPPER
             int spacesToAppend = spaceCount;
+#endif
+
             if (spaceCount > 0 && outputIndex > outputStart)
             {
                 // append spaces that accumulated since last word
@@ -310,20 +365,58 @@ namespace fCraft
 
 #if DEBUG_LINE_WRAPPER
             Console.WriteLine( "ii={0} oi={1} wl={2} wi={3} woi={4} sc={5} bti={6}",
-                               inputIndex, outputIndex, wordLength, wrapIndex, wrapOutputIndex, spacesToAppend, bytesToInsert );
+                               inputIndex, outputIndex, wordLength, wrapInputIndex, wrapOutputIndex, spacesToAppend, bytesToInsert );
 #endif
 
             // append character
-            if (ch == (byte)'&') output[outputIndex++] = ch;
             output[outputIndex++] = ch;
+
+            // padding for symbols
+            switch (ch)
+            {
+                case 9:
+                    output[outputIndex++] = (byte)' ';
+                    output[outputIndex++] = (byte)'.';
+                    endsWithSymbol = false;
+                    break;
+                case 12:
+                    output[outputIndex++] = (byte)' ';
+                    output[outputIndex++] = (byte)'`';
+                    endsWithSymbol = false;
+                    break;
+                case 18:
+                    output[outputIndex++] = (byte)' ';
+                    output[outputIndex++] = (byte)'.';
+                    endsWithSymbol = false;
+                    break;
+                case 19:
+                    output[outputIndex++] = (byte)' ';
+                    output[outputIndex++] = (byte)'!';
+                    endsWithSymbol = false;
+                    break;
+                case 22:
+                    output[outputIndex++] = (byte)'.';
+                    output[outputIndex++] = (byte)' ';
+                    endsWithSymbol = false;
+                    break;
+                case 24:
+                    output[outputIndex++] = (byte)'^';
+                    output[outputIndex++] = (byte)' ';
+                    endsWithSymbol = false;
+                    break;
+                case 7:
+                case 25:
+                    output[outputIndex++] = (byte)' ';
+                    output[outputIndex++] = (byte)' ';
+                    endsWithSymbol = true;
+                    break;
+                default:
+                    endsWithSymbol = (ch < ' ');
+                    break;
+            }
             return true;
         }
 
-
-        static bool IsWordChar(byte ch)
-        {
-            return (ch > (byte)' ' && ch <= (byte)'~') || (ch >= (byte)1 && ch <= (byte)31);
-        }
 
         static bool ProcessColor(ref byte ch)
         {
@@ -390,6 +483,7 @@ namespace fCraft
             return this;
         }
 
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this;
@@ -399,6 +493,7 @@ namespace fCraft
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
         public static LineWrapper Wrap(string message)
         {
             return new LineWrapper(message);
@@ -406,6 +501,8 @@ namespace fCraft
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
+        /// <exception cref="ArgumentNullException"> prefix or message is null. </exception>
+        /// <exception cref="ArgumentException"> prefix length exceeds maximum allowed value (48 characters). </exception>
         public static LineWrapper WrapPrefixed(string prefix, string message)
         {
             return new LineWrapper(prefix, message);

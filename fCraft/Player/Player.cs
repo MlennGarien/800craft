@@ -375,6 +375,9 @@ namespace fCraft {
                 rawMessage = Color.ReplacePercentCodes( rawMessage );
             }
 
+            rawMessage = Chat.ReplaceEmoteKeywords( rawMessage );
+            rawMessage = Chat.UnescapeBackslashes( rawMessage );
+
             switch( Chat.GetRawMessageType( rawMessage ) ) {
                 case RawMessageType.Chat: {
                         if( !Can( Permission.Chat ) ) return;

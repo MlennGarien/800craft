@@ -29,7 +29,6 @@ namespace fCraft {
                 player.Message("&WError: Server Moderation is activated. Message failed to send");
                 return false;
             }
-            rawMessage = ParseEmotes(rawMessage, false);
             rawMessage = rawMessage.Replace("$name", "Hello my name is " + player.ClassyName);
             rawMessage = rawMessage.Replace("$kicks", "I have kicked " + player.Info.TimesKickedOthers.ToString() + " players.");
             rawMessage = rawMessage.Replace("$bans", "I have banned " + player.Info.TimesBannedOthers.ToString() + " players.");
@@ -124,107 +123,343 @@ namespace fCraft {
             return true;
         }
         #endregion
-
         #region Emotes
-        public struct EmoteData //Contains all data needed for the emotes. Emote is the trigger word, 
-            //example (bullet). ID is the byte value of the char
+
+        static readonly char[] UnicodeReplacements = " ☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼".ToCharArray();
+
+        /// <summary> List of chat keywords, and emotes that they stand for. </summary>
+        public static readonly Dictionary<string, char> EmoteKeywords = new Dictionary<string, char> {
+            { ":)", '\u0001' }, // ☺
+            { "smile", '\u0001' },
+
+            { "smile2", '\u0002' }, // ☻
+
+            { "heart", '\u0003' }, // ♥
+            { "hearts", '\u0003' },
+            { "<3", '\u0003' },
+
+            { "diamond", '\u0004' }, // ♦
+            { "diamonds", '\u0004' },
+            { "rhombus", '\u0004' },
+
+            { "club", '\u0005' }, // ♣
+            { "clubs", '\u0005' },
+            { "clover", '\u0005' },
+            { "shamrock", '\u0005' },
+
+            { "spade", '\u0006' }, // ♠
+            { "spades", '\u0006' },
+
+            { "*", '\u0007' }, // •
+            { "bullet", '\u0007' },
+            { "dot", '\u0007' },
+            { "point", '\u0007' },
+
+            { "hole", '\u0008' }, // ◘
+
+            { "circle", '\u0009' }, // ○
+            { "o", '\u0009' },
+
+            { "male", '\u000B' }, // ♂
+            { "mars", '\u000B' },
+
+            { "female", '\u000C' }, // ♀
+            { "venus", '\u000C' },
+
+            { "8", '\u000D' }, // ♪
+            { "note", '\u000D' },
+            { "quaver", '\u000D' },
+
+            { "notes", '\u000E' }, // ♫
+            { "music", '\u000E' },
+
+            { "sun", '\u000F' }, // ☼
+            { "celestia", '\u000F' },
+
+            { ">>", '\u0010' }, // ►
+            { "right2", '\u0010' },
+
+            { "<<", '\u0011' }, // ◄
+            { "left2", '\u0011' },
+
+            { "updown", '\u0012' }, // ↕
+            { "^v", '\u0012' },
+
+            { "!!", '\u0013' }, // ‼
+
+            { "p", '\u0014' }, // ¶
+            { "para", '\u0014' },
+            { "pilcrow", '\u0014' },
+            { "paragraph", '\u0014' },
+
+            { "s", '\u0015' }, // §
+            { "sect", '\u0015' },
+            { "section", '\u0015' },
+
+            { "-", '\u0016' }, // ▬
+            { "_", '\u0016' },
+            { "bar", '\u0016' },
+            { "half", '\u0016' },
+
+            { "updown2", '\u0017' }, // ↨
+            { "^v_", '\u0017' },
+
+            { "^", '\u0018' }, // ↑
+            { "up", '\u0018' },
+
+            { "v", '\u0019' }, // ↓
+            { "down", '\u0019' },
+
+            { ">", '\u001A' }, // →
+            { "->", '\u001A' },
+            { "right", '\u001A' },
+
+            { "<", '\u001B' }, // ←
+            { "<-", '\u001B' },
+            { "left", '\u001B' },
+
+            { "l", '\u001C' }, // ∟
+            { "angle", '\u001C' },
+            { "corner", '\u001C' },
+
+            { "<>", '\u001D' }, // ↔
+            { "<->", '\u001D' },
+            { "leftright", '\u001D' },
+
+            { "^^", '\u001E' }, // ▲
+            { "up2", '\u001E' },
+
+            { "vv", '\u001F' }, // ▼
+            { "down2", '\u001F' },
+
+            { "house", '\u007F' } // ⌂
+        };
+
+
+        static readonly Regex EmoteSymbols = new Regex("[\x00-\x1F\x7F☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]");
+        /// <summary> Strips all emote symbols (ASCII control characters). Does not strip UTF-8 equivalents of emotes. </summary>
+        /// <param name="message"> Message to strip emotes from. </param>
+        /// <returns> Message with its emotes stripped. </returns>
+        [NotNull, Pure]
+        public static string StripEmotes([NotNull] string message)
         {
-            public string Emote;
-            public byte ID;
+            if (message == null) throw new ArgumentNullException("message");
+            return EmoteSymbols.Replace(message, "");
         }
 
-        //this list will be loaded with the list of emotes and their replacement values
-        static List<EmoteData> EmoteTriggers = null;
 
-        public static EmoteData[] EmotesArray()
+        /// <summary> Replaces emote keywords with actual emotes, using Chat.EmoteKeywords mapping. 
+        /// Keywords are enclosed in curly braces, and are case-insensitive. </summary>
+        /// <param name="message"> String to process. </param>
+        /// <returns> Processed string. </returns>
+        /// <exception cref="ArgumentNullException"> input is null. </exception>
+        [NotNull, Pure]
+        public static string ReplaceEmoteKeywords([NotNull] string message)
         {
-            if (EmoteTriggers != null)
+            if (message == null) throw new ArgumentNullException("message");
+            int startIndex = message.IndexOf('{');
+            if (startIndex == -1)
             {
-                return EmoteTriggers.ToArray();
+                return message; // break out early if there are no opening braces
+            }
+
+            StringBuilder output = new StringBuilder(message.Length);
+            int lastAppendedIndex = 0;
+            while (startIndex != -1)
+            {
+                int endIndex = message.IndexOf('}', startIndex + 1);
+                if (endIndex == -1)
+                {
+                    break; // abort if there are no more closing braces
+                }
+
+                // see if emote was escaped (if odd number of backslashes precede it)
+                bool escaped = false;
+                for (int i = startIndex - 1; i >= 0 && message[i] == '\\'; i--)
+                {
+                    escaped = !escaped;
+                }
+                // extract the keyword
+                string keyword = message.Substring(startIndex + 1, endIndex - startIndex - 1);
+                char substitute;
+                if (EmoteKeywords.TryGetValue(keyword.ToLowerInvariant(), out substitute))
+                {
+                    if (escaped)
+                    {
+                        // it was escaped; remove escaping character
+                        startIndex++;
+                        output.Append(message, lastAppendedIndex, startIndex - lastAppendedIndex - 2);
+                        lastAppendedIndex = startIndex - 1;
+                    }
+                    else
+                    {
+                        // it was not escaped; insert substitute character
+                        output.Append(message, lastAppendedIndex, startIndex - lastAppendedIndex);
+                        output.Append(substitute);
+                        startIndex = endIndex + 1;
+                        lastAppendedIndex = startIndex;
+                    }
+                }
+                else
+                {
+                    startIndex++; // unrecognized macro, keep going
+                }
+                startIndex = message.IndexOf('{', startIndex);
+            }
+            // append the leftovers
+            output.Append(message, lastAppendedIndex, message.Length - lastAppendedIndex);
+            return output.ToString();
+        }
+
+
+        /// <summary> Substitutes percent color codes (e.g. %C) with equivalent ampersand color codes (&amp;C).
+        /// Also replaces newline codes (%N) with actual newlines (\n). </summary>
+        /// <param name="message"> Message to process. </param>
+        /// <param name="allowNewlines"> Whether newlines are allowed. </param>
+        /// <returns> Processed string. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
+        [NotNull, Pure]
+        public static string ReplacePercentColorCodes([NotNull] string message, bool allowNewlines)
+        {
+            if (message == null) throw new ArgumentNullException("message");
+            int startIndex = message.IndexOf('%');
+            if (startIndex == -1)
+            {
+                return message; // break out early if there are no percent marks
+            }
+
+            StringBuilder output = new StringBuilder(message.Length);
+            int lastAppendedIndex = 0;
+            while (startIndex != -1 && startIndex < message.Length - 1)
+            {
+                // see if colorcode was escaped (if odd number of backslashes precede it)
+                bool escaped = false;
+                for (int i = startIndex - 1; i >= 0 && message[i] == '\\'; i--)
+                {
+                    escaped = !escaped;
+                }
+                // extract the colorcode
+                char colorCode = message[startIndex + 1];
+                if (Color.IsValidColorCode(colorCode) || allowNewlines && (colorCode == 'n' || colorCode == 'N'))
+                {
+                    if (escaped)
+                    {
+                        // it was escaped; remove escaping character
+                        startIndex++;
+                        output.Append(message, lastAppendedIndex, startIndex - lastAppendedIndex - 2);
+                        lastAppendedIndex = startIndex - 1;
+                    }
+                    else
+                    {
+                        // it was not escaped; insert substitute character
+                        output.Append(message, lastAppendedIndex, startIndex - lastAppendedIndex);
+                        output.Append('&');
+                        lastAppendedIndex = startIndex + 1;
+                        startIndex += 2;
+                    }
+                }
+                else
+                {
+                    startIndex++; // unrecognized colorcode, keep going
+                }
+                startIndex = message.IndexOf('%', startIndex);
+            }
+            // append the leftovers
+            output.Append(message, lastAppendedIndex, message.Length - lastAppendedIndex);
+            return output.ToString();
+        }
+
+        /// <summary> Removes newlines (\n) and newline codes (&amp;n and &amp;N). </summary>
+        /// <param name="message"> Message to process. </param>
+        /// <returns> Processed message. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
+        [NotNull, Pure]
+        public static string StripNewlines([NotNull] string message)
+        {
+            if (message == null) throw new ArgumentNullException("message");
+            message = message.Replace("\n", "");
+            message = message.Replace("&n", "");
+            message = message.Replace("&N", "");
+            return message;
+        }
+
+        /// <summary> Replaces newline codes (&amp;n and &amp;N) with actual newlines (\n). </summary>
+        /// <param name="message"> Message to process. </param>
+        /// <returns> Processed message. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
+        [NotNull, Pure]
+        public static string ReplaceNewlines([NotNull] string message)
+        {
+            if (message == null) throw new ArgumentNullException("message");
+            message = message.Replace("&n", "\n");
+            message = message.Replace("&N", "\n");
+            return message;
+        }
+
+        /// <summary> Unescapes backslashes. Any paid of backslashes (\\) is converted to a single one (\). </summary>
+        /// <param name="message"> String to process. </param>
+        /// <returns> Processed string. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
+        [NotNull, Pure]
+        public static string UnescapeBackslashes([NotNull] string message)
+        {
+            if (message == null) throw new ArgumentNullException("message");
+            if (message.IndexOf('\\') != -1)
+            {
+                return message.Replace(@"\\", @"\");
             }
             else
             {
-                AddEmotes();
-                return EmoteTriggers.ToArray();
+                return message;
             }
         }
 
-        //a method to add all the emotes into EmoteTriggers. You can add your own triggers here
-        static void AddEmotes()
+
+        /// <summary> Replaces UTF-8 symbol characters with ASCII control characters, matching Code Page 437.
+        /// Opposite of ReplaceEmotesWithUncode. </summary>
+        /// <param name="input"> String to process. </param>
+        /// <returns> Processed string, with its UTF-8 symbol characters replaced. </returns>
+        /// <exception cref="ArgumentNullException"> input is null. </exception>
+        [NotNull]
+        public static string ReplaceUncodeWithEmotes([NotNull] string input)
         {
-            EmoteTriggers = new List<EmoteData>();
-            EmoteTriggers.Add(new EmoteData() { Emote = "(darksmile)", ID = 1 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(:))", ID = 1 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(smile)", ID = 2 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(:P)", ID = 2 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(heart)", ID = 3 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(<3)", ID = 3 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(diamond)", ID = 4 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(bullet)", ID = 7 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(hole)", ID = 8 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(male)", ID = 11 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(female)", ID = 12 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(sun)", ID = 15 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(right)", ID = 16 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(>)", ID = 16 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(left)", ID = 17 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(<)", ID = 17 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(double)", ID = 19 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(half)", ID = 22 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(uparrow)", ID = 24 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(^)", ID = 24 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(downarrow)", ID = 25 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(rightarrow)", ID = 26 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(up)", ID = 30 });
-            EmoteTriggers.Add(new EmoteData() { Emote = "(down)", ID = 31 });
+            if (input == null) throw new ArgumentNullException("input");
+            StringBuilder sb = new StringBuilder(input);
+            for (int i = 1; i < UnicodeReplacements.Length; i++)
+            {
+                sb.Replace(UnicodeReplacements[i], (char)i);
+            }
+            sb.Replace('⌂', '\u007F');
+            return sb.ToString();
         }
 
-        //this is the main method. This parses the emotes, correct glitches and makes the emotes safe to display
-        public static string ParseEmotes(string rawMessage, bool SentencePart)
+
+        /// <summary> Replaces ASCII control characters with UTF-8 symbol characters, matching Code Page 437. 
+        /// Opposite of ReplaceUncodeWithEmotes. </summary>
+        /// <param name="input"> String to process. </param>
+        /// <returns> Processed string, with its ASCII control characters replaced. </returns>
+        /// <exception cref="ArgumentNullException"> input is null. </exception>
+        [NotNull]
+        public static string ReplaceEmotesWithUncode([NotNull] string input)
         {
-            if (EmoteTriggers == null){ //until a message is made, the list is null, so fill it up here
-                AddEmotes();
+            if (input == null) throw new ArgumentNullException("input");
+            StringBuilder sb = new StringBuilder(input);
+            for (int i = 1; i < UnicodeReplacements.Length; i++)
+            {
+                sb.Replace((char)i, UnicodeReplacements[i]);
             }
-            byte[] stored = new byte[1]; //this byte represents the emoticon, to be used in GetString(
-            foreach (EmoteData ed in EmoteTriggers)
-            { //scroll through the emotes, replacing each trigger word with the emote
-                string s = ed.Emote; //s is the emote trigger
-                stored[0] = (byte)ed.ID; //stored is the byte char for the emote
-                string s1 = enc.GetString(stored); //s1 is the emote
-                switch (ed.ID)
-                { //this fixes glitches. Each ID appends a ' to resolve overlapping of letters
-                    case 7:
-                    case 12:
-                    case 22:
-                    case 24:
-                    case 25:
-                        s1 = s1 + "-";
-                        break;
-                    case 19:
-                        s1 = s1 + "' ";
-                        break;
-                    default: break;
-                }
-                if (!SentencePart) //if sentence being parsed definately ends with no following text (not a displayedname, ect)
-                {
-                    if (rawMessage.EndsWith(s))
-                    {
-                        s1 = s1 + "."; //append a period. A emoticon ONLY shows if some text follows the emoticon (excluding a blank space)
-                    }
-                }
-                rawMessage = rawMessage.Replace(s, s1); //replace the triggerword with the emoticon
-            } 
-            return rawMessage; //return the new sentence
+            sb.Replace('\u007F', '⌂');
+            return sb.ToString();
         }
 
         #endregion
+
 
         #region SendAdmin
         public static bool SendAdmin(Player player, string rawMessage)
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
-            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.Can(Permission.ReadAdminChat)
                                               .NotIgnoring(player);
 
@@ -250,7 +485,6 @@ namespace fCraft {
         {
             if (player == null) throw new ArgumentNullException("player");
             if (rawMessage == null) throw new ArgumentNullException("rawMessage");
-            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.Can(Permission.ReadCustomChat)
                                               .NotIgnoring(player);
 
@@ -279,7 +513,6 @@ namespace fCraft {
         public static bool SendMe( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = String.Format( "&M*{0} {1}",
@@ -311,7 +544,6 @@ namespace fCraft {
             if( to == null ) throw new ArgumentNullException( "to" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             var recepientList = new[] { to };
-            rawMessage = ParseEmotes(rawMessage, false);
             string formattedMessage = String.Format( "&Pfrom {0}: {1}",
                                                      from.Name, rawMessage );
 
@@ -340,7 +572,6 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = rank.Players.NotIgnoring( player ).Union( player );
 
             string formattedMessage = String.Format( "&P({0}&P){1}: {2}",
@@ -371,7 +602,6 @@ namespace fCraft {
         public static bool SendSay( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.NotIgnoring( player );
 
             string formattedMessage = Color.Say + rawMessage;
@@ -398,7 +628,6 @@ namespace fCraft {
         public static bool SendStaff( [NotNull] Player player, [NotNull] string rawMessage ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            rawMessage = ParseEmotes(rawMessage, false);
             var recepientList = Server.Players.Can( Permission.ReadStaffChat )
                                               .NotIgnoring( player )
                                               .Union( player );

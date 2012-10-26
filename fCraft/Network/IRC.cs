@@ -252,6 +252,7 @@ namespace fCraft
                                 }
                             }
                             processedMessage = NonPrintableChars.Replace(processedMessage, "");
+                            
                             if (processedMessage.Length > 0)
                             {
                                 if (ConfigKey.IRCBotForwardFromIRC.Enabled())
@@ -492,8 +493,8 @@ namespace fCraft
         }
 
         // includes IRC color codes and non-printable ASCII
-        public static readonly Regex NonPrintableChars = new Regex("\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled);
-
+        public static readonly Regex NonPrintableChars = new Regex("\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7E]"),
+        IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
         public static void Init()
         {
             if (!ConfigKey.IRCBotEnabled.Enabled()) return;
@@ -556,9 +557,11 @@ namespace fCraft
         {
             if (line == null) throw new ArgumentNullException("line");
             if (channelNames == null) return; // in case IRC bot is disabled.
+            line = Chat.StripEmotes(line);
+            line = Chat.ReplaceNewlines(line);
             if (ConfigKey.IRCUseColor.Enabled())
             {
-                line = Color.ToIRCColorCodes(line);
+                line = Color.MinecraftToIrcColors(line);
             }
             else
             {
@@ -584,7 +587,7 @@ namespace fCraft
             if (channelNames == null) return; // in case IRC bot is disabled.
             if (ConfigKey.IRCUseColor.Enabled())
             {
-                line = Color.ToIRCColorCodes(line);
+                line = Color.MinecraftToIrcColors(line);
             }
             else
             {
