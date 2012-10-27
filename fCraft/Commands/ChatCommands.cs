@@ -97,17 +97,12 @@ namespace fCraft {
         static void RageHandler(Player player, Command cmd)
         {
             string reason = cmd.NextAll();
-
-            if (reason.Length < 1)
-            {
+            if (reason.Length < 1){
                 Server.Players.Message("{0} &4Ragequit from the server", player.ClassyName);
-                player.Kick(Player.Console, "Ragequit", LeaveReason.RageQuit, false, false, false);
-                IRC.SendAction(player.ClassyName+ " &4Ragequit from the server");
+                player.Kick(Player.Console, "&4Ragequit", LeaveReason.RageQuit, false, false, false);
+                IRC.SendAction(player.ClassyName + " &4Ragequit from the server");
                 return;
-            }
-
-            else
-            {
+            }else{
                 Server.Players.Message("{0} &4Ragequit from the server: &C{1}",
                                 player.ClassyName, reason);
                 IRC.SendAction(player.ClassyName + " &WRagequit from the server: "+ reason);

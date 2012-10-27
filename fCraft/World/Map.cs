@@ -64,7 +64,7 @@ namespace fCraft {
         public short[,] Shadows;
 
 
-        // FCMv3 additions
+        #region FCMv3 additions
         public DateTime DateModified { get; set; }
         public DateTime DateCreated { get; set; }
         public Guid Guid { get; set; }
@@ -125,7 +125,7 @@ namespace fCraft {
         void OnMetaOrZoneChange( object sender, EventArgs args ) {
             HasChangedSinceSave = true;
         }
-
+#endregion
 
         #region Saving
 
@@ -423,101 +423,6 @@ namespace fCraft {
                     drawOps[i].End();
                 }
                 drawOps.Clear();
-            }
-        }
-
-        #endregion
-
-
-        #region Backup
-
-        readonly object backupLock = new object();
-
-
-        public void SaveBackup( [NotNull] string sourceName, [NotNull] string targetName ) {
-            if( sourceName == null ) throw new ArgumentNullException( "sourceName" );
-            if( targetName == null ) throw new ArgumentNullException( "targetName" );
-
-            lock( backupLock ) {
-                DirectoryInfo directory = new DirectoryInfo( Paths.BackupPath );
-
-                if( !directory.Exists ) {
-                    try {
-                        directory.Create();
-                    } catch( Exception ex ) {
-                        Logger.Log( LogType.Error,
-                                    "Map.SaveBackup: Error occured while trying to create backup directory: {0}", ex );
-                        return;
-                    }
-                }
-
-                try {
-                    HasChangedSinceBackup = false;
-                    File.Copy( sourceName, targetName, true );
-                } catch( Exception ex ) {
-                    HasChangedSinceBackup = true;
-                    Logger.Log( LogType.Error,
-                                "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}",
-                                targetName, ex );
-                    return;
-                }
-
-                if( ConfigKey.MaxBackups.GetInt() > 0 || ConfigKey.MaxBackupSize.GetInt() > 0 ) {
-                    DeleteOldBackups( directory );
-                }
-            }
-
-            Logger.Log( LogType.SystemActivity, "AutoBackup: {0}", targetName );
-        }
-
-
-        static void DeleteOldBackups( [NotNull] DirectoryInfo directory ) {
-            if( directory == null ) throw new ArgumentNullException( "directory" );
-            var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => -fi.CreationTimeUtc.Ticks ).ToList();
-
-            int maxFileCount = ConfigKey.MaxBackups.GetInt();
-
-            if( maxFileCount > 0 ) {
-                while( backupList.Count > maxFileCount ) {
-                    FileInfo info = backupList[backupList.Count - 1];
-                    backupList.RemoveAt( backupList.Count - 1 );
-                    try {
-                        File.Delete( info.FullName );
-                    } catch( Exception ex ) {
-                        Logger.Log( LogType.Error,
-                                    "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}",
-                                    info.FullName, ex );
-                        break;
-                    }
-                    Logger.Log( LogType.SystemActivity,
-                                "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name );
-                }
-            }
-
-            int maxFileSize = ConfigKey.MaxBackupSize.GetInt();
-
-            if( maxFileSize > 0 ) {
-                while( true ) {
-                    FileInfo[] fis = directory.GetFiles();
-                    long size = fis.Sum( fi => fi.Length );
-
-                    if( size / 1024 / 1024 > maxFileSize ) {
-                        FileInfo info = backupList[backupList.Count - 1];
-                        backupList.RemoveAt( backupList.Count - 1 );
-                        try {
-                            File.Delete( info.FullName );
-                        } catch( Exception ex ) {
-                            Logger.Log( LogType.Error,
-                                        "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}",
-                                        info.Name, ex );
-                            break;
-                        }
-                        Logger.Log( LogType.SystemActivity,
-                                    "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name );
-                    } else {
-                        break;
-                    }
-                }
             }
         }
 

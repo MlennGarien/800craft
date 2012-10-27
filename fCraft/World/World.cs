@@ -57,7 +57,9 @@ namespace fCraft {
         public bool GameOn = false;
         public GameMode gameMode = GameMode.NULL;
         public Vector3I footballPos;
-        public Player[, ,] positions; 
+        public Player[, ,] positions;
+
+        public string Greeting = "";
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>
@@ -741,9 +743,8 @@ namespace fCraft {
 
                 if( ConfigKey.BackupOnJoin.Enabled() && (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
                     string backupFileName = String.Format( JoinBackupFormat,
-                                                           Name, DateTime.Now, player.Name ); // localized
-                    Map.SaveBackup( MapFileName,
-                                    Path.Combine( Paths.BackupPath, backupFileName ) );
+                                                         Name, DateTime.Now, player.Name ); // localized
+                    SaveBackup( MapFileName);
                 }
 
                 UpdatePlayerList();
@@ -942,6 +943,239 @@ namespace fCraft {
 
         #endregion
 
+        #region Backups
+
+        DateTime lastBackup = DateTime.UtcNow;
+        static readonly object BackupLock = new object();
+
+        /// <summary> Whether timed backups are enabled (either manually or by default) on this world. </summary>
+        public bool BackupsEnabled
+        {
+            get
+            {
+                switch (BackupEnabledState)
+                {
+                    case YesNoAuto.Yes:
+                        return BackupInterval > TimeSpan.Zero;
+                    case YesNoAuto.No:
+                        return false;
+                    default: //case YesNoAuto.Auto:
+                        return DefaultBackupsEnabled;
+                }
+            }
+        }
+
+
+        /// <summary> Whether the map was saved since last time it was backed up. </summary>
+        public bool HasChangedSinceBackup { get; set; }
+
+
+        /// <summary> Backup state. Use "Yes" to enable, "No" to disable, and "Auto" to use default settings.
+        /// If setting to "Yes", make sure to set BackupInterval property value first. </summary>
+        public YesNoAuto BackupEnabledState
+        {
+            get { return backupEnabledState; }
+            set
+            {
+                lock (BackupLock)
+                {
+                    if (value == backupEnabledState) return;
+                    if (value == YesNoAuto.Yes && backupInterval <= TimeSpan.Zero)
+                    {
+                        throw new InvalidOperationException("To set BackupEnabledState to 'Yes,' set BackupInterval to the desired time interval.");
+                    }
+                    backupEnabledState = value;
+                }
+            }
+        }
+        YesNoAuto backupEnabledState = YesNoAuto.Auto;
+
+
+        /// <summary> Timed backup interval.
+        /// If BackupEnabledState is set to "Yes", value must be positive.
+        /// If BackupEnabledState is set to "No" or "Auto", this property has no effect. </summary>
+        public TimeSpan BackupInterval
+        {
+            get
+            {
+                switch (backupEnabledState)
+                {
+                    case YesNoAuto.Yes:
+                        return backupInterval;
+                    case YesNoAuto.No:
+                        return TimeSpan.Zero;
+                    default: // case YesNoAuto.Auto:
+                        return DefaultBackupInterval;
+                }
+            }
+            set
+            {
+                lock (BackupLock)
+                {
+                    backupInterval = value;
+                    if (value > TimeSpan.Zero)
+                    {
+                        BackupEnabledState = YesNoAuto.Yes;
+                    }
+                    else
+                    {
+                        BackupEnabledState = YesNoAuto.No;
+                    }
+                }
+            }
+        }
+        TimeSpan backupInterval;
+
+        /// <summary> Whether timed backups are enabled by default for worlds that have BackupEnabledState set to "Auto". </summary>
+        public static bool DefaultBackupsEnabled
+        {
+            get { return DefaultBackupInterval > TimeSpan.Zero; }
+        }
+
+
+        internal string BackupSettingDescription
+        {
+            get
+            {
+                switch (backupEnabledState)
+                {
+                    case YesNoAuto.No:
+                        return "disabled (manual)";
+                    case YesNoAuto.Yes:
+                        return String.Format("every {0} (manual)", backupInterval.ToMiniString());
+                    default: //case YesNoAuto.Auto:
+                        if (DefaultBackupsEnabled)
+                        {
+                            return String.Format("every {0} (default)", DefaultBackupInterval.ToMiniString());
+                        }
+                        else
+                        {
+                            return "disabled (default)";
+                        }
+                }
+            }
+        }
+
+
+        /// <summary> Makes a copy of the current map file associated with this world.
+        /// This does NOT save map to disk, and does NOT guarantee that the most up-to-date copy of the map was backed up. </summary>
+        /// <param name="targetName"> Target file name. </param>
+        /// <returns> Whether a backup was created or not. </returns>
+        /// <exception cref="ArgumentNullException"> targetName is null. </exception>
+        public bool SaveBackup([NotNull] string targetName)
+        {
+            if (targetName == null) throw new ArgumentNullException("targetName");
+
+            if (!File.Exists(MapFileName)) return false;
+            lock (BackupLock)
+            {
+                DirectoryInfo directory = new DirectoryInfo(Paths.BackupPath);
+
+                if (!directory.Exists)
+                {
+                    try
+                    {
+                        directory.Create();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(LogType.Error,
+                                    "Map.SaveBackup: Error occurred while trying to create backup directory: {0}", ex);
+                        return false;
+                    }
+                }
+
+                try
+                {
+                    HasChangedSinceBackup = false;
+                    File.Copy(MapFileName, targetName, true);
+                }
+                catch (Exception ex)
+                {
+                    HasChangedSinceBackup = true;
+                    Logger.Log(LogType.Error,
+                                "Map.SaveBackup: Error occurred while trying to save backup to \"{0}\": {1}",
+                                targetName, ex);
+                    return false;
+                }
+
+                if (ConfigKey.MaxBackups.GetInt() > 0 || ConfigKey.MaxBackupSize.GetInt() > 0)
+                {
+                    DeleteOldBackups(directory);
+                }
+            }
+
+            Logger.Log(LogType.SystemActivity,
+                        "Saved a backup of world {0} to \"{1}\"", Name, targetName);
+            return true;
+        }
+
+
+        static void DeleteOldBackups([NotNull] DirectoryInfo directory)
+        {
+            if (directory == null) throw new ArgumentNullException("directory");
+            var backupList = directory.GetFiles("*.fcm").OrderBy(fi => -fi.CreationTimeUtc.Ticks).ToList();
+
+            int maxFileCount = ConfigKey.MaxBackups.GetInt();
+
+            if (maxFileCount > 0)
+            {
+                while (backupList.Count > maxFileCount)
+                {
+                    FileInfo info = backupList[backupList.Count - 1];
+                    backupList.RemoveAt(backupList.Count - 1);
+                    try
+                    {
+                        File.Delete(info.FullName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(LogType.Error,
+                                    "Map.SaveBackup: Error occurred while trying delete old backup \"{0}\": {1}",
+                                    info.FullName, ex);
+                        break;
+                    }
+                    Logger.Log(LogType.SystemActivity,
+                                "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name);
+                }
+            }
+
+            int maxFileSize = ConfigKey.MaxBackupSize.GetInt();
+
+            if (maxFileSize > 0)
+            {
+                while (true)
+                {
+                    FileInfo[] fis = directory.GetFiles();
+                    long size = fis.Sum(fi => fi.Length);
+
+                    if (size / 1024 / 1024 > maxFileSize)
+                    {
+                        FileInfo info = backupList[backupList.Count - 1];
+                        backupList.RemoveAt(backupList.Count - 1);
+                        try
+                        {
+                            File.Delete(info.FullName);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Log(LogType.Error,
+                                        "Map.SaveBackup: Error occurred while trying delete old backup \"{0}\": {1}",
+                                        info.Name, ex);
+                            break;
+                        }
+                        Logger.Log(LogType.SystemActivity,
+                                    "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        #endregion
 
         #region Patrol
 
@@ -1009,18 +1243,21 @@ namespace fCraft {
         }
 
 
-        void StartTasks() {
-            lock( taskLock ) {
-                updateTask = Scheduler.NewTask( UpdateTask );
-                updateTask.RunForever( this,
-                                       TimeSpan.FromMilliseconds( ConfigKey.TickInterval.GetInt() ),
-                                       TimeSpan.Zero );
+        void StartTasks()
+        {
+            lock (taskLock)
+            {
+                updateTask = Scheduler.NewTask(UpdateTask);
+                updateTask.RunForever(this,
+                                       TimeSpan.FromMilliseconds(ConfigKey.TickInterval.GetInt()),
+                                       TimeSpan.Zero);
 
-                if( ConfigKey.SaveInterval.GetInt() > 0 ) {
-                    saveTask = Scheduler.NewBackgroundTask( SaveTask );
-                    saveTask.RunForever( this,
-                                         TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
-                                         TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
+                if (ConfigKey.SaveInterval.GetInt() > 0)
+                {
+                    saveTask = Scheduler.NewBackgroundTask(SaveTask);
+                    saveTask.RunForever(this,
+                                         TimeSpan.FromSeconds(ConfigKey.SaveInterval.GetInt()),
+                                         TimeSpan.FromSeconds(ConfigKey.SaveInterval.GetInt()));
                 }
             }
         }
@@ -1039,31 +1276,34 @@ namespace fCraft {
 
         public static readonly TimeSpan DefaultBackupInterval = TimeSpan.FromSeconds( -1 );
 
-        public TimeSpan BackupInterval { get; set; }
 
-        DateTime lastBackup = DateTime.UtcNow;
+        void SaveTask(SchedulerTask task)
+        {
+            if (!IsLoaded) return;
+            lock (SyncRoot)
+            {
+                if (Map == null) return;
 
-        void SaveTask( SchedulerTask task ) {
-            if( Map == null ) return;
-            lock( SyncRoot ) {
-                // ReSharper disable ConditionIsAlwaysTrueOrFalse
-                // ReSharper disable HeuristicUnreachableCode
-                if( Map == null ) return;
-                // ReSharper restore HeuristicUnreachableCode
-                // ReSharper restore ConditionIsAlwaysTrueOrFalse
-
-                if( BackupInterval != TimeSpan.Zero &&
-                    DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
-                    (Map.HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
-
-                    string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
-                    Map.SaveBackup( MapFileName,
-                                    Path.Combine( Paths.BackupPath, backupFileName ) );
-                    lastBackup = DateTime.UtcNow;
+                lock (BackupLock)
+                {
+                    if (BackupsEnabled &&
+                        DateTime.UtcNow.Subtract(lastBackup) > BackupInterval &&
+                        (HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()))
+                    {
+                        string backupFileName = String.Format(TimedBackupFormat, Name, DateTime.Now); // localized
+                        SaveBackup(Path.Combine(Paths.BackupPath, backupFileName));
+                        lastBackup = DateTime.UtcNow;
+                    }
                 }
 
-                if( Map.HasChangedSinceSave ) {
+                if (Map.HasChangedSinceSave)
+                {
                     SaveMap();
+                }
+
+                if (BlockDB.IsEnabledGlobally && BlockDB.IsEnabled)
+                {
+                    BlockDB.Flush();
                 }
             }
         }

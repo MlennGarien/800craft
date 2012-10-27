@@ -27,7 +27,7 @@ namespace fCraft
         const string DefaultLogFileName = "800Craft.log",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd";
-        static readonly Uri CrashReportUri = new Uri("http://forums.au70.net/bugs/crashreport.php");
+        static readonly Uri CrashReportUri = new Uri("http://800craft.webuda.com/crashreport.php");
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
         static readonly string SessionStart = DateTime.Now.ToString(LongDateFormat); // localized
