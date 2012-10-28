@@ -42,6 +42,7 @@ namespace fCraft {
 
         internal static void Start() {
             Scheduler.NewBackgroundTask( Beat ).RunForever( Delay );
+            Scheduler.NewBackgroundTask(t=> HbSave()).RunForever(Delay);
         }
 
 
@@ -99,6 +100,9 @@ namespace fCraft {
             {
                 File.Delete(SaverFile);
             }
+            if (Server.CountPlayers(false) == null) return;
+            if (Salt == null) return;
+
             HbData = "port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" +
                 Uri.EscapeDataString(ConfigKey.ServerName.GetString()) +
                 "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString();

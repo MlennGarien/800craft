@@ -459,7 +459,6 @@ namespace fCraft {
 #if !DEBUG
             try {
 #endif
-                Heartbeat.HbSave();
                 RaiseShutdownBeganEvent( shutdownParams );
 
                 Scheduler.BeginShutdown();

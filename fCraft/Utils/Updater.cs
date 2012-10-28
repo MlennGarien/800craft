@@ -17,7 +17,7 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            209,
+            208,
             329,
             new DateTime( 2012, 09, 30, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
@@ -40,22 +40,27 @@ namespace fCraft {
             UpdateUrl = "http://au70.net/UpdateCheck.php?r={0}";
         }
         public static int WebVersion;
+        public static string WebVersionFullString;
         public static string DownloadLocation;
         public static string UpdaterLocation;
+        public static string Changelog;
+
         public static bool UpdateCheck(){
             try{ 
                 using (WebClient client = new WebClient()){
-                    using (Stream stream = client.OpenRead("http://forums.au70.net/update800craft.txt")){
+                    using (Stream stream = client.OpenRead("http://forums.au70.net/public/update.txt"))
+                    {
                         stream.ReadTimeout = 1000;
                         using (StreamReader reader = new StreamReader(stream)){
                             string s = reader.ReadLine();
-                            s = s.Substring(0, 5);
                             if (!int.TryParse(s.Replace(".", ""), out WebVersion)){
                                 Logger.Log(LogType.Warning, "Could not parse version value in updater ({0})",s);
                                 return false;
                             }
+                            WebVersionFullString = reader.ReadLine();
                             DownloadLocation = reader.ReadLine();
                             UpdaterLocation = reader.ReadLine();
+                            Changelog = reader.ReadToEnd();
                         }
                     }
                     if (WebVersion != 0 && DownloadLocation != null && UpdaterLocation != null){
@@ -66,7 +71,8 @@ namespace fCraft {
                     }
                 }
                 return false;
-            }catch{
+            }catch(Exception e){
+                Logger.Log(LogType.SystemActivity, "Failed: "+e);
                 return false;
             }
         }

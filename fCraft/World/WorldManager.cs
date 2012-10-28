@@ -180,7 +180,9 @@ namespace fCraft {
             }
             if( firstWorld == null ) firstWorld = world;
 
-            XElement tempEl;
+            XElement tempEl = el.Element("Greeting");
+            if (tempEl != null && !String.IsNullOrEmpty(tempEl.Value)) world.Greeting = tempEl.Value;
+
             if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
                 world.AccessSecurity = new SecurityController( tempEl, true );
             } else if( (tempEl = el.Element( "accessSecurity" )) != null ) {
@@ -425,7 +427,10 @@ namespace fCraft {
                     if( elEnv.HasAttributes ) {
                         temp.Add( elEnv );
                     }
-
+                    if (world.Greeting != null)
+                    {
+                        temp.Add(new XElement("Greeting", world.Greeting));
+                    }
                     root.Add( temp );
                 }
                 root.Add( new XAttribute( "main", MainWorld.Name ) );

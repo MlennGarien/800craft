@@ -61,20 +61,22 @@ namespace fCraft.ServerGUI {
                 UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
                 if (updaterMode != UpdaterMode.Disabled)
                 {
-                    if(Updater.UpdateCheck())
-                    {
                     if (shutdownPending) return;
+                    if (Updater.UpdateCheck())
+                    {
                         if (updaterMode == UpdaterMode.Notify)
                         {
                             String updateMsg = String.Format("An 800Craft update is available! Visit http://github.com/glennmr/800Craft/downloads to download. " +
                                                               "Local version: {0}. Latest available version: {1}.",
                                                               Updater.CurrentRelease.VersionString,
-                                                              Updater.WebVersion);
+                                                              Updater.WebVersionFullString);
                             Logger.LogToConsole(updateMsg);
-                        }
-                        //else
-                        {
-                            new UpdateWindow().ShowDialog();
+                        }else{
+                           DialogResult result = new UpdateWindow().ShowDialog();
+                           if (result == DialogResult.Cancel){
+                               // startup aborted (restart for update)
+                               return;
+                           }
                         }
                     }
                 }

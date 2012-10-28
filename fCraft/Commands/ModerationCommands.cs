@@ -68,7 +68,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdImpersonate);
             CommandManager.RegisterCommand(CdImmortal);
             CommandManager.RegisterCommand(CdTitle);
-            Server.ShutdownBegan += ServerShutdownTempbans;
         }
         #region 800Craft
 
@@ -540,17 +539,6 @@ namespace fCraft {
             {
                 target.Unban(player, "Tempban Expired", true, true);
                 target.IsTempbanned = false;
-            }
-        }
-
-        public static void ServerShutdownTempbans(object sender, ShutdownEventArgs e)
-        {
-            foreach (Player p in Server.Players)
-            {
-                if (p.Info.IsTempbanned)
-                {
-                    Untempban(Player.Console, p.Info);
-                }
             }
         }
 

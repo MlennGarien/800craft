@@ -19,7 +19,8 @@ namespace fCraft.ServerGUI {
             autoUpdate = (ConfigKey.UpdaterMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto);
             lVersion.Text = String.Format( lVersion.Text,
                                            Updater.CurrentRelease.VersionString,
-                                           Updater.WebVersion);
+                                           Updater.WebVersionFullString);
+            tChangeLog.Text = Updater.Changelog;
             Shown += Download;
         }
 
