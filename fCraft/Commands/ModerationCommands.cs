@@ -477,8 +477,7 @@ namespace fCraft {
             TimeSpan duration;
             try{
                 if (String.IsNullOrEmpty(targetName) || String.IsNullOrEmpty(timeString) ||
-                !timeString.TryParseMiniTimespan(out duration) || duration <= TimeSpan.Zero)
-                {
+                !timeString.TryParseMiniTimespan(out duration) || duration <= TimeSpan.Zero){
                     CdTempBan.PrintUsage(player);
                     return;
                 }
@@ -494,10 +493,13 @@ namespace fCraft {
                 return;
 
             if (target.Name == player.Name){
-                player.Message("Trying to T-Ban yourself? Fail!");
+                player.Message("&WYou cannot tempban yourself");
                 return;
             }
-
+            if (target.IsBanned){
+                player.Message("&WPlayer is already banned");
+                return;
+            }
             // check permissions
             if (!player.Can(Permission.BanIP, target.Rank)){
                 player.Message("You can only Temp-Ban players ranked {0}&S or lower.",
@@ -510,35 +512,27 @@ namespace fCraft {
             if (target.Tempban(player.Name, duration)){
                 string reason = cmd.NextAll();
                 try{
-                    Player targetPlayer = target.PlayerObject;
                     target.Ban(player, "You were Banned for " + timeString, false, true);
-                    Server.TempBans.Add(targetPlayer);
+                    DateTime UnbanTime = DateTime.Now;
+                    UnbanTime = UnbanTime.AddSeconds(duration.ToSeconds());
+                    target.BannedUntil = UnbanTime;
                     target.IsTempbanned = true;
+
+                    Server.Message("&SPlayer {0}&S was Banned by {1}&S for {2}",
+                                target.ClassyName, player.ClassyName, duration.ToMiniString());
+
+                    if (reason.Length > 0) Server.Message("&Wreason: {0}", reason);
+                    Logger.Log(LogType.UserActivity, "Player {0} was Banned by {1} for {2}",
+                                target.Name, player.Name, duration.ToMiniString());
                 }
                 catch (PlayerOpException ex){
                     player.Message(ex.MessageColored);
                 }
-                Scheduler.NewTask(t => Untempban(player, target)).RunOnce(duration);
-                Server.Message("&SPlayer {0}&S was Banned by {1}&S for {2}",
-                                target.ClassyName, player.ClassyName, duration.ToMiniString());
-                if (reason.Length > 0) Server.Message("&Wreason: {0}", reason);
-                Logger.Log(LogType.UserActivity, "Player {0} was Banned by {1} for {2}",
-                            target.Name, player.Name, duration.ToMiniString());
             }else{
                 player.Message("Player {0}&S is already Banned by {1}&S for {2:0} more.",
                                 target.ClassyName,
                                 target.BannedBy,
                                 target.BannedUntil.Subtract(DateTime.UtcNow).ToMiniString());
-            }
-        }
-
-        public static void Untempban(Player player, PlayerInfo target)
-        {
-            if (!target.IsBanned) return;
-            else
-            {
-                target.Unban(player, "Tempban Expired", true, true);
-                target.IsTempbanned = false;
             }
         }
 
@@ -560,32 +554,23 @@ namespace fCraft {
             string name = cmd.Next();
             string reason = cmd.NextAll();
 
-            if (name == null)
-            {
+            if (name == null){
                 player.Message("Please enter a player name to use the basscannon on.");
                 return;
             }
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
+            if (target == null)return;
 
-            if (target == null)
-            {
-                return;
-            }
-
-            if (ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty(reason))
-            {
+            if (ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty(reason)){
                 player.Message("&WPlease specify a reason: &W/Basscannon PlayerName Reason");
                 // freeze the target player to prevent further damage
                 return;
             }
 
-            if (player.Can(Permission.Kick, target.Info.Rank))
-            {
+            if (player.Can(Permission.Kick, target.Info.Rank)){
                 target.Info.IsHidden = false;
-
-                try
-                {
+                try{
                     Player targetPlayer = target;
                     target.BassKick(player, reason, LeaveReason.Kick, true, true, true);
                     if (BassText.Count < 1){
@@ -598,16 +583,12 @@ namespace fCraft {
                     string line = BassText[new Random().Next(0, BassText.Count)].Trim();
                     if (line.Length == 0) return;
                     Server.Message("&9{0}", line);
-                }
-                catch (PlayerOpException ex)
-                {
+                } catch (PlayerOpException ex){
                     player.Message(ex.MessageColored);
                     if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
                         return;
                 }
-            }
-            else
-            {
+            }else{
                 player.Message("You can only use /Basscannon on players ranked {0}&S or lower",
                                 player.Info.Rank.GetLimit(Permission.Kick).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
@@ -637,39 +618,26 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches(player, name, false, true);
-
             if (target == null)
-            {
-                player.MessageNoPlayer(name);
                 return;
-            }
 
-            if (player.Can(Permission.Warn, target.Info.Rank))
-            {
+            if (player.Can(Permission.Warn, target.Info.Rank)) {
                 target.Info.IsHidden = false;
-                if (target.Info.Warn(player.Name))
-                {
+                if (target.Info.Warn(player.Name)){
                     Server.Message("{0}&S has been warned by {1}",
                                       target.ClassyName, player.ClassyName);
                     Scheduler.NewTask(t => target.Info.UnWarn()).RunOnce(TimeSpan.FromMinutes(15));
-                }
-                else
-                {
-                    try
-                    {
+                }else{
+                    try{
                         Player targetPlayer = target;
                         target.Kick(player, "Auto Kick (2 warnings or more)", LeaveReason.Kick, true, true, true);
-                    }
-                    catch (PlayerOpException ex)
-                    {
+                    }catch (PlayerOpException ex){
                         player.Message(ex.MessageColored);
                         if (ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired)
                             return;
                     }
                 }
-            }
-            else
-            {
+            }else{
                 player.Message("You can only warn players ranked {0}&S or lower",
                                 player.Info.Rank.GetLimit(Permission.Warn).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);
@@ -690,8 +658,7 @@ namespace fCraft {
         internal static void UnWarn(Player player, Command cmd)
         {
             string name = cmd.Next();
-            if (name == null)
-            {
+            if (name == null){
                 player.Message("No player specified.");
                 return;
             }
@@ -701,19 +668,13 @@ namespace fCraft {
             if (target == null)
                 return;
 
-            if (player.Can(Permission.Warn, target.Info.Rank))
-            {
-                if (target.Info.UnWarn())
-                {
+            if (player.Can(Permission.Warn, target.Info.Rank)){
+                if (target.Info.UnWarn()){
                     Server.Message("{0}&S had their warning removed by {1}.", target.ClassyName, player.ClassyName);
-                }
-                else
-                {
+                }else{
                     player.Message("{0}&S does not have a warning.", target.ClassyName);
                 }
-            }
-            else
-            {
+            }else{
                 player.Message("You can only unwarn players ranked {0}&S or lower",
                                 player.Info.Rank.GetLimit(Permission.Warn).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName);

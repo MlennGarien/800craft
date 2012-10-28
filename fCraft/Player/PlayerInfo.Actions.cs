@@ -101,6 +101,13 @@ namespace fCraft {
                                             target.ClassyName, verb, player.ClassyName );
                         }
 
+                        if (unban){
+                            if (target.Info.BannedUntil > DateTime.Now){
+                                player.Message("&SBypassed BannedUntil field for {0}&S, target is no longer tempbanned");
+                                target.Info.BannedUntil = new DateTime(0);
+                            }
+                        }
+
                         // Kick the target
                         if( !unban ) {
                             string kickReason;

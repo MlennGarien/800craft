@@ -42,9 +42,7 @@ namespace fCraft {
 
         public static List<Player> VoicedPlayers = new List<Player>();
 
-        public static List<Player> TempBans = new List<Player>();
-
-
+        public static SchedulerTask TempbanTask;
         // networking
         static TcpListener listener;
         public static IPAddress InternalIP { get; private set; }
@@ -494,18 +492,6 @@ namespace fCraft {
                         foreach( World world in WorldManager.Worlds ) {
                             if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
                             world.SaveMap();
-                        }
-                    }
-                }
-
-                if (Server.TempBans.Count() > 0)
-                {
-                    foreach (Player p in Server.TempBans)
-                    {
-                        if (p.Info.IsBanned)
-                        {
-                            p.Info.Unban(Player.Console, "Shutdown: Tempban cancelled", false, true);
-                            Logger.Log(LogType.SystemActivity, "Unbanning {0}: Was tempbanned", p.Name);
                         }
                     }
                 }

@@ -620,7 +620,14 @@ namespace fCraft {
                 }
             }
 
-
+            if (Info.IsBanned)
+            {
+                if (Info.BannedUntil < DateTime.Now && (Info.BannedUntil != new DateTime(0)))
+                {
+                    Info.Unban(Player.Console, "Tempban expired", true, true);
+                    Info.BannedUntil = new DateTime(0);
+                }
+            }
             // Check if player is banned
             if( Info.IsBanned ) {
                 Info.ProcessFailedLogin( this );
@@ -649,7 +656,7 @@ namespace fCraft {
                                                        Info.TimeSinceBan.ToMiniString() );
                     }
                 }
-                KickNow( bannedMessage, LeaveReason.LoginFailed );
+                KickNow(bannedMessage, LeaveReason.LoginFailed);
                 return false;
             }
 

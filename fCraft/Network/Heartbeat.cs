@@ -95,18 +95,22 @@ namespace fCraft {
         public static string HbData;
         public static void HbSave()
         {
-            const string SaverFile = "heartbeatsaver.txt";
-            if (File.Exists(SaverFile))
+            try
             {
-                File.Delete(SaverFile);
-            }
-            if (Server.CountPlayers(false) == null) return;
-            if (Salt == null) return;
+                const string SaverFile = "heartbeatsaver.txt";
+                if (File.Exists(SaverFile))
+                {
+                    File.Delete(SaverFile);
+                }
+                if (Server.CountPlayers(false) <= 0) return;
+                if (Salt == null) return;
 
-            HbData = "port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" +
-                Uri.EscapeDataString(ConfigKey.ServerName.GetString()) +
-                "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString();
-            File.WriteAllText(SaverFile, HbData, Encoding.ASCII);
+                HbData = "port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" +
+                    Uri.EscapeDataString(ConfigKey.ServerName.GetString()) +
+                    "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString();
+                File.WriteAllText(SaverFile, HbData, Encoding.ASCII);
+            }
+            catch { }
         }
 
 
