@@ -91,14 +91,14 @@ namespace fCraft {
                 player.Message("One player found with that DisplayedName: {0}", Names[0].Rank.Color + Names[0].Name);
                 return;
             }
-            if (Names.Length <= 30){
+            if (Names.Length <= 15){
                 MessageManyMatches(player, Names);
             }else{
                 int offset;
                 if (!cmd.NextInt(out offset)) offset = 0;
                 if (offset >= Names.Length)
-                    offset = Math.Max(0, Names.Length - 30);
-                PlayerInfo[] Part = Names.Skip(offset).Take(30).ToArray();
+                    offset = Math.Max(0, Names.Length - 15);
+                PlayerInfo[] Part = Names.Skip(offset).Take(15).ToArray();
                 MessageManyMatches(player, Part);
                 if (offset + Part.Length < Names.Length){
                     player.Message("Showing {0}-{1} (out of {2}). Next: &H/Whois {3} {4}",

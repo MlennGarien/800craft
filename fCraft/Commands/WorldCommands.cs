@@ -42,9 +42,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdWorldBuild );
             CommandManager.RegisterCommand( CdWorldFlush );
 
-            CommandManager.RegisterCommand( CdWorldHide );
-            CommandManager.RegisterCommand( CdWorldUnhide );
-
             CommandManager.RegisterCommand( CdWorldInfo );
             CommandManager.RegisterCommand( CdWorldLoad );
             CommandManager.RegisterCommand( CdWorldMain );
@@ -1693,7 +1690,7 @@ namespace fCraft {
                 int startIndex = Math.Max( 0, results.Length - MaxBlockChangesToList );
                 for( int i = startIndex; i < results.Length; i++ ) {
                     BlockDBEntry entry = results[i];
-                    string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTimeLegacy( entry.Timestamp ) ).ToMiniString();
+                    string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
                     PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
                     string playerName;
@@ -3283,72 +3280,6 @@ namespace fCraft {
                                    world.ClassyName,
                                    map.UpdateQueueLength + map.DrawQueueBlockCount );
                 world.Flush();
-            }
-        }
-
-        #endregion
-
-
-        #region WorldHide / WorldUnhide
-
-        static readonly CommandDescriptor CdWorldHide = new CommandDescriptor {
-            Name = "WHide",
-            Category = CommandCategory.World,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/WHide WorldName",
-            Help = "&HHides the specified world from the &H/Worlds&S list. " +
-                   "Hidden worlds can be seen by typing &H/Worlds all",
-            Handler = WorldHideHandler
-        };
-
-        static void WorldHideHandler( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null ) {
-                CdWorldHide.PrintUsage( player );
-                return;
-            }
-
-            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
-
-            if( world.IsHidden ) {
-                player.Message( "World \"{0}&S\" is already hidden.", world.ClassyName );
-            } else {
-                player.Message( "World \"{0}&S\" is now hidden.", world.ClassyName );
-                world.IsHidden = true;
-                WorldManager.SaveWorldList();
-            }
-        }
-
-
-        static readonly CommandDescriptor CdWorldUnhide = new CommandDescriptor {
-            Name = "WUnhide",
-            Category = CommandCategory.World,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/WUnhide WorldName",
-            Help = "&HUnhides the specified world from the &H/Worlds&S list. " +
-                   "Hidden worlds can be listed by typing &H/Worlds all",
-            Handler = WorldUnhideHandler
-        };
-
-        static void WorldUnhideHandler( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if( worldName == null ) {
-                CdWorldUnhide.PrintUsage( player );
-                return;
-            }
-
-            World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if( world == null ) return;
-
-            if( world.IsHidden ) {
-                player.Message( "World \"{0}&S\" is no longer hidden.", world.ClassyName );
-                world.IsHidden = false;
-                WorldManager.SaveWorldList();
-            } else {
-                player.Message( "World \"{0}&S\" is not hidden.", world.ClassyName );
             }
         }
 
