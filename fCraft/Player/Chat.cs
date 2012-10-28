@@ -369,6 +369,37 @@ namespace fCraft {
             return output.ToString();
         }
 
+        /// <summary> Replaces keywords with appropriate values. </summary>
+        [NotNull]
+        public static string ReplaceTextKeywords([NotNull] Player player, [NotNull] string input)
+        {
+            if (player == null) throw new ArgumentNullException("player");
+            if (input == null) throw new ArgumentNullException("input");
+            StringBuilder sb = new StringBuilder(input);
+            sb.Replace("{SERVER_NAME}", ConfigKey.ServerName.GetString());
+            sb.Replace("{RANK}", player.Info.Rank.ClassyName);
+            sb.Replace("{TIME}", DateTime.Now.ToShortTimeString()); // localized
+            if (player.World == null)
+            {
+                sb.Replace("{WORLD}", "(No World)");
+            }
+            else
+            {
+                sb.Replace("{WORLD}", player.World.ClassyName);
+            }
+            sb.Replace("{WORLDS}", WorldManager.Worlds.Length.ToString());
+            sb.Replace("{MOTD}", ConfigKey.MOTD.GetString());
+            sb.Replace("{VERSION}", Updater.CurrentRelease.VersionString);
+            if (input.IndexOf("{PLAYER") != -1)
+            {
+                Player[] playerList = Server.Players.CanBeSeen(player).Union(player).ToArray();
+                sb.Replace("{PLAYER_NAME}", player.ClassyName);
+                sb.Replace("{PLAYER_LIST}", playerList.JoinToClassyString());
+                sb.Replace("{PLAYERS}", playerList.Length.ToString());
+            }
+            return sb.ToString();
+        }
+
         /// <summary> Removes newlines (\n) and newline codes (&amp;n and &amp;N). </summary>
         /// <param name="message"> Message to process. </param>
         /// <returns> Processed message. </returns>

@@ -1089,10 +1089,20 @@ namespace fCraft {
                 }
             }if (!World.IsRealm && oldWorld == newWorld){
                 Message("Rejoined world {0}", newWorld.ClassyName);
+                string greeting = newWorld.Greeting;
+                if (greeting != null){
+                    greeting = Chat.ReplaceTextKeywords(this, greeting);
+                    Message("&R* {0}: {1}", newWorld.Name, greeting);
+                }
             }else if (!World.IsRealm){
                 Message("Joined world {0}", newWorld.ClassyName);
                 if (World != WorldManager.MainWorld){
                     World.VisitCount++;
+                    string greeting = newWorld.Greeting;
+                    if (greeting != null){
+                        greeting = Chat.ReplaceTextKeywords(this, greeting);
+                        Message("&R* {0}: {1}", newWorld.Name, greeting);
+                    }
                 }
             }
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
