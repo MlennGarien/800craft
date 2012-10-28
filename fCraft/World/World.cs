@@ -59,7 +59,7 @@ namespace fCraft {
         public Vector3I footballPos;
         public Player[, ,] positions;
 
-        public string Greeting = "";
+        public string Greeting = null;
 
         /// <summary> Whether this world is currently pending unload 
         /// (waiting for block updates to finish processing before unloading). </summary>

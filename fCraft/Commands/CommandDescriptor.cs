@@ -105,6 +105,19 @@ namespace fCraft {
             }
         }
 
+        public void PrintHelpSection(Player player, string sectionName)
+        {
+            string sectionHelp;
+            if (HelpSections != null && HelpSections.TryGetValue(sectionName.ToLower(), out sectionHelp))
+            {
+                player.MessagePrefixed("&S    ", sectionHelp);
+            }
+            else
+            {
+                player.Message("No help found for \"{0}\"", sectionName);
+            }
+        }
+
 
         /// <summary> Calls this command. </summary>
         /// <param name="player"> Player who called the command. </param>

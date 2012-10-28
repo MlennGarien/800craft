@@ -1080,29 +1080,25 @@ namespace fCraft {
             writer.WriteTeleport( 255, Position );
             BytesSent += 10;
 
-            if (World.IsRealm && oldWorld == newWorld){
-                Message("Rejoined realm {0}", newWorld.ClassyName);
-            }else if (World.IsRealm){
-                Message("Joined realm {0}", newWorld.ClassyName);
-                if (World != WorldManager.MainWorld){
-                    World.VisitCount++;
+            if (oldWorld == newWorld){
+                if (!newWorld.IsRealm){
+                    Message("Rejoined world {0}", newWorld.ClassyName);
+                }else{
+                    Message("Rejoined realm {0}", newWorld.ClassyName);
                 }
-            }if (!World.IsRealm && oldWorld == newWorld){
-                Message("Rejoined world {0}", newWorld.ClassyName);
+            }else{
+                if (!newWorld.IsRealm){
+                    Message("Joined world {0}", newWorld.ClassyName);
+                }else{
+                    Message("Joined realm {0}", newWorld.ClassyName);
+                }
+                if (newWorld != WorldManager.MainWorld){
+                    newWorld.VisitCount++;
+                }
                 string greeting = newWorld.Greeting;
                 if (greeting != null){
                     greeting = Chat.ReplaceTextKeywords(this, greeting);
                     Message("&R* {0}: {1}", newWorld.Name, greeting);
-                }
-            }else if (!World.IsRealm){
-                Message("Joined world {0}", newWorld.ClassyName);
-                if (World != WorldManager.MainWorld){
-                    World.VisitCount++;
-                    string greeting = newWorld.Greeting;
-                    if (greeting != null){
-                        greeting = Chat.ReplaceTextKeywords(this, greeting);
-                        Message("&R* {0}: {1}", newWorld.Name, greeting);
-                    }
                 }
             }
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );

@@ -181,7 +181,9 @@ namespace fCraft {
             if( firstWorld == null ) firstWorld = world;
 
             XElement tempEl = el.Element("Greeting");
-            if (tempEl != null && !String.IsNullOrEmpty(tempEl.Value)) world.Greeting = tempEl.Value;
+            if (tempEl != null && !String.IsNullOrEmpty(tempEl.Value)){
+                world.Greeting = tempEl.Value;
+            }
 
             if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
                 world.AccessSecurity = new SecurityController( tempEl, true );
@@ -387,7 +389,7 @@ namespace fCraft {
                     }
                     if (world.VisitCount > 0)
                     {
-                        temp.Add(new XAttribute("visitCount", world.VisitCount));
+                        temp.Add( new XAttribute( "visitCount", world.VisitCount ) );
                     }
                     if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
@@ -398,7 +400,9 @@ namespace fCraft {
                     temp.Add(Physics.SaveOtherSettings(world));
 
                     temp.Add(world.SaveRealmState());
-
+                    if (world.Greeting != null){
+                        temp.Add( new XElement( "Greeting", world.Greeting ) );
+                    }
                     World world1 = world;
                     foreach( Rank mainedRank in RankManager.Ranks.Where( r => r.MainWorld == world1 ) ) {
                         temp.Add( new XElement( RankMainXmlTagName, mainedRank.FullName ) );
@@ -426,10 +430,6 @@ namespace fCraft {
                     if( world.EdgeBlock != Block.Water ) elEnv.Add( new XAttribute( "edge", world.EdgeBlock ) );
                     if( elEnv.HasAttributes ) {
                         temp.Add( elEnv );
-                    }
-                    if (world.Greeting != null)
-                    {
-                        temp.Add(new XElement("Greeting", world.Greeting));
                     }
                     root.Add( temp );
                 }

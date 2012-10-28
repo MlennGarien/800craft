@@ -150,7 +150,7 @@ namespace fCraft {
                     }
                     else
                     {
-                        CdWorldSet.PrintUsage(player);
+                        CdWorldSet.PrintHelpSection(player, "hidden");
                     }
                     break;
 
@@ -222,7 +222,7 @@ namespace fCraft {
                     }
                     else
                     {
-                        CdWorldSet.PrintUsage(player);
+                        CdWorldSet.PrintHelpSection(player, "backups");
                         return;
                     }
                     player.Message("Backup setting for world {0}&S changed from \"{1}\" to \"{2}\"",
@@ -249,10 +249,12 @@ namespace fCraft {
                         world.Greeting = value;
                         player.Message("Greeting message for world {0}&S set to: &R{1}", world.ClassyName, value);
                     }
+                    WorldManager.SaveWorldList();
                     break;
 
                 default:
                     CdWorldSet.PrintUsage(player);
+                    player.Message("&S   Variables include: Hidden, Backups and Greeting");
                     break;
             }
         }
