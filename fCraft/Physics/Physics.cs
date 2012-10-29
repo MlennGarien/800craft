@@ -48,8 +48,6 @@ namespace fCraft
         {
             Player.PlacingBlock += PlantPhysics.blockSquash;
             SchedulerTask drownCheck = Scheduler.NewBackgroundTask(WaterPhysics.drownCheck).RunForever(TimeSpan.FromSeconds(3));
-            Player.PlacingBlock += WaterPhysics.towerInit;
-            Player.Clicking += WaterPhysics.towerRemove;
             Player.PlacingBlock += PlayerPlacingPhysics;
         }
 

@@ -95,7 +95,6 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdBanx);
             CommandManager.RegisterCommand(CdFly);
             CommandManager.RegisterCommand(CdPlace);
-            CommandManager.RegisterCommand(CdTower);
             CommandManager.RegisterCommand(CdCylinder);
             CommandManager.RegisterCommand(CdCenter);
 
@@ -677,65 +676,6 @@ namespace fCraft {
         }
 
 
-       
-        static readonly CommandDescriptor CdTower = new CommandDescriptor
-        {
-            Name = "Tower",
-            Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Tower },
-            IsConsoleSafe = false,
-            NotRepeatable = false,
-            Usage = "/Tower [/Tower Remove]",
-            Help = "&HToggles tower mode on for yourself. All Iron blocks will be replaced with towers.",
-            UsableByFrozenPlayers = false,
-            Handler = towerHandler
-        };
-
-        static void towerHandler(Player player, Command cmd)
-        {
-            string Param = cmd.Next();
-            if (Param == null)
-            {
-                if (player.towerMode)
-                {
-                    player.towerMode = false;
-                    player.Message("TowerMode has been turned off.");
-                    return;
-                }
-                else
-                {
-                    player.towerMode = true;
-                    player.Message("TowerMode has been turned on. " +
-                        "All Iron blocks are now being replaced with Towers.");
-                }
-            }
-            else if (Param.ToLower() == "remove")
-            {
-                if (player.TowerCache != null)
-                {
-                    World world = player.World;
-                    if (world.Map != null)
-                    {
-                        player.World.Map.QueueUpdate(new BlockUpdate(null, player.towerOrigin, Block.Air));
-                        foreach (Vector3I block in player.TowerCache.Values)
-                        {
-                            if (world.Map != null)
-                            {
-                                player.Send(PacketWriter.MakeSetBlock(block, player.WorldMap.GetBlock(block)));
-                            }
-                        }
-                    }
-                    player.TowerCache.Clear();
-                    return;
-                }
-                else
-                {
-                    player.Message("&WThere is no Tower to remove");
-                }
-            }
-
-            else CdTower.PrintUsage(player);
-        }
         static readonly CommandDescriptor CdFly = new CommandDescriptor
         {
             Name = "Fly",
