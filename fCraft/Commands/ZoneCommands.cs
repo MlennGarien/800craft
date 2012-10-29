@@ -8,7 +8,7 @@ namespace fCraft {
     /// <summary> Contains commands related to zone management. </summary>
     static class ZoneCommands {
 
-        internal static void Init() {
+        internal static void Init () {
             CommandManager.RegisterCommand( CdZoneAdd );
             CommandManager.RegisterCommand( CdZoneEdit );
             CommandManager.RegisterCommand( CdZoneInfo );
@@ -18,31 +18,28 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdZoneRename );
             CommandManager.RegisterCommand( CdZoneTest );
 
-            CommandManager.RegisterCustomCommand(cdDoor);
-            CommandManager.RegisterCustomCommand(cdDoorRemove);
+            CommandManager.RegisterCustomCommand( cdDoor );
+            CommandManager.RegisterCustomCommand( cdDoorRemove );
             Player.Clicked += PlayerClickedDoor;
             openDoors = new List<Zone>();
         }
 
-        static readonly TimeSpan DoorCloseTimer = TimeSpan.FromMilliseconds(1500);
+        static readonly TimeSpan DoorCloseTimer = TimeSpan.FromMilliseconds( 1500 );
         const int maxDoorBlocks = 30;  //change for max door area
         static List<Zone> openDoors;
 
-        struct DoorInfo
-        {
+        struct DoorInfo {
             public readonly Zone Zone;
             public readonly Block[] Buffer;
             public readonly Map WorldMap;
-            public DoorInfo(Zone zone, Block[] buffer, Map worldMap)
-            {
+            public DoorInfo ( Zone zone, Block[] buffer, Map worldMap ) {
                 Zone = zone;
                 Buffer = buffer;
                 WorldMap = worldMap;
             }
         }
 
-        static readonly CommandDescriptor cdDoor = new CommandDescriptor
-        {
+        static readonly CommandDescriptor cdDoor = new CommandDescriptor {
             Name = "Door",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.Build },
@@ -50,22 +47,19 @@ namespace fCraft {
             Handler = Door
         };
 
-        static void Door(Player player, Command cmd)
-        {
-            if (player.WorldMap.Zones.FindExact(player.Name + "door") != null)
-            {
-                player.Message("One door per person.");
+        static void Door ( Player player, Command cmd ) {
+            if ( player.WorldMap.Zones.FindExact( player.Name + "door" ) != null ) {
+                player.Message( "One door per person." );
                 return;
             }
 
             Zone door = new Zone();
             door.Name = player.Name + "door";
-            player.SelectionStart(2, DoorAdd, door, cdDoor.Permissions);
-            player.Message("Door: Place a block or type /mark to use your location.");
+            player.SelectionStart( 2, DoorAdd, door, cdDoor.Permissions );
+            player.Message( "Door: Place a block or type /mark to use your location." );
         }
 
-        static readonly CommandDescriptor cdDoorRemove = new CommandDescriptor
-        {
+        static readonly CommandDescriptor cdDoorRemove = new CommandDescriptor {
             Name = "Removedoor",
             Aliases = new[] { "rd" },
             Category = CommandCategory.Zone,
@@ -74,112 +68,91 @@ namespace fCraft {
             Handler = DoorRemove
         };
 
-        static void DoorRemove(Player player, Command cmd)
-        {
+        static void DoorRemove ( Player player, Command cmd ) {
             Zone zone;
             string playerName = cmd.Next();
-            if (playerName == null)
-            {
-                if ((zone = player.WorldMap.Zones.FindExact(player.Name + "door")) != null)
-                {
-                    player.WorldMap.Zones.Remove(zone);
-                    player.Message("Door removed.");
+            if ( playerName == null ) {
+                if ( ( zone = player.WorldMap.Zones.FindExact( player.Name + "door" ) ) != null ) {
+                    player.WorldMap.Zones.Remove( zone );
+                    player.Message( "Door removed." );
+                } else {
+                    player.Message( "You do not have a door on this map." );
                 }
-                else
-                {
-                    player.Message("You do not have a door on this map.");
-                }
-            }
-            else
-            {
-                if (!Player.IsValidName(playerName))
-                {
-                    player.Message("&SInvalid name");
+            } else {
+                if ( !Player.IsValidName( playerName ) ) {
+                    player.Message( "&SInvalid name" );
                     return;
                 }
-                Player target = Server.FindPlayerOrPrintMatches(player, playerName, true, true);
-                if (target == null) return;
-                if ((zone = player.WorldMap.Zones.FindExact(target.Name + "door")) != null)
-                {
-                    player.WorldMap.Zones.Remove(zone);
-                    player.Message("Door removed for " + target.ClassyName);
-                }
-                else
-                {
-                    player.Message(target.ClassyName + "&S does not have a door on this map.");
+                Player target = Server.FindPlayerOrPrintMatches( player, playerName, true, true );
+                if ( target == null ) return;
+                if ( ( zone = player.WorldMap.Zones.FindExact( target.Name + "door" ) ) != null ) {
+                    player.WorldMap.Zones.Remove( zone );
+                    player.Message( "Door removed for " + target.ClassyName );
+                } else {
+                    player.Message( target.ClassyName + "&S does not have a door on this map." );
                 }
             }
         }
 
-        static void DoorAdd(Player player, Vector3I[] marks, object tag)
-        {
-            int sx = Math.Min(marks[0].X, marks[1].X);
-            int ex = Math.Max(marks[0].X, marks[1].X);
-            int sy = Math.Min(marks[0].Y, marks[1].Y);
-            int ey = Math.Max(marks[0].Y, marks[1].Y);
-            int sh = Math.Min(marks[0].Z, marks[1].Z);
-            int eh = Math.Max(marks[0].Z, marks[1].Z);
+        static void DoorAdd ( Player player, Vector3I[] marks, object tag ) {
+            int sx = Math.Min( marks[0].X, marks[1].X );
+            int ex = Math.Max( marks[0].X, marks[1].X );
+            int sy = Math.Min( marks[0].Y, marks[1].Y );
+            int ey = Math.Max( marks[0].Y, marks[1].Y );
+            int sh = Math.Min( marks[0].Z, marks[1].Z );
+            int eh = Math.Max( marks[0].Z, marks[1].Z );
 
-            int volume = (ex - sx + 1) * (ey - sy + 1) * (eh - sh + 1);
-            if (volume > maxDoorBlocks)
-            {
-                player.Message("Doors are only allowed to be {0} blocks", maxDoorBlocks);
+            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( eh - sh + 1 );
+            if ( volume > maxDoorBlocks ) {
+                player.Message( "Doors are only allowed to be {0} blocks", maxDoorBlocks );
                 return;
             }
-            if (!player.Info.Rank.AllowSecurityCircumvention)
-            {
-                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed(player.Info);
-                switch (buildCheck)
-                {
+            if ( !player.Info.Rank.AllowSecurityCircumvention ) {
+                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
+                switch ( buildCheck ) {
                     case SecurityCheckResult.BlackListed:
-                        player.Message("Cannot add a door to world {0}&S: You are barred from building here.",
-                                        player.World.ClassyName);
+                        player.Message( "Cannot add a door to world {0}&S: You are barred from building here.",
+                                        player.World.ClassyName );
                         return;
                     case SecurityCheckResult.RankTooLow:
-                        player.Message("Cannot add a door to world {0}&S: You are not allowed to build here.",
-                                        player.World.ClassyName);
+                        player.Message( "Cannot add a door to world {0}&S: You are not allowed to build here.",
+                                        player.World.ClassyName );
                         return;
                     //case SecurityCheckResult.RankTooHigh:
                 }
             }
-            for (int x = sx; x < ex; x++){
-                for (int y = sy; y < ey; y++){
-                    for (int z = sh; z < eh; z++){
-                        if (player.CanPlace(player.World.Map, new Vector3I(x, y, z), Block.Wood, BlockChangeContext.Manual) != CanPlaceResult.Allowed){
-                            player.Message("Cannot add a door to world {0}&S: Build permissions in this area replied with 'denied'.",
-                                        player.World.ClassyName);
+            for ( int x = sx; x < ex; x++ ) {
+                for ( int y = sy; y < ey; y++ ) {
+                    for ( int z = sh; z < eh; z++ ) {
+                        if ( player.CanPlace( player.World.Map, new Vector3I( x, y, z ), Block.Wood, BlockChangeContext.Manual ) != CanPlaceResult.Allowed ) {
+                            player.Message( "Cannot add a door to world {0}&S: Build permissions in this area replied with 'denied'.",
+                                        player.World.ClassyName );
                             return;
                         }
                     }
                 }
             }
-            Zone door = (Zone)tag;
-            door.Create(new BoundingBox(marks[0], marks[1]), player.Info);
-            player.WorldMap.Zones.Add(door);
-            Logger.Log(LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name);
-            player.Message("Door created: {0}x{1}x{2}", door.Bounds.Dimensions.X,
+            Zone door = ( Zone )tag;
+            door.Create( new BoundingBox( marks[0], marks[1] ), player.Info );
+            player.WorldMap.Zones.Add( door );
+            Logger.Log( LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name );
+            player.Message( "Door created: {0}x{1}x{2}", door.Bounds.Dimensions.X,
                                                         door.Bounds.Dimensions.Y,
-                                                        door.Bounds.Dimensions.Z);
+                                                        door.Bounds.Dimensions.Z );
         }
 
         static readonly object openDoorsLock = new object();
-        public static void PlayerClickedDoor(object sender, PlayerClickedEventArgs e)
-        {
+        public static void PlayerClickedDoor ( object sender, PlayerClickedEventArgs e ) {
 
             Zone[] allowed, denied;
-            if (e.Player.WorldMap.Zones.CheckDetailed(e.Coords, e.Player, out allowed, out denied))
-            {
-                foreach (Zone zone in allowed)
-                {
-                    if (zone.Name.EndsWith("door"))
-                    {
-                        Player.RaisePlayerPlacedBlockEvent(e.Player, e.Player.WorldMap, e.Coords, e.Block, e.Block, BlockChangeContext.Manual);
-                        lock (openDoorsLock)
-                        {
-                            if (!openDoors.Contains(zone))
-                            {
-                                openDoor(zone, e.Player);
-                                openDoors.Add(zone);
+            if ( e.Player.WorldMap.Zones.CheckDetailed( e.Coords, e.Player, out allowed, out denied ) ) {
+                foreach ( Zone zone in allowed ) {
+                    if ( zone.Name.EndsWith( "door" ) ) {
+                        Player.RaisePlayerPlacedBlockEvent( e.Player, e.Player.WorldMap, e.Coords, e.Block, e.Block, BlockChangeContext.Manual );
+                        lock ( openDoorsLock ) {
+                            if ( !openDoors.Contains( zone ) ) {
+                                openDoor( zone, e.Player );
+                                openDoors.Add( zone );
                             }
                         }
                     }
@@ -188,8 +161,7 @@ namespace fCraft {
 
         }
 
-        static void openDoor(Zone zone, Player player)
-        {
+        static void openDoor ( Zone zone, Player player ) {
             int sx = zone.Bounds.XMin;
             int ex = zone.Bounds.XMax;
             int sy = zone.Bounds.YMin;
@@ -200,42 +172,35 @@ namespace fCraft {
             Block[] buffer = new Block[zone.Bounds.Volume];
 
             int counter = 0;
-            for (int x = sx; x <= ex; x++)
-            {
-                for (int y = sy; y <= ey; y++)
-                {
-                    for (int z = sz; z <= ez; z++)
-                    {
-                        buffer[counter] = player.WorldMap.GetBlock(x, y, z);
-                        player.WorldMap.QueueUpdate(new BlockUpdate(null, new Vector3I(x, y, z), Block.Air));
+            for ( int x = sx; x <= ex; x++ ) {
+                for ( int y = sy; y <= ey; y++ ) {
+                    for ( int z = sz; z <= ez; z++ ) {
+                        buffer[counter] = player.WorldMap.GetBlock( x, y, z );
+                        player.WorldMap.QueueUpdate( new BlockUpdate( null, new Vector3I( x, y, z ), Block.Air ) );
                         counter++;
                     }
                 }
             }
 
-            DoorInfo info = new DoorInfo(zone, buffer, player.WorldMap);
+            DoorInfo info = new DoorInfo( zone, buffer, player.WorldMap );
             //reclose door
-            Scheduler.NewTask(doorTimer_Elapsed).RunOnce(info, DoorCloseTimer);
+            Scheduler.NewTask( doorTimer_Elapsed ).RunOnce( info, DoorCloseTimer );
 
         }
 
-        static void doorTimer_Elapsed(SchedulerTask task)
-        {
-            DoorInfo info = (DoorInfo)task.UserState;
+        static void doorTimer_Elapsed ( SchedulerTask task ) {
+            DoorInfo info = ( DoorInfo )task.UserState;
             int counter = 0;
-            for (int x = info.Zone.Bounds.XMin; x <= info.Zone.Bounds.XMax; x++)
-            {
-                for (int y = info.Zone.Bounds.YMin; y <= info.Zone.Bounds.YMax; y++)
-                {
-                    for (int z = info.Zone.Bounds.ZMin; z <= info.Zone.Bounds.ZMax; z++)
-                    {
-                        info.WorldMap.QueueUpdate(new BlockUpdate(null, new Vector3I(x, y, z), info.Buffer[counter]));
+            for ( int x = info.Zone.Bounds.XMin; x <= info.Zone.Bounds.XMax; x++ ) {
+                for ( int y = info.Zone.Bounds.YMin; y <= info.Zone.Bounds.YMax; y++ ) {
+                    for ( int z = info.Zone.Bounds.ZMin; z <= info.Zone.Bounds.ZMax; z++ ) {
+                        info.WorldMap.QueueUpdate( new BlockUpdate( null, new Vector3I( x, y, z ), info.Buffer[counter] ) );
                         counter++;
                     }
                 }
             }
 
-            lock (openDoorsLock) { openDoors.Remove(info.Zone); }
+            lock ( openDoorsLock ) { openDoors.Remove( info.Zone ); }
         }
 
         #region ZoneAdd
@@ -252,19 +217,19 @@ namespace fCraft {
             Handler = ZoneAddHandler
         };
 
-        static void ZoneAddHandler( Player player, Command cmd ) {
+        static void ZoneAddHandler ( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             string givenZoneName = cmd.Next();
-            if( givenZoneName == null ) {
+            if ( givenZoneName == null ) {
                 CdZoneAdd.PrintUsage( player );
                 return;
             }
 
-            if( !player.Info.Rank.AllowSecurityCircumvention ) {
+            if ( !player.Info.Rank.AllowSecurityCircumvention ) {
                 SecurityCheckResult buildCheck = playerWorld.BuildSecurity.CheckDetailed( player.Info );
-                switch( buildCheck ) {
+                switch ( buildCheck ) {
                     case SecurityCheckResult.BlackListed:
                         player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
                                         playerWorld.ClassyName );
@@ -280,18 +245,18 @@ namespace fCraft {
             Zone newZone = new Zone();
             ZoneCollection zoneCollection = player.WorldMap.Zones;
 
-            if( givenZoneName.StartsWith( "+" ) ) {
+            if ( givenZoneName.StartsWith( "+" ) ) {
                 // personal zone (/ZAdd +Name)
                 givenZoneName = givenZoneName.Substring( 1 );
 
                 // Find the target player
                 PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, givenZoneName );
-                if( info == null ) return;
+                if ( info == null ) return;
 
                 // Make sure that the name is not taken already.
                 // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
                 newZone.Name = info.Name;
-                for( int i = 2; zoneCollection.Contains( newZone.Name ); i++ ) {
+                for ( int i = 2; zoneCollection.Contains( newZone.Name ); i++ ) {
                     newZone.Name = givenZoneName + i;
                 }
 
@@ -301,12 +266,12 @@ namespace fCraft {
                                 newZone.Controller.MinRank.ClassyName, info.ClassyName );
             } else {
                 // Adding an ordinary, rank-restricted zone.
-                if( !World.IsValidName( givenZoneName ) ) {
+                if ( !World.IsValidName( givenZoneName ) ) {
                     player.Message( "\"{0}\" is not a valid zone name", givenZoneName );
                     return;
                 }
 
-                if( zoneCollection.Contains( givenZoneName ) ) {
+                if ( zoneCollection.Contains( givenZoneName ) ) {
                     player.Message( "A zone with this name already exists. Use &H/ZEdit&S to edit." );
                     return;
                 }
@@ -314,31 +279,30 @@ namespace fCraft {
                 newZone.Name = givenZoneName;
 
                 string rankName = cmd.Next();
-                if( rankName == null ) {
+                if ( rankName == null ) {
                     player.Message( "No rank was specified. See &H/Help zone" );
                     return;
                 }
                 Rank minRank = RankManager.FindRank( rankName );
 
-                if( minRank != null ) {
+                if ( minRank != null ) {
                     string name;
-                    while( (name = cmd.Next()) != null ) {
+                    while ( ( name = cmd.Next() ) != null ) {
 
-                        if( name.Length == 0 ) continue;
+                        if ( name.Length == 0 ) continue;
 
-						if (name.ToLower().StartsWith("msg="))
-						{
-							newZone.Message = name.Substring(4) + " " + (cmd.NextAll() ?? "");
-                            player.Message("Zone: Custom denied messaged changed to '" + newZone.Message + "'");
-							break;
-						}
+                        if ( name.ToLower().StartsWith( "msg=" ) ) {
+                            newZone.Message = name.Substring( 4 ) + " " + ( cmd.NextAll() ?? "" );
+                            player.Message( "Zone: Custom denied messaged changed to '" + newZone.Message + "'" );
+                            break;
+                        }
 
                         PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                        if( info == null ) return;
+                        if ( info == null ) return;
 
-                        if( name.StartsWith( "+" ) ) {
+                        if ( name.StartsWith( "+" ) ) {
                             newZone.Controller.Include( info );
-                        } else if( name.StartsWith( "-" ) ) {
+                        } else if ( name.StartsWith( "-" ) ) {
                             newZone.Controller.Exclude( info );
                         }
                     }
@@ -346,20 +310,20 @@ namespace fCraft {
                     newZone.Controller.MinRank = minRank;
                 } else {
                     player.MessageNoRank( rankName );
-                	return;
+                    return;
                 }
             }
-			player.Message("Zone "+ newZone.ClassyName + "&S: Place a block or type &H/Mark&S to use your location.");
-			player.SelectionStart(2, ZoneAddCallback, newZone, CdZoneAdd.Permissions);
+            player.Message( "Zone " + newZone.ClassyName + "&S: Place a block or type &H/Mark&S to use your location." );
+            player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
         }
 
-        static void ZoneAddCallback( Player player, Vector3I[] marks, object tag ) {
+        static void ZoneAddCallback ( Player player, Vector3I[] marks, object tag ) {
             World playerWorld = player.World;
-            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
-            if( !player.Info.Rank.AllowSecurityCircumvention ) {
+            if ( !player.Info.Rank.AllowSecurityCircumvention ) {
                 SecurityCheckResult buildCheck = playerWorld.BuildSecurity.CheckDetailed( player.Info );
-                switch( buildCheck ) {
+                switch ( buildCheck ) {
                     case SecurityCheckResult.BlackListed:
                         player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
                                         playerWorld.ClassyName );
@@ -372,11 +336,11 @@ namespace fCraft {
                 }
             }
 
-            Zone zone = (Zone)tag;
+            Zone zone = ( Zone )tag;
             var zones = player.WorldMap.Zones;
-            lock( zones.SyncRoot ) {
+            lock ( zones.SyncRoot ) {
                 Zone dupeZone = zones.FindExact( zone.Name );
-                if( dupeZone != null ) {
+                if ( dupeZone != null ) {
                     player.Message( "A zone named \"{0}\" has just been created by {1}",
                                     dupeZone.Name, dupeZone.CreatedBy );
                     return;
@@ -407,45 +371,45 @@ namespace fCraft {
             Permissions = new[] { Permission.ManageZones },
             Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName] [msg=CustomDenyMessage]",
             Help = "&HAllows editing the zone permissions after creation. " +
-                   "You can change the rank restrictions, and include or exclude individual players."+
-				   " The custom deny message must be the last pararameter since the rest of the command past the 'msg=' will be considered as the new message",
+                   "You can change the rank restrictions, and include or exclude individual players." +
+                   " The custom deny message must be the last pararameter since the rest of the command past the 'msg=' will be considered as the new message",
             Handler = ZoneEditHandler
         };
 
-        static void ZoneEditHandler( Player player, Command cmd ) {
+        static void ZoneEditHandler ( Player player, Command cmd ) {
             bool changesWereMade = false;
             string zoneName = cmd.Next();
-            if( zoneName == null ) {
+            if ( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/Help ZEdit" );
                 return;
             }
 
             Zone zone = player.WorldMap.Zones.Find( zoneName );
-            if( zone == null ) {
+            if ( zone == null ) {
                 player.MessageNoZone( zoneName );
                 return;
             }
 
             string name;
-            while( (name = cmd.Next()) != null ) {
-                if( name.StartsWith( "+" ) ) {
-                    if( name.Length == 1 ) {
+            while ( ( name = cmd.Next() ) != null ) {
+                if ( name.StartsWith( "+" ) ) {
+                    if ( name.Length == 1 ) {
                         CdZoneEdit.PrintUsage( player );
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if( info == null ) return;
+                    if ( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
-                    if( !player.Info.Rank.AllowSecurityCircumvention && player.Info == info ) {
-                        if( !zone.Controller.Check( info ) ) {
+                    if ( !player.Info.Rank.AllowSecurityCircumvention && player.Info == info ) {
+                        if ( !zone.Controller.Check( info ) ) {
                             player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
                                             zone.Controller.MinRank.ClassyName );
                             continue;
                         }
                     }
 
-                    switch( zone.Controller.Include( info ) ) {
+                    switch ( zone.Controller.Include( info ) ) {
                         case PermissionOverride.Deny:
                             player.Message( "{0}&S is no longer excluded from zone {1}",
                                             info.ClassyName, zone.ClassyName );
@@ -462,15 +426,15 @@ namespace fCraft {
                             break;
                     }
 
-                } else if( name.StartsWith( "-" ) ) {
-                    if( name.Length == 1 ) {
+                } else if ( name.StartsWith( "-" ) ) {
+                    if ( name.Length == 1 ) {
                         CdZoneEdit.PrintUsage( player );
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if( info == null ) return;
+                    if ( info == null ) return;
 
-                    switch( zone.Controller.Exclude( info ) ) {
+                    switch ( zone.Controller.Exclude( info ) ) {
                         case PermissionOverride.Deny:
                             player.Message( "{0}&S is already excluded from zone {1}",
                                             info.ClassyName, zone.ClassyName );
@@ -487,26 +451,23 @@ namespace fCraft {
                             break;
                     }
 
-                } 
-				else if (name.ToLower().StartsWith("msg="))
-				{
-					zone.Message = name.Substring(4) + " " + (cmd.NextAll() ?? "");
-					changesWereMade = true;
-                    player.Message("Zedit: Custom denied messaged changed to '" + zone.Message + "'");
-					break;
-				}
-				else {
+                } else if ( name.ToLower().StartsWith( "msg=" ) ) {
+                    zone.Message = name.Substring( 4 ) + " " + ( cmd.NextAll() ?? "" );
+                    changesWereMade = true;
+                    player.Message( "Zedit: Custom denied messaged changed to '" + zone.Message + "'" );
+                    break;
+                } else {
                     Rank minRank = RankManager.FindRank( name );
 
-                    if( minRank != null ) {
+                    if ( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
-                        if( !player.Info.Rank.AllowSecurityCircumvention &&
+                        if ( !player.Info.Rank.AllowSecurityCircumvention &&
                             zone.Controller.MinRank > player.Info.Rank && minRank <= player.Info.Rank ) {
                             player.Message( "You are not allowed to lower the zone's rank." );
                             continue;
                         }
 
-                        if( zone.Controller.MinRank != minRank ) {
+                        if ( zone.Controller.MinRank != minRank ) {
                             zone.Controller.MinRank = minRank;
                             player.Message( "Permission for zone \"{0}\" changed to {1}+",
                                             zone.Name,
@@ -518,10 +479,10 @@ namespace fCraft {
                     }
                 }
             }
-			if (changesWereMade)
-				zone.Edit(player.Info);
-			else
-				player.Message("No changes were made to the zone.");
+            if ( changesWereMade )
+                zone.Edit( player.Info );
+            else
+                player.Message( "No changes were made to the zone." );
         }
 
         #endregion ZoneEdit
@@ -539,15 +500,15 @@ namespace fCraft {
             Handler = ZoneInfoHandler
         };
 
-        static void ZoneInfoHandler( Player player, Command cmd ) {
+        static void ZoneInfoHandler ( Player player, Command cmd ) {
             string zoneName = cmd.Next();
-            if( zoneName == null ) {
+            if ( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/Help ZInfo" );
                 return;
             }
 
             Zone zone = player.WorldMap.Zones.Find( zoneName );
-            if( zone == null ) {
+            if ( zone == null ) {
                 player.MessageNoZone( zoneName );
                 return;
             }
@@ -559,18 +520,18 @@ namespace fCraft {
                             zone.Controller.MinRank.ClassyName );
 
             player.Message( "  Zone center is at ({0},{1},{2}).",
-                            (zone.Bounds.XMin + zone.Bounds.XMax) / 2,
-                            (zone.Bounds.YMin + zone.Bounds.YMax) / 2,
-                            (zone.Bounds.ZMin + zone.Bounds.ZMax) / 2 );
+                            ( zone.Bounds.XMin + zone.Bounds.XMax ) / 2,
+                            ( zone.Bounds.YMin + zone.Bounds.YMax ) / 2,
+                            ( zone.Bounds.ZMin + zone.Bounds.ZMax ) / 2 );
 
-            if( zone.CreatedBy != null ) {
+            if ( zone.CreatedBy != null ) {
                 player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2} ago).",
                                 zone.CreatedByClassy,
                                 zone.CreatedDate,
                                 DateTime.UtcNow.Subtract( zone.CreatedDate ).ToMiniString() );
             }
 
-            if( zone.EditedBy != null ) {
+            if ( zone.EditedBy != null ) {
                 player.Message( "  Zone last edited by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
                 zone.EditedByClassy,
                 zone.EditedDate,
@@ -580,21 +541,21 @@ namespace fCraft {
 
             PlayerExceptions zoneExceptions = zone.ExceptionList;
 
-            if( zoneExceptions.Included.Length > 0 ) {
+            if ( zoneExceptions.Included.Length > 0 ) {
                 player.Message( "  Zone whitelist includes: {0}",
                                 zoneExceptions.Included.JoinToClassyString() );
             }
 
-            if( zoneExceptions.Excluded.Length > 0 ) {
+            if ( zoneExceptions.Excluded.Length > 0 ) {
                 player.Message( "  Zone blacklist excludes: {0}",
                                 zoneExceptions.Excluded.JoinToClassyString() );
             }
 
-			if (null != zone.Message)
-				player.Message("  Zone has custom deny build message: " + zone.Message);
-			else
-				player.Message("  Zone has no custom deny build message");
-		}
+            if ( null != zone.Message )
+                player.Message( "  Zone has custom deny build message: " + zone.Message );
+            else
+                player.Message( "  Zone has no custom deny build message" );
+        }
 
         #endregion
 
@@ -611,16 +572,16 @@ namespace fCraft {
             Handler = ZoneListHandler
         };
 
-        static void ZoneListHandler( Player player, Command cmd ) {
+        static void ZoneListHandler ( Player player, Command cmd ) {
             World world = player.World;
             string worldName = cmd.Next();
-            if( worldName != null ) {
+            if ( worldName != null ) {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if( world == null ) return;
+                if ( world == null ) return;
                 player.Message( "List of zones on {0}&S:",
                                 world.ClassyName );
 
-            } else if( world != null ) {
+            } else if ( world != null ) {
                 player.Message( "List of zones on this world:" );
 
             } else {
@@ -629,8 +590,8 @@ namespace fCraft {
             }
 
             Map map = world.Map;
-            if( map == null ) {
-                if( !MapUtility.TryLoadHeader( world.MapFileName, out map ) ) {
+            if ( map == null ) {
+                if ( !MapUtility.TryLoadHeader( world.MapFileName, out map ) ) {
                     player.Message( "&WERROR:Could not load mapfile for world {0}.",
                                     world.ClassyName );
                     return;
@@ -638,8 +599,8 @@ namespace fCraft {
             }
 
             Zone[] zones = map.Zones.Cache;
-            if( zones.Length > 0 ) {
-                foreach( Zone zone in zones ) {
+            if ( zones.Length > 0 ) {
+                foreach ( Zone zone in zones ) {
                     player.Message( "   {0} ({1}&S) - {2} x {3} x {4}",
                                     zone.Name,
                                     zone.Controller.MinRank.ClassyName,
@@ -666,18 +627,18 @@ namespace fCraft {
             Handler = ZoneMarkHandler
         };
 
-        static void ZoneMarkHandler( Player player, Command cmd ) {
-            if( player.SelectionMarksExpected == 0 ) {
+        static void ZoneMarkHandler ( Player player, Command cmd ) {
+            if ( player.SelectionMarksExpected == 0 ) {
                 player.MessageNow( "Cannot use ZMark - no selection in progress." );
-            } else if( player.SelectionMarksExpected == 2 ) {
+            } else if ( player.SelectionMarksExpected == 2 ) {
                 string zoneName = cmd.Next();
-                if( zoneName == null ) {
+                if ( zoneName == null ) {
                     CdZoneMark.PrintUsage( player );
                     return;
                 }
 
                 Zone zone = player.WorldMap.Zones.Find( zoneName );
-                if( zone == null ) {
+                if ( zone == null ) {
                     player.MessageNoZone( zoneName );
                     return;
                 }
@@ -705,18 +666,18 @@ namespace fCraft {
             Handler = ZoneRemoveHandler
         };
 
-        static void ZoneRemoveHandler( Player player, Command cmd ) {
+        static void ZoneRemoveHandler ( Player player, Command cmd ) {
             string zoneName = cmd.Next();
-            if( zoneName == null ) {
+            if ( zoneName == null ) {
                 CdZoneRemove.PrintUsage( player );
                 return;
             }
 
             ZoneCollection zones = player.WorldMap.Zones;
             Zone zone = zones.Find( zoneName );
-            if( zone != null ) {
-                if( !player.Info.Rank.AllowSecurityCircumvention ) {
-                    switch( zone.Controller.CheckDetailed( player.Info ) ) {
+            if ( zone != null ) {
+                if ( !player.Info.Rank.AllowSecurityCircumvention ) {
+                    switch ( zone.Controller.CheckDetailed( player.Info ) ) {
                         case SecurityCheckResult.BlackListed:
                             player.Message( "You are not allowed to remove zone {0}: you are blacklisted.", zone.ClassyName );
                             return;
@@ -725,12 +686,12 @@ namespace fCraft {
                             return;
                     }
                 }
-                if( !cmd.IsConfirmed ) {
+                if ( !cmd.IsConfirmed ) {
                     player.Confirm( cmd, "Remove zone {0}&S?", zone.ClassyName );
                     return;
                 }
 
-                if( zones.Remove( zone.Name ) ) {
+                if ( zones.Remove( zone.Name ) ) {
                     player.Message( "Zone \"{0}\" removed.", zone.Name );
                 }
 
@@ -753,20 +714,20 @@ namespace fCraft {
             Handler = ZoneRenameHandler
         };
 
-        static void ZoneRenameHandler( Player player, Command cmd ) {
+        static void ZoneRenameHandler ( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if(playerWorld==null)PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             // make sure that both parameters are given
             string oldName = cmd.Next();
             string newName = cmd.Next();
-            if( oldName == null || newName == null ) {
+            if ( oldName == null || newName == null ) {
                 CdZoneRename.PrintUsage( player );
                 return;
             }
 
             // make sure that the new name is valid
-            if( !World.IsValidName( newName ) ) {
+            if ( !World.IsValidName( newName ) ) {
                 player.Message( "\"{0}\" is not a valid zone name", newName );
                 return;
             }
@@ -774,21 +735,21 @@ namespace fCraft {
             // find the old zone
             var zones = player.WorldMap.Zones;
             Zone oldZone = zones.Find( oldName );
-            if( oldZone == null ) {
+            if ( oldZone == null ) {
                 player.MessageNoZone( oldName );
                 return;
             }
 
             // Check if a zone with "newName" name already exists
             Zone newZone = zones.FindExact( newName );
-            if( newZone != null && newZone != oldZone ) {
+            if ( newZone != null && newZone != oldZone ) {
                 player.Message( "A zone with the name \"{0}\" already exists.", newName );
                 return;
             }
 
             // check if any change is needed
             string fullOldName = oldZone.Name;
-            if( fullOldName == newName ) {
+            if ( fullOldName == newName ) {
                 player.Message( "The zone is already named \"{0}\"", fullOldName );
                 return;
             }
@@ -817,19 +778,19 @@ namespace fCraft {
             Handler = ZoneTestHandler
         };
 
-        static void ZoneTestHandler( Player player, Command cmd ) {
+        static void ZoneTestHandler ( Player player, Command cmd ) {
             player.SelectionStart( 1, ZoneTestCallback, null );
             player.Message( "Click the block that you would like to test." );
         }
 
-        static void ZoneTestCallback( Player player, Vector3I[] marks, object tag ) {
+        static void ZoneTestCallback ( Player player, Vector3I[] marks, object tag ) {
             Zone[] allowed, denied;
-            if( player.WorldMap.Zones.CheckDetailed( marks[0], player, out allowed, out denied ) ) {
-                foreach( Zone zone in allowed ) {
+            if ( player.WorldMap.Zones.CheckDetailed( marks[0], player, out allowed, out denied ) ) {
+                foreach ( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
                     player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Lime, status );
                 }
-                foreach( Zone zone in denied ) {
+                foreach ( Zone zone in denied ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
                     player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Red, status );
                 }

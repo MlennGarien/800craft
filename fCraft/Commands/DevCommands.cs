@@ -18,13 +18,10 @@ using System.Drawing;
 
 //You should have received a copy of the GNU General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
-namespace fCraft
-{
-    static class DevCommands
-    {
+namespace fCraft {
+    static class DevCommands {
 
-        public static void Init()
-        {
+        public static void Init () {
             /*
              * NOTE: These commands are unfinished, under development and non-supported.
              * If you are using a dev build of 800Craft, please comment these the below out to ensure 
@@ -37,8 +34,7 @@ namespace fCraft
             //CommandManager.RegisterCommand(CdGame);
         }
 
-        static readonly CommandDescriptor CdGame = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdGame = new CommandDescriptor {
             Name = "Game",
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.Games },
@@ -46,8 +42,7 @@ namespace fCraft
             Usage = "/Unfinished command.",
             Handler = GameHandler
         };
-        private static void GameHandler(Player player, Command cmd)
-        {
+        private static void GameHandler ( Player player, Command cmd ) {
             string GameMode = cmd.Next();
             string Option = cmd.Next();
             World world = player.World;
@@ -56,58 +51,43 @@ namespace fCraft
                 return;
             }*/
 
-            if (GameMode.ToLower() == "zombie")
-            {
-                if (Option.ToLower() == "start")
-                {
-                    ZombieGame game = new ZombieGame(player.World); //move to world
+            if ( GameMode.ToLower() == "zombie" ) {
+                if ( Option.ToLower() == "start" ) {
+                    ZombieGame game = new ZombieGame( player.World ); //move to world
                     game.Start();
                     return;
-                }
-                else
-                {
-                    CdGame.PrintUsage(player);
+                } else {
+                    CdGame.PrintUsage( player );
                     return;
                 }
             }
-            if (GameMode.ToLower() == "minefield")
-            {
-                if (Option.ToLower() == "start")
-                {
-                    if (WorldManager.FindWorldExact("Minefield") != null)
-                    {
-                        player.Message("&WA game of Minefield is currently running and must first be stopped");
+            if ( GameMode.ToLower() == "minefield" ) {
+                if ( Option.ToLower() == "start" ) {
+                    if ( WorldManager.FindWorldExact( "Minefield" ) != null ) {
+                        player.Message( "&WA game of Minefield is currently running and must first be stopped" );
                         return;
                     }
                     MineField.GetInstance();
-                    MineField.Start(player);
+                    MineField.Start( player );
                     return;
-                }
-                else if (Option.ToLower() == "stop")
-                {
-                    if (WorldManager.FindWorldExact("Minefield") == null)
-                    {
-                        player.Message("&WA game of Minefield is currently not running");
+                } else if ( Option.ToLower() == "stop" ) {
+                    if ( WorldManager.FindWorldExact( "Minefield" ) == null ) {
+                        player.Message( "&WA game of Minefield is currently not running" );
                         return;
                     }
-                    MineField.Stop(player, false);
+                    MineField.Stop( player, false );
+                    return;
+                } else {
+                    CdGame.PrintUsage( player );
                     return;
                 }
-                else
-                {
-                    CdGame.PrintUsage(player);
-                    return;
-                }
-            }
-            else
-            {
-                CdGame.PrintUsage(player);
+            } else {
+                CdGame.PrintUsage( player );
                 return;
             }
         }
 
-        static readonly CommandDescriptor CdBot = new CommandDescriptor
-        {
+        /*static readonly CommandDescriptor CdBot = new CommandDescriptor {
             Name = "Bot",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Chat },
@@ -118,21 +98,18 @@ namespace fCraft
             UsableByFrozenPlayers = false,
             Handler = BotHandler,
         };
-        internal static void BotHandler(Player player, Command cmd)
-        {
+        internal static void BotHandler ( Player player, Command cmd ) {
             Bot bot = player.Bot;
             string yes = cmd.Next();
-            if (yes.ToLower() == "create")
-            {
+            if ( yes.ToLower() == "create" ) {
                 string Name = cmd.Next();
-                Position Pos = new Position(player.Position.X, player.Position.Y, player.Position.Z, player.Position.R, player.Position.L);
-                player.Bot = new Bot(Name, Pos, 1, player.World);
+                Position Pos = new Position( player.Position.X, player.Position.Y, player.Position.Z, player.Position.R, player.Position.L );
+                player.Bot = new Bot( Name, Pos, 1, player.World );
                 //player.Bot.SetBot();
             }
-        }
+        }*/
 
-        static readonly CommandDescriptor CdSpell = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdSpell = new CommandDescriptor {
             Name = "Spell",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Chat },
@@ -144,19 +121,17 @@ namespace fCraft
             Handler = SpellHandler,
         };
         public static SpellStartBehavior particleBehavior = new SpellStartBehavior();
-        internal static void SpellHandler(Player player, Command cmd)
-        {
+        internal static void SpellHandler ( Player player, Command cmd ) {
             World world = player.World;
             Vector3I pos1 = player.Position.ToBlockCoords();
             Random _r = new Random();
-            int n = _r.Next(8, 12);
-            for (int i = 0; i < n; ++i)
-            {
+            int n = _r.Next( 8, 12 );
+            for ( int i = 0; i < n; ++i ) {
                 double phi = -_r.NextDouble() + -player.Position.L * 2 * Math.PI;
                 double ksi = -_r.NextDouble() + player.Position.R * Math.PI - Math.PI / 2.0;
 
-                Vector3F direction = (new Vector3F((float)(Math.Cos(phi) * Math.Cos(ksi)), (float)(Math.Sin(phi) * Math.Cos(ksi)), (float)Math.Sin(ksi))).Normalize();
-                world.AddPhysicsTask(new Particle(world, (pos1 + 2 * direction).Round(), direction, player, Block.Obsidian, particleBehavior), 0);
+                Vector3F direction = ( new Vector3F( ( float )( Math.Cos( phi ) * Math.Cos( ksi ) ), ( float )( Math.Sin( phi ) * Math.Cos( ksi ) ), ( float )Math.Sin( ksi ) ) ).Normalize();
+                world.AddPhysicsTask( new Particle( world, ( pos1 + 2 * direction ).Round(), direction, player, Block.Obsidian, particleBehavior ), 0 );
             }
         }
     }

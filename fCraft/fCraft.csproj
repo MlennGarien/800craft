@@ -159,9 +159,6 @@
     <Compile Include="Physics\WaterPhysics.cs" />
     <Compile Include="Player\Chat.cs" />
     <Compile Include="Player\ChatTimer.cs" />
-    <Compile Include="Player\Bot\Bot.cs" />
-    <Compile Include="Player\Bot\BotChatHandler.cs" />
-    <Compile Include="Player\Bot\BotHelper.cs" />
     <Compile Include="Player\Permission.cs" />
     <Compile Include="Player\Player.cs" />
     <Compile Include="Player\Player.Events.cs" />

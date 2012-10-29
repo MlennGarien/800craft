@@ -101,8 +101,6 @@ namespace fCraft {
         /// <summary> Last time when this player was patrolled by someone. </summary>
         public DateTime LastPatrolTime { get; set; }
 
-        public Bot Bot;
-        //public Alice Ali;
 
         public Font font = new Font("Times New Roman", 14, FontStyle.Regular, GraphicsUnit.Pixel);
         System.Drawing.Text.PrivateFontCollection FontC;

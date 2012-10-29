@@ -20,24 +20,20 @@ using System.Text;
 using RandomMaze;
 using System.Threading;
 
-namespace fCraft
-{
-    internal static class FunCommands
-    {
-        internal static void Init()
-        {
-            CommandManager.RegisterCommand(CdRandomMaze);
-            CommandManager.RegisterCommand(CdMazeCuboid);
-            CommandManager.RegisterCommand(CdFirework);
-            CommandManager.RegisterCommand(CdLife);
-            CommandManager.RegisterCommand(CdPossess);
-            CommandManager.RegisterCommand(CdUnpossess);
+namespace fCraft {
+    internal static class FunCommands {
+        internal static void Init () {
+            CommandManager.RegisterCommand( CdRandomMaze );
+            CommandManager.RegisterCommand( CdMazeCuboid );
+            CommandManager.RegisterCommand( CdFirework );
+            CommandManager.RegisterCommand( CdLife );
+            CommandManager.RegisterCommand( CdPossess );
+            CommandManager.RegisterCommand( CdUnpossess );
         }
 
         #region Possess / UnPossess
 
-        static readonly CommandDescriptor CdPossess = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdPossess = new CommandDescriptor {
             Name = "Possess",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Possess },
@@ -45,45 +41,38 @@ namespace fCraft
             Handler = PossessHandler
         };
 
-        static void PossessHandler(Player player, Command cmd)
-        {
+        static void PossessHandler ( Player player, Command cmd ) {
             string targetName = cmd.Next();
-            if (targetName == null)
-            {
-                CdPossess.PrintUsage(player);
+            if ( targetName == null ) {
+                CdPossess.PrintUsage( player );
                 return;
             }
-            Player target = Server.FindPlayerOrPrintMatches(player, targetName, false, true);
-            if (target == null) return;
-            if (target.Immortal)
-            {
-                player.Message("You cannot possess {0}&S, they are immortal", target.ClassyName);
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
+            if ( target == null ) return;
+            if ( target.Immortal ) {
+                player.Message( "You cannot possess {0}&S, they are immortal", target.ClassyName );
                 return;
             }
-            if (target == player)
-            {
-                player.Message("You cannot possess yourself.");
+            if ( target == player ) {
+                player.Message( "You cannot possess yourself." );
                 return;
             }
 
-            if (!player.Can(Permission.Possess, target.Info.Rank))
-            {
-                player.Message("You may only possess players ranked {0}&S or lower.",
-                player.Info.Rank.GetLimit(Permission.Possess).ClassyName);
-                player.Message("{0}&S is ranked {1}",
-                                target.ClassyName, target.Info.Rank.ClassyName);
+            if ( !player.Can( Permission.Possess, target.Info.Rank ) ) {
+                player.Message( "You may only possess players ranked {0}&S or lower.",
+                player.Info.Rank.GetLimit( Permission.Possess ).ClassyName );
+                player.Message( "{0}&S is ranked {1}",
+                                target.ClassyName, target.Info.Rank.ClassyName );
                 return;
             }
 
-            if (!player.Possess(target))
-            {
-                player.Message("Already possessing {0}", target.ClassyName);
+            if ( !player.Possess( target ) ) {
+                player.Message( "Already possessing {0}", target.ClassyName );
             }
         }
 
 
-        static readonly CommandDescriptor CdUnpossess = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdUnpossess = new CommandDescriptor {
             Name = "unpossess",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Possess },
@@ -92,27 +81,23 @@ namespace fCraft
             Handler = UnpossessHandler
         };
 
-        static void UnpossessHandler(Player player, Command cmd)
-        {
+        static void UnpossessHandler ( Player player, Command cmd ) {
             string targetName = cmd.Next();
-            if (targetName == null)
-            {
-                CdUnpossess.PrintUsage(player);
+            if ( targetName == null ) {
+                CdUnpossess.PrintUsage( player );
                 return;
             }
-            Player target = Server.FindPlayerOrPrintMatches(player, targetName, true, true);
-            if (target == null) return;
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, true, true );
+            if ( target == null ) return;
 
-            if (!player.StopPossessing(target))
-            {
-                player.Message("You are not currently possessing anyone.");
+            if ( !player.StopPossessing( target ) ) {
+                player.Message( "You are not currently possessing anyone." );
             }
         }
 
         #endregion
 
-        static readonly CommandDescriptor CdLife = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdLife = new CommandDescriptor {
             Name = "Life",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.DrawAdvanced },
@@ -123,9 +108,8 @@ namespace fCraft
             UsableByFrozenPlayers = false,
             Handler = LifeHandlerFunc,
         };
-        
-        static readonly CommandDescriptor CdFirework = new CommandDescriptor
-        {
+
+        static readonly CommandDescriptor CdFirework = new CommandDescriptor {
             Name = "Firework",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Fireworks },
@@ -139,25 +123,20 @@ namespace fCraft
             Handler = FireworkHandler
         };
 
-        static void FireworkHandler(Player player, Command cmd)
-        {
-            if (player.fireworkMode)
-            {
+        static void FireworkHandler ( Player player, Command cmd ) {
+            if ( player.fireworkMode ) {
                 player.fireworkMode = false;
-                player.Message("Firework Mode has been turned off.");
+                player.Message( "Firework Mode has been turned off." );
                 return;
-            }
-            else
-            {
+            } else {
                 player.fireworkMode = true;
-                player.Message("Firework Mode has been turned on. " +
-                    "All Gold blocks are now being replaced with Fireworks.");
+                player.Message( "Firework Mode has been turned on. " +
+                    "All Gold blocks are now being replaced with Fireworks." );
             }
         }
 
 
-        static readonly CommandDescriptor CdRandomMaze = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdRandomMaze = new CommandDescriptor {
             Name = "RandomMaze",
             Aliases = new string[] { "3dmaze" },
             Category = CommandCategory.Fun,
@@ -169,8 +148,7 @@ namespace fCraft
             Usage = "/randommaze <width> <length> <height> [nolifts] [hints]",
             Handler = MazeHandler
         };
-        static readonly CommandDescriptor CdMazeCuboid = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdMazeCuboid = new CommandDescriptor {
             Name = "MazeCuboid",
             Aliases = new string[] { "Mc", "Mz", "Maze" },
             Category = CommandCategory.Fun,
@@ -182,48 +160,35 @@ namespace fCraft
             Handler = MazeCuboidHandler,
         };
 
-        private static void MazeHandler(Player p, Command cmd)
-        {
-            try
-            {
-                RandomMazeDrawOperation op = new RandomMazeDrawOperation(p, cmd);
-                BuildingCommands.DrawOperationBegin(p, cmd, op);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogType.Error, "Error: " + e.Message);
+        private static void MazeHandler ( Player p, Command cmd ) {
+            try {
+                RandomMazeDrawOperation op = new RandomMazeDrawOperation( p, cmd );
+                BuildingCommands.DrawOperationBegin( p, cmd, op );
+            } catch ( Exception e ) {
+                Logger.Log( LogType.Error, "Error: " + e.Message );
             }
         }
-        private static void MazeCuboidHandler(Player p, Command cmd)
-        {
-            try
-            {
-                MazeCuboidDrawOperation op = new MazeCuboidDrawOperation(p);
-                BuildingCommands.DrawOperationBegin(p, cmd, op);
-            }
-            catch (Exception e)
-            {
-                Logger.Log(LogType.Error, "Error: " + e.Message);
+        private static void MazeCuboidHandler ( Player p, Command cmd ) {
+            try {
+                MazeCuboidDrawOperation op = new MazeCuboidDrawOperation( p );
+                BuildingCommands.DrawOperationBegin( p, cmd, op );
+            } catch ( Exception e ) {
+                Logger.Log( LogType.Error, "Error: " + e.Message );
             }
         }
-        private static void LifeHandlerFunc(Player p, Command cmd)
-        {
-        	try
-        	{
-                if (!cmd.HasNext)
-                {
-                    p.Message("&H/Life <command> <params>. Commands are Help, Create, Delete, Start, Stop, Set, List, Print");
-                    p.Message("Type /Life help <command> for more information");
+        private static void LifeHandlerFunc ( Player p, Command cmd ) {
+            try {
+                if ( !cmd.HasNext ) {
+                    p.Message( "&H/Life <command> <params>. Commands are Help, Create, Delete, Start, Stop, Set, List, Print" );
+                    p.Message( "Type /Life help <command> for more information" );
                     return;
                 }
-				LifeHandler.ProcessCommand(p, cmd);
-        	}
-        	catch (Exception e)
-        	{
-				p.Message("Error: " + e.Message);
-        	}
+                LifeHandler.ProcessCommand( p, cmd );
+            } catch ( Exception e ) {
+                p.Message( "Error: " + e.Message );
+            }
         }
 
-        
+
     }
 }

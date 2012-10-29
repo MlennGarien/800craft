@@ -18,10 +18,8 @@ using System.Linq;
 using System.Text;
 
 ///<Summary> Spell enum, to be used with Spell Physics </Summary>
-namespace fCraft
-{
-    public enum Spell : byte
-    {
+namespace fCraft {
+    public enum Spell : byte {
         Polymorph = 1,
 
         Impersonation = 2,

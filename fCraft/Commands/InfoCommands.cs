@@ -15,7 +15,7 @@ namespace fCraft {
     static class InfoCommands {
         const int PlayersPerPage = 30;
 
-        internal static void Init() {
+        internal static void Init () {
             CommandManager.RegisterCommand( CdInfo );
             CommandManager.RegisterCommand( CdBanInfo );
             CommandManager.RegisterCommand( CdRankInfo );
@@ -36,9 +36,9 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdColors );
 
-            CommandManager.RegisterCommand(CdReqs);
-            CommandManager.RegisterCommand(CdList);
-            CommandManager.RegisterCommand(CdWhoIs);
+            CommandManager.RegisterCommand( CdReqs );
+            CommandManager.RegisterCommand( CdList );
+            CommandManager.RegisterCommand( CdWhoIs );
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
@@ -61,8 +61,7 @@ namespace fCraft {
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-        static readonly CommandDescriptor CdWhoIs = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdWhoIs = new CommandDescriptor {
             Name = "WhoIs",
             Category = CommandCategory.Info,
             Permissions = new Permission[] { Permission.ViewOthersInfo },
@@ -70,260 +69,242 @@ namespace fCraft {
             Usage = "/Whois DisplayedName",
             Handler = WhoIsHandler
         };
-        private static void WhoIsHandler(Player player, Command cmd)
-        {
+        private static void WhoIsHandler ( Player player, Command cmd ) {
             string Name = cmd.Next();
-            if (string.IsNullOrEmpty(Name))
-            {
-                CdWhoIs.PrintUsage(player);
+            if ( string.IsNullOrEmpty( Name ) ) {
+                CdWhoIs.PrintUsage( player );
                 return;
             }
-            Name = Color.StripColors(Name.ToLower());
-            PlayerInfo[] Names = PlayerDB.PlayerInfoList.Where(p => p.DisplayedName != null &&
-                Color.StripColors(p.DisplayedName.ToLower()).Contains(Name))
+            Name = Color.StripColors( Name.ToLower() );
+            PlayerInfo[] Names = PlayerDB.PlayerInfoList.Where( p => p.DisplayedName != null &&
+                Color.StripColors( p.DisplayedName.ToLower() ).Contains( Name ) )
                                          .ToArray();
-            Array.Sort(Names, new PlayerInfoComparer(player));
-            if (Names.Length < 1){
-                player.Message("&WNo results found with that DisplayedName");
+            Array.Sort( Names, new PlayerInfoComparer( player ) );
+            if ( Names.Length < 1 ) {
+                player.Message( "&WNo results found with that DisplayedName" );
                 return;
             }
-            if (Names.Length == 1){
-                player.Message("One player found with that DisplayedName: {0}", Names[0].Rank.Color + Names[0].Name);
+            if ( Names.Length == 1 ) {
+                player.Message( "One player found with that DisplayedName: {0}", Names[0].Rank.Color + Names[0].Name );
                 return;
             }
-            if (Names.Length <= 15){
-                MessageManyMatches(player, Names);
-            }else{
+            if ( Names.Length <= 15 ) {
+                MessageManyMatches( player, Names );
+            } else {
                 int offset;
-                if (!cmd.NextInt(out offset)) offset = 0;
-                if (offset >= Names.Length)
-                    offset = Math.Max(0, Names.Length - 15);
-                PlayerInfo[] Part = Names.Skip(offset).Take(15).ToArray();
-                MessageManyMatches(player, Part);
-                if (offset + Part.Length < Names.Length){
-                    player.Message("Showing {0}-{1} (out of {2}). Next: &H/Whois {3} {4}",
+                if ( !cmd.NextInt( out offset ) ) offset = 0;
+                if ( offset >= Names.Length )
+                    offset = Math.Max( 0, Names.Length - 15 );
+                PlayerInfo[] Part = Names.Skip( offset ).Take( 15 ).ToArray();
+                MessageManyMatches( player, Part );
+                if ( offset + Part.Length < Names.Length ) {
+                    player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Whois {3} {4}",
                                     offset + 1, offset + Part.Length, Names.Length,
-                                    Name, offset + Part.Length);
-                }else{
-                    player.Message("Showing matches {0}-{1} (out of {2}).",
-                                    offset + 1, offset + Part.Length, Names.Length);
+                                    Name, offset + Part.Length );
+                } else {
+                    player.Message( "Showing matches {0}-{1} (out of {2}).",
+                                    offset + 1, offset + Part.Length, Names.Length );
                 }
             }
         }
 
-        static void MessageManyMatches(Player player, PlayerInfo[] names)
-        {
-            if (names == null) throw new ArgumentNullException("names");
+        static void MessageManyMatches ( Player player, PlayerInfo[] names ) {
+            if ( names == null ) throw new ArgumentNullException( "names" );
 
-            string nameList = names.JoinToString(", ", p => p.Rank.Color + p.Name + "&S(" + p.ClassyName + "&S)");
-            player.Message("More than one player matched with that DisplayedName: {0}",
-                     nameList);
+            string nameList = names.JoinToString( ", ", p => p.Rank.Color + p.Name + "&S(" + p.ClassyName + "&S)" );
+            player.Message( "More than one player matched with that DisplayedName: {0}",
+                     nameList );
         }
 
-        static readonly CommandDescriptor CdList = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdList = new CommandDescriptor {
             Name = "List",
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "&HCan show an advanced list for a chosen section. "+ 
+            Help = "&HCan show an advanced list for a chosen section. " +
             "Type /List to display the sections",
             Usage = "/List SectionName",
             Handler = ListHandler
         };
 
-        internal static void ListHandler(Player player, Command cmd)
-        {
+        internal static void ListHandler ( Player player, Command cmd ) {
             string Option = cmd.Next();
-            if (Option == null)
-            {
-                CdList.PrintUsage(player);
-                player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10, Emotes");
+            if ( Option == null ) {
+                CdList.PrintUsage( player );
+                player.Message( "  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10, Emotes" );
                 return;
             }
-            switch (Option.ToLower())
-            {
+            switch ( Option.ToLower() ) {
                 default:
-                    CdList.PrintUsage(player);
-                    player.Message("  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10, Emotes");
+                    CdList.PrintUsage( player );
+                    player.Message( "  Sections include: Staff, DisplayedNames, Idles, Portals, Rank, Top10, Emotes" );
                     break;
                 case "emotes":
                     string Usage = "Shows a list of all available emotes and their keywords. " +
                    "There are 31 emotes, spanning 3 pages. Use &h/List emotes 2&s and &h/List emotes 3&s to see pages 2 and 3.";
                     int page = 1;
-            if( cmd.HasNext ) {
-                if( !cmd.NextInt( out page ) ) {
-                    player.Message(Usage);
-                    return;
-                }
-            }
-            if( page < 1 || page > 3 ) {
-                player.Message(Usage);
-                return;
-            }
+                    if ( cmd.HasNext ) {
+                        if ( !cmd.NextInt( out page ) ) {
+                            player.Message( Usage );
+                            return;
+                        }
+                    }
+                    if ( page < 1 || page > 3 ) {
+                        player.Message( Usage );
+                        return;
+                    }
 
-            var emoteChars = Chat.EmoteKeywords
-                                 .Values
-                                 .Distinct()
-                                 .Skip( ( page - 1 ) * 11 )
-                                 .Take( 11 );
+                    var emoteChars = Chat.EmoteKeywords
+                                         .Values
+                                         .Distinct()
+                                         .Skip( ( page - 1 ) * 11 )
+                                         .Take( 11 );
 
-            player.Message( "List of emotes, page {0} of 3:", page );
-            foreach( char ch in emoteChars ) {
-                char ch1 = ch;
-                string keywords = Chat.EmoteKeywords
-                                      .Where( pair => pair.Value == ch1 )
-                                      .Select( kvp => "{&F" + kvp.Key.UppercaseFirst() + "&7}" )
-                                      .JoinToString( " " );
-                player.Message( "&F  {0} &7= {1}", ch, keywords );
-            }
+                    player.Message( "List of emotes, page {0} of 3:", page );
+                    foreach ( char ch in emoteChars ) {
+                        char ch1 = ch;
+                        string keywords = Chat.EmoteKeywords
+                                              .Where( pair => pair.Value == ch1 )
+                                              .Select( kvp => "{&F" + kvp.Key.UppercaseFirst() + "&7}" )
+                                              .JoinToString( " " );
+                        player.Message( "&F  {0} &7= {1}", ch, keywords );
+                    }
 
                     break;
                 case "top10":
-                    List<World> WorldNames = new List<World>(WorldManager.Worlds.Where(w => w.VisitCount > 0)
-                                         .OrderBy(c => c.VisitCount)
+                    List<World> WorldNames = new List<World>( WorldManager.Worlds.Where( w => w.VisitCount > 0 )
+                                         .OrderBy( c => c.VisitCount )
                                          .ToArray()
-                                         .Reverse());
-                    string list = WorldNames.Take(10).JoinToString(w => String.Format("{0}&S: {1}", w.ClassyName, w.VisitCount));
-                    if (WorldNames.Count() < 1){
-                        player.Message("&WNo results found");
+                                         .Reverse() );
+                    string list = WorldNames.Take( 10 ).JoinToString( w => String.Format( "{0}&S: {1}", w.ClassyName, w.VisitCount ) );
+                    if ( WorldNames.Count() < 1 ) {
+                        player.Message( "&WNo results found" );
                         return;
                     }
-                    player.Message("&WShowing worlds with the most visits: " + list);
+                    player.Message( "&WShowing worlds with the most visits: " + list );
                     WorldNames.Clear();
                     break;
                 case "idles":
                 case "idle":
-                    var Idles = Server.Players.Where(p => p.IdleTime.TotalMinutes > 5).ToArray();
-                    var visiblePlayers = Idles.Where(player.CanSee);
-                    if (Idles.Count() > 0)
-                        player.Message("Listing players idle for 5 mins or more: {0}",
-                                        visiblePlayers.JoinToString(r => String.Format("{0}&S (Idle {1}", r.ClassyName, r.IdleTime.ToMiniString())));
-                    else player.Message("No players have been idle for more than 5 minutes");
+                    var Idles = Server.Players.Where( p => p.IdleTime.TotalMinutes > 5 ).ToArray();
+                    var visiblePlayers = Idles.Where( player.CanSee );
+                    if ( Idles.Count() > 0 )
+                        player.Message( "Listing players idle for 5 mins or more: {0}",
+                                        visiblePlayers.JoinToString( r => String.Format( "{0}&S (Idle {1}", r.ClassyName, r.IdleTime.ToMiniString() ) ) );
+                    else player.Message( "No players have been idle for more than 5 minutes" );
                     break;
                 case "portals":
-                    if (player.World == null){
-                        player.Message("/List portals cannot be used from Console");
+                    if ( player.World == null ) {
+                        player.Message( "/List portals cannot be used from Console" );
                         return;
                     }
-                    if (player.World.Portals == null ||
-                        player.World.Portals.Count == 0){
-                        player.Message("There are no portals in {0}&S.", player.World.ClassyName);
-                    }
-                    else
-                    {
+                    if ( player.World.Portals == null ||
+                        player.World.Portals.Count == 0 ) {
+                        player.Message( "There are no portals in {0}&S.", player.World.ClassyName );
+                    } else {
                         String[] portalNames = new String[player.World.Portals.Count];
-                        StringBuilder output = new StringBuilder("There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: ");
+                        StringBuilder output = new StringBuilder( "There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: " );
 
-                        for (int i = 0; i < player.World.Portals.Count; i++)
-                        {
-                            portalNames[i] = ((fCraft.Portals.Portal)player.World.Portals[i]).Name;
+                        for ( int i = 0; i < player.World.Portals.Count; i++ ) {
+                            portalNames[i] = ( ( fCraft.Portals.Portal )player.World.Portals[i] ).Name;
                         }
-                        output.Append(portalNames.JoinToString(", "));
-                        player.Message(output.ToString());
+                        output.Append( portalNames.JoinToString( ", " ) );
+                        player.Message( output.ToString() );
                     }
                     break;
                 case "staff":
                     var StaffNames = PlayerDB.PlayerInfoList
-                                         .Where(r => r.Rank.Can(Permission.ReadStaffChat) &&
-                                             r.Rank.Can(Permission.Ban) &&
-                                             r.Rank.Can(Permission.Promote))
-                                             .OrderBy(p => p.Rank)
+                                         .Where( r => r.Rank.Can( Permission.ReadStaffChat ) &&
+                                             r.Rank.Can( Permission.Ban ) &&
+                                             r.Rank.Can( Permission.Promote ) )
+                                             .OrderBy( p => p.Rank )
                                              .ToArray();
-                    if (StaffNames.Length < 1){
-                        player.Message("&WNo results found");
+                    if ( StaffNames.Length < 1 ) {
+                        player.Message( "&WNo results found" );
                         return;
                     }
-                    if (StaffNames.Length <= PlayersPerPage){
-                        player.MessageManyMatches("staff", StaffNames);
-                    }else{
+                    if ( StaffNames.Length <= PlayersPerPage ) {
+                        player.MessageManyMatches( "staff", StaffNames );
+                    } else {
                         int offset;
-                        if (!cmd.NextInt(out offset)) offset = 0;
-                        if (offset >= StaffNames.Length)
-                            offset = Math.Max(0, StaffNames.Length - PlayersPerPage);
-                        PlayerInfo[] StaffPart = StaffNames.Skip(offset).Take(PlayersPerPage).ToArray();
-                        player.MessageManyMatches("staff", StaffPart);
-                        if (offset + StaffPart.Length < StaffNames.Length)
-                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                        if ( !cmd.NextInt( out offset ) ) offset = 0;
+                        if ( offset >= StaffNames.Length )
+                            offset = Math.Max( 0, StaffNames.Length - PlayersPerPage );
+                        PlayerInfo[] StaffPart = StaffNames.Skip( offset ).Take( PlayersPerPage ).ToArray();
+                        player.MessageManyMatches( "staff", StaffPart );
+                        if ( offset + StaffPart.Length < StaffNames.Length )
+                            player.Message( "Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
                                             offset + 1, offset + StaffPart.Length, StaffNames.Length,
-                                            "staff", offset + StaffPart.Length);
+                                            "staff", offset + StaffPart.Length );
                         else
-                            player.Message("Showing matches {0}-{1} (out of {2}).",
-                                            offset + 1, offset + StaffPart.Length, StaffNames.Length);
+                            player.Message( "Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + StaffPart.Length, StaffNames.Length );
                     }
                     break;
 
                 case "rank":
                     string rankName = cmd.Next();
-                    if (rankName == null)
-                    {
-                        player.Message("Usage: /List rank rankName");
+                    if ( rankName == null ) {
+                        player.Message( "Usage: /List rank rankName" );
                         return;
                     }
-                    Rank rank = RankManager.FindRank(rankName);
+                    Rank rank = RankManager.FindRank( rankName );
                     var RankNames = PlayerDB.PlayerInfoList
-                                         .Where(r => r.Rank == rank)
+                                         .Where( r => r.Rank == rank )
                                              .ToArray();
-                    if (RankNames.Length < 1){
-                        player.Message("&WNo results found");
+                    if ( RankNames.Length < 1 ) {
+                        player.Message( "&WNo results found" );
                         return;
                     }
-                    if (RankNames.Length <= PlayersPerPage)
-                    {
-                        player.MessageManyMatches("players", RankNames);
-                    }
-                    else
-                    {
+                    if ( RankNames.Length <= PlayersPerPage ) {
+                        player.MessageManyMatches( "players", RankNames );
+                    } else {
                         int offset;
-                        if (!cmd.NextInt(out offset)) offset = 0;
-                        if (offset >= RankNames.Length)
-                            offset = Math.Max(0, RankNames.Length - PlayersPerPage);
-                        PlayerInfo[] RankPart = RankNames.Skip(offset).Take(PlayersPerPage).ToArray();
-                        player.MessageManyMatches("rank list", RankPart);
-                        if (offset + RankPart.Length < RankNames.Length)
-                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                        if ( !cmd.NextInt( out offset ) ) offset = 0;
+                        if ( offset >= RankNames.Length )
+                            offset = Math.Max( 0, RankNames.Length - PlayersPerPage );
+                        PlayerInfo[] RankPart = RankNames.Skip( offset ).Take( PlayersPerPage ).ToArray();
+                        player.MessageManyMatches( "rank list", RankPart );
+                        if ( offset + RankPart.Length < RankNames.Length )
+                            player.Message( "Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
                                             offset + 1, offset + RankPart.Length, RankNames.Length,
-                                            "rank " + rank.ClassyName, offset + RankPart.Length);
+                                            "rank " + rank.ClassyName, offset + RankPart.Length );
                         else
-                            player.Message("Showing matches {0}-{1} (out of {2}).",
-                                            offset + 1, offset + RankPart.Length, RankNames.Length);
+                            player.Message( "Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + RankPart.Length, RankNames.Length );
                     }
                     break;
                 case "displayednames":
                 case "displayedname":
                 case "dn":
                     var DisplayedNames = PlayerDB.PlayerInfoList
-                                             .Where(r => r.DisplayedName != null).OrderBy(p => p.Rank).ToArray();
-                    if (DisplayedNames.Length < 1){
-                        player.Message("&WNo results found");
+                                             .Where( r => r.DisplayedName != null ).OrderBy( p => p.Rank ).ToArray();
+                    if ( DisplayedNames.Length < 1 ) {
+                        player.Message( "&WNo results found" );
                         return;
                     }
-                    if (DisplayedNames.Length <= 15)
-                    {
-                        player.MessageManyDisplayedNamesMatches("DisplayedNames", DisplayedNames);
-                    }
-                    else
-                    {
+                    if ( DisplayedNames.Length <= 15 ) {
+                        player.MessageManyDisplayedNamesMatches( "DisplayedNames", DisplayedNames );
+                    } else {
                         int offset;
-                        if (!cmd.NextInt(out offset)) offset = 0;
-                        if (offset >= DisplayedNames.Count())
-                            offset = Math.Max(0, DisplayedNames.Length - 15);
-                        PlayerInfo[] DnPart = DisplayedNames.Skip(offset).Take(15).ToArray();
-                        player.MessageManyDisplayedNamesMatches("DisplayedNames", DnPart);
-                        if (offset + DisplayedNames.Length < DisplayedNames.Length)
-                            player.Message("Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
+                        if ( !cmd.NextInt( out offset ) ) offset = 0;
+                        if ( offset >= DisplayedNames.Count() )
+                            offset = Math.Max( 0, DisplayedNames.Length - 15 );
+                        PlayerInfo[] DnPart = DisplayedNames.Skip( offset ).Take( 15 ).ToArray();
+                        player.MessageManyDisplayedNamesMatches( "DisplayedNames", DnPart );
+                        if ( offset + DisplayedNames.Length < DisplayedNames.Length )
+                            player.Message( "Showing {0}-{1} (out of {2}). Next: &H/List {3} {4}",
                                             offset + 1, offset + DnPart.Length, DisplayedNames.Length,
-                                            "DisplayedNames", offset + DnPart.Length);
+                                            "DisplayedNames", offset + DnPart.Length );
                         else
-                            player.Message("Showing matches {0}-{1} (out of {2}).",
-                                            offset + 1, offset + DnPart.Length, DisplayedNames.Length);
+                            player.Message( "Showing matches {0}-{1} (out of {2}).",
+                                            offset + 1, offset + DnPart.Length, DisplayedNames.Length );
                     }
                     break;
             }
         }
 
-        static readonly CommandDescriptor CdReqs = new CommandDescriptor
-        {
+        static readonly CommandDescriptor CdReqs = new CommandDescriptor {
             Name = "Requirements",
             Aliases = new[] { "reqs" },
             Category = CommandCategory.Info,
@@ -333,115 +314,88 @@ namespace fCraft {
             Handler = ReqsHandler
         };
 
-        internal static void ReqsHandler(Player player, Command cmd)
-        {
+        internal static void ReqsHandler ( Player player, Command cmd ) {
             string sectionName = cmd.Next();
 
-            if (sectionName == null)
-            {
-                FileInfo reqFile = new FileInfo(Paths.ReqFileName);
+            if ( sectionName == null ) {
+                FileInfo reqFile = new FileInfo( Paths.ReqFileName );
                 string[] sections = GetReqSectionList();
-                if (sections != null)
-                {
-                    player.Message("Requirement sections: {0}. Type &H/reqs SectionName&S to read information on how to gain that rank.", sections.JoinToString());
+                if ( sections != null ) {
+                    player.Message( "Requirement sections: {0}. Type &H/reqs SectionName&S to read information on how to gain that rank.", sections.JoinToString() );
                 }
                 return;
             }
 
-            if (!Directory.Exists(Paths.ReqPath))
-            {
-                player.Message("There are no requirement sections defined.");
+            if ( !Directory.Exists( Paths.ReqPath ) ) {
+                player.Message( "There are no requirement sections defined." );
                 return;
             }
 
             string reqFileName = null;
-            string[] sectionFiles = Directory.GetFiles(Paths.ReqPath,
+            string[] sectionFiles = Directory.GetFiles( Paths.ReqPath,
                                                         "*.txt",
-                                                        SearchOption.TopDirectoryOnly);
+                                                        SearchOption.TopDirectoryOnly );
 
-            for (int i = 0; i < sectionFiles.Length; i++)
-            {
-                string sectionFullName = Path.GetFileNameWithoutExtension(sectionFiles[i]);
-                if (sectionFullName == null) continue;
-                if (sectionFullName.StartsWith(sectionName, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (sectionFullName.Equals(sectionName, StringComparison.OrdinalIgnoreCase))
-                    {
+            for ( int i = 0; i < sectionFiles.Length; i++ ) {
+                string sectionFullName = Path.GetFileNameWithoutExtension( sectionFiles[i] );
+                if ( sectionFullName == null ) continue;
+                if ( sectionFullName.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
+                    if ( sectionFullName.Equals( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
                         reqFileName = sectionFiles[i];
                         break;
-                    }
-                    else if (reqFileName == null)
-                    {
+                    } else if ( reqFileName == null ) {
                         reqFileName = sectionFiles[i];
-                    }
-                    else
-                    {
-                        var matches = sectionFiles.Select(f => Path.GetFileNameWithoutExtension(f))
-                                                  .Where(sn => sn != null && sn.StartsWith(sectionName));
+                    } else {
+                        var matches = sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f ) )
+                                                  .Where( sn => sn != null && sn.StartsWith( sectionName ) );
                         // if there are multiple matches, print a list
-                        player.Message("Multiple requirement sections matched \"{0}\": {1}",
-                                        sectionName, matches.JoinToString());
+                        player.Message( "Multiple requirement sections matched \"{0}\": {1}",
+                                        sectionName, matches.JoinToString() );
                     }
                 }
             }
 
-            if (reqFileName == null)
-            {
+            if ( reqFileName == null ) {
                 var sectionList = GetReqSectionList();
-                if (sectionList == null)
-                {
-                    player.Message("There are no requirement sections defined.");
+                if ( sectionList == null ) {
+                    player.Message( "There are no requirement sections defined." );
+                } else {
+                    player.Message( "No requirement section defined for \"{0}\". Available sections: {1}",
+                                    sectionName, sectionList.JoinToString() );
                 }
-                else
-                {
-                    player.Message("No requirement section defined for \"{0}\". Available sections: {1}",
-                                    sectionName, sectionList.JoinToString());
-                }
-            }
-            else
-            {
-                player.Message("Requirement's for \"{0}\":",
-                                Path.GetFileNameWithoutExtension(reqFileName));
-                PrintReqFile(player, new FileInfo(reqFileName));
+            } else {
+                player.Message( "Requirement's for \"{0}\":",
+                                Path.GetFileNameWithoutExtension( reqFileName ) );
+                PrintReqFile( player, new FileInfo( reqFileName ) );
             }
         }
 
         [CanBeNull]
-        static string[] GetReqSectionList()
-        {
-            if (Directory.Exists(Paths.ReqPath))
-            {
-                string[] sections = Directory.GetFiles(Paths.ReqPath, "*.txt", SearchOption.TopDirectoryOnly)
-                                             .Select(name => Path.GetFileNameWithoutExtension(name))
-                                             .Where(name => !String.IsNullOrEmpty(name))
+        static string[] GetReqSectionList () {
+            if ( Directory.Exists( Paths.ReqPath ) ) {
+                string[] sections = Directory.GetFiles( Paths.ReqPath, "*.txt", SearchOption.TopDirectoryOnly )
+                                             .Select( name => Path.GetFileNameWithoutExtension( name ) )
+                                             .Where( name => !String.IsNullOrEmpty( name ) )
                                              .ToArray();
-                if (sections.Length != 0)
-                {
+                if ( sections.Length != 0 ) {
                     return sections;
                 }
             }
             return null;
         }
 
-        static void PrintReqFile(Player player, FileSystemInfo reqFile)
-        {
-            try
-            {
-                foreach (string reqLine in File.ReadAllLines(reqFile.FullName))
-                {
-                    if (reqLine.Trim().Length > 0)
-                    {
-                        player.Message("&R{0}", Server.ReplaceTextKeywords(player, reqLine));
+        static void PrintReqFile ( Player player, FileSystemInfo reqFile ) {
+            try {
+                foreach ( string reqLine in File.ReadAllLines( reqFile.FullName ) ) {
+                    if ( reqLine.Trim().Length > 0 ) {
+                        player.Message( "&R{0}", Server.ReplaceTextKeywords( player, reqLine ) );
 
                     }
-                } player.Message("Your current time on the server is {0}" + " Hours", player.Info.TotalTime.TotalHours);
-            }
-
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.Error, "InfoCommands.PrintReqFile: An error occured while trying to read {0}: {1}",
-                            reqFile.FullName, ex);
-                player.Message("&WError reading the requirement file.");
+                } player.Message( "Your current time on the server is {0}" + " Hours", player.Info.TotalTime.TotalHours );
+            } catch ( Exception ex ) {
+                Logger.Log( LogType.Error, "InfoCommands.PrintReqFile: An error occured while trying to read {0}: {1}",
+                            reqFile.FullName, ex );
+                player.Message( "&WError reading the requirement file." );
             }
         }
         #endregion
@@ -464,28 +418,28 @@ namespace fCraft {
             Handler = InfoHandler
         };
 
-        internal static void InfoHandler( Player player, Command cmd ) {
+        internal static void InfoHandler ( Player player, Command cmd ) {
             string name = cmd.Next();
-            if( name == null ) {
+            if ( name == null ) {
                 // no name given, print own info
                 PrintPlayerInfo( player, player.Info );
                 return;
 
-            } else if( name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
+            } else if ( name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                 // own name given
                 player.LastUsedPlayerName = player.Name;
                 PrintPlayerInfo( player, player.Info );
                 return;
 
-            } else if( !player.Can( Permission.ViewOthersInfo ) ) {
+            } else if ( !player.Can( Permission.ViewOthersInfo ) ) {
                 // someone else's name or IP given, permission required.
                 player.MessageNoAccess( Permission.ViewOthersInfo );
                 return;
             }
 
             // repeat last-typed name
-            if( name == "-" ) {
-                if( player.LastUsedPlayerName != null ) {
+            if ( name == "-" ) {
+                if ( player.LastUsedPlayerName != null ) {
                     name = player.LastUsedPlayerName;
                 } else {
                     player.Message( "Cannot repeat player name: you haven't used any names yet." );
@@ -496,12 +450,12 @@ namespace fCraft {
             PlayerInfo[] infos;
             IPAddress ip;
 
-            if( name.Contains( "/" ) ) {
+            if ( name.Contains( "/" ) ) {
                 // IP range matching (CIDR notation)
                 string ipString = name.Substring( 0, name.IndexOf( '/' ) );
                 string rangeString = name.Substring( name.IndexOf( '/' ) + 1 );
                 byte range;
-                if( Server.IsIP( ipString ) && IPAddress.TryParse( ipString, out ip ) &&
+                if ( Server.IsIP( ipString ) && IPAddress.TryParse( ipString, out ip ) &&
                     Byte.TryParse( rangeString, out range ) && range <= 32 ) {
                     player.Message( "Searching {0}-{1}", ip.RangeMin( range ), ip.RangeMax( range ) );
                     infos = PlayerDB.FindPlayersCidr( ip, range );
@@ -510,11 +464,11 @@ namespace fCraft {
                     return;
                 }
 
-            } else if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+            } else if ( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                 // find players by IP
                 infos = PlayerDB.FindPlayers( ip );
 
-            } else if( name.Contains( "*" ) || name.Contains( "?" ) ) {
+            } else if ( name.Contains( "*" ) || name.Contains( "?" ) ) {
                 // find players by regex/wildcard
                 string regexString = "^" + RegexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ).Replace( "?", "." ) + "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
@@ -523,9 +477,9 @@ namespace fCraft {
             } else {
                 // find players by partial matching
                 PlayerInfo tempInfo;
-                if( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
+                if ( !PlayerDB.FindPlayerInfo( name, out tempInfo ) ) {
                     infos = PlayerDB.FindPlayers( name );
-                } else if( tempInfo == null ) {
+                } else if ( tempInfo == null ) {
                     player.MessageNoPlayer( name );
                     return;
                 } else {
@@ -535,27 +489,27 @@ namespace fCraft {
 
             Array.Sort( infos, new PlayerInfoComparer( player ) );
 
-            if( infos.Length == 1 ) {
+            if ( infos.Length == 1 ) {
                 // only one match found; print it right away
                 player.LastUsedPlayerName = infos[0].Name;
                 PrintPlayerInfo( player, infos[0] );
 
-            } else if( infos.Length > 1 ) {
+            } else if ( infos.Length > 1 ) {
                 // multiple matches found
-                if( infos.Length <= PlayersPerPage ) {
+                if ( infos.Length <= PlayersPerPage ) {
                     // all fit to one page
                     player.MessageManyMatches( "player", infos );
 
                 } else {
                     // pagination
                     int offset;
-                    if( !cmd.NextInt( out offset ) ) offset = 0;
-                    if( offset >= infos.Length ) {
+                    if ( !cmd.NextInt( out offset ) ) offset = 0;
+                    if ( offset >= infos.Length ) {
                         offset = Math.Max( 0, infos.Length - PlayersPerPage );
                     }
                     PlayerInfo[] infosPart = infos.Skip( offset ).Take( PlayersPerPage ).ToArray();
                     player.MessageManyMatches( "player", infosPart );
-                    if( offset + infosPart.Length < infos.Length ) {
+                    if ( offset + infosPart.Length < infos.Length ) {
                         // normal page
                         player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Info {3} {4}",
                                         offset + 1, offset + infosPart.Length, infos.Length,
@@ -573,25 +527,25 @@ namespace fCraft {
             }
         }
 
-        public static void PrintPlayerInfo( [NotNull] Player player, [NotNull] PlayerInfo info ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( info == null ) throw new ArgumentNullException( "info" );
+        public static void PrintPlayerInfo ( [NotNull] Player player, [NotNull] PlayerInfo info ) {
+            if ( player == null ) throw new ArgumentNullException( "player" );
+            if ( info == null ) throw new ArgumentNullException( "info" );
             Player target = info.PlayerObject;
 
             // hide online status when hidden
-            if( target != null && !player.CanSee( target ) ) {
+            if ( target != null && !player.CanSee( target ) ) {
                 target = null;
             }
 
-            if( info.LastIP.Equals( IPAddress.None ) ) {
+            if ( info.LastIP.Equals( IPAddress.None ) ) {
                 player.Message( "About {0}&S: Never seen before.", info.ClassyName );
 
             } else {
-                if( target != null ) {
+                if ( target != null ) {
                     TimeSpan idle = target.IdleTime;
-                    if( info.IsHidden ) {
-                        if( idle.TotalMinutes > 2 ) {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                    if ( info.IsHidden ) {
+                        if ( idle.TotalMinutes > 2 ) {
+                            if ( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: HIDDEN from {1} (idle {2})",
                                                 info.ClassyName,
                                                 info.LastIP,
@@ -602,7 +556,7 @@ namespace fCraft {
                                                 idle.ToMiniString() );
                             }
                         } else {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                            if ( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: HIDDEN. Online from {1}",
                                                 info.ClassyName,
                                                 info.LastIP );
@@ -612,8 +566,8 @@ namespace fCraft {
                             }
                         }
                     } else {
-                        if( idle.TotalMinutes > 1 ) {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                        if ( idle.TotalMinutes > 1 ) {
+                            if ( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: Online now from {1} (idle {2})",
                                                 info.ClassyName,
                                                 info.LastIP,
@@ -624,7 +578,7 @@ namespace fCraft {
                                                 idle.ToMiniString() );
                             }
                         } else {
-                            if( player.Can( Permission.ViewPlayerIPs ) ) {
+                            if ( player.Can( Permission.ViewPlayerIPs ) ) {
                                 player.Message( "About {0}&S: Online now from {1}",
                                                 info.ClassyName,
                                                 info.LastIP );
@@ -635,8 +589,8 @@ namespace fCraft {
                         }
                     }
                 } else {
-                    if( player.Can( Permission.ViewPlayerIPs ) ) {
-                        if( info.LeaveReason != LeaveReason.Unknown ) {
+                    if ( player.Can( Permission.ViewPlayerIPs ) ) {
+                        if ( info.LeaveReason != LeaveReason.Unknown ) {
                             player.Message( "About {0}&S: Last seen {1} ago from {2} ({3}).",
                                             info.ClassyName,
                                             info.TimeSinceLastSeen.ToMiniString(),
@@ -649,7 +603,7 @@ namespace fCraft {
                                             info.LastIP );
                         }
                     } else {
-                        if( info.LeaveReason != LeaveReason.Unknown ) {
+                        if ( info.LeaveReason != LeaveReason.Unknown ) {
                             player.Message( "About {0}&S: Last seen {1} ago ({2}).",
                                             info.ClassyName,
                                             info.TimeSinceLastSeen.ToMiniString(),
@@ -667,40 +621,40 @@ namespace fCraft {
                                 info.FirstLoginDate );
             }
 
-            if( info.IsFrozen ) {
+            if ( info.IsFrozen ) {
                 player.Message( "  Frozen {0} ago by {1}",
                                 info.TimeSinceFrozen.ToMiniString(),
                                 info.FrozenByClassy );
             }
 
-            if( info.IsMuted ) {
+            if ( info.IsMuted ) {
                 player.Message( "  Muted for {0} by {1}",
                                 info.TimeMutedLeft.ToMiniString(),
                                 info.MutedByClassy );
-                float blocks = ((info.BlocksBuilt + info.BlocksDrawn) - info.BlocksDeleted);
-                if (blocks < 0)
-                    player.Message("  &CWARNING! {0}&S has deleted more than built!", info.ClassyName);//<---- GlennMR on Au70 Galaxy
+                float blocks = ( ( info.BlocksBuilt + info.BlocksDrawn ) - info.BlocksDeleted );
+                if ( blocks < 0 )
+                    player.Message( "  &CWARNING! {0}&S has deleted more than built!", info.ClassyName );//<---- GlennMR on Au70 Galaxy
             }
 
             // Show ban information
             IPBanInfo ipBan = IPBanList.Get( info.LastIP );
-            switch( info.BanStatus ) {
+            switch ( info.BanStatus ) {
                 case BanStatus.Banned:
-                    if( ipBan != null ) {
+                    if ( ipBan != null ) {
                         player.Message( "  Account and IP are &CBANNED&S. See &H/BanInfo" );
                     } else {
                         player.Message( "  Account is &CBANNED&S. See &H/BanInfo" );
                     }
                     break;
                 case BanStatus.IPBanExempt:
-                    if( ipBan != null ) {
+                    if ( ipBan != null ) {
                         player.Message( "  IP is &CBANNED&S, but account is exempt. See &H/BanInfo" );
                     } else {
                         player.Message( "  IP is not banned, and account is exempt. See &H/BanInfo" );
                     }
                     break;
                 case BanStatus.NotBanned:
-                    if( ipBan != null ) {
+                    if ( ipBan != null ) {
                         player.Message( "  IP is &CBANNED&S. See &H/BanInfo" );
 
                     }
@@ -708,22 +662,22 @@ namespace fCraft {
             }
 
 
-            if( !info.LastIP.Equals( IPAddress.None ) ) {
+            if ( !info.LastIP.Equals( IPAddress.None ) ) {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
-                foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP ) ) {
-                    if( playerFromSameIP == info ) continue;
+                foreach ( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP ) ) {
+                    if ( playerFromSameIP == info ) continue;
                     altNames.Add( playerFromSameIP );
-                    if( playerFromSameIP.IsBanned ) {
+                    if ( playerFromSameIP.IsBanned ) {
                         bannedAltCount++;
                     }
                 }
 
-                if( altNames.Count > 0 ) {
+                if ( altNames.Count > 0 ) {
                     altNames.Sort( new PlayerInfoComparer( player ) );
-                    if( altNames.Count > MaxAltsToPrint ) {
-                        if( bannedAltCount > 0 ) {
+                    if ( altNames.Count > MaxAltsToPrint ) {
+                        if ( bannedAltCount > 0 ) {
                             player.MessagePrefixed( "&S  ",
                                                     "&S  Over {0} accounts ({1} banned) on IP: {2}  &Setc",
                                                     MaxAltsToPrint,
@@ -736,7 +690,7 @@ namespace fCraft {
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
                         }
                     } else {
-                        if( bannedAltCount > 0 ) {
+                        if ( bannedAltCount > 0 ) {
                             player.MessagePrefixed( "&S  ",
                                                     "&S  {0} accounts ({1} banned) on IP: {2}",
                                                     altNames.Count,
@@ -754,19 +708,19 @@ namespace fCraft {
 
 
             // Stats
-            if( info.BlocksDrawn > 500000000 ) {
+            if ( info.BlocksDrawn > 500000000 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2}M blocks, wrote {3} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.BlocksDrawn / 1000000,
                                 info.MessagesWritten );
-            } else if( info.BlocksDrawn > 500000 ) {
+            } else if ( info.BlocksDrawn > 500000 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2}K blocks, wrote {3} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
                                 info.BlocksDrawn / 1000,
                                 info.MessagesWritten );
-            } else if( info.BlocksDrawn > 0 ) {
+            } else if ( info.BlocksDrawn > 0 ) {
                 player.Message( "  Built {0} and deleted {1} blocks, drew {2} blocks, wrote {3} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
@@ -781,12 +735,12 @@ namespace fCraft {
 
 
             // More stats
-            if( info.TimesBannedOthers > 0 || info.TimesKickedOthers > 0 || info.PromoCount > 0) {
+            if ( info.TimesBannedOthers > 0 || info.TimesKickedOthers > 0 || info.PromoCount > 0 ) {
                 player.Message( "  Kicked {0}, Promoted {1} and banned {2} players.", info.TimesKickedOthers, info.PromoCount, info.TimesBannedOthers );
             }
 
-            if( info.TimesKicked > 0 ) {
-                if( info.LastKickDate != DateTime.MinValue ) {
+            if ( info.TimesKicked > 0 ) {
+                if ( info.LastKickDate != DateTime.MinValue ) {
                     player.Message( "  Got kicked {0} times. Last kick {1} ago by {2}",
                                     info.TimesKicked,
                                     info.TimeSinceLastKick.ToMiniString(),
@@ -794,15 +748,15 @@ namespace fCraft {
                 } else {
                     player.Message( "  Got kicked {0} times.", info.TimesKicked );
                 }
-                if( info.LastKickReason != null ) {
+                if ( info.LastKickReason != null ) {
                     player.Message( "  Kick reason: {0}", info.LastKickReason );
                 }
             }
 
 
             // Promotion/demotion
-            if( info.PreviousRank == null ) {
-                if( info.RankChangedBy == null ) {
+            if ( info.PreviousRank == null ) {
+                if ( info.RankChangedBy == null ) {
                     player.Message( "  Rank is {0}&S (default).",
                                     info.Rank.ClassyName );
                 } else {
@@ -810,17 +764,17 @@ namespace fCraft {
                                     info.Rank.ClassyName,
                                     info.RankChangedByClassy,
                                     info.TimeSinceRankChange.ToMiniString() );
-                    if( info.RankChangeReason != null ) {
+                    if ( info.RankChangeReason != null ) {
                         player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                     }
                 }
-            } else if( info.PreviousRank <= info.Rank ) {
+            } else if ( info.PreviousRank <= info.Rank ) {
                 player.Message( "  Promoted from {0}&S to {1}&S by {2}&S {3} ago.",
                                 info.PreviousRank.ClassyName,
                                 info.Rank.ClassyName,
                                 info.RankChangedByClassy,
                                 info.TimeSinceRankChange.ToMiniString() );
-                if( info.RankChangeReason != null ) {
+                if ( info.RankChangeReason != null ) {
                     player.Message( "  Promotion reason: {0}", info.RankChangeReason );
                 }
             } else {
@@ -829,15 +783,15 @@ namespace fCraft {
                                 info.Rank.ClassyName,
                                 info.RankChangedByClassy,
                                 info.TimeSinceRankChange.ToMiniString() );
-                if( info.RankChangeReason != null ) {
+                if ( info.RankChangeReason != null ) {
                     player.Message( "  Demotion reason: {0}", info.RankChangeReason );
                 }
             }
 
-            if( !info.LastIP.Equals( IPAddress.None ) ) {
+            if ( !info.LastIP.Equals( IPAddress.None ) ) {
                 // Time on the server
                 TimeSpan totalTime = info.TotalTime;
-                if( target != null ) {
+                if ( target != null ) {
                     totalTime = totalTime.Add( info.TimeSinceLastLogin );
                 }
                 player.Message( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.",
@@ -862,9 +816,9 @@ namespace fCraft {
             Handler = BanInfoHandler
         };
 
-        internal static void BanInfoHandler( Player player, Command cmd ) {
+        internal static void BanInfoHandler ( Player player, Command cmd ) {
             string name = cmd.Next();
-            if( cmd.HasNext ) {
+            if ( cmd.HasNext ) {
                 CdBanInfo.PrintUsage( player );
                 return;
             }
@@ -872,32 +826,32 @@ namespace fCraft {
             IPAddress address;
             PlayerInfo info = null;
 
-            if( name == null ) {
+            if ( name == null ) {
                 name = player.Name;
-            } else if( !player.Can( Permission.ViewOthersInfo ) ) {
+            } else if ( !player.Can( Permission.ViewOthersInfo ) ) {
                 player.MessageNoAccess( Permission.ViewOthersInfo );
                 return;
             }
 
-            if( Server.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {
+            if ( Server.IsIP( name ) && IPAddress.TryParse( name, out address ) ) {
                 IPBanInfo banInfo = IPBanList.Get( address );
-                if( banInfo != null ) {
+                if ( banInfo != null ) {
                     player.Message( "{0} was banned by {1}&S on {2:dd MMM yyyy} ({3} ago)",
                                     banInfo.Address,
                                     banInfo.BannedByClassy,
                                     banInfo.BanDate,
                                     banInfo.TimeSinceLastAttempt );
-                    if( !String.IsNullOrEmpty( banInfo.PlayerName ) ) {
+                    if ( !String.IsNullOrEmpty( banInfo.PlayerName ) ) {
                         player.Message( "  Banned by association with {0}",
                                         banInfo.PlayerNameClassy );
                     }
-                    if( banInfo.Attempts > 0 ) {
+                    if ( banInfo.Attempts > 0 ) {
                         player.Message( "  There have been {0} attempts to log in, most recently {1} ago by {2}",
                                         banInfo.Attempts,
                                         banInfo.TimeSinceLastAttempt.ToMiniString(),
                                         banInfo.LastAttemptNameClassy );
                     }
-                    if( banInfo.BanReason != null ) {
+                    if ( banInfo.BanReason != null ) {
                         player.Message( "  Ban reason: {0}", banInfo.BanReason );
                     }
                 } else {
@@ -906,28 +860,28 @@ namespace fCraft {
 
             } else {
                 info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
-                if( info == null ) return;
+                if ( info == null ) return;
 
                 address = info.LastIP;
 
                 IPBanInfo ipBan = IPBanList.Get( info.LastIP );
-                switch( info.BanStatus ) {
+                switch ( info.BanStatus ) {
                     case BanStatus.Banned:
-                        if( ipBan != null ) {
+                        if ( ipBan != null ) {
                             player.Message( "Player {0}&S and their IP are &CBANNED", info.ClassyName );
                         } else {
                             player.Message( "Player {0}&S is &CBANNED&S (but their IP is not).", info.ClassyName );
                         }
                         break;
                     case BanStatus.IPBanExempt:
-                        if( ipBan != null ) {
+                        if ( ipBan != null ) {
                             player.Message( "Player {0}&S is exempt from an existing IP ban.", info.ClassyName );
                         } else {
                             player.Message( "Player {0}&S is exempt from IP bans.", info.ClassyName );
                         }
                         break;
                     case BanStatus.NotBanned:
-                        if( ipBan != null ) {
+                        if ( ipBan != null ) {
                             player.Message( "Player {0}&s is not banned, but their IP is.", info.ClassyName );
                         } else {
                             player.Message( "Player {0}&s is not banned.", info.ClassyName );
@@ -935,31 +889,31 @@ namespace fCraft {
                         break;
                 }
 
-                if( info.BanDate != DateTime.MinValue ) {
+                if ( info.BanDate != DateTime.MinValue ) {
                     player.Message( "  Last ban by {0}&S on {1:dd MMM yyyy} ({2} ago).",
                                     info.BannedByClassy,
                                     info.BanDate,
                                     info.TimeSinceBan.ToMiniString() );
-                    if( info.BanReason != null ) {
+                    if ( info.BanReason != null ) {
                         player.Message( "  Last ban reason: {0}", info.BanReason );
                     }
                 } else {
                     player.Message( "No past bans on record." );
                 }
 
-                if( info.UnbanDate != DateTime.MinValue && !info.IsBanned ) {
+                if ( info.UnbanDate != DateTime.MinValue && !info.IsBanned ) {
                     player.Message( "  Unbanned by {0}&S on {1:dd MMM yyyy} ({2} ago).",
                                     info.UnbannedByClassy,
                                     info.UnbanDate,
                                     info.TimeSinceUnban.ToMiniString() );
-                    if( info.UnbanReason != null ) {
+                    if ( info.UnbanReason != null ) {
                         player.Message( "  Last unban reason: {0}", info.UnbanReason );
                     }
                 }
 
-                if( info.BanDate != DateTime.MinValue ) {
+                if ( info.BanDate != DateTime.MinValue ) {
                     TimeSpan banDuration;
-                    if( info.IsBanned ) {
+                    if ( info.IsBanned ) {
                         banDuration = info.TimeSinceBan;
                         player.Message( "  Ban duration: {0} so far",
                                         banDuration.ToMiniString() );
@@ -974,18 +928,18 @@ namespace fCraft {
             // Show alts
             List<PlayerInfo> altNames = new List<PlayerInfo>();
             int bannedAltCount = 0;
-            foreach( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( address ) ) {
-                if( playerFromSameIP == info ) continue;
+            foreach ( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( address ) ) {
+                if ( playerFromSameIP == info ) continue;
                 altNames.Add( playerFromSameIP );
-                if( playerFromSameIP.IsBanned ) {
+                if ( playerFromSameIP.IsBanned ) {
                     bannedAltCount++;
                 }
             }
 
-            if( altNames.Count > 0 ) {
+            if ( altNames.Count > 0 ) {
                 altNames.Sort( new PlayerInfoComparer( player ) );
-                if( altNames.Count > MaxAltsToPrint ) {
-                    if( bannedAltCount > 0 ) {
+                if ( altNames.Count > MaxAltsToPrint ) {
+                    if ( bannedAltCount > 0 ) {
                         player.MessagePrefixed( "&S  ",
                                                 "&S  Over {0} accounts ({1} banned) on IP: {2} &Setc",
                                                 MaxAltsToPrint,
@@ -998,7 +952,7 @@ namespace fCraft {
                                                 altNames.Take( 15 ).ToArray().JoinToClassyString() );
                     }
                 } else {
-                    if( bannedAltCount > 0 ) {
+                    if ( bannedAltCount > 0 ) {
                         player.MessagePrefixed( "&S  ",
                                                 "&S  {0} accounts ({1} banned) on IP: {2}",
                                                 altNames.Count,
@@ -1031,29 +985,29 @@ namespace fCraft {
         };
 
         // Shows general information about a particular rank.
-        static void RankInfoHandler( Player player, Command cmd ) {
+        static void RankInfoHandler ( Player player, Command cmd ) {
             Rank rank;
 
             string rankName = cmd.Next();
-            if( cmd.HasNext ) {
+            if ( cmd.HasNext ) {
                 CdRankInfo.PrintUsage( player );
                 return;
             }
 
-            if( rankName == null ) {
+            if ( rankName == null ) {
                 rank = player.Info.Rank;
             } else {
                 rank = RankManager.FindRank( rankName );
-                if( rank == null ) {
+                if ( rank == null ) {
                     player.Message( "No such rank: \"{0}\". See &H/Ranks", rankName );
                     return;
                 }
             }
 
             List<Permission> permissions = new List<Permission>();
-            for( int i = 0; i < rank.Permissions.Length; i++ ) {
-                if( rank.Permissions[i] ) {
-                    permissions.Add( (Permission)i );
+            for ( int i = 0; i < rank.Permissions.Length; i++ ) {
+                if ( rank.Permissions[i] ) {
+                    permissions.Add( ( Permission )i );
                 }
             }
 
@@ -1063,12 +1017,12 @@ namespace fCraft {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "Players of rank {0}&S can: ", rank.ClassyName );
                 bool first = true;
-                for( int i = 0; i < sortedPermissionNames.Length; i++ ) {
+                for ( int i = 0; i < sortedPermissionNames.Length; i++ ) {
                     Permission p = sortedPermissionNames[i];
-                    if( !first ) sb.Append( ',' ).Append( ' ' );
-                    Rank permissionLimit = rank.PermissionLimits[(int)p];
+                    if ( !first ) sb.Append( ',' ).Append( ' ' );
+                    Rank permissionLimit = rank.PermissionLimits[( int )p];
                     sb.Append( p );
-                    if( permissionLimit != null ) {
+                    if ( permissionLimit != null ) {
                         sb.AppendFormat( "({0}&S)", permissionLimit.ClassyName );
                     }
                     first = false;
@@ -1076,20 +1030,20 @@ namespace fCraft {
                 player.Message( sb.ToString() );
             }
 
-            if( rank.Can( Permission.Draw ) ) {
+            if ( rank.Can( Permission.Draw ) ) {
                 StringBuilder sb = new StringBuilder();
-                if( rank.DrawLimit > 0 ) {
+                if ( rank.DrawLimit > 0 ) {
                     sb.AppendFormat( "Draw limit: {0} blocks.", rank.DrawLimit );
                 } else {
                     sb.AppendFormat( "Draw limit: None (unlimited)." );
                 }
-                if( rank.Can( Permission.CopyAndPaste ) ) {
+                if ( rank.Can( Permission.CopyAndPaste ) ) {
                     sb.AppendFormat( " Copy/paste slots: {0}", rank.CopySlots );
                 }
                 player.Message( sb.ToString() );
             }
 
-            if( rank.IdleKickTimer > 0 ) {
+            if ( rank.IdleKickTimer > 0 ) {
                 player.Message( "Idle kick after {0}", TimeSpan.FromMinutes( rank.IdleKickTimer ).ToMiniString() );
             }
         }
@@ -1109,8 +1063,8 @@ namespace fCraft {
             Handler = ServerInfoHandler
         };
 
-        internal static void ServerInfoHandler( Player player, Command cmd ) {
-            if( cmd.HasNext ) {
+        internal static void ServerInfoHandler ( Player player, Command cmd ) {
+            if ( cmd.HasNext ) {
                 CdServerInfo.PrintUsage( player );
                 return;
             }
@@ -1118,15 +1072,15 @@ namespace fCraft {
 
             player.Message( "Servers status: Up for {0:0.0} hours, using {1:0} MB",
                             DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours,
-                            (Process.GetCurrentProcess().PrivateMemorySize64 / (1024 * 1024)) );
+                            ( Process.GetCurrentProcess().PrivateMemorySize64 / ( 1024 * 1024 ) ) );
 
-            if( Server.IsMonitoringCPUUsage ) {
+            if ( Server.IsMonitoringCPUUsage ) {
                 player.Message( "  Averaging {0:0.0}% CPU now, {1:0.0}% overall",
                                 Server.CPUUsageLastMinute * 100,
                                 Server.CPUUsageTotal * 100 );
             }
 
-            if( MonoCompat.IsMono ) {
+            if ( MonoCompat.IsMono ) {
                 player.Message( "  Running &9800&CCraft&S {0}, under Mono {1}",
                                 Updater.CurrentRelease.VersionString,
                                 MonoCompat.MonoVersionString );
@@ -1176,18 +1130,17 @@ namespace fCraft {
             Handler = RanksHandler
         };
 
-        internal static void RanksHandler( Player player, Command cmd ) {
-            if( cmd.HasNext ) {
+        internal static void RanksHandler ( Player player, Command cmd ) {
+            if ( cmd.HasNext ) {
                 CdRanks.PrintUsage( player );
                 return;
             }
             player.Message( "Below is a list of ranks. For detail see &H{0}", CdRankInfo.Usage );
-            foreach( Rank rank in RankManager.Ranks ) {
-                if (!rank.IsHidden)
-                {
-                    player.Message("&S    {0}  ({1} players)",
+            foreach ( Rank rank in RankManager.Ranks ) {
+                if ( !rank.IsHidden ) {
+                    player.Message( "&S    {0}  ({1} players)",
                                     rank.ClassyName,
-                                    rank.PlayerCount);
+                                    rank.PlayerCount );
                 }
             }
         }
@@ -1208,14 +1161,14 @@ namespace fCraft {
             Handler = RulesHandler
         };
 
-        internal static void RulesHandler( Player player, Command cmd ) {
+        internal static void RulesHandler ( Player player, Command cmd ) {
             string sectionName = cmd.Next();
 
             // if no section name is given
-            if( sectionName == null ) {
+            if ( sectionName == null ) {
                 FileInfo ruleFile = new FileInfo( Paths.RulesFileName );
 
-                if( ruleFile.Exists ) {
+                if ( ruleFile.Exists ) {
                     PrintRuleFile( player, ruleFile );
                 } else {
                     player.Message( DefaultRules );
@@ -1223,14 +1176,14 @@ namespace fCraft {
 
                 // print a list of available sections
                 string[] sections = GetRuleSectionList();
-                if( sections != null ) {
+                if ( sections != null ) {
                     player.Message( "Rule sections: {0}. Type &H/Rules SectionName&S to read.", sections.JoinToString() );
                 }
                 return;
             }
 
             // if a section name is given, but no section files exist
-            if( !Directory.Exists( Paths.RulesPath ) ) {
+            if ( !Directory.Exists( Paths.RulesPath ) ) {
                 player.Message( "There are no rule sections defined." );
                 return;
             }
@@ -1240,16 +1193,16 @@ namespace fCraft {
                                                         "*.txt",
                                                         SearchOption.TopDirectoryOnly );
 
-            for( int i = 0; i < sectionFiles.Length; i++ ) {
+            for ( int i = 0; i < sectionFiles.Length; i++ ) {
                 string sectionFullName = Path.GetFileNameWithoutExtension( sectionFiles[i] );
-                if( sectionFullName == null ) continue;
-                if( sectionFullName.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( sectionFullName.Equals( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
+                if ( sectionFullName == null ) continue;
+                if ( sectionFullName.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
+                    if ( sectionFullName.Equals( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
                         // if there is an exact match, break out of the loop early
                         ruleFileName = sectionFiles[i];
                         break;
 
-                    } else if( ruleFileName == null ) {
+                    } else if ( ruleFileName == null ) {
                         // if there is a partial match, keep going to check for multiple matches
                         ruleFileName = sectionFiles[i];
 
@@ -1264,7 +1217,7 @@ namespace fCraft {
                 }
             }
 
-            if( ruleFileName != null ) {
+            if ( ruleFileName != null ) {
                 string sectionFullName = Path.GetFileNameWithoutExtension( ruleFileName );
                 // ReSharper disable AssignNullToNotNullAttribute
                 player.Message( "Rule section \"{0}\":", sectionFullName );
@@ -1273,7 +1226,7 @@ namespace fCraft {
 
             } else {
                 var sectionList = GetRuleSectionList();
-                if( sectionList == null ) {
+                if ( sectionList == null ) {
                     player.Message( "There are no rule sections defined." );
                 } else {
                     player.Message( "No rule section defined for \"{0}\". Available sections: {1}",
@@ -1284,13 +1237,13 @@ namespace fCraft {
 
 
         [CanBeNull]
-        static string[] GetRuleSectionList() {
-            if( Directory.Exists( Paths.RulesPath ) ) {
+        static string[] GetRuleSectionList () {
+            if ( Directory.Exists( Paths.RulesPath ) ) {
                 string[] sections = Directory.GetFiles( Paths.RulesPath, "*.txt", SearchOption.TopDirectoryOnly )
                                              .Select( name => Path.GetFileNameWithoutExtension( name ) )
                                              .Where( name => !String.IsNullOrEmpty( name ) )
                                              .ToArray();
-                if( sections.Length != 0 ) {
+                if ( sections.Length != 0 ) {
                     return sections;
                 }
             }
@@ -1298,15 +1251,15 @@ namespace fCraft {
         }
 
 
-        static void PrintRuleFile( Player player, FileSystemInfo ruleFile ) {
+        static void PrintRuleFile ( Player player, FileSystemInfo ruleFile ) {
             try {
                 string[] ruleLines = File.ReadAllLines( ruleFile.FullName );
-                foreach( string ruleLine in ruleLines ) {
-                    if( ruleLine.Trim().Length > 0 ) {
+                foreach ( string ruleLine in ruleLines ) {
+                    if ( ruleLine.Trim().Length > 0 ) {
                         player.Message( "&R{0}", Server.ReplaceTextKeywords( player, ruleLine ) );
                     }
                 }
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 Logger.Log( LogType.Error,
                             "InfoCommands.PrintRuleFile: An error occured while trying to read {0}: {1}",
                             ruleFile.FullName, ex );
@@ -1327,8 +1280,8 @@ namespace fCraft {
             Handler = MeasureHandler
         };
 
-        internal static void MeasureHandler( Player player, Command cmd ) {
-            if( cmd.HasNext ) {
+        internal static void MeasureHandler ( Player player, Command cmd ) {
+            if ( cmd.HasNext ) {
                 CdMeasure.PrintUsage( player );
                 return;
             }
@@ -1338,7 +1291,7 @@ namespace fCraft {
 
         const int TopBlocksToList = 5;
 
-        internal static void MeasureCallback( Player player, Vector3I[] marks, object tag ) {
+        internal static void MeasureCallback ( Player player, Vector3I[] marks, object tag ) {
             BoundingBox box = new BoundingBox( marks[0], marks[1] );
             player.Message( "Measure: {0} x {1} wide, {2} tall, {3} blocks.",
                             box.Width,
@@ -1351,12 +1304,12 @@ namespace fCraft {
 
             Map map = player.WorldMap;
             Dictionary<Block, int> blockCounts = new Dictionary<Block, int>();
-            foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
+            foreach ( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 blockCounts[block] = 0;
             }
-            for( int x = box.XMin; x <= box.XMax; x++ ) {
-                for( int y = box.YMin; y <= box.YMax; y++ ) {
-                    for( int z = box.ZMin; z <= box.ZMax; z++ ) {
+            for ( int x = box.XMin; x <= box.XMax; x++ ) {
+                for ( int y = box.YMin; y <= box.YMax; y++ ) {
+                    for ( int z = box.ZMin; z <= box.ZMax; z++ ) {
                         Block block = map.GetBlock( x, y, z );
                         blockCounts[block]++;
                     }
@@ -1369,7 +1322,7 @@ namespace fCraft {
             var blockString = topBlocks.JoinToString( p => String.Format( "{0}: {1} ({2}%)",
                                                                           p.Key,
                                                                           p.Value,
-                                                                          (p.Value * 100) / box.Volume ) );
+                                                                          ( p.Value * 100 ) / box.Volume ) );
             player.Message( "  Top {0} block types: {1}",
                             topBlocks.Length, blockString );
         }
@@ -1390,18 +1343,18 @@ namespace fCraft {
             Handler = PlayersHandler
         };
 
-        internal static void PlayersHandler( Player player, Command cmd ) {
+        internal static void PlayersHandler ( Player player, Command cmd ) {
             string param = cmd.Next();
             Player[] players;
             string worldName = null;
             string qualifier;
             int offset = 0;
 
-            if( param == null || Int32.TryParse( param, out offset ) ) {
+            if ( param == null || Int32.TryParse( param, out offset ) ) {
                 // No world name given; Start with a list of all players.
                 players = Server.Players;
                 qualifier = "online";
-                if( cmd.HasNext ) {
+                if ( cmd.HasNext ) {
                     CdPlayers.PrintUsage( player );
                     return;
                 }
@@ -1409,46 +1362,46 @@ namespace fCraft {
             } else {
                 // Try to find the world
                 World world = WorldManager.FindWorldOrPrintMatches( player, param );
-                if( world == null ) return;
+                if ( world == null ) return;
 
                 worldName = param;
                 // If found, grab its player list
                 players = world.Players;
                 qualifier = String.Format( "in world {0}&S", world.ClassyName );
 
-                if( cmd.HasNext && !cmd.NextInt( out offset ) ) {
+                if ( cmd.HasNext && !cmd.NextInt( out offset ) ) {
                     CdPlayers.PrintUsage( player );
                     return;
                 }
             }
 
-            if( players.Length > 0 ) {
+            if ( players.Length > 0 ) {
                 // Filter out hidden players, and sort
                 Player[] visiblePlayers = players.Where( player.CanSee )
                                                  .OrderBy( p => p, PlayerListSorter.Instance )
                                                  .ToArray();
 
 
-                if( visiblePlayers.Length == 0 ) {
+                if ( visiblePlayers.Length == 0 ) {
                     player.Message( "There are no players {0}", qualifier );
 
-                } else if( visiblePlayers.Length <= PlayersPerPage || player.IsSuper ) {
+                } else if ( visiblePlayers.Length <= PlayersPerPage || player.IsSuper ) {
                     player.MessagePrefixed( "&S  ", "&SThere are {0} players {1}: {2}",
                                             visiblePlayers.Length, qualifier, visiblePlayers.JoinToClassyString() );
 
                 } else {
-                    if( offset >= visiblePlayers.Length ) {
+                    if ( offset >= visiblePlayers.Length ) {
                         offset = Math.Max( 0, visiblePlayers.Length - PlayersPerPage );
                     }
                     Player[] playersPart = visiblePlayers.Skip( offset ).Take( PlayersPerPage ).ToArray();
                     player.MessagePrefixed( "&S   ", "&SPlayers {0}: {1}",
                                             qualifier, playersPart.JoinToClassyString() );
 
-                    if( offset + playersPart.Length < visiblePlayers.Length ) {
+                    if ( offset + playersPart.Length < visiblePlayers.Length ) {
                         player.Message( "Showing {0}-{1} (out of {2}). Next: &H/Players {3}{1}",
                                         offset + 1, offset + playersPart.Length,
                                         visiblePlayers.Length,
-                                        (worldName == null ? "" : worldName + " ") );
+                                        ( worldName == null ? "" : worldName + " " ) );
                     } else {
                         player.Message( "Showing players {0}-{1} (out of {2}).",
                                         offset + 1, offset + playersPart.Length,
@@ -1480,34 +1433,34 @@ namespace fCraft {
             Handler = WhereHandler
         };
 
-        static void WhereHandler( Player player, Command cmd ) {
+        static void WhereHandler ( Player player, Command cmd ) {
             string name = cmd.Next();
-            if( cmd.HasNext ) {
+            if ( cmd.HasNext ) {
                 CdWhere.PrintUsage( player );
                 return;
             }
             Player target = player;
 
-            if( name != null ) {
+            if ( name != null ) {
                 target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-                if( target == null ) return;
-            } else if( target.World == null ) {
+                if ( target == null ) return;
+            } else if ( target.World == null ) {
                 player.Message( "When called from console, &H/Where&S requires a player name." );
                 return;
             }
 
-            if( target.World == null ) {
+            if ( target.World == null ) {
                 // Chances of this happening are miniscule
                 player.Message( "Player {0}&S is not in any world." );
                 return;
             }
-            if (!player.Can(Permission.ViewOthersInfo) && target != player){
-                player.Message("&WYou do not have permissions to perform this task") ;
+            if ( !player.Can( Permission.ViewOthersInfo ) && target != player ) {
+                player.Message( "&WYou do not have permissions to perform this task" );
                 return;
-            }else{
-                player.Message("Player {0}&S is on world {1}&S:",
+            } else {
+                player.Message( "Player {0}&S is on world {1}&S:",
                                 target.ClassyName,
-                                target.World.ClassyName);
+                                target.World.ClassyName );
             }
 
             Vector3I targetBlockCoords = target.Position.ToBlockCoords();
@@ -1518,8 +1471,8 @@ namespace fCraft {
         }
 
 
-        public static string GetCompassString( byte rotation ) {
-            int offset = (int)(rotation / 255f * 64f) + 32;
+        public static string GetCompassString ( byte rotation ) {
+            int offset = ( int )( rotation / 255f * 64f ) + 32;
 
             return String.Format( "&F[{0}&C{1}&F{2}]",
                                   Compass.Substring( offset - 12, 11 ),
@@ -1545,23 +1498,23 @@ namespace fCraft {
             Handler = HelpHandler
         };
 
-        internal static void HelpHandler( Player player, Command cmd ) {
+        internal static void HelpHandler ( Player player, Command cmd ) {
             string commandName = cmd.Next();
 
-            if( commandName == "commands" ) {
+            if ( commandName == "commands" ) {
                 CdCommands.Call( player, cmd, false );
 
-            } else if( commandName != null ) {
+            } else if ( commandName != null ) {
                 CommandDescriptor descriptor = CommandManager.GetDescriptor( commandName, true );
-                if( descriptor == null ) {
+                if ( descriptor == null ) {
                     player.Message( "Unknown command: \"{0}\"", commandName );
                     return;
                 }
 
                 string sectionName = cmd.Next();
-                if( sectionName != null ) {
+                if ( sectionName != null ) {
                     string sectionHelp;
-                    if( descriptor.HelpSections != null && descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
+                    if ( descriptor.HelpSections != null && descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
                         player.MessagePrefixed( HelpPrefix, sectionHelp );
                     } else {
                         player.Message( "No help found for \"{0}\"", sectionName );
@@ -1570,13 +1523,13 @@ namespace fCraft {
                     StringBuilder sb = new StringBuilder( Color.Help );
                     sb.Append( descriptor.Usage ).Append( '\n' );
 
-                    if( descriptor.Aliases != null ) {
+                    if ( descriptor.Aliases != null ) {
                         sb.Append( "Aliases: &H" );
                         sb.Append( descriptor.Aliases.JoinToString() );
                         sb.Append( "\n&S" );
                     }
 
-                    if( String.IsNullOrEmpty( descriptor.Help ) ) {
+                    if ( String.IsNullOrEmpty( descriptor.Help ) ) {
                         sb.Append( "No help is available for this command." );
                     } else {
                         sb.Append( descriptor.Help );
@@ -1584,7 +1537,7 @@ namespace fCraft {
 
                     player.MessagePrefixed( HelpPrefix, sb.ToString() );
 
-                    if( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
+                    if ( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
                         player.MessageNoAccess( descriptor );
                     }
                 }
@@ -1592,7 +1545,7 @@ namespace fCraft {
             } else {
                 player.Message( "  To see a list of all commands, write &H/Commands" );
                 player.Message( "  To see detailed help for a command, write &H/Help Command" );
-                if( player != Player.Console ) {
+                if ( player != Player.Console ) {
                     player.Message( "  To see your stats, write &H/Info" );
                 }
                 player.Message( "  To list available worlds, write &H/Worlds" );
@@ -1618,38 +1571,37 @@ namespace fCraft {
             Handler = CommandsHandler
         };
 
-        internal static void CommandsHandler( Player player, Command cmd ) {
+        internal static void CommandsHandler ( Player player, Command cmd ) {
             string param = cmd.Next();
             CommandDescriptor[] cd;
             CommandCategory category;
 
-            if (param == null)
-            {
-                player.Message("&SFor &aBuilding &Scommands, type &a/Commands building" +
+            if ( param == null ) {
+                player.Message( "&SFor &aBuilding &Scommands, type &a/Commands building" +
                                "\n&SFor &fChat &Scommands, type &a/Commands chat" +
                                "\n&SFor &fInfo &Scommands, type &a/Commands info" +
                                "\n&SFor &3Moderation &scommands, type &a/Commands moderation" +
                                "\n&SFor &9World &Scommands, type &a/Commands world" +
                                "\n&SFor &bZone &Scommands, type &a/Commands zone" +
-                               (CommandManager.GetCommands(CommandCategory.Math, false).Length > 0
+                               ( CommandManager.GetCommands( CommandCategory.Math, false ).Length > 0
                                     ? "\n&SFor &cFunction drawing &Scommands, type &a/Commands math"
-                                    : "") +
-                               (CommandManager.GetCommands(CommandCategory.Fun, false).Length > 0
+                                    : "" ) +
+                               ( CommandManager.GetCommands( CommandCategory.Fun, false ).Length > 0
                                     ? "\n&SFor &dFun &Scommands, type &a/Commands fun"
-                                    : ""));
+                                    : "" ) );
                 return;
             }
 
             string prefix;
 
-            if( param == null ) {
+            if ( param == null ) {
                 prefix = "Available commands";
                 cd = CommandManager.GetCommands( player.Info.Rank, false );
 
-            } else if( param.StartsWith( "@" ) ) {
+            } else if ( param.StartsWith( "@" ) ) {
                 string rankName = param.Substring( 1 );
                 Rank rank = RankManager.FindRank( rankName );
-                if( rank == null ) {
+                if ( rank == null ) {
                     player.Message( "Unknown rank: {0}", rankName );
                     return;
                 } else {
@@ -1657,15 +1609,15 @@ namespace fCraft {
                     cd = CommandManager.GetCommands( rank, false );
                 }
 
-            } else if( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
+            } else if ( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
                 prefix = "All commands";
                 cd = CommandManager.GetCommands();
 
-            } else if( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
+            } else if ( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
                 prefix = "Hidden commands";
                 cd = CommandManager.GetCommands( true );
 
-            } else if( EnumUtil.TryParse( param, out category, true ) ) {
+            } else if ( EnumUtil.TryParse( param, out category, true ) ) {
                 prefix = String.Format( "{0} commands", category );
                 cd = CommandManager.GetCommands( category, false );
 
@@ -1692,14 +1644,14 @@ namespace fCraft {
             Handler = ColorsHandler
         };
 
-        internal static void ColorsHandler( Player player, Command cmd ) {
-            if( cmd.HasNext ) {
+        internal static void ColorsHandler ( Player player, Command cmd ) {
+            if ( cmd.HasNext ) {
                 CdColors.PrintUsage( player );
                 return;
             }
             StringBuilder sb = new StringBuilder( "List of colors: " );
 
-            foreach( var color in Color.ColorNames ) {
+            foreach ( var color in Color.ColorNames ) {
                 sb.AppendFormat( "&{0}%{0} {1} ", color.Key, color.Value );
             }
 
