@@ -102,9 +102,9 @@ namespace fCraft {
                         }
 
                         if (unban){
-                            if (target.Info.BannedUntil > DateTime.Now){
+                            if (target.Info.BannedUntil > DateTime.UtcNow){
                                 player.Message("&SBypassed BannedUntil field for {0}&S, target is no longer tempbanned");
-                                target.Info.BannedUntil = new DateTime(0);
+                                target.Info.BannedUntil = DateTime.MinValue;
                             }
                         }
 

@@ -40,7 +40,7 @@ namespace fCraft.Portals
             this.Range = Portal.CalculateRange(this);
             this.Name = Name;
             this.Creator = Creator;
-            this.Created = DateTime.Now;
+            this.Created = DateTime.UtcNow;
             this.Place = Place;
         }
 

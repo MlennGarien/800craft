@@ -78,7 +78,7 @@ namespace fCraft.Portals
             {
                 // Player can use portals again
                 e.Player.CanUsePortal = true;
-                e.Player.LastUsedPortal = DateTime.Now;
+                e.Player.LastUsedPortal = DateTime.UtcNow;
             }
             catch (Exception ex)
             {
@@ -102,12 +102,12 @@ namespace fCraft.Portals
                                 {
                                     if (PortalHandler.GetInstance().GetPortal(e.Player) != null && !e.Player.StandingInPortal)
                                     {
-                                        if (e.Player.LastUsedPortal != null && (DateTime.Now - e.Player.LastUsedPortal).TotalSeconds < 5)
+                                        if (e.Player.LastUsedPortal != null && (DateTime.UtcNow - e.Player.LastUsedPortal).TotalSeconds < 5)
                                         {
                                             // To prevent portal loops
-                                            if (e.Player.LastWarnedPortal == null || (DateTime.Now - e.Player.LastWarnedPortal).TotalSeconds > 2)
+                                            if (e.Player.LastWarnedPortal == null || (DateTime.UtcNow - e.Player.LastWarnedPortal).TotalSeconds > 2)
                                             {
-                                                e.Player.LastWarnedPortal = DateTime.Now;
+                                                e.Player.LastWarnedPortal = DateTime.UtcNow;
                                                 e.Player.Message("You can not use portals within 5 seconds of joining a world.");
                                             }
 

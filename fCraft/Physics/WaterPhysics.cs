@@ -223,11 +223,11 @@ namespace fCraft
                             );
                             if (p.WorldMap.GetBlock(pos.X, pos.Y, pos.Z) == Block.Water)
                             {
-                                if (p.DrownTime == null || (DateTime.Now - p.DrownTime).TotalSeconds > 33)
+                                if (p.DrownTime == null || (DateTime.UtcNow - p.DrownTime).TotalSeconds > 33)
                                 {
-                                    p.DrownTime = DateTime.Now;
+                                    p.DrownTime = DateTime.UtcNow;
                                 }
-                                if ((DateTime.Now - p.DrownTime).TotalSeconds > 30)
+                                if ((DateTime.UtcNow - p.DrownTime).TotalSeconds > 30)
                                 {
                                     p.TeleportTo(p.WorldMap.Spawn);
                                     p.World.Players.Message("{0}&S drowned and died", p.ClassyName);
@@ -235,7 +235,7 @@ namespace fCraft
                             }
                             else
                             {
-                                p.DrownTime = DateTime.Now;
+                                p.DrownTime = DateTime.UtcNow;
                             }
                         }
                     }

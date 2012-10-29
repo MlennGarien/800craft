@@ -1404,22 +1404,5 @@ namespace fCraft {
             return String.Format( "World({0})", Name );
         }
     }
-    public class PhysicsBlock
-    {
-        public short x, y, z;
-        public Block type;
-        public DateTime startTime;
-        public Player player;
-
-        public PhysicsBlock(short x, short y, short z, Block type, Player player)
-        {
-            this.player = player;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.type = type;
-            this.startTime = DateTime.Now;
-        }
-    }
 }
 

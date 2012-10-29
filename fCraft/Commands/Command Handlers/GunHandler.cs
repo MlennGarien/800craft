@@ -301,7 +301,7 @@ namespace fCraft
         {
             try
             {
-                if (e.Player.LastUsedPortal != null && (DateTime.Now - e.Player.LastUsedPortal).TotalSeconds < 4)
+                if (e.Player.LastUsedPortal != null && (DateTime.UtcNow - e.Player.LastUsedPortal).TotalSeconds < 4)
                 {
                     return;
                 }
@@ -325,7 +325,7 @@ namespace fCraft
                                         L = e.Player.Position.L
                                     });
                                 }
-                                e.Player.LastUsedPortal = DateTime.Now;
+                                e.Player.LastUsedPortal = DateTime.UtcNow;
                             }
                         }
                     }
@@ -347,7 +347,7 @@ namespace fCraft
                                         L = e.Player.Position.L
                                     });
                                 }
-                                e.Player.LastUsedPortal = DateTime.Now;
+                                e.Player.LastUsedPortal = DateTime.UtcNow;
                             }
                         }
                     }

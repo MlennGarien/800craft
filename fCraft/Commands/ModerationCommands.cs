@@ -287,7 +287,7 @@ namespace fCraft {
                 player.Message("You suicidal bro?");
                 return;
             }
-            double time = (DateTime.Now - player.Info.LastUsedKill).TotalSeconds;
+            double time = (DateTime.UtcNow - player.Info.LastUsedKill).TotalSeconds;
             if (time < 10){
                 player.Message("&WYou can use /Kill again in " + Math.Round(10 - time) + " seconds.");
                 return;
@@ -298,7 +298,7 @@ namespace fCraft {
             }else {
                 if (player.Can(Permission.Kill, target.Info.Rank)){
                     target.TeleportTo(player.World.Map.Spawn);
-                    player.Info.LastUsedKill = DateTime.Now;
+                    player.Info.LastUsedKill = DateTime.UtcNow;
                     if (!string.IsNullOrWhiteSpace(OReason))
                     {
                         Server.Players.CanSee(target).Union(target).Message("{0}&C was &4Killed&C by {1}&W: {2}", target.ClassyName, player.ClassyName, OReason);
@@ -348,7 +348,7 @@ namespace fCraft {
                 player.Message("&sYou can't slap yourself.... What's wrong with you???");
                 return;
             }
-            double time = (DateTime.Now - player.Info.LastUsedSlap).TotalSeconds;
+            double time = (DateTime.UtcNow - player.Info.LastUsedSlap).TotalSeconds;
             if (time < 10){
                 player.Message("&WYou can use /Slap again in " + Math.Round(10 - time) + " seconds.");
                 return;
@@ -360,7 +360,7 @@ namespace fCraft {
                 if (string.IsNullOrEmpty(item)){
                     Server.Players.CanSee(target).Union(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                     IRC.PlayerSomethingMessage(player, "slapped", target, null);
-                    player.Info.LastUsedSlap = DateTime.Now;
+                    player.Info.LastUsedSlap = DateTime.UtcNow;
                     return;
                 }
                 else if (item.ToLower() == "bakingtray")
@@ -374,12 +374,12 @@ namespace fCraft {
                 else{
                     Server.Players.CanSee(target).Union(target).Message("{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName);
                     IRC.PlayerSomethingMessage(player, "slapped", target, null);
-                    player.Info.LastUsedSlap = DateTime.Now;
+                    player.Info.LastUsedSlap = DateTime.UtcNow;
                     return;
                 }
                 Server.Players.CanSee(target).Union(target).Message(aMessage);
                 IRC.PlayerSomethingMessage(player, "slapped", target, null);
-                player.Info.LastUsedSlap = DateTime.Now;
+                player.Info.LastUsedSlap = DateTime.UtcNow;
                 return;
             }else{
                 player.Message("&sYou can only Slap players ranked {0}&S or lower",
@@ -503,7 +503,7 @@ namespace fCraft {
             // check permissions
             if (!player.Can(Permission.BanIP, target.Rank)){
                 player.Message("You can only Temp-Ban players ranked {0}&S or lower.",
-                                player.Info.Rank.GetLimit(Permission.BanIP).ClassyName);
+                                player.Info.Rank.GetLimit(Permission.TempBan).ClassyName);
                 player.Message("{0}&S is ranked {1}", target.ClassyName, target.Rank.ClassyName);
                 return;
             }
@@ -513,7 +513,7 @@ namespace fCraft {
                 string reason = cmd.NextAll();
                 try{
                     target.Ban(player, "You were Banned for " + timeString, false, true);
-                    DateTime UnbanTime = DateTime.Now;
+                    DateTime UnbanTime = DateTime.UtcNow;
                     UnbanTime = UnbanTime.AddSeconds(duration.ToSeconds());
                     target.BannedUntil = UnbanTime;
                     target.IsTempbanned = true;

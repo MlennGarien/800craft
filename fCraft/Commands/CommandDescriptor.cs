@@ -105,16 +105,15 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Prints a command HelpSection syntax to the given player. 
+        /// If that fails, it will print the usage instead </summary>
         public void PrintHelpSection(Player player, string sectionName)
         {
             string sectionHelp;
-            if (HelpSections != null && HelpSections.TryGetValue(sectionName.ToLower(), out sectionHelp))
-            {
+            if (HelpSections != null && HelpSections.TryGetValue(sectionName.ToLower(), out sectionHelp)){
                 player.MessagePrefixed("&S    ", sectionHelp);
-            }
-            else
-            {
-                player.Message("No help found for \"{0}\"", sectionName);
+            }else{
+                PrintUsage(player); //if sectionName was incorrect
             }
         }
 

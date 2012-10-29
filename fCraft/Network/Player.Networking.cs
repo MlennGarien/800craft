@@ -622,10 +622,10 @@ namespace fCraft {
 
             if (Info.IsBanned)
             {
-                if (Info.BannedUntil < DateTime.Now && (Info.BannedUntil != new DateTime(0)))
+                if (Info.BannedUntil < DateTime.UtcNow && (Info.BannedUntil != DateTime.MinValue))
                 {
                     Info.Unban(Player.Console, "Tempban expired", true, true);
-                    Info.BannedUntil = new DateTime(0);
+                    Info.BannedUntil = DateTime.MinValue;
                 }
             }
             // Check if player is banned
