@@ -134,7 +134,7 @@ namespace fCraft {
             IsConsoleSafe = false,
             Usage = "/DrawImage WebsiteUrl.com/picture.jpg",
             Help = "Draws an image file from a website in minecraft blocks. " +
-            "If your url is from imgur.com, you can type ++ followed by the image code. Example: ++kbFRo.png",
+            "If your url is from imgur.com, you can type '++' followed by the image code. Example: ++kbFRo.png",
             Handler = DrawImageHandler
         };
         static void DrawImageHandler ( Player player, Command cmd ) {
@@ -372,12 +372,11 @@ namespace fCraft {
             Permissions = new Permission[] { Permission.DrawAdvanced },
             RepeatableSelection = true,
             IsConsoleSafe = false,
-            Help = "/Write, then click 2 blocks. The first is the starting point, the second is the direction",
+            Help = "/Write Sentence, then click 2 blocks. The first is the starting point, the second is the direction",
             Usage = "/Write Sentence",
             Handler = WriteHandler,
         };
 
-        //TODO: add a collection of fonts. Performance++
         static void WriteHandler ( Player player, Command cmd ) {
             string sentence = cmd.NextAll();
             if ( sentence.Length < 1 ) {
@@ -398,7 +397,6 @@ namespace fCraft {
             } else {
                 block = player.LastUsedBlockType;
             }
-            //find the direction (needs attention)
             Direction direction = DirectionFinder.GetDirection( marks );
             try {
                 FontHandler render = new FontHandler( block, marks, player, direction ); //create new instance
@@ -2280,15 +2278,15 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
             RepeatableSelection = true,
-            Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Usage = "/UndoArea PlayerName (TimeSpan|BlockCount)",
             Help = "Reverses changes made by the given player(s). " +
                    "Applies to a selected area in the current world. " +
-                   "More than one player name can be given at a time. " +
                    "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",
             Handler = UndoAreaHandler
         };
 
         static void UndoAreaHandler ( Player player, Command cmd ) {
+            if ( !cmd.HasNext ){ CdUndoArea.PrintUsage( player ); return; }
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoArea", false );
             if ( args == null ) return;
 
@@ -2309,14 +2307,14 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
             RepeatableSelection = true,
-            Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Usage = "/UndoArea PlayerName (TimeSpan|BlockCount)",
             Help = "Reverses changes made by everyone EXCEPT the given player(s). " +
-                   "Applies to a selected area in the current world. " +
-                   "More than one player name can be given at a time.",
+                   "Applies to a selected area in the current world. ",
             Handler = UndoAreaNotHandler
         };
 
         static void UndoAreaNotHandler ( Player player, Command cmd ) {
+            if ( !cmd.HasNext ) { CdUndoAreaNot.PrintUsage( player ); return; }
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoAreaNot", true );
             if ( args == null ) return;
 
@@ -2402,14 +2400,14 @@ namespace fCraft {
             Aliases = new[] { "up", "undox" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
-            Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Usage = "/UndoPlayer PlayerName (TimeSpan|BlockCount) ",
             Help = "Reverses changes made by a given player in the current world. " +
-                   "More than one player name can be given at a time. " +
                    "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",
             Handler = UndoPlayerHandler
         };
 
         static void UndoPlayerHandler ( Player player, Command cmd ) {
+            if ( !cmd.HasNext ) { CdUndoPlayer.PrintUsage( player ); return; }
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayer", false );
             if ( args == null ) return;
             Scheduler.NewBackgroundTask( UndoPlayerLookup )
@@ -2422,14 +2420,14 @@ namespace fCraft {
             Aliases = new[] { "upn", "unp" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
-            Usage = "/UndoPlayerNot (TimeSpan|BlockCount) PlayerName [AnotherName...]",
+            Usage = "/UndoPlayerNot PlayerName (TimeSpan|BlockCount)",
             Help = "Reverses changes made by everyone EXCEPT the given player(s). " +
-                   "Applies to the whole world. " +
-                   "More than one player name can be given at a time.",
+                   "Applies to the whole world. ",
             Handler = UndoPlayerNotHandler
         };
 
         static void UndoPlayerNotHandler ( Player player, Command cmd ) {
+            if ( !cmd.HasNext ) { CdUndoPlayerNot.PrintUsage( player ); return; }
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayerNot", true );
             if ( args == null ) return;
             Scheduler.NewBackgroundTask( UndoPlayerLookup )
