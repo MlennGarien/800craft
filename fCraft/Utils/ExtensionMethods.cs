@@ -84,6 +84,11 @@ namespace fCraft
             TicksToUnixEpoch = UnixEpoch.Ticks;
         }
 
+        /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
+        public static DateTime TryParseDateTime ( long timestamp ) {
+            return UnixEpoch.AddSeconds( timestamp );
+        }
+
 
         #region To Unix Time
 
@@ -495,6 +500,15 @@ namespace fCraft
 
     unsafe static class FormatUtil
     {
+        [NotNull]
+        public static string ToStringInvariant ( this int i ) {
+            return i.ToString( CultureInfo.InvariantCulture );
+        }
+
+        public static int IndexOfOrdinal ( [NotNull] this string haystack, [NotNull] string needle ) {
+            return haystack.IndexOf( needle, StringComparison.Ordinal );
+        }
+
         // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
         public static StringBuilder Digits([NotNull] this StringBuilder builder, int number)
         {

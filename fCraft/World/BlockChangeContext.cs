@@ -35,10 +35,20 @@ namespace fCraft {
         /// <summary> Block was filled (using /fill2d or /fill3d). </summary>
         Filled = 256,
 
-        /// <summary> Portals </summary>
-        Portal = 512,
+        /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
+        Redone = 512,
 
-        Explosion = 1024,
-        Physics = 2048
+        /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
+        Portal = 1024,
+
+        /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
+        Physics = 2048,
+
+
+        /// <summary> Combination of Manual and Replaced (as used by /Paint). </summary>
+        PaintedCombo = Manual | Replaced,
+
+        /// <summary> Combination of Drawn, UndoneSelf, and Redone (as used by /Redo). </summary>
+        RedoneCombo = Drawn | UndoneSelf | Redone
     }
 }

@@ -125,6 +125,7 @@
     <Compile Include="Commands\System.Drawing\FontHandler.cs" />
     <Compile Include="Commands\System.Drawing\ShapesLib.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
+    <Compile Include="Drawing\DrawOps\BlockDBDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\DrawImageOperation.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Games\PlayerProximityTracker.cs" />
+    <Compile Include="Utils\RWLSExtension.cs" />
     <Compile Include="Utils\Vector3F.cs" />
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\WorldCommands.cs" />
@@ -226,6 +228,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Trie.cs" />
     <Compile Include="World\Block.cs" />
+    <Compile Include="World\BlockDBSearchType.cs" />
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="World\Forester.cs" />
     <Compile Include="World\Map.cs" />

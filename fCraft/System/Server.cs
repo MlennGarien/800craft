@@ -486,11 +486,14 @@ namespace fCraft {
                 // kill IRC bot
                 IRC.Disconnect();
 
-                if( WorldManager.Worlds != null ) {
-                    lock( WorldManager.SyncRoot ) {
+                if ( WorldManager.Worlds != null ) {
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving worlds..." );
+                    lock ( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
-                        foreach( World world in WorldManager.Worlds ) {
-                            if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
+                        foreach ( World world in WorldManager.Worlds ) {
+                            if ( BlockDB.IsEnabledGlobally && world.BlockDB.IsEnabled ) {
+                                world.BlockDB.Flush( false );
+                            }
                             world.SaveMap();
                         }
                     }
@@ -498,8 +501,11 @@ namespace fCraft {
 
                 Scheduler.EndShutdown();
 
-                if( PlayerDB.IsLoaded ) PlayerDB.Save();
-                if( IPBanList.IsLoaded ) IPBanList.Save();
+                if ( IsRunning ) {
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving databases..." );
+                    if ( PlayerDB.IsLoaded ) PlayerDB.Save();
+                    if ( IPBanList.IsLoaded ) IPBanList.Save();
+                }
 
                 RaiseShutdownEndedEvent( shutdownParams );
 #if !DEBUG

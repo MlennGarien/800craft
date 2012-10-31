@@ -50,7 +50,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdWorldUnload );
 
             CommandManager.RegisterCommand( CdRealm );
-            CommandManager.RegisterCommand( CdGuestwipe );
             CommandManager.RegisterCommand( CdRankHide );
             CommandManager.RegisterCommand( CdPortal );
             CommandManager.RegisterCommand( CdWorldSearch );
@@ -852,26 +851,6 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdGuestwipe = new CommandDescriptor {
-            Name = "Guestwipe",
-
-            Category = CommandCategory.World,
-            Permissions = new[] { Permission.ManageWorlds },
-            IsConsoleSafe = true,
-            Usage = "/guestwipe",
-            Help = "&HWipes a map with the name 'Guest'.",
-            Handler = Guestwipe
-        };
-
-        internal static void Guestwipe ( Player player, Command cmd ) {
-            Scheduler.NewTask( t => Server.Players.Message( "&9Warning! The Guest world will be wiped in 30 seconds." ) ).RunOnce( TimeSpan.FromSeconds( 1 ) );
-            Scheduler.NewTask( t => Server.Players.Message( "&9Warning! The Guest world will be wiped in 15 seconds." ) ).RunOnce( TimeSpan.FromSeconds( 16 ) );
-            Scheduler.NewTask( t => player.Message( "&4Prepare to use /ok when notified." ) ).RunOnce( TimeSpan.FromSeconds( 25 ) );
-            Scheduler.NewTask( t => WorldLoadHandler( player, new Command( "/wload guestwipe guest" ) ) ).RunOnce( TimeSpan.FromSeconds( 27 ) );
-            return;
-        }
-        #endregion
-
         #region BlockDB
 
         static readonly CommandDescriptor CdBlockDB = new CommandDescriptor {
@@ -880,7 +859,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageBlockDB },
             Usage = "/BlockDB <WorldName> <Operation>",
-            Help = "&HManages BlockDB on a given world. " +
+            Help = "Manages BlockDB on a given world. " +
                    "Operations are: On, Off, Clear, Limit, TimeLimit, Preload. " +
                    "See &H/Help BlockDB <Operation>&S for operation-specific help. " +
                    "If no operation is given, world's BlockDB status is shown. " +
@@ -951,7 +930,7 @@ namespace fCraft {
             if ( world == null ) return;
             BlockDB db = world.BlockDB;
 
-            lock ( db.SyncRoot ) {
+            using ( db.GetWriteLock() ) {
                 string op = cmd.Next();
                 if ( op == null ) {
                     if ( !db.IsEnabled ) {
@@ -975,7 +954,7 @@ namespace fCraft {
                             }
                         }
                         player.Message( "    Change limit: {0}    Time limit: {1}",
-                                        db.Limit == 0 ? "none" : db.Limit.ToString(),
+                                        db.Limit == 0 ? "none" : db.Limit.ToStringInvariant(),
                                         db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
                     }
                     return;
@@ -993,6 +972,9 @@ namespace fCraft {
                             player.Message( "BlockDB was auto-enabled, and is now manually enabled on world {0}", world.ClassyName );
 
                         } else {
+                            Logger.Log( LogType.UserActivity,
+                                        "BlockDB: Player {0} enabled BlockDB on world {1} (was {2})",
+                                        player.Name, world.Name, db.EnabledState );
                             db.EnabledState = YesNoAuto.Yes;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB is now manually enabled on world {0}", world.ClassyName );
@@ -1011,11 +993,17 @@ namespace fCraft {
                                 player.Message( "BlockDB is now manually disabled on world {0}&S. Use &H/BlockDB {1} clear&S to delete all the data.",
                                                 world.ClassyName, world.Name );
                             } else {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm disabling BlockDB on world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd,
                                                 "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
                                                 world.ClassyName );
                             }
                         } else {
+                            Logger.Log( LogType.UserActivity,
+                                        "BlockDB: Player {0} disabled BlockDB on world {1} (was {2})",
+                                        player.Name, world.Name, db.EnabledState );
                             db.EnabledState = YesNoAuto.No;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB was auto-disabled, and is now manually disabled on world {0}&S.",
@@ -1027,6 +1015,9 @@ namespace fCraft {
                         if ( db.EnabledState == YesNoAuto.Auto ) {
                             player.Message( "BlockDB is already set to automatically enable/disable itself on world {0}", world.ClassyName );
                         } else {
+                            Logger.Log( LogType.UserActivity,
+                                        "BlockDB: Player {0} set BlockDB state on world {1} to Auto (was {2})",
+                                        player.Name, world.Name, db.EnabledState );
                             db.EnabledState = YesNoAuto.Auto;
                             WorldManager.SaveWorldList();
                             if ( db.IsEnabled ) {
@@ -1048,7 +1039,7 @@ namespace fCraft {
                             if ( limitString == null ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is {1}",
                                                 world.ClassyName,
-                                                ( db.Limit == 0 ? "none" : db.Limit.ToString() ) );
+                                                ( db.Limit == 0 ? "none" : db.Limit.ToStringInvariant() ) );
                                 return;
                             }
 
@@ -1064,21 +1055,22 @@ namespace fCraft {
                                 return;
                             }
 
-                            if ( !cmd.IsConfirmed && limitNumber != 0 ) {
+                            string limitDisplayString = ( limitNumber == 0 ? "none" : limitNumber.ToStringInvariant() );
+                            if ( db.Limit == limitNumber ) {
+                                player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
+                                               world.ClassyName, limitDisplayString );
+
+                            } else if ( !cmd.IsConfirmed && limitNumber != 0 ) {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm changing BlockDB limit on world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd, "BlockDB: Change limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
-                                string limitDisplayString = ( limitNumber == 0 ? "none" : limitNumber.ToString() );
-                                if ( db.Limit == limitNumber ) {
-                                    player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
-                                                   world.ClassyName, limitDisplayString );
-
-                                } else {
-                                    db.Limit = limitNumber;
-                                    WorldManager.SaveWorldList();
-                                    player.Message( "BlockDB: Limit for world {0}&S set to {1}",
-                                                   world.ClassyName, limitDisplayString );
-                                }
+                                db.Limit = limitNumber;
+                                WorldManager.SaveWorldList();
+                                player.Message( "BlockDB: Limit for world {0}&S set to {1}",
+                                               world.ClassyName, limitDisplayString );
                             }
 
                         } else {
@@ -1115,29 +1107,30 @@ namespace fCraft {
                                 return;
                             }
 
-                            if ( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
+                            if ( db.TimeLimit == limit ) {
+                                if ( db.TimeLimit == TimeSpan.Zero ) {
+                                    player.Message( "BlockDB: There is already no time limit for world {0}",
+                                                    world.ClassyName );
+                                } else {
+                                    player.Message( "BlockDB: Time limit for world {0}&S is already set to {1}",
+                                                    world.ClassyName, db.TimeLimit.ToMiniString() );
+                                }
+
+                            } else if ( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm changing BlockDB time limit on world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd, "BlockDB: Change time limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
-
-                                if ( db.TimeLimit == limit ) {
-                                    if ( db.TimeLimit == TimeSpan.Zero ) {
-                                        player.Message( "BlockDB: There is already no time limit for world {0}",
-                                                        world.ClassyName );
-                                    } else {
-                                        player.Message( "BlockDB: Time limit for world {0}&S is already set to {1}",
-                                                        world.ClassyName, db.TimeLimit.ToMiniString() );
-                                    }
+                                db.TimeLimit = limit;
+                                WorldManager.SaveWorldList();
+                                if ( db.TimeLimit == TimeSpan.Zero ) {
+                                    player.Message( "BlockDB: Time limit removed for world {0}",
+                                                    world.ClassyName );
                                 } else {
-                                    db.TimeLimit = limit;
-                                    WorldManager.SaveWorldList();
-                                    if ( db.TimeLimit == TimeSpan.Zero ) {
-                                        player.Message( "BlockDB: Time limit removed for world {0}",
-                                                        world.ClassyName );
-                                    } else {
-                                        player.Message( "BlockDB: Time limit for world {0}&S set to {1}",
-                                                        world.ClassyName, db.TimeLimit.ToMiniString() );
-                                    }
+                                    player.Message( "BlockDB: Time limit for world {0}&S set to {1}",
+                                                    world.ClassyName, db.TimeLimit.ToMiniString() );
                                 }
                             }
 
@@ -1152,8 +1145,14 @@ namespace fCraft {
                         if ( hasData ) {
                             if ( cmd.IsConfirmed ) {
                                 db.Clear();
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Player {0} cleared BlockDB data world {1}",
+                                            player.Name, world.Name );
                                 player.Message( "BlockDB: Cleared all data for {0}", world.ClassyName );
                             } else {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm clearing BlockDB data world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd, "Clear BlockDB data for world {0}&S? This cannot be undone.",
                                                 world.ClassyName );
                             }
@@ -1283,12 +1282,11 @@ namespace fCraft {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
-            BlockDBEntry[] results = args.World.BlockDB.Lookup( args.Coordinate );
+            BlockDBEntry[] results = args.World.BlockDB.Lookup( MaxBlockChangesToList, args.Coordinate );
             if ( results.Length > 0 ) {
-                int startIndex = Math.Max( 0, results.Length - MaxBlockChangesToList );
-                for ( int i = startIndex; i < results.Length; i++ ) {
-                    BlockDBEntry entry = results[i];
-                    string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
+                Array.Reverse( results );
+                foreach ( BlockDBEntry entry in results ) {
+                    string date = DateTime.UtcNow.Subtract( DateTimeUtil.TryParseDateTime( entry.Timestamp ) ).ToMiniString();
 
                     PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
                     string playerName;
@@ -1303,13 +1301,24 @@ namespace fCraft {
                         }
                     }
                     string contextString;
-                    if ( entry.Context == BlockChangeContext.Manual ) {
-                        contextString = "";
-                    } else if ( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
-                        entry.Context != BlockChangeContext.Drawn ) {
-                        contextString = " (" + ( entry.Context & ~BlockChangeContext.Drawn ) + ")";
-                    } else {
-                        contextString = " (" + entry.Context + ")";
+                    switch ( entry.Context ) {
+                        case BlockChangeContext.Manual:
+                            contextString = "";
+                            break;
+                        case BlockChangeContext.PaintedCombo:
+                            contextString = " (Painted)";
+                            break;
+                        case BlockChangeContext.RedoneCombo:
+                            contextString = " (Redone)";
+                            break;
+                        default:
+                            if ( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
+                                entry.Context != BlockChangeContext.Drawn ) {
+                                contextString = " (" + ( entry.Context & ~BlockChangeContext.Drawn ) + ")";
+                            } else {
+                                contextString = " (" + entry.Context + ")";
+                            }
+                            break;
                     }
 
                     if ( entry.OldBlock == ( byte )Block.Air ) {
@@ -1330,7 +1339,7 @@ namespace fCraft {
         }
 
         #endregion
-
+        #endregion
 
         #region Env
 

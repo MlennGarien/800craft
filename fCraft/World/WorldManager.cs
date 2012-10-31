@@ -614,7 +614,7 @@ namespace fCraft {
                             }
                         }
 
-                        lock( world.BlockDB.SyncRoot ) {
+                        using( world.BlockDB.GetWriteLock() ) {
                             string oldBlockDBFile = Path.Combine( Paths.BlockDBDirectory, oldName + ".fbdb" );
                             string newBockDBFile = newName + ".fbdb";
                             if( File.Exists( oldBlockDBFile ) ) {
