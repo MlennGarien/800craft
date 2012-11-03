@@ -7,7 +7,6 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 using fCraft.Drawing;
 using fCraft.Portals;
-using ServiceStack.Text;
 using System.Text;
 using System.Threading;
 using fCraft.Events;
@@ -248,6 +247,10 @@ namespace fCraft {
             Handler = PortalH
         };
 
+        struct PDATA {
+            public bool custom;
+            public DrawOperation op;
+        }
         private static void PortalH ( Player player, Command command ) {
             try {
                 String option = command.Next();
@@ -256,20 +259,30 @@ namespace fCraft {
                     CdPortal.PrintUsage( player );
                 } else if ( option.ToLower().Equals( "create" ) ) {
                     if ( player.Can( Permission.ManagePortal ) ) {
+                        string blockTypeOrName = command.Next();
+                        DrawOperation operation = new CuboidDrawOperation( player );
+                        NormalBrush brush = new NormalBrush( Block.Water, Block.Water );
+                        if ( blockTypeOrName == null ) blockTypeOrName = "water";
+                        if ( blockTypeOrName.ToLower().Equals( "lava" ) ) {
+                            brush = new NormalBrush( Block.Lava, Block.Lava );
+                        } else if (!blockTypeOrName.ToLower().Equals( "water" ) ) {
+                            player.Message( "Invalid block, choose between water or lava." );
+                            return;
+                        }
+                        
                         string world = command.Next();
-
+                        bool CustomOutput = ( world == null );
+                        operation.Brush = brush;
                         if ( world != null && WorldManager.FindWorldExact( world ) != null ) {
-                            DrawOperation operation = new CuboidDrawOperation( player );
-                            NormalBrush brush = new NormalBrush( Block.Water, Block.Water );
-
-                            string blockTypeOrName = command.Next();
-
-                            if ( blockTypeOrName != null && blockTypeOrName.ToLower().Equals( "lava" ) ) {
-                                brush = new NormalBrush( Block.Lava, Block.Lava );
-                            } else if ( blockTypeOrName != null && !blockTypeOrName.ToLower().Equals( "water" ) ) {
-                                player.Message( "Invalid block, choose between water or lava." );
-                                return;
-                            }
+                            player.PortalWorld = world;
+                        } else player.PortalWorld = player.World.Name;
+                        player.SelectionStart( operation.ExpectedMarks, PortalCreateCallback, new PDATA(){ op = operation, custom = CustomOutput } , Permission.Draw );
+                        player.Message( "Click {0} blocks or use &H/Mark&S to mark the area of the portal.", operation.ExpectedMarks );
+                        
+                        if ( world == null ) {
+                            return; //custom, continue in Selectstart
+                        }
+                        if ( world != null && WorldManager.FindWorldExact( world ) != null ) {
 
                             string portalName = command.Next();
 
@@ -283,13 +296,6 @@ namespace fCraft {
                                     return;
                                 }
                             }
-
-                            operation.Brush = brush;
-                            player.PortalWorld = world;
-
-
-                            player.SelectionStart( operation.ExpectedMarks, PortalCreateCallback, operation, Permission.Draw );
-                            player.Message( "Click {0} blocks or use &H/Mark&S to mark the area of the portal.", operation.ExpectedMarks );
                         } else {
                             if ( world == null ) {
                                 player.Message( "No world specified." );
@@ -394,12 +400,14 @@ namespace fCraft {
             }
         }
 
-        static void PortalCreateCallback ( Player player, Vector3I[] marks, object tag ) {
+        static void PortalCreateCallback ( Player player, Vector3I[] marks, object tag) {
             try {
                 World world = WorldManager.FindWorldExact( player.PortalWorld );
 
                 if ( world != null ) {
-                    DrawOperation op = ( DrawOperation )tag;
+                    PDATA pd = ( PDATA )tag;
+                    DrawOperation op = pd.op;
+                    bool CustomOutput = pd.custom;
                     if ( !op.Prepare( marks ) ) return;
                     if ( !player.CanDraw( op.BlocksTotalEstimate ) ) {
                         player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
@@ -436,13 +444,17 @@ namespace fCraft {
                         player.PortalName = Portal.GenerateName( player.World );
                     }
 
-                    Portal portal = new Portal( player.PortalWorld, marks, player.PortalName, player.Name, player.World.Name );
-                    PortalHandler.CreatePortal( portal, player.World );
+                    if ( !CustomOutput ) {
+                        Portal portal = new Portal( player.PortalWorld, marks, player.PortalName, player.Name, player.World.Name, false );
+                        PortalHandler.CreatePortal( portal, player.World );
+                        player.Message( "Successfully created portal with name " + portal.Name + "." );
+                    } else {
+                        player.PortalCache = new Portal( player.PortalWorld, marks, player.PortalName, player.Name, player.World.Name, true );
+                        player.Message( "  &SPortal started, place a red block for the desired output (can be multiworld)" );
+                    }
                     op.AnnounceCompletion = false;
                     op.Context = BlockChangeContext.Portal;
                     op.Begin();
-
-                    player.Message( "Successfully created portal with name " + portal.Name + "." );
                 } else {
                     player.MessageInvalidWorldName( player.PortalWorld );
                 }

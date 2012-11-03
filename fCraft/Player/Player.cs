@@ -219,6 +219,7 @@ namespace fCraft {
         public DateTime LastWarnedPortal;
         public bool PortalsEnabled = true;
         public readonly object PortalLock = new object();
+        public Portals.Portal PortalCache = new Portals.Portal();
         #endregion
 
         #region Game
