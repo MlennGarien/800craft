@@ -63,6 +63,10 @@ namespace fCraft {
         // used by IsoCat and MapGenerator
         public short[,] Shadows;
 
+        //Portals
+        public System.Collections.ArrayList Portals;
+        public int portalID = 1;
+
 
         #region FCMv3 additions
         public DateTime DateModified { get; set; }

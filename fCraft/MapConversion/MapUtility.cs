@@ -13,7 +13,7 @@ namespace fCraft.MapConversion {
 
         static MapUtility() {
             AvailableConverters.Add( MapFormat.FCMv4, new MapFCMv4() );
-            AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3().AddExtension(new ZoneConverterExtension()).AddExtension(new LifeSerialization()) );
+            AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3().AddExtension(new ZoneConverterExtension()).AddExtension(new LifeSerialization()).AddExtension(new Portals.PortalSerialization()) );
             AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
             AvailableConverters.Add( MapFormat.Creative, new MapDat() );
             AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );

@@ -198,15 +198,15 @@ namespace fCraft {
                         player.Message( "/List portals cannot be used from Console" );
                         return;
                     }
-                    if ( player.World.Portals == null ||
-                        player.World.Portals.Count == 0 ) {
+                    if ( player.World.Map.Portals == null ||
+                        player.World.Map.Portals.Count == 0 ) {
                         player.Message( "There are no portals in {0}&S.", player.World.ClassyName );
                     } else {
-                        String[] portalNames = new String[player.World.Portals.Count];
-                        StringBuilder output = new StringBuilder( "There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: " );
+                        String[] portalNames = new String[player.World.Map.Portals.Count];
+                        StringBuilder output = new StringBuilder( "There are " + player.World.Map.Portals.Count + " portals in " + player.World.ClassyName + "&S: " );
 
-                        for ( int i = 0; i < player.World.Portals.Count; i++ ) {
-                            portalNames[i] = ( ( fCraft.Portals.Portal )player.World.Portals[i] ).Name;
+                        for ( int i = 0; i < player.World.Map.Portals.Count; i++ ) {
+                            portalNames[i] = ( ( fCraft.Portals.Portal )player.World.Map.Portals[i] ).Name;
                         }
                         output.Append( portalNames.JoinToString( ", " ) );
                         player.Message( output.ToString() );

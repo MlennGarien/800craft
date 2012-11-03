@@ -51,7 +51,7 @@ Server does not show up on minecraft.net list:
     Make sure that you added firewall exception for 800Craft (if applicable),
     and forwarded the port on your router. If you are connecting from same
     computer that the server is working on, try connecting to:
-    http://www.minecraft.net/play.jsp?ip=127.0.0.1&port=____
+    http://minecraft.net/play.jsp?ip=127.0.0.1&port=____
         (fill in the blank with your server's port number)
 
 "Could not verify player name":

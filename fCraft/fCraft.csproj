@@ -180,12 +180,13 @@
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Plugins\Plugins\TrollPlugin.cs" />
     <Compile Include="Portals\Portal.cs" />
-    <Compile Include="Portals\PortalDB.cs" />
+    <Compile Include="Portals\PortalSerialization.cs" />
     <Compile Include="Portals\PortalException.cs" />
     <Compile Include="Portals\PortalHandler.cs" />
     <Compile Include="Portals\PortalRange.cs" />
     <Compile Include="Utils\Direction.cs" />
     <Compile Include="Utils\HeartbeatSaverUtil.cs" />
+    <Compile Include="Utils\PathFinding.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Games\PlayerProximityTracker.cs" />

@@ -20,6 +20,7 @@ using System.Linq;
 using System.Text;
 using fCraft.Drawing;
 using System.Threading;
+using System.Runtime.Serialization;
 
 namespace fCraft.Portals
 {
@@ -32,6 +33,8 @@ namespace fCraft.Portals
         public Vector3I[] AffectedBlocks { get; set; }
         public PortalRange Range { get; set; }
         public String Place { get; set; }
+
+        public Portal() { }
 
         public Portal(String world, Vector3I[] affectedBlocks, String Name, String Creator, String Place)
         {
@@ -171,9 +174,9 @@ namespace fCraft.Portals
 
         public static String GenerateName(World world)
         {
-            if (world.Portals != null)
+            if (world.Map.Portals != null)
             {
-                if (world.Portals.Count > 0)
+                if (world.Map.Portals.Count > 0)
                 {
                     bool found = false;
                     
@@ -182,9 +185,9 @@ namespace fCraft.Portals
                     {
                         bool taken = false;
 
-                        foreach (Portal portal in world.Portals)
+                        foreach (Portal portal in world.Map.Portals)
                         {
-                            if (portal.Name.Equals("portal" + world.portalID))
+                            if (portal.Name.Equals("portal" + world.Map.portalID))
                             {
                                 taken = true;
                                 break;
@@ -197,11 +200,11 @@ namespace fCraft.Portals
                         }
                         else
                         {
-                            world.portalID++;
+                            world.Map.portalID++;
                         }
                     }
 
-                    return "portal" + world.portalID;
+                    return "portal" + world.Map.portalID;
                 }
             }
 
@@ -210,11 +213,11 @@ namespace fCraft.Portals
 
         public static bool DoesNameExist(World world, String name)
         {
-            if (world.Portals != null)
+            if (world.Map.Portals != null)
             {
-                if (world.Portals.Count > 0)
+                if (world.Map.Portals.Count > 0)
                 {
-                    foreach (Portal portal in world.Portals)
+                    foreach (Portal portal in world.Map.Portals)
                     {
                         if (portal.Name.Equals(name))
                         {
@@ -249,12 +252,85 @@ namespace fCraft.Portals
 
             removeOperation.Begin();
 
-            lock (requester.World.Portals.SyncRoot)
+            lock (requester.World.Map.Portals.SyncRoot)
             {
-                requester.World.Portals.Remove(this);
+                requester.World.Map.Portals.Remove(this);
+            }
+        }
+
+        public string Serialize () {
+            SerializedData data = new SerializedData( this );
+            DataContractSerializer serializer = new DataContractSerializer( typeof( SerializedData ) );
+            System.IO.MemoryStream s = new System.IO.MemoryStream();
+            serializer.WriteObject( s, data );
+            return Convert.ToBase64String( s.ToArray() );
+        }
+
+        public static Portal Deserialize ( string name, string sdata, Map map ) {
+            byte[] bdata = Convert.FromBase64String( sdata );
+            Portal portal = new Portal();
+            DataContractSerializer serializer = new DataContractSerializer( typeof( SerializedData ) );
+            System.IO.MemoryStream s = new System.IO.MemoryStream( bdata );
+            SerializedData data = ( SerializedData )serializer.ReadObject( s );
+
+            data.UpdatePortal( portal );
+            return portal;
+        }
+        [DataContract]
+        private class SerializedData {
+            [DataMember]
+            public String Name;
+            [DataMember]
+            public String Creator;
+            [DataMember]
+            public DateTime Created;
+            [DataMember]
+            public String World;
+            [DataMember]
+            public Vector3I[] AffectedBlocks;
+            [DataMember]
+            public int XMin;
+            [DataMember]
+            public int XMax;
+            [DataMember]
+            public int YMin;
+            [DataMember]
+            public int YMax;
+            [DataMember]
+            public int ZMin;
+            [DataMember]
+            public int ZMax;
+            [DataMember]
+            public String Place;
+
+            public SerializedData ( Portal portal ) {
+                lock ( portal ) {
+
+                    Name = portal.Name;
+                    Creator = portal.Creator;
+                    Created = portal.Created;
+                    World = portal.World;
+                    AffectedBlocks = portal.AffectedBlocks;
+                    XMin = portal.Range.Xmin;
+                    XMax = portal.Range.Xmax;
+                    YMin = portal.Range.Ymin;
+                    YMax = portal.Range.Ymax;
+                    ZMin = portal.Range.Zmin;
+                    ZMax = portal.Range.Zmax;
+                    Place = portal.Place;
+                }
             }
 
-            PortalDB.Save();
+            public void UpdatePortal ( Portal portal ) {
+
+                portal.Name = Name;
+                portal.Creator = Creator;
+                portal.Created = Created;
+                portal.World = World;
+                portal.AffectedBlocks = AffectedBlocks;
+                portal.Range = new PortalRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
+                portal.Place = Place;
+            }
         }
     }
 }

@@ -518,6 +518,4 @@ namespace fCraft
 			}
 		}
 	}
-
-
 }

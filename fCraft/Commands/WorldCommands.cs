@@ -307,12 +307,12 @@ namespace fCraft {
                         if ( portalName == null ) {
                             player.Message( "No portal name specified." );
                         } else {
-                            if ( player.World.Portals != null && player.World.Portals.Count > 0 ) {
+                            if ( player.World.Map.Portals != null && player.World.Map.Portals.Count > 0 ) {
                                 bool found = false;
                                 Portal portalFound = null;
 
-                                lock ( player.World.Portals.SyncRoot ) {
-                                    foreach ( Portal portal in player.World.Portals ) {
+                                lock ( player.World.Map.Portals.SyncRoot ) {
+                                    foreach ( Portal portal in player.World.Map.Portals ) {
                                         if ( portal.Name.Equals( portalName ) ) {
                                             portalFound = portal;
                                             found = true;
@@ -340,11 +340,11 @@ namespace fCraft {
                     if ( portalName == null ) {
                         player.Message( "No portal name specified." );
                     } else {
-                        if ( player.World.Portals != null && player.World.Portals.Count > 0 ) {
+                        if ( player.World.Map.Portals != null && player.World.Map.Portals.Count > 0 ) {
                             bool found = false;
 
-                            lock ( player.World.Portals.SyncRoot ) {
-                                foreach ( Portal portal in player.World.Portals ) {
+                            lock ( player.World.Map.Portals.SyncRoot ) {
+                                foreach ( Portal portal in player.World.Map.Portals ) {
                                     if ( portal.Name.Equals( portalName ) ) {
                                         World portalWorld = WorldManager.FindWorldExact( portal.World );
                                         player.Message( "Portal {0}&S was created by {1}&S at {2} and teleports to world {3}&S.",
@@ -362,14 +362,14 @@ namespace fCraft {
                         }
                     }
                 } else if ( option.ToLower().Equals( "list" ) ) {
-                    if ( player.World.Portals == null || player.World.Portals.Count == 0 ) {
+                    if ( player.World.Map.Portals == null || player.World.Map.Portals.Count == 0 ) {
                         player.Message( "There are no portals in {0}&S.", player.World.ClassyName );
                     } else {
-                        String[] portalNames = new String[player.World.Portals.Count];
-                        StringBuilder output = new StringBuilder( "There are " + player.World.Portals.Count + " portals in " + player.World.ClassyName + "&S: " );
+                        String[] portalNames = new String[player.World.Map.Portals.Count];
+                        StringBuilder output = new StringBuilder( "There are " + player.World.Map.Portals.Count + " portals in " + player.World.ClassyName + "&S: " );
 
-                        for ( int i = 0; i < player.World.Portals.Count; i++ ) {
-                            portalNames[i] = ( ( Portal )player.World.Portals[i] ).Name;
+                        for ( int i = 0; i < player.World.Map.Portals.Count; i++ ) {
+                            portalNames[i] = ( ( Portal )player.World.Map.Portals[i] ).Name;
                         }
 
                         output.Append( portalNames.JoinToString( ", " ) );

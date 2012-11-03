@@ -40,7 +40,6 @@ namespace fCraft.Portals
                 Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>(Player_Moved);
                 Player.JoinedWorld += new EventHandler<Events.PlayerJoinedWorldEventArgs>(Player_JoinedWorld);
                 Player.PlacedBlock += new EventHandler<Events.PlayerPlacedBlockEventArgs>(Player_PlacedBlock);
-                PortalDB.StartSaveTask();
             }
 
             return instance;
@@ -50,11 +49,11 @@ namespace fCraft.Portals
         {
             try
             {
-                if (e.Player.World.Portals != null && e.Player.World.Portals.Count > 0 && e.Context != BlockChangeContext.Portal)
+                if (e.Player.World.Map.Portals != null && e.Player.World.Map.Portals.Count > 0 && e.Context != BlockChangeContext.Portal)
                 {
-                    lock (e.Player.World.Portals.SyncRoot)
+                    lock (e.Player.World.Map.Portals.SyncRoot)
                     {
-                        foreach (Portal portal in e.Player.World.Portals)
+                        foreach (Portal portal in e.Player.World.Map.Portals)
                         {
                             if (portal.IsInRange(e.Coords))
                             {
@@ -168,11 +167,11 @@ namespace fCraft.Portals
 
             try
             {
-                if (player.World.Portals != null && player.World.Portals.Count > 0)
+                if (player.World.Map.Portals != null && player.World.Map.Portals.Count > 0)
                 {
-                    lock (player.World.Portals.SyncRoot)
+                    lock (player.World.Map.Portals.SyncRoot)
                     {
-                        foreach (Portal possiblePortal in player.World.Portals)
+                        foreach (Portal possiblePortal in player.World.Map.Portals)
                         {
                             if (possiblePortal.IsInRange(player))
                             {
@@ -196,11 +195,11 @@ namespace fCraft.Portals
 
             try
             {
-                if (world.Portals != null && world.Portals.Count > 0)
+                if (world.Map.Portals != null && world.Map.Portals.Count > 0)
                 {
-                    lock (world.Portals.SyncRoot)
+                    lock (world.Map.Portals.SyncRoot)
                     {
-                        foreach (Portal possiblePortal in world.Portals)
+                        foreach (Portal possiblePortal in world.Map.Portals)
                         {
                             if (possiblePortal.IsInRange(block))
                             {
@@ -222,17 +221,17 @@ namespace fCraft.Portals
         {
             World world = WorldManager.FindWorldExact(portal.World);
 
-            if (source.Portals == null)
+            if (source.Map.Portals == null)
             {
-                source.Portals = new ArrayList();
+                source.Map.Portals = new ArrayList();
             }
 
-            lock (source.Portals.SyncRoot)
+            lock (source.Map.Portals.SyncRoot)
             {
-                source.Portals.Add(portal);
+                source.Map.Portals.Add(portal);
             }
 
-            PortalDB.Save();
+            //PortalDB.Save();
         }
 
         public static bool IsInRangeOfSpawnpoint(World world, Vector3I block)
