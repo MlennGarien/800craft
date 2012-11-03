@@ -3,6 +3,7 @@ using System;
 using fCraft.MapConversion;
 using System.Collections.Generic;
 using fCraft.Events;
+using fCraft.Doors;
 
 namespace fCraft {
     /// <summary> Contains commands related to zone management. </summary>
@@ -18,7 +19,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdZoneRename );
             CommandManager.RegisterCommand( CdZoneTest );
 
-            CommandManager.RegisterCustomCommand( cdDoor );
+            CommandManager.RegisterCustomCommand( CdDoor );
             CommandManager.RegisterCustomCommand( cdDoorRemove );
             Player.Clicked += PlayerClickedDoor;
             openDoors = new List<Zone>();
@@ -39,23 +40,17 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor cdDoor = new CommandDescriptor {
+        static readonly CommandDescriptor CdDoor = new CommandDescriptor {
             Name = "Door",
-            Category = CommandCategory.Zone,
+            Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
             Help = "Creates door zone. Left click to open doors.",
             Handler = Door
         };
 
         static void Door ( Player player, Command cmd ) {
-            if ( player.WorldMap.Zones.FindExact( player.Name + "door" ) != null ) {
-                player.Message( "One door per person." );
-                return;
-            }
-
-            Zone door = new Zone();
-            door.Name = player.Name + "door";
-            player.SelectionStart( 2, DoorAdd, door, cdDoor.Permissions );
+            Door door = new Door();
+            player.SelectionStart( 2, DoorAdd, door, CdDoor.Permissions );
             player.Message( "Door: Place a block or type /mark to use your location." );
         }
 
@@ -121,6 +116,7 @@ namespace fCraft {
                     //case SecurityCheckResult.RankTooHigh:
                 }
             }
+            List<Vector3I> blocks = new List<Vector3I>();
             for ( int x = sx; x < ex; x++ ) {
                 for ( int y = sy; y < ey; y++ ) {
                     for ( int z = sh; z < eh; z++ ) {
@@ -129,16 +125,20 @@ namespace fCraft {
                                         player.World.ClassyName );
                             return;
                         }
+                        blocks.Add(new Vector3I(x,y,z));
                     }
                 }
             }
-            Zone door = ( Zone )tag;
-            door.Create( new BoundingBox( marks[0], marks[1] ), player.Info );
-            player.WorldMap.Zones.Add( door );
+
+            Door door = new Door( player.World.Name, 
+                blocks.ToArray(), 
+                fCraft.Doors.Door.GenerateName( player.World ), 
+                player.ClassyName );
+            door.Range = new DoorRange( sx, ex, sy, ey, sh, eh );
+            
+            DoorHandler.CreateDoor( door, player.World );
             Logger.Log( LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name );
-            player.Message( "Door created: {0}x{1}x{2}", door.Bounds.Dimensions.X,
-                                                        door.Bounds.Dimensions.Y,
-                                                        door.Bounds.Dimensions.Z );
+            player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );
         }
 
         static readonly object openDoorsLock = new object();

@@ -121,6 +121,11 @@
     <Compile Include="Commands\MathCommands.cs" />
     <Compile Include="Commands\System.Drawing\FontHandler.cs" />
     <Compile Include="Commands\System.Drawing\ShapesLib.cs" />
+    <Compile Include="Doors\Door.cs" />
+    <Compile Include="Doors\DoorException.cs" />
+    <Compile Include="Doors\DoorHandler.cs" />
+    <Compile Include="Doors\DoorRange.cs" />
+    <Compile Include="Doors\DoorSerialization.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
     <Compile Include="Drawing\DrawOps\BlockDBDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\DrawImageOperation.cs" />

@@ -431,6 +431,7 @@ namespace fCraft {
             // start the main loop - server is now connectible
             Scheduler.Start();
             PortalHandler.GetInstance();
+            Doors.DoorHandler.GetInstance();
             //PortalDB.Load();
 
             IsRunning = true;

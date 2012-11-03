@@ -63,6 +63,10 @@ namespace fCraft {
         // used by IsoCat and MapGenerator
         public short[,] Shadows;
 
+        //doors
+        public System.Collections.ArrayList Doors;
+        public int DoorID = 1;
+
         //Portals
         public System.Collections.ArrayList Portals;
         public int portalID = 1;

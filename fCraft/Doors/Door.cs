@@ -22,37 +22,32 @@ using fCraft.Drawing;
 using System.Threading;
 using System.Runtime.Serialization;
 
-namespace fCraft.Portals {
-    public class Portal {
+namespace fCraft.Doors {
+    public class Door {
         public String Name { get; set; }
         public String Creator { get; set; }
         public DateTime Created { get; set; }
         public String World { get; set; }
         public Vector3I[] AffectedBlocks { get; set; }
-        public PortalRange Range { get; set; }
-        public String Place { get; set; }
-        public Position DesiredOutput { get; set; }
-        public bool HasDesiredOutput = false;
+        public DoorRange Range { get; set; }
 
-        public Portal () { 
+        public Door () { 
             //empty
         }
 
-        public Portal ( String world, Vector3I[] affectedBlocks, String Name, String Creator, String Place, bool CustomOutput ) {
+        public Door ( String world, Vector3I[] affectedBlocks, String Name, String Creator ) {
             this.World = world;
             this.AffectedBlocks = affectedBlocks;
-            this.Range = Portal.CalculateRange( this );
+            this.Range = Door.CalculateRange( this );
             this.Name = Name;
             this.Creator = Creator;
             this.Created = DateTime.UtcNow;
-            this.Place = Place;
-            this.HasDesiredOutput = CustomOutput;
         }
 
-        public static PortalRange CalculateRange ( Portal portal ) {
-            PortalRange range = new PortalRange( 0, 0, 0, 0, 0, 0 );
+        public static DoorRange CalculateRange ( Door Door ) {
+            DoorRange range = new DoorRange( 0, 0, 0, 0, 0, 0 );
 
-            foreach ( Vector3I block in portal.AffectedBlocks ) {
+            foreach ( Vector3I block in Door.AffectedBlocks ) {
                 if ( range.Xmin == 0 ) {
                     range.Xmin = block.X;
                 } else {
@@ -130,15 +125,15 @@ namespace fCraft.Portals {
         }
 
         public static String GenerateName ( World world ) {
-            if ( world.Map.Portals != null ) {
-                if ( world.Map.Portals.Count > 0 ) {
+            if ( world.Map.Doors != null ) {
+                if ( world.Map.Doors.Count > 0 ) {
                     bool found = false;
 
                     while ( !found ) {
                         bool taken = false;
 
-                        foreach ( Portal portal in world.Map.Portals ) {
-                            if ( portal.Name.Equals( "portal" + world.Map.portalID ) ) {
+                        foreach ( Door Door in world.Map.Doors ) {
+                            if ( Door.Name.Equals( "Door" + world.Map.DoorID ) ) {
                                 taken = true;
                                 break;
                             }
@@ -147,22 +142,22 @@ namespace fCraft.Portals {
                         if ( !taken ) {
                             found = true;
                         } else {
-                            world.Map.portalID++;
+                            world.Map.DoorID++;
                         }
                     }
 
-                    return "portal" + world.Map.portalID;
+                    return "Door" + world.Map.DoorID;
                 }
             }
 
-            return "portal1";
+            return "Door1";
         }
 
         public static bool DoesNameExist ( World world, String name ) {
-            if ( world.Map.Portals != null ) {
-                if ( world.Map.Portals.Count > 0 ) {
-                    foreach ( Portal portal in world.Map.Portals ) {
-                        if ( portal.Name.Equals( name ) ) {
+            if ( world.Map.Doors != null ) {
+                if ( world.Map.Doors.Count > 0 ) {
+                    foreach ( Door Door in world.Map.Doors ) {
+                        if ( Door.Name.Equals( name ) ) {
                             return true;
                         }
                     }
@@ -177,7 +172,7 @@ namespace fCraft.Portals {
             DrawOperation removeOperation = new CuboidDrawOperation( requester );
             removeOperation.AnnounceCompletion = false;
             removeOperation.Brush = brush;
-            removeOperation.Context = BlockChangeContext.Portal;
+            removeOperation.Context = BlockChangeContext.Unknown;
 
             if ( this.AffectedBlocks == null ) {
                 this.AffectedBlocks = new Vector3I[2];
@@ -186,13 +181,13 @@ namespace fCraft.Portals {
             }
 
             if ( !removeOperation.Prepare( this.AffectedBlocks ) ) {
-                throw new PortalException( "Unable to remove portal." );
+                throw new DoorException( "Unable to remove Door." );
             }
 
             removeOperation.Begin();
 
-            lock ( requester.World.Map.Portals.SyncRoot ) {
-                requester.World.Map.Portals.Remove( this );
+            lock ( requester.World.Map.Doors.SyncRoot ) {
+                requester.World.Map.Doors.Remove( this );
             }
         }
 
@@ -204,15 +199,14 @@ namespace fCraft.Portals {
             return Convert.ToBase64String( s.ToArray() );
         }
 
-        public static Portal Deserialize ( string name, string sdata, Map map ) {
+        public static Door Deserialize ( string name, string sdata, Map map ) {
             byte[] bdata = Convert.FromBase64String( sdata );
-            Portal portal = new Portal();
+            Door Door = new Door();
             DataContractSerializer serializer = new DataContractSerializer( typeof( SerializedData ) );
             System.IO.MemoryStream s = new System.IO.MemoryStream( bdata );
             SerializedData data = ( SerializedData )serializer.ReadObject( s );
-
-            data.UpdatePortal( portal );
-            return portal;
+            data.UpdateDoor( Door );
+            return Door;
         }
         [DataContract]
         private class SerializedData {
@@ -238,42 +232,30 @@ namespace fCraft.Portals {
             public int ZMin;
             [DataMember]
             public int ZMax;
-            [DataMember]
-            public String Place;
-            [DataMember]
-            public Position DesiredOutput;
-            [DataMember]
-            public bool HasDesiredOutput;
 
-            public SerializedData ( Portal portal ) {
-                lock ( portal ) {
-                    Name = portal.Name;
-                    Creator = portal.Creator;
-                    Created = portal.Created;
-                    World = portal.World;
-                    AffectedBlocks = portal.AffectedBlocks;
-                    XMin = portal.Range.Xmin;
-                    XMax = portal.Range.Xmax;
-                    YMin = portal.Range.Ymin;
-                    YMax = portal.Range.Ymax;
-                    ZMin = portal.Range.Zmin;
-                    ZMax = portal.Range.Zmax;
-                    Place = portal.Place;
-                    DesiredOutput = portal.DesiredOutput;
-                    HasDesiredOutput = portal.HasDesiredOutput;
+            public SerializedData ( Door Door ) {
+                lock ( Door ) {
+                    Name = Door.Name;
+                    Creator = Door.Creator;
+                    Created = Door.Created;
+                    World = Door.World;
+                    AffectedBlocks = Door.AffectedBlocks;
+                    XMin = Door.Range.Xmin;
+                    XMax = Door.Range.Xmax;
+                    YMin = Door.Range.Ymin;
+                    YMax = Door.Range.Ymax;
+                    ZMin = Door.Range.Zmin;
+                    ZMax = Door.Range.Zmax;
                 }
             }
 
-            public void UpdatePortal ( Portal portal ) {
-                portal.Name = Name;
-                portal.Creator = Creator;
-                portal.Created = Created;
-                portal.World = World;
-                portal.AffectedBlocks = AffectedBlocks;
-                portal.Range = new PortalRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
-                portal.Place = Place;
-                portal.DesiredOutput = DesiredOutput;
-                portal.HasDesiredOutput = HasDesiredOutput;
+            public void UpdateDoor ( Door Door ) {
+                Door.Name = Name;
+                Door.Creator = Creator;
+                Door.Created = Created;
+                Door.World = World;
+                Door.AffectedBlocks = AffectedBlocks;
+                Door.Range = new DoorRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
             }
         }
     }

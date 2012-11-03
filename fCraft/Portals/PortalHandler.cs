@@ -60,7 +60,7 @@ namespace fCraft.Portals {
                         e.Player.PortalCache.DesiredOutput = new Position(
                             e.Coords.ToPlayerCoords().X,
                             e.Coords.ToPlayerCoords().Y,
-                            ( short )( e.Coords.ToPlayerCoords().Z + 3 ), //posfix
+                            ( short )( (e.Coords.Z + 1) / 32 ), //posfix
                             e.Player.Position.L,
                             e.Player.Position.R );
                         e.Player.PortalCache.World = e.Player.World.Name;
