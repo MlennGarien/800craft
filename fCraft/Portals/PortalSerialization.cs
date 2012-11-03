@@ -36,10 +36,12 @@ namespace fCraft.Portals
         public int Serialize ( Map map, Stream stream, IMapConverterEx converter ) {
             BinaryWriter writer = new BinaryWriter( stream );
             int count = 0;
-            if ( map.Portals.Count >= 1 ) {
-                foreach ( Portal portal in map.Portals ) {
-                    converter.WriteMetadataEntry( _group[0], portal.Name, portal.Serialize(), writer );
-                    ++count;
+            if ( map.Portals != null ) {
+                if ( map.Portals.Count >= 1 ) {
+                    foreach ( Portal portal in map.Portals ) {
+                        converter.WriteMetadataEntry( _group[0], portal.Name, portal.Serialize(), writer );
+                        ++count;
+                    }
                 }
             }
             return count;
@@ -50,6 +52,7 @@ namespace fCraft.Portals
             try
 			{
 				Portal portal = Portal.Deserialize(key, value, map);
+                if ( map.Portals == null ) map.Portals = new ArrayList();
                 if ( map.Portals.Count >= 1 ) {
                     if ( map.Portals.Contains( key ) ) {
                        Logger.Log( LogType.Error, "Map loading warning: duplicate portal name found: " + key + ", ignored" );

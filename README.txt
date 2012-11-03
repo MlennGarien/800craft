@@ -69,7 +69,7 @@ Server does not show up on minecraft.net list:
         in WoM. The "Resume" function only works as long as your IP does not
         change and as long as the server does not restart.
     5. If you are using WoM and connecting with a bookmark, make sure that the
-        bookmarked address starts with "http://www.minecraft.net/..." and not
+        bookmarked address starts with "http://minecraft.net/..." and not
         "mc://...". Addresses in the form "mc://" are temporary, and will stop
         working whenever the server is restarted.
 
@@ -84,7 +84,7 @@ Other players cannot connect from the same LAN/network as me:
             type "ipconfig". The address you need is labeled "IPv4 Address"
             under "Local Area Connection".
         * In Unix/Linux, use "ifconfig" utility. 
-   3. Connect to http://www.minecraft.net/play.jsp?ip=____&port=____
+   3. Connect to http://minecraft.net/play.jsp?ip=____&port=____
         (fill in the blanks with your server's IP address and port number)
 
 
