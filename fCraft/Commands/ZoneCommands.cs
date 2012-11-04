@@ -20,7 +20,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdZoneTest );
 
             CommandManager.RegisterCustomCommand( CdDoor );
-            CommandManager.RegisterCustomCommand( cdDoorRemove );
             Player.Clicked += PlayerClickedDoor;
             openDoors = new List<Zone>();
         }
@@ -44,50 +43,103 @@ namespace fCraft {
             Name = "Door",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
-            Help = "Creates door zone. Left click to open doors.",
+            IsConsoleSafe = false,
+            Usage = "/Door [remove | info | list]",
+            Help = "Controls doors, options are: remove, list, info\n&S" +
+                   "See &H/Help Door <option>&S for details about each option.",
+            HelpSections = new Dictionary<string, string>() {
+                { "remove",     "&H/Door remove Door1\n&S" +
+                                "Removes Door with name 'Door1'."},
+                { "list",       "&H/Door list\n&S" +
+                                "Gives you a list of doors in the current world."},
+                { "info",       "&H/Door info Door1\n&S" +
+                                "Gives you information of door with name 'Door1'."},
+            },
             Handler = Door
         };
 
         static void Door ( Player player, Command cmd ) {
-            Door door = new Door();
-            player.SelectionStart( 2, DoorAdd, door, CdDoor.Permissions );
-            player.Message( "Door: Place a block or type /mark to use your location." );
-        }
+            string option = cmd.Next();
+            if ( option == null ) {
+                Door door = new Door();
+                player.SelectionStart( 2, DoorAdd, door, CdDoor.Permissions );
+                player.Message( "Door: Place a block or type /mark to use your location." );
+                return;
+            } else if ( option.ToLower().Equals( "remove" ) || option.ToLower().Equals( "rd" ) ) {
+                string doorName = cmd.Next();
 
-        static readonly CommandDescriptor cdDoorRemove = new CommandDescriptor {
-            Name = "Removedoor",
-            Aliases = new[] { "rd" },
-            Category = CommandCategory.Zone,
-            Permissions = new[] { Permission.Build },
-            Help = "Removes door.",
-            Handler = DoorRemove
-        };
-
-        static void DoorRemove ( Player player, Command cmd ) {
-            Zone zone;
-            string playerName = cmd.Next();
-            if ( playerName == null ) {
-                if ( ( zone = player.WorldMap.Zones.FindExact( player.Name + "door" ) ) != null ) {
-                    player.WorldMap.Zones.Remove( zone );
-                    player.Message( "Door removed." );
+                if ( doorName == null ) {
+                    player.Message( "No door name specified." );
                 } else {
-                    player.Message( "You do not have a door on this map." );
+                    if ( player.World.Map.Doors != null && player.World.Map.Doors.Count > 0 ) {
+                        bool found = false;
+                        Door doorFound = null;
+
+                        lock ( player.World.Map.Doors.SyncRoot ) {
+                            foreach ( Door door in player.World.Map.Doors ) {
+                                if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
+                                    doorFound = door;
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if ( !found ) {
+                                player.Message( "Could not find door by name {0}.", doorName );
+                            } else {
+                                doorFound.Remove( player );
+                                player.Message( "door was removed." );
+                            }
+                        }
+                    } else {
+                        player.Message( "Could not find door as this world doesn't contain a door." );
+                    }
+                }
+            } else if ( option.ToLower().Equals( "info" ) ) {
+                string doorName = cmd.Next();
+
+                if ( doorName == null ) {
+                    player.Message( "No door name specified." );
+                } else {
+                    if ( player.World.Map.Doors != null && player.World.Map.Doors.Count > 0 ) {
+                        bool found = false;
+
+                        lock ( player.World.Map.Doors.SyncRoot ) {
+                            foreach ( Door door in player.World.Map.Doors ) {
+                                if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
+                                    World doorWorld = WorldManager.FindWorldExact( door.World );
+                                    player.Message( "Door '{0}&S' was created by {1}&S at {2}",
+                                        door.Name, door.Creator, door.Created );
+                                    found = true;
+                                }
+                            }
+                        }
+
+                        if ( !found ) {
+                            player.Message( "Could not find door by name {0}.", doorName );
+                        }
+                    } else {
+                        player.Message( "Could not find door as this world doesn't contain a door." );
+                    }
+                }
+            } else if ( option.ToLower().Equals( "list" ) ) {
+                if ( player.World.Map.Doors == null || player.World.Map.Doors.Count == 0 ) {
+                    player.Message( "There are no doors in {0}&S.", player.World.ClassyName );
+                } else {
+                    String[] doorNames = new String[player.World.Map.Doors.Count];
+                    System.Text.StringBuilder output = new System.Text.StringBuilder( "There are " + player.World.Map.Doors.Count + " doors in " + player.World.ClassyName + "&S: " );
+
+                    for ( int i = 0; i < player.World.Map.Doors.Count; i++ ) {
+                        doorNames[i] = ( ( Door )player.World.Map.Doors[i] ).Name;
+                    }
+                    output.Append( doorNames.JoinToString( ", " ) );
+                    player.Message( output.ToString() );
                 }
             } else {
-                if ( !Player.IsValidName( playerName ) ) {
-                    player.Message( "&SInvalid name" );
-                    return;
-                }
-                Player target = Server.FindPlayerOrPrintMatches( player, playerName, true, true );
-                if ( target == null ) return;
-                if ( ( zone = player.WorldMap.Zones.FindExact( target.Name + "door" ) ) != null ) {
-                    player.WorldMap.Zones.Remove( zone );
-                    player.Message( "Door removed for " + target.ClassyName );
-                } else {
-                    player.Message( target.ClassyName + "&S does not have a door on this map." );
-                }
+                CdDoor.PrintUsage( player );
             }
         }
+
 
         static void DoorAdd ( Player player, Vector3I[] marks, object tag ) {
             int sx = Math.Min( marks[0].X, marks[1].X );
@@ -125,17 +177,17 @@ namespace fCraft {
                                         player.World.ClassyName );
                             return;
                         }
-                        blocks.Add(new Vector3I(x,y,z));
+                        blocks.Add( new Vector3I( x, y, z ) );
                     }
                 }
             }
 
-            Door door = new Door( player.World.Name, 
-                blocks.ToArray(), 
-                fCraft.Doors.Door.GenerateName( player.World ), 
+            Door door = new Door( player.World.Name,
+                blocks.ToArray(),
+                fCraft.Doors.Door.GenerateName( player.World ),
                 player.ClassyName );
             door.Range = new DoorRange( sx, ex, sy, ey, sh, eh );
-            
+
             DoorHandler.CreateDoor( door, player.World );
             Logger.Log( LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name );
             player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );

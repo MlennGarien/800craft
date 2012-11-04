@@ -221,7 +221,7 @@ namespace fCraft {
         #region portals
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor {
-            Name = "portal",
+            Name = "Portal",
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.UsePortal },
             IsConsoleSafe = false,
@@ -232,7 +232,8 @@ namespace fCraft {
                 { "create",     "&H/portal create Guest\n&S" +
                                 "Creates a basic water portal to world Guest.\n&S" +
                                 "&H/portal create Guest lava test\n&S" +
-                                "Creates a lava portal with name 'test' to world Guest."},
+                                "Creates a lava portal with name 'test' to world Guest.\n" +
+                                "&H/Portal create will create a portal where the output can be the position of your next red block."},
                 { "remove",     "&H/portal remove Portal1\n&S" +
                                 "Removes portal with name 'Portal1'."},
                 { "list",       "&H/portal list\n&S" +
