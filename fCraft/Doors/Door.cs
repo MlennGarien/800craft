@@ -219,8 +219,6 @@ namespace fCraft.Doors {
             [DataMember]
             public String World;
             [DataMember]
-            public Vector3I[] AffectedBlocks;
-            [DataMember]
             public int XMin;
             [DataMember]
             public int XMax;
@@ -239,7 +237,6 @@ namespace fCraft.Doors {
                     Creator = Door.Creator;
                     Created = Door.Created;
                     World = Door.World;
-                    AffectedBlocks = Door.AffectedBlocks;
                     XMin = Door.Range.Xmin;
                     XMax = Door.Range.Xmax;
                     YMin = Door.Range.Ymin;
@@ -254,7 +251,6 @@ namespace fCraft.Doors {
                 Door.Creator = Creator;
                 Door.Created = Created;
                 Door.World = World;
-                Door.AffectedBlocks = AffectedBlocks;
                 Door.Range = new DoorRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
             }
         }

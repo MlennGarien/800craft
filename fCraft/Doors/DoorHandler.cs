@@ -33,21 +33,43 @@ namespace fCraft.Doors {
             if ( instance == null ) {
                 instance = new DoorHandler();
                 Player.Clicked += new EventHandler<Events.PlayerClickedEventArgs>( PlayerClickedDoor );
+                Player.PlacingBlock += new EventHandler<Events.PlayerPlacingBlockEventArgs>( PlayerPlacedDoor );
             }
 
             return instance;
         }
 
+        //cuboid over-fix?
+        public static void PlayerPlacedDoor ( object sender, Events.PlayerPlacingBlockEventArgs e ) {
+            if ( e.Player.World != null ) {
+                if ( e.Player.World.Map != null ) {
+                    if ( e.Context != BlockChangeContext.Manual ) {
+                        if ( e.Player.World.Map.Doors.Count > 0 ) {
+                            lock ( e.Player.World.Map.Doors.SyncRoot ) {
+                                foreach ( Door door in e.Player.WorldMap.Doors ) {
+                                    if ( door.IsInRange( e.Coords ) ) {
+                                        e.Result = CanPlaceResult.Revert;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public static void PlayerClickedDoor ( object sender, Events.PlayerClickedEventArgs e ) {
-            if ( e.Player.World.Map.Doors == null ) return;
-            if ( e.Player.IsMakingSelection ) return;
-            Player.RaisePlayerPlacedBlockEvent( e.Player, e.Player.WorldMap, e.Coords, e.Block, e.Block, BlockChangeContext.Manual );
-            lock ( openDoorsLock ) {
-                foreach ( Door door in e.Player.World.Map.Doors ) {
-                    if ( door.IsInRange( e.Coords ) ) {
-                        if ( !openDoors.Contains( door ) ) {
-                            openDoor( door, e.Player );
-                            openDoors.Add( door );
+            if ( e.Action == ClickAction.Delete ) {
+                if ( e.Player.World.Map.Doors == null ) return;
+                if ( e.Player.IsMakingSelection ) return;
+                Player.RaisePlayerPlacedBlockEvent( e.Player, e.Player.WorldMap, e.Coords, e.Block, e.Block, BlockChangeContext.Manual );
+                lock ( openDoorsLock ) {
+                    foreach ( Door door in e.Player.World.Map.Doors ) {
+                        if ( door.IsInRange( e.Coords ) ) {
+                            if ( !openDoors.Contains( door ) ) {
+                                openDoor( door, e.Player );
+                                openDoors.Add( door );
+                            }
                         }
                     }
                 }
