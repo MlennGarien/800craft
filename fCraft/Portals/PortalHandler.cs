@@ -61,8 +61,8 @@ namespace fCraft.Portals {
                             e.Coords.ToPlayerCoords().X,
                             e.Coords.ToPlayerCoords().Y,
                             ( short )( ( e.Coords.Z + 2 ) * 32 ), //posfix
-                            e.Player.Position.L,
-                            e.Player.Position.R );
+                            e.Player.Position.R,
+                            e.Player.Position.L );
                         e.Player.PortalCache.World = e.Player.World.Name;
                         PortalHandler.CreatePortal( e.Player.PortalCache, WorldManager.FindWorldExact( e.Player.PortalWorld ) );
                         e.Player.Message( " Portal finalized: Exit point at {0} on world {1}", e.Coords.ToString(), e.Player.World.ClassyName );

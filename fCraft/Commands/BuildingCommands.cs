@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
+using fCraft.Doors;
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
     /// and switching block placement modes (paint, bind). </summary>
@@ -101,6 +102,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPlace );
             CommandManager.RegisterCommand( CdCylinder );
             CommandManager.RegisterCommand( CdCenter );
+            CommandManager.RegisterCommand( CdDoor );
 
             CommandManager.RegisterCommand( CdWrite );
             CommandManager.RegisterCommand( CdDraw2D );
@@ -125,6 +127,160 @@ namespace fCraft {
 
         //You should have received a copy of the GNU General Public License
         //along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+        static readonly CommandDescriptor CdDoor = new CommandDescriptor {
+            Name = "Door",
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Build },
+            IsConsoleSafe = false,
+            Usage = "/Door [remove | info | list]",
+            Help = "Controls doors, options are: remove, list, info\n&S" +
+                   "See &H/Help Door <option>&S for details about each option.",
+            HelpSections = new Dictionary<string, string>() {
+                { "remove",     "&H/Door remove Door1\n&S" +
+                                "Removes Door with name 'Door1'."},
+                { "list",       "&H/Door list\n&S" +
+                                "Gives you a list of doors in the current world."},
+                { "info",       "&H/Door info Door1\n&S" +
+                                "Gives you information of door with name 'Door1'."},
+            },
+            Handler = Door
+        };
+
+        static void Door ( Player player, Command cmd ) {
+            string option = cmd.Next();
+            if ( option == null ) {
+                Door door = new Door();
+                player.SelectionStart( 2, DoorAdd, door, CdDoor.Permissions );
+                player.Message( "Door: Place a block or type /mark to use your location." );
+                return;
+            } else if ( option.ToLower().Equals( "remove" ) || option.ToLower().Equals( "rd" ) ) {
+                string doorName = cmd.Next();
+
+                if ( doorName == null ) {
+                    player.Message( "No door name specified." );
+                } else {
+                    if ( player.World.Map.Doors != null && player.World.Map.Doors.Count > 0 ) {
+                        bool found = false;
+                        Door doorFound = null;
+
+                        lock ( player.World.Map.Doors.SyncRoot ) {
+                            foreach ( Door door in player.World.Map.Doors ) {
+                                if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
+                                    doorFound = door;
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if ( !found ) {
+                                player.Message( "Could not find door by name {0}.", doorName );
+                            } else {
+                                doorFound.Remove( player );
+                                player.Message( "door was removed." );
+                            }
+                        }
+                    } else {
+                        player.Message( "Could not find door as this world doesn't contain a door." );
+                    }
+                }
+            } else if ( option.ToLower().Equals( "info" ) ) {
+                string doorName = cmd.Next();
+
+                if ( doorName == null ) {
+                    player.Message( "No door name specified." );
+                } else {
+                    if ( player.World.Map.Doors != null && player.World.Map.Doors.Count > 0 ) {
+                        bool found = false;
+
+                        lock ( player.World.Map.Doors.SyncRoot ) {
+                            foreach ( Door door in player.World.Map.Doors ) {
+                                if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
+                                    World doorWorld = WorldManager.FindWorldExact( door.World );
+                                    player.Message( "Door '{0}&S' was created by {1}&S at {2}",
+                                        door.Name, door.Creator, door.Created );
+                                    found = true;
+                                }
+                            }
+                        }
+
+                        if ( !found ) {
+                            player.Message( "Could not find door by name {0}.", doorName );
+                        }
+                    } else {
+                        player.Message( "Could not find door as this world doesn't contain a door." );
+                    }
+                }
+            } else if ( option.ToLower().Equals( "list" ) ) {
+                if ( player.World.Map.Doors == null || player.World.Map.Doors.Count == 0 ) {
+                    player.Message( "There are no doors in {0}&S.", player.World.ClassyName );
+                } else {
+                    String[] doorNames = new String[player.World.Map.Doors.Count];
+                    System.Text.StringBuilder output = new System.Text.StringBuilder( "There are " + player.World.Map.Doors.Count + " doors in " + player.World.ClassyName + "&S: " );
+
+                    for ( int i = 0; i < player.World.Map.Doors.Count; i++ ) {
+                        doorNames[i] = ( ( Door )player.World.Map.Doors[i] ).Name;
+                    }
+                    output.Append( doorNames.JoinToString( ", " ) );
+                    player.Message( output.ToString() );
+                }
+            } else {
+                CdDoor.PrintUsage( player );
+            }
+        }
+
+
+        static void DoorAdd ( Player player, Vector3I[] marks, object tag ) {
+            int sx = Math.Min( marks[0].X, marks[1].X );
+            int ex = Math.Max( marks[0].X, marks[1].X );
+            int sy = Math.Min( marks[0].Y, marks[1].Y );
+            int ey = Math.Max( marks[0].Y, marks[1].Y );
+            int sh = Math.Min( marks[0].Z, marks[1].Z );
+            int eh = Math.Max( marks[0].Z, marks[1].Z );
+
+            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( eh - sh + 1 );
+            if ( volume > 30 ) {
+                player.Message( "Doors are only allowed to be {0} blocks", 30 );
+                return;
+            }
+            if ( !player.Info.Rank.AllowSecurityCircumvention ) {
+                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
+                switch ( buildCheck ) {
+                    case SecurityCheckResult.BlackListed:
+                        player.Message( "Cannot add a door to world {0}&S: You are barred from building here.",
+                                        player.World.ClassyName );
+                        return;
+                    case SecurityCheckResult.RankTooLow:
+                        player.Message( "Cannot add a door to world {0}&S: You are not allowed to build here.",
+                                        player.World.ClassyName );
+                        return;
+                    //case SecurityCheckResult.RankTooHigh:
+                }
+            }
+            List<Vector3I> blocks = new List<Vector3I>();
+            for ( int x = sx; x < ex; x++ ) {
+                for ( int y = sy; y < ey; y++ ) {
+                    for ( int z = sh; z < eh; z++ ) {
+                        if ( player.CanPlace( player.World.Map, new Vector3I( x, y, z ), Block.Wood, BlockChangeContext.Manual ) != CanPlaceResult.Allowed ) {
+                            player.Message( "Cannot add a door to world {0}&S: Build permissions in this area replied with 'denied'.",
+                                        player.World.ClassyName );
+                            return;
+                        }
+                        blocks.Add( new Vector3I( x, y, z ) );
+                    }
+                }
+            }
+
+            Door door = new Door( player.World.Name,
+                blocks.ToArray(),
+                fCraft.Doors.Door.GenerateName( player.World ),
+                player.ClassyName );
+            door.Range = new DoorRange( sx, ex, sy, ey, sh, eh );
+
+            DoorHandler.CreateDoor( door, player.World );
+            Logger.Log( LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name );
+            player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );
+        }
 
         static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
             Name = "DrawImage",
