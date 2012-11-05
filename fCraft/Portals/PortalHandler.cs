@@ -57,6 +57,11 @@ namespace fCraft.Portals {
 
                 if ( e.NewBlock == Block.Red ) {
                     if ( e.Player.PortalCache.Name != null ) {
+                        if ( e.Player.PortalCache.AffectedBlocks.Contains( e.Coords ) ) { //stop output being inside the unfinished portal
+                            e.Result = CanPlaceResult.Revert;
+                            e.Player.Message( "You can not place a block inside a portal");
+                            return;
+                        }
                         e.Player.PortalCache.DesiredOutput = new Position(
                             e.Coords.ToPlayerCoords().X,
                             e.Coords.ToPlayerCoords().Y,
