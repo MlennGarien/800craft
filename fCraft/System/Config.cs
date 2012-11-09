@@ -1072,6 +1072,7 @@ namespace fCraft {
             owner.Add( new XElement(Permission.Games.ToString() ) );
             owner.Add( new XElement(Permission.Moderation.ToString() ) );
             owner.Add( new XElement(Permission.Immortal.ToString() ) );
+            owner.Add( new XElement( Permission.UndoAll.ToString() ) );
             permissions.Add( owner );
             try {
                 RankManager.AddRank( new Rank( owner ) );
