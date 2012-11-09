@@ -138,6 +138,17 @@ namespace fCraft {
                 Color = fCraft.Color.White;
             }
 
+            if ( ( attr = el.Attribute( "hidden" ) ) != null ) {
+                bool hidden; 
+                if ( bool.TryParse( attr.Value, out hidden ) ) {
+                    IsHidden = hidden;
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "Rank({0}): Could not parse rank hide status. Assuming default (false).", Name );
+                    IsHidden = false;
+                }
+            }
+
 
             // Prefix (optional)
             if( ( attr = el.Attribute( "prefix" ) ) != null ) {
@@ -336,6 +347,7 @@ namespace fCraft {
             if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
             rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
+            rankTag.Add( new XAttribute( "hidden", IsHidden ) );
 
             XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {

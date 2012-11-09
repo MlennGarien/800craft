@@ -220,6 +220,9 @@ By default, players can only undo actions of players of same or lower rank." );
 @"Allows players of this rank to join the server
 even if it reached the maximum number of players." );
 
+            toolTip.SetToolTip( HiddenBox,
+@"Hides this rank from the /Ranks command" );
+
             const string tipKickIdle = "Allows kicking players who have been inactive/AFK for some time.";
             toolTip.SetToolTip( xKickIdle, tipKickIdle );
             toolTip.SetToolTip( nKickIdle, tipKickIdle );

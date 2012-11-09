@@ -574,6 +574,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
 
             xReserveSlot.Checked = rank.ReservedSlot;
+            HiddenBox.Checked = rank.IsHidden;
             xKickIdle.Checked = rank.IdleKickTimer > 0;
             nKickIdle.Value = rank.IdleKickTimer;
             nKickIdle.Enabled = xKickIdle.Checked;
@@ -655,6 +656,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 box.SelectRank( null );
             }
 
+            HiddenBox.Checked = false;
             xReserveSlot.Checked = false;
             xKickIdle.Checked = false;
             nKickIdle.Value = 0;
@@ -1674,6 +1676,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             {
                 Process.Start(Paths.ReqTextPath);
             }
+        }
+
+        private void HiddenBox_CheckedChanged ( object sender, EventArgs e ) {
+            if ( selectedRank == null ) return;
+            selectedRank.IsHidden = HiddenBox.Checked;
         }
     }
 }

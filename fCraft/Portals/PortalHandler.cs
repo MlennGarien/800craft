@@ -56,24 +56,28 @@ namespace fCraft.Portals {
                 }
 
                 if ( e.NewBlock == Block.Red ) {
-                    if ( e.Player.PortalCache.Name != null ) {
-                        if ( e.Player.PortalCache.AffectedBlocks.Contains( e.Coords ) ) { //stop output being inside the unfinished portal
-                            e.Result = CanPlaceResult.Revert;
-                            e.Player.Message( "You can not place a block inside a portal");
-                            return;
+                    if ( e.Context == BlockChangeContext.Manual ) {
+                        if ( e.Player.PortalCache.Name != null ) {
+                            if ( e.Player.PortalCache.AffectedBlocks != null ) {
+                                if ( e.Player.PortalCache.AffectedBlocks.Contains( e.Coords ) ) { //stop output being inside the unfinished portal
+                                    e.Result = CanPlaceResult.Revert;
+                                    e.Player.Message( "You can not place a block inside a portal" );
+                                    return;
+                                }
+                                e.Player.PortalCache.DesiredOutput = new Position(
+                                    e.Coords.ToPlayerCoords().X,
+                                    e.Coords.ToPlayerCoords().Y,
+                                    ( short )( ( e.Coords.Z + 2 ) * 32 ), //posfix
+                                    e.Player.Position.R,
+                                    e.Player.Position.L );
+                                e.Player.PortalCache.World = e.Player.World.Name;
+                                PortalHandler.CreatePortal( e.Player.PortalCache, WorldManager.FindWorldExact( e.Player.PortalWorld ) );
+                                e.Player.Message( " Portal finalized: Exit point at {0} on world {1}", e.Coords.ToString(), e.Player.World.ClassyName );
+                                e.Player.PortalCache = new Portal();
+                                e.Result = CanPlaceResult.Revert;
+                            }
                         }
-                        e.Player.PortalCache.DesiredOutput = new Position(
-                            e.Coords.ToPlayerCoords().X,
-                            e.Coords.ToPlayerCoords().Y,
-                            ( short )( ( e.Coords.Z + 2 ) * 32 ), //posfix
-                            e.Player.Position.R,
-                            e.Player.Position.L );
-                        e.Player.PortalCache.World = e.Player.World.Name;
-                        PortalHandler.CreatePortal( e.Player.PortalCache, WorldManager.FindWorldExact( e.Player.PortalWorld ) );
-                        e.Player.Message( " Portal finalized: Exit point at {0} on world {1}", e.Coords.ToString(), e.Player.World.ClassyName );
-                        e.Player.PortalCache = new Portal();
-                        e.Result = CanPlaceResult.Revert;
-                    } 
+                    }
                 }
             } catch ( Exception ex ) {
                 Logger.Log( LogType.Error, "PortalHandler.Player_PlacedBlock: " + ex );

@@ -49,7 +49,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdWorldUnload );
 
             CommandManager.RegisterCommand( CdRealm );
-            CommandManager.RegisterCommand( CdRankHide );
             CommandManager.RegisterCommand( CdPortal );
             CommandManager.RegisterCommand( CdWorldSearch );
             SchedulerTask TimeCheckR = Scheduler.NewTask( TimeCheck ).RunForever( TimeSpan.FromSeconds( 120 ) );
@@ -512,38 +511,6 @@ namespace fCraft {
                                         offset + 1, offset + WorldPart.Length, WorldNames.Length );
                     return;
                 }
-            }
-        }
-
-
-        static readonly CommandDescriptor CdRankHide = new CommandDescriptor {
-            Name = "Rankhide",
-            Aliases = new[] { "rhide" },
-            Category = CommandCategory.Maintenance,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.HideRanks },
-            Usage = "/rhide rankname",
-            Handler = RankHideHandler
-        };
-
-        static void RankHideHandler ( Player player, Command cmd ) {
-            string worldName = cmd.Next();
-            if ( worldName == null ) {
-                CdRankHide.PrintUsage( player );
-                return;
-            }
-
-            Rank rank = RankManager.FindRank( worldName );
-            if ( rank == null ) return;
-
-            if ( rank.IsHidden ) {
-                player.Message( "Rank \"{0}&S\" is no longer hidden.", rank.ClassyName );
-                rank.IsHidden = false;
-                return;
-            } else {
-                player.Message( "Rank \"{0}&S\" is now hidden.", rank.ClassyName );
-                rank.IsHidden = true;
-
             }
         }
 

@@ -153,7 +153,7 @@ namespace fCraft {
                 return;
             }
 
-            if( (tempAttr = el.Attribute( "hidden" )) != null ) {
+            /*if( (tempAttr = el.Attribute( "hidden" )) != null ) {
                 bool isHidden;
                 if( Boolean.TryParse( tempAttr.Value, out isHidden ) ) {
                     world.IsHidden = isHidden;
@@ -162,7 +162,7 @@ namespace fCraft {
                                 "WorldManager: Could not parse \"hidden\" attribute of world \"{0}\", assuming NOT hidden.",
                                 worldName );
                 }
-            }
+            }*/
 
             if ((tempAttr = el.Attribute("visitCount")) != null)
             {
@@ -391,9 +391,9 @@ namespace fCraft {
                     {
                         temp.Add( new XAttribute( "visitCount", world.VisitCount ) );
                     }
-                    if( world.IsHidden ) {
+                    /*if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
-                    }
+                    }*/
                     temp.Add( world.BlockDB.SaveSettings() );
 
                     temp.Add(Physics.SaveSettings(world));

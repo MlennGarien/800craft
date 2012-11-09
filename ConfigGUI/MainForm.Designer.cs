@@ -91,6 +91,7 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -118,6 +119,7 @@
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
+            this.HiddenBox = new System.Windows.Forms.CheckBox();
             this.lFillLimitUnits = new System.Windows.Forms.Label();
             this.nFillLimit = new System.Windows.Forms.NumericUpDown();
             this.lFillLimit = new System.Windows.Forms.Label();
@@ -302,7 +304,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -1140,6 +1141,13 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point(7, 256);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 241);
+            this.chatPreview.TabIndex = 2;
+            // 
             // tabWorlds
             // 
             this.tabWorlds.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
@@ -1395,9 +1403,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.gPermissionLimits.Controls.Add(this.permissionLimitBoxContainer);
-            this.gPermissionLimits.Location = new System.Drawing.Point(160, 292);
+            this.gPermissionLimits.Location = new System.Drawing.Point(160, 316);
             this.gPermissionLimits.Name = "gPermissionLimits";
-            this.gPermissionLimits.Size = new System.Drawing.Size(307, 186);
+            this.gPermissionLimits.Size = new System.Drawing.Size(307, 162);
             this.gPermissionLimits.TabIndex = 7;
             this.gPermissionLimits.TabStop = false;
             this.gPermissionLimits.Text = "Permission Limits";
@@ -1410,7 +1418,7 @@
             this.permissionLimitBoxContainer.Location = new System.Drawing.Point(3, 17);
             this.permissionLimitBoxContainer.Margin = new System.Windows.Forms.Padding(0);
             this.permissionLimitBoxContainer.Name = "permissionLimitBoxContainer";
-            this.permissionLimitBoxContainer.Size = new System.Drawing.Size(301, 166);
+            this.permissionLimitBoxContainer.Size = new System.Drawing.Size(301, 142);
             this.permissionLimitBoxContainer.TabIndex = 0;
             this.permissionLimitBoxContainer.WrapContents = false;
             // 
@@ -1469,6 +1477,7 @@
             this.gRankOptions.Controls.Add(this.xKickIdle);
             this.gRankOptions.Controls.Add(this.nAntiGriefBlocks);
             this.gRankOptions.Controls.Add(this.xReserveSlot);
+            this.gRankOptions.Controls.Add(this.HiddenBox);
             this.gRankOptions.Controls.Add(this.tPrefix);
             this.gRankOptions.Controls.Add(this.lPrefix);
             this.gRankOptions.Controls.Add(this.lRankColor);
@@ -1476,10 +1485,21 @@
             this.gRankOptions.Controls.Add(this.lRankName);
             this.gRankOptions.Location = new System.Drawing.Point(160, 13);
             this.gRankOptions.Name = "gRankOptions";
-            this.gRankOptions.Size = new System.Drawing.Size(307, 273);
+            this.gRankOptions.Size = new System.Drawing.Size(307, 297);
             this.gRankOptions.TabIndex = 6;
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
+            // 
+            // HiddenBox
+            // 
+            this.HiddenBox.AutoSize = true;
+            this.HiddenBox.Location = new System.Drawing.Point(13, 270);
+            this.HiddenBox.Name = "HiddenBox";
+            this.HiddenBox.Size = new System.Drawing.Size(79, 19);
+            this.HiddenBox.TabIndex = 25;
+            this.HiddenBox.Text = "Hide rank";
+            this.HiddenBox.UseVisualStyleBackColor = true;
+            this.HiddenBox.CheckedChanged += new System.EventHandler(this.HiddenBox_CheckedChanged);
             // 
             // lFillLimitUnits
             // 
@@ -3617,13 +3637,6 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 256);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 241);
-            this.chatPreview.TabIndex = 2;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -4012,5 +4025,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button SwearEditor;
         private System.Windows.Forms.Button ReqsEditor;
+        private System.Windows.Forms.CheckBox HiddenBox;
     }
 }
