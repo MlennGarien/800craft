@@ -237,7 +237,7 @@ namespace fCraft.ServerGUI {
                         case LogType.IRC:
                             if (ThemeBox.SelectedItem == null)
                             {
-                                logBox.SelectionColor = System.Drawing.Color.Navy;
+                                logBox.SelectionColor = System.Drawing.Color.LightBlue;
                             }
                             else
                             {

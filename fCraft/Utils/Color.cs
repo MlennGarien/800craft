@@ -376,6 +376,32 @@ namespace fCraft
 
         #region IRC Colors
 
+        /// <summary> Replaces IRC color codes with equivalent Minecraft color codes, in the given StringBuilder. 
+        /// Opposite of MinecraftToIrcColors method. </summary>
+        /// <param name="sb"> StringBuilder objects, the contents of which will be processed. </param>
+        /// <exception cref="ArgumentNullException"> sb is null. </exception>
+        public static void IrcToMinecraftColors ( [NotNull] StringBuilder sb ) {
+            if ( sb == null ) throw new ArgumentNullException( "sb" );
+            SubstituteSpecialColors( sb );
+            foreach ( var codePair in MinecraftToIRCColors ) {
+                sb.Replace( codePair.Value, codePair.Key );
+            }
+        }
+
+
+        /// <summary> Replaces IRC color codes with equivalent Minecraft color codes, in the given string.
+        /// Opposite of MinecraftToIrcColors method. </summary>
+        /// <param name="input"> String to process. </param>
+        /// <returns> A processed string. </returns>
+        /// <exception cref="ArgumentNullException"> input is null. </exception>
+        [NotNull, Pure]
+        public static string IrcToMinecraftColors ( [NotNull] string input ) {
+            if ( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            IrcToMinecraftColors( sb );
+            return sb.ToString();
+        }
+
         public const string IRCReset = "\u0003\u000f";
         public const string IRCBold = "\u0002";
 
