@@ -694,13 +694,6 @@ namespace fCraft {
                                                      ConfigKey.ServerName.GetString(),
                                                      "Please wait; Checking paid status..." ) );
                 writer.Flush();
-
-                if( !CheckPaidStatus( Name ) ) {
-                    Logger.Log( LogType.SystemActivity,
-                                "Player {0} was kicked because their account is not paid, and PaidPlayersOnly setting is enabled.", Name );
-                    KickNow( "Paid players allowed only.", LeaveReason.LoginFailed );
-                    return false;
-                }
             }
 
 

@@ -1600,37 +1600,6 @@ namespace fCraft {
 
         #region Static Utilities
 
-        static readonly Uri PaidCheckUri = new Uri( "http://minecraft.net/haspaid.jsp?user=" );
-        const int PaidCheckTimeout = 5000;
-
-
-        /// <summary> Checks whether a given player has a paid minecraft.net account. </summary>
-        /// <returns> True if the account is paid. False if it is not paid, or if information is unavailable. </returns>
-        public static bool CheckPaidStatus ( [NotNull] string name ) {
-            if ( name == null ) throw new ArgumentNullException( "name" );
-            HttpWebRequest request = ( HttpWebRequest )WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
-            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
-            request.Timeout = PaidCheckTimeout;
-            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
-
-            try {
-                using ( WebResponse response = request.GetResponse() ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
-                    using ( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        // ReSharper restore AssignNullToNotNullAttribute
-                        string paidStatusString = responseReader.ReadToEnd();
-                        bool isPaid;
-                        return Boolean.TryParse( paidStatusString, out isPaid ) && isPaid;
-                    }
-                }
-            } catch ( WebException ex ) {
-                Logger.Log( LogType.Warning,
-                            "Could not check paid status of player {0}: {1}",
-                            name, ex.Message );
-                return false;
-            }
-        }
-
 
         /// <summary> Ensures that a player name has the correct length and character set. </summary>
         public static bool IsValidName ( [NotNull] string name ) {

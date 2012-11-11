@@ -119,7 +119,6 @@
             this.bLowerRank = new System.Windows.Forms.Button();
             this.bRaiseRank = new System.Windows.Forms.Button();
             this.gRankOptions = new System.Windows.Forms.GroupBox();
-            this.HiddenBox = new System.Windows.Forms.CheckBox();
             this.lFillLimitUnits = new System.Windows.Forms.Label();
             this.nFillLimit = new System.Windows.Forms.NumericUpDown();
             this.lFillLimit = new System.Windows.Forms.Label();
@@ -140,6 +139,7 @@
             this.xKickIdle = new System.Windows.Forms.CheckBox();
             this.nAntiGriefBlocks = new System.Windows.Forms.NumericUpDown();
             this.xReserveSlot = new System.Windows.Forms.CheckBox();
+            this.HiddenBox = new System.Windows.Forms.CheckBox();
             this.tPrefix = new System.Windows.Forms.TextBox();
             this.lPrefix = new System.Windows.Forms.Label();
             this.lRankColor = new System.Windows.Forms.Label();
@@ -159,7 +159,6 @@
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
             this.xAnnounceRankChangeReasons = new System.Windows.Forms.CheckBox();
             this.xRequireKickReason = new System.Windows.Forms.CheckBox();
-            this.xPaidPlayersOnly = new System.Windows.Forms.CheckBox();
             this.lPatrolledRankAndBelow = new System.Windows.Forms.Label();
             this.cPatrolledRank = new System.Windows.Forms.ComboBox();
             this.lPatrolledRank = new System.Windows.Forms.Label();
@@ -1490,17 +1489,6 @@
             this.gRankOptions.TabStop = false;
             this.gRankOptions.Text = "Rank Options";
             // 
-            // HiddenBox
-            // 
-            this.HiddenBox.AutoSize = true;
-            this.HiddenBox.Location = new System.Drawing.Point(13, 270);
-            this.HiddenBox.Name = "HiddenBox";
-            this.HiddenBox.Size = new System.Drawing.Size(79, 19);
-            this.HiddenBox.TabIndex = 25;
-            this.HiddenBox.Text = "Hide rank";
-            this.HiddenBox.UseVisualStyleBackColor = true;
-            this.HiddenBox.CheckedChanged += new System.EventHandler(this.HiddenBox_CheckedChanged);
-            // 
             // lFillLimitUnits
             // 
             this.lFillLimitUnits.AutoSize = true;
@@ -1726,6 +1714,17 @@
             this.xReserveSlot.UseVisualStyleBackColor = true;
             this.xReserveSlot.CheckedChanged += new System.EventHandler(this.xReserveSlot_CheckedChanged);
             // 
+            // HiddenBox
+            // 
+            this.HiddenBox.AutoSize = true;
+            this.HiddenBox.Location = new System.Drawing.Point(13, 270);
+            this.HiddenBox.Name = "HiddenBox";
+            this.HiddenBox.Size = new System.Drawing.Size(79, 19);
+            this.HiddenBox.TabIndex = 25;
+            this.HiddenBox.Text = "Hide rank";
+            this.HiddenBox.UseVisualStyleBackColor = true;
+            this.HiddenBox.CheckedChanged += new System.EventHandler(this.HiddenBox_CheckedChanged);
+            // 
             // tPrefix
             // 
             this.tPrefix.Enabled = false;
@@ -1906,7 +1905,6 @@
             // 
             this.gSecurityMisc.Controls.Add(this.xAnnounceRankChangeReasons);
             this.gSecurityMisc.Controls.Add(this.xRequireKickReason);
-            this.gSecurityMisc.Controls.Add(this.xPaidPlayersOnly);
             this.gSecurityMisc.Controls.Add(this.lPatrolledRankAndBelow);
             this.gSecurityMisc.Controls.Add(this.cPatrolledRank);
             this.gSecurityMisc.Controls.Add(this.lPatrolledRank);
@@ -1924,7 +1922,7 @@
             // xAnnounceRankChangeReasons
             // 
             this.xAnnounceRankChangeReasons.AutoSize = true;
-            this.xAnnounceRankChangeReasons.Location = new System.Drawing.Point(336, 109);
+            this.xAnnounceRankChangeReasons.Location = new System.Drawing.Point(336, 96);
             this.xAnnounceRankChangeReasons.Name = "xAnnounceRankChangeReasons";
             this.xAnnounceRankChangeReasons.Size = new System.Drawing.Size(253, 19);
             this.xAnnounceRankChangeReasons.TabIndex = 6;
@@ -1934,28 +1932,17 @@
             // xRequireKickReason
             // 
             this.xRequireKickReason.AutoSize = true;
-            this.xRequireKickReason.Location = new System.Drawing.Point(42, 59);
+            this.xRequireKickReason.Location = new System.Drawing.Point(42, 46);
             this.xRequireKickReason.Name = "xRequireKickReason";
             this.xRequireKickReason.Size = new System.Drawing.Size(135, 19);
             this.xRequireKickReason.TabIndex = 1;
             this.xRequireKickReason.Text = "Require kick reason";
             this.xRequireKickReason.UseVisualStyleBackColor = true;
             // 
-            // xPaidPlayersOnly
-            // 
-            this.xPaidPlayersOnly.AutoSize = true;
-            this.xPaidPlayersOnly.Location = new System.Drawing.Point(42, 20);
-            this.xPaidPlayersOnly.Name = "xPaidPlayersOnly";
-            this.xPaidPlayersOnly.Size = new System.Drawing.Size(489, 19);
-            this.xPaidPlayersOnly.TabIndex = 0;
-            this.xPaidPlayersOnly.Text = "Only allow players with paid Minecraft accounts to join the server (not recommend" +
-    "ed).";
-            this.xPaidPlayersOnly.UseVisualStyleBackColor = true;
-            // 
             // lPatrolledRankAndBelow
             // 
             this.lPatrolledRankAndBelow.AutoSize = true;
-            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point(282, 145);
+            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point(282, 132);
             this.lPatrolledRankAndBelow.Name = "lPatrolledRankAndBelow";
             this.lPatrolledRankAndBelow.Size = new System.Drawing.Size(72, 15);
             this.lPatrolledRankAndBelow.TabIndex = 9;
@@ -1965,7 +1952,7 @@
             // 
             this.cPatrolledRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPatrolledRank.FormattingEnabled = true;
-            this.cPatrolledRank.Location = new System.Drawing.Point(153, 142);
+            this.cPatrolledRank.Location = new System.Drawing.Point(153, 129);
             this.cPatrolledRank.Name = "cPatrolledRank";
             this.cPatrolledRank.Size = new System.Drawing.Size(123, 23);
             this.cPatrolledRank.TabIndex = 8;
@@ -1974,7 +1961,7 @@
             // lPatrolledRank
             // 
             this.lPatrolledRank.AutoSize = true;
-            this.lPatrolledRank.Location = new System.Drawing.Point(64, 145);
+            this.lPatrolledRank.Location = new System.Drawing.Point(64, 132);
             this.lPatrolledRank.Name = "lPatrolledRank";
             this.lPatrolledRank.Size = new System.Drawing.Size(83, 15);
             this.lPatrolledRank.TabIndex = 7;
@@ -1983,7 +1970,7 @@
             // xAnnounceRankChanges
             // 
             this.xAnnounceRankChanges.AutoSize = true;
-            this.xAnnounceRankChanges.Location = new System.Drawing.Point(304, 84);
+            this.xAnnounceRankChanges.Location = new System.Drawing.Point(304, 71);
             this.xAnnounceRankChanges.Name = "xAnnounceRankChanges";
             this.xAnnounceRankChanges.Size = new System.Drawing.Size(231, 19);
             this.xAnnounceRankChanges.TabIndex = 5;
@@ -1994,7 +1981,7 @@
             // xAnnounceKickAndBanReasons
             // 
             this.xAnnounceKickAndBanReasons.AutoSize = true;
-            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point(304, 59);
+            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point(304, 46);
             this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
             this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size(244, 19);
             this.xAnnounceKickAndBanReasons.TabIndex = 4;
@@ -2004,7 +1991,7 @@
             // xRequireRankChangeReason
             // 
             this.xRequireRankChangeReason.AutoSize = true;
-            this.xRequireRankChangeReason.Location = new System.Drawing.Point(42, 109);
+            this.xRequireRankChangeReason.Location = new System.Drawing.Point(42, 96);
             this.xRequireRankChangeReason.Name = "xRequireRankChangeReason";
             this.xRequireRankChangeReason.Size = new System.Drawing.Size(236, 19);
             this.xRequireRankChangeReason.TabIndex = 3;
@@ -2014,7 +2001,7 @@
             // xRequireBanReason
             // 
             this.xRequireBanReason.AutoSize = true;
-            this.xRequireBanReason.Location = new System.Drawing.Point(42, 84);
+            this.xRequireBanReason.Location = new System.Drawing.Point(42, 71);
             this.xRequireBanReason.Name = "xRequireBanReason";
             this.xRequireBanReason.Size = new System.Drawing.Size(184, 19);
             this.xRequireBanReason.TabIndex = 2;
@@ -3957,7 +3944,6 @@
         private System.Windows.Forms.Label lLogConsoleOptionsDescription;
         private System.Windows.Forms.CheckBox xIRCBotAnnounceServerEvents;
         private System.Windows.Forms.CheckBox xIRCUseColor;
-        private System.Windows.Forms.CheckBox xPaidPlayersOnly;
         private System.Windows.Forms.Button bMapPath;
         private System.Windows.Forms.CheckBox xMapPath;
         private System.Windows.Forms.TextBox tMapPath;
