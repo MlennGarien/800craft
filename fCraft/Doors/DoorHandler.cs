@@ -41,13 +41,14 @@ namespace fCraft.Doors {
 
         //cuboid over-fix?
         public static void PlayerPlacedDoor ( object sender, Events.PlayerPlacingBlockEventArgs e ) {
-            if ( e.Player.World.Map.Doors == null ) return;
-            if ( e.Player.World != null ) {
-                if ( e.Player.World.Map != null ) {
+            if ( e.Map.Doors == null ) return;
+            if ( e.Map.World != null ) {
+                if ( e.Map != null ) {
                     if ( e.Context != BlockChangeContext.Manual ) {
-                        if ( e.Player.World.Map.Doors.Count > 0 ) {
-                            lock ( e.Player.World.Map.Doors.SyncRoot ) {
-                                foreach ( Door door in e.Player.WorldMap.Doors ) {
+                        if ( e.Map.Doors.Count > 0 ) {
+                            lock ( e.Map.Doors.SyncRoot ) {
+                                foreach ( Door door in e.Map.Doors ) {
+                                    if ( e.Map == null ) break;
                                     if ( door.IsInRange( e.Coords ) ) {
                                         e.Result = CanPlaceResult.Revert;
                                     }
