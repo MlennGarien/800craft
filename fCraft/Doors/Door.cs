@@ -31,7 +31,7 @@ namespace fCraft.Doors {
         public Vector3I[] AffectedBlocks { get; set; }
         public DoorRange Range { get; set; }
 
-        public Door () { 
+        public Door () {
             //empty
         }
 
@@ -174,11 +174,10 @@ namespace fCraft.Doors {
             removeOperation.Brush = brush;
             removeOperation.Context = BlockChangeContext.Unknown;
 
-            if ( this.AffectedBlocks == null ) {
-                this.AffectedBlocks = new Vector3I[2];
-                this.AffectedBlocks[0] = new Vector3I( Range.Xmin, Range.Ymin, Range.Zmin );
-                this.AffectedBlocks[1] = new Vector3I( Range.Xmax, Range.Ymax, Range.Zmax );
-            }
+            this.AffectedBlocks = new Vector3I[2];
+            this.AffectedBlocks[0] = new Vector3I( Range.Xmin, Range.Ymin, Range.Zmin );
+            this.AffectedBlocks[1] = new Vector3I( Range.Xmax, Range.Ymax, Range.Zmax );
+
 
             if ( !removeOperation.Prepare( this.AffectedBlocks ) ) {
                 throw new DoorException( "Unable to remove Door." );
