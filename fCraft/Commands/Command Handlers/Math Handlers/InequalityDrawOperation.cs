@@ -46,7 +46,7 @@ namespace fCraft
 			if (!_expression.IsInEquality())
 				throw new ArgumentException("the expression given is not an inequality (should be like f(x,y,z)>g(x,y,z))");
 
-			Player.Message("Expression parsed as " + _expression.Print());
+			player.Message("Expression parsed as " + _expression.Print());
 			string scalingStr = cmd.Next();
 			_scaler = new Scaler(scalingStr);
 		}

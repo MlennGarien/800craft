@@ -59,7 +59,7 @@ namespace fCraft
 
 			_expression = SimpleParser.Parse(strFunc, GetVarArray(_vaxis));
 			
-			Player.Message("Expression parsed as "+_expression.Print());
+			player.Message("Expression parsed as "+_expression.Print());
 			string scalingStr=cmd.Next();
 			_scaler = new Scaler(scalingStr);
         }

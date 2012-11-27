@@ -152,11 +152,10 @@ When you first join the server, promote yourself by typing...
 ...in the server's console. Replace "owner" if you renamed your highest rank.
 
 Type "/help" in-game or in server console to get started. Type "/commands" for
-a list of available commands. For detailed information, please visit:
-    http://800Craft.net/wiki
+a list of available commands. 
 
 To request features, report bugs, or receive support, please visit:
-    http://forums.800Craft.net
+    http://au70.net
 
 
 

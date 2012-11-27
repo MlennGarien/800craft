@@ -71,6 +71,7 @@ namespace fCraft.Portals {
                                     e.Player.Position.R,
                                     e.Player.Position.L );
                                 e.Player.PortalCache.World = e.Player.World.Name;
+                                e.Player.PortalCache.Name = Portal.GenerateName( WorldManager.FindWorldExact(e.Player.PortalCache.World ));
                                 PortalHandler.CreatePortal( e.Player.PortalCache, WorldManager.FindWorldExact( e.Player.PortalWorld ) );
                                 e.Player.Message( " Portal finalized: Exit point at {0} on world {1}", e.Coords.ToString(), e.Player.World.ClassyName );
                                 e.Player.PortalCache = new Portal();
@@ -102,11 +103,11 @@ namespace fCraft.Portals {
                             if ( ( e.OldPosition.X != e.NewPosition.X ) || ( e.OldPosition.Y != e.NewPosition.Y ) || ( e.OldPosition.Z != ( e.NewPosition.Z ) ) ) {
                                 if ( e.Player.Can( Permission.UsePortal ) ) {
                                     if ( PortalHandler.GetInstance().GetPortal( e.Player ) != null && !e.Player.StandingInPortal ) {
-                                        if ( e.Player.LastUsedPortal != null && ( DateTime.UtcNow - e.Player.LastUsedPortal ).TotalSeconds < 5 ) {
+                                        if ( e.Player.LastUsedPortal != null && ( DateTime.UtcNow - e.Player.LastUsedPortal ).TotalSeconds < 4 ) {
                                             // To prevent portal loops
                                             if ( e.Player.LastWarnedPortal == null || ( DateTime.UtcNow - e.Player.LastWarnedPortal ).TotalSeconds > 2 ) {
                                                 e.Player.LastWarnedPortal = DateTime.UtcNow;
-                                                e.Player.Message( "You cannot use portals for another {0} seconds.", 5 - ( DateTime.UtcNow - e.Player.LastUsedPortal ).Seconds );
+                                                e.Player.Message( "You cannot use portals for another {0} seconds.", 4 - ( DateTime.UtcNow - e.Player.LastUsedPortal ).Seconds );
                                             }
                                             return;
                                         }
