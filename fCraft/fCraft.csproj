@@ -159,6 +159,9 @@
     <Compile Include="Games\Spell.cs" />
     <Compile Include="Games\ZombieGame.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
+    <Compile Include="MessageBlocks\MessageBlock.cs" />
+    <Compile Include="MessageBlocks\MessageBlockHandler.cs" />
+    <Compile Include="MessageBlocks\MessageBlockRange.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\Life\Life2d.cs" />
     <Compile Include="Physics\Life\Life2DZone.cs" />

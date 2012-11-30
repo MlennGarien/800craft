@@ -222,6 +222,8 @@ namespace fCraft {
         public Portals.Portal PortalCache = new Portals.Portal();
         #endregion
 
+        public readonly object MessageBlockLock = new object();
+        public DateTime LastUsedMessageBlock;
         #region Game
         //List of weapons usable in game modes
         //byte ID will be used for gungame

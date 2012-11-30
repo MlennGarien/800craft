@@ -71,6 +71,11 @@ namespace fCraft {
         public System.Collections.ArrayList Portals;
         public int portalID = 1;
 
+        //MessageBlocks
+        //Portals
+        public System.Collections.ArrayList MessageBlocks;
+        public int MessageBlockID = 1;
+
 
         #region FCMv3 additions
         public DateTime DateModified { get; set; }
