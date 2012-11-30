@@ -72,7 +72,6 @@ namespace fCraft {
         public int portalID = 1;
 
         //MessageBlocks
-        //Portals
         public System.Collections.ArrayList MessageBlocks;
         public int MessageBlockID = 1;
 

@@ -54,6 +54,7 @@ namespace fCraft {
             SchedulerTask TimeCheckR = Scheduler.NewTask( TimeCheck ).RunForever( TimeSpan.FromSeconds( 120 ) );
             CommandManager.RegisterCommand( CdPhysics );
             CommandManager.RegisterCommand( CdWorldSet );
+            CommandManager.RegisterCommand( CdMessageBlock );
         }
         #region 800Craft
 
@@ -217,6 +218,159 @@ namespace fCraft {
         }
         #endregion
 
+        #region MessageBlocks
+        static readonly CommandDescriptor CdMessageBlock = new CommandDescriptor {
+            Name = "MessageBlock",
+            Aliases = new[] { "mb" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Build },
+            IsConsoleSafe = false,
+            Usage = "/MessageBlock [add | remove | info | list]",
+            Help = "Create and controls a MessageBlock, options are: add, remove, list, info\n&S" +
+                   "See &H/Help MessageBlock <option>&S for details about each option.",
+            HelpSections = new Dictionary<string, string>() {
+                { "add",     "&H/MessageBlock add [Your Message Goes here]\n&S" +
+                                "Adds a MessageBlock with a custom message. When a player walks in" +
+                                 " radius of a message block the message inside is shown to them."},
+                { "remove",     "&H/MessageBlock remove MessageBlock1\n&S" +
+                                "Removes MessageBlock with name 'MessageBlock1'."},
+                { "list",       "&H/MessageBlock list\n&S" +
+                                "Gives you a list of MessageBlocks in the current world."},
+                { "info",       "&H/MessageBlock info MessageBlock1\n&S" +
+                                "Gives you information of MessageBlock with name 'MessageBlock1'."},
+            },
+            Handler = MessageBlock
+        };
+        static void MessageBlock ( Player player, Command cmd ) {
+            string option = cmd.Next();
+            if ( option == null ) {
+                CdMessageBlock.PrintUsage( player );
+                return;
+            } else if ( option.ToLower() == "add" || option.ToLower() == "create" ) {
+                string Message = cmd.NextAll();
+                MessageBlock MessageBlock = new MessageBlock();
+                DrawOperation operation = new CuboidDrawOperation( player );
+                NormalBrush brush = new NormalBrush( player.LastUsedBlockType );
+                operation.Brush = brush;
+                player.SelectionStart( 1, MessageBlockAdd, Message, CdMessageBlock.Permissions );
+                player.Message( "MessageBlock: Place a block or type /mark to use your location." );
+                return;
+            } else if ( option.ToLower().Equals( "remove" ) || option.ToLower().Equals( "rd" ) ) {
+                string MessageBlockName = cmd.Next();
+
+                if ( MessageBlockName == null ) {
+                    player.Message( "No MessageBlock name specified." );
+                } else {
+                    if ( player.World.Map.MessageBlocks != null && player.World.Map.MessageBlocks.Count > 0 ) {
+                        bool found = false;
+                        MessageBlock MessageBlockFound = null;
+
+                        lock ( player.World.Map.MessageBlocks.SyncRoot ) {
+                            foreach ( MessageBlock MessageBlock in player.World.Map.MessageBlocks ) {
+                                if ( MessageBlock.Name.ToLower().Equals( MessageBlockName.ToLower() ) ) {
+                                    MessageBlockFound = MessageBlock;
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if ( !found ) {
+                                player.Message( "Could not find MessageBlock by name {0}.", MessageBlockName );
+                            } else {
+                                MessageBlockFound.Remove( player );
+                                player.Message( "MessageBlock was removed." );
+                            }
+                        }
+                    } else {
+                        player.Message( "Could not find MessageBlock as this world doesn't contain a MessageBlock." );
+                    }
+                }
+            } else if ( option.ToLower().Equals( "info" ) ) {
+                string MessageBlockName = cmd.Next();
+
+                if ( MessageBlockName == null ) {
+                    player.Message( "No MessageBlock name specified." );
+                } else {
+                    if ( player.World.Map.MessageBlocks != null && player.World.Map.MessageBlocks.Count > 0 ) {
+                        bool found = false;
+
+                        lock ( player.World.Map.MessageBlocks.SyncRoot ) {
+                            foreach ( MessageBlock MessageBlock in player.World.Map.MessageBlocks ) {
+                                if ( MessageBlock.Name.ToLower().Equals( MessageBlockName.ToLower() ) ) {
+                                    World MessageBlockWorld = WorldManager.FindWorldExact( MessageBlock.World );
+                                    player.Message( "MessageBlock '{0}&S' was created by {1}&S at {2}",
+                                        MessageBlock.Name, MessageBlock.Creator, MessageBlock.Created );
+                                    found = true;
+                                }
+                            }
+                        }
+
+                        if ( !found ) {
+                            player.Message( "Could not find MessageBlock by name {0}.", MessageBlockName );
+                        }
+                    } else {
+                        player.Message( "Could not find MessageBlock as this world doesn't contain a MessageBlock." );
+                    }
+                }
+            } else if ( option.ToLower().Equals( "list" ) ) {
+                if ( player.World.Map.MessageBlocks == null || player.World.Map.MessageBlocks.Count == 0 ) {
+                    player.Message( "There are no MessageBlocks in {0}&S.", player.World.ClassyName );
+                } else {
+                    String[] MessageBlockNames = new String[player.World.Map.MessageBlocks.Count];
+                    System.Text.StringBuilder output = new System.Text.StringBuilder( "There are " + player.World.Map.MessageBlocks.Count + " MessageBlocks in " + player.World.ClassyName + "&S: " );
+
+                    for ( int i = 0; i < player.World.Map.MessageBlocks.Count; i++ ) {
+                        MessageBlockNames[i] = ( ( MessageBlock )player.World.Map.MessageBlocks[i] ).Name;
+                    }
+                    output.Append( MessageBlockNames.JoinToString( ", " ) );
+                    player.Message( output.ToString() );
+                }
+            } else {
+                CdMessageBlock.PrintUsage( player );
+            }
+        }
+
+        static void MessageBlockAdd ( Player player, Vector3I[] marks, object tag ) {
+            string Message = ( string )tag;
+            Vector3I mark = marks[0];
+            if ( !player.Info.Rank.AllowSecurityCircumvention ) {
+                SecurityCheckResult buildCheck = player.World.BuildSecurity.CheckDetailed( player.Info );
+                switch ( buildCheck ) {
+                    case SecurityCheckResult.BlackListed:
+                        player.Message( "Cannot add a MessageBlock to world {0}&S: You are barred from building here.",
+                                        player.World.ClassyName );
+                        return;
+                    case SecurityCheckResult.RankTooLow:
+                        player.Message( "Cannot add a MessageBlock to world {0}&S: You are not allowed to build here.",
+                                        player.World.ClassyName );
+                        return;
+                    //case SecurityCheckResult.RankTooHigh:
+                }
+            }
+            if ( player.LastUsedBlockType != Block.Undefined ) {
+                Vector3I Pos = mark;
+
+                if ( player.CanPlace( player.World.Map, Pos, player.LastUsedBlockType, BlockChangeContext.Manual ) != CanPlaceResult.Allowed ) {
+                    player.Message( "&WYou are not allowed to build here" );
+                    return;
+                }
+
+                Player.RaisePlayerPlacedBlockEvent( player, player.WorldMap, Pos, player.WorldMap.GetBlock( Pos ), player.LastUsedBlockType, BlockChangeContext.Manual );
+                BlockUpdate blockUpdate = new BlockUpdate( null, Pos, player.LastUsedBlockType );
+                player.World.Map.QueueUpdate( blockUpdate );
+            } else player.Message( "&WError: No last used blocktype was found" );
+            MessageBlock MessageBlock = new MessageBlock( player.World.Name, mark,
+                MessageBlock.GenerateName( player.World ),
+                player.ClassyName, Message );
+            MessageBlock.Range = new MessageBlockRange( mark.X, mark.X, mark.Y, mark.Y, mark.Z, mark.Z );
+
+            MessageBlockHandler.CreateMessageBlock( MessageBlock, player.World );
+            NormalBrush brush = new NormalBrush( Block.Air );
+            Logger.Log( LogType.UserActivity, "{0} created MessageBlock {1} (on world {2})", player.Name, MessageBlock.Name, player.World.Name );
+            player.Message( "MessageBlock created on world {0}&S with name {1}", player.World.ClassyName, MessageBlock.Name );
+        }
+        #endregion
+
         #region portals
 
         static readonly CommandDescriptor CdPortal = new CommandDescriptor {
@@ -265,20 +419,20 @@ namespace fCraft {
                         if ( blockTypeOrName == null ) blockTypeOrName = "water";
                         if ( blockTypeOrName.ToLower().Equals( "lava" ) ) {
                             brush = new NormalBrush( Block.Lava, Block.Lava );
-                        } else if (!blockTypeOrName.ToLower().Equals( "water" ) ) {
+                        } else if ( !blockTypeOrName.ToLower().Equals( "water" ) ) {
                             player.Message( "Invalid block, choose between water or lava." );
                             return;
                         }
-                        
+
                         string world = command.Next();
                         bool CustomOutput = ( world == null );
                         operation.Brush = brush;
                         if ( world != null && WorldManager.FindWorldExact( world ) != null ) {
                             player.PortalWorld = world;
                         } else player.PortalWorld = player.World.Name;
-                        player.SelectionStart( operation.ExpectedMarks, PortalCreateCallback, new PDATA(){ op = operation, custom = CustomOutput } , Permission.Draw );
+                        player.SelectionStart( operation.ExpectedMarks, PortalCreateCallback, new PDATA() { op = operation, custom = CustomOutput }, Permission.Draw );
                         player.Message( "Click {0} blocks or use &H/Mark&S to mark the area of the portal.", operation.ExpectedMarks );
-                        
+
                         if ( world == null ) {
                             return; //custom, continue in Selectstart
                         }
@@ -400,7 +554,7 @@ namespace fCraft {
             }
         }
 
-        static void PortalCreateCallback ( Player player, Vector3I[] marks, object tag) {
+        static void PortalCreateCallback ( Player player, Vector3I[] marks, object tag ) {
             try {
                 World world = WorldManager.FindWorldExact( player.PortalWorld );
 

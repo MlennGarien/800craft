@@ -11,13 +11,14 @@ namespace fCraft.MapConversion {
         static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
 
 
-        static MapUtility() {
+        static MapUtility () {
             AvailableConverters.Add( MapFormat.FCMv4, new MapFCMv4() );
             AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3()
-                .AddExtension(new ZoneConverterExtension())
-                .AddExtension(new LifeSerialization())
-                .AddExtension(new Portals.PortalSerialization())
-                .AddExtension(new Doors.DoorSerialization()));
+                .AddExtension( new ZoneConverterExtension() )
+                .AddExtension( new LifeSerialization() )
+                .AddExtension( new Portals.PortalSerialization() )
+                .AddExtension( new Doors.DoorSerialization() )
+                .AddExtension( new MessageBlockSerialization() ) );
             AvailableConverters.Add( MapFormat.FCMv2, new MapFCMv2() );
             AvailableConverters.Add( MapFormat.Creative, new MapDat() );
             AvailableConverters.Add( MapFormat.MCSharp, new MapMCSharp() );
@@ -31,11 +32,11 @@ namespace fCraft.MapConversion {
 
 
         // ReSharper disable EmptyGeneralCatchClause
-        public static MapFormat Identify( [NotNull] string fileName, bool tryFallbackConverters ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static MapFormat Identify ( [NotNull] string fileName, bool tryFallbackConverters ) {
+            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
-            if( !File.Exists( fileName ) ) {
-                if( Directory.Exists( fileName ) ) {
+            if ( !File.Exists( fileName ) ) {
+                if ( Directory.Exists( fileName ) ) {
                     targetType = MapStorageType.Directory;
                 } else {
                     throw new FileNotFoundException();
@@ -43,10 +44,10 @@ namespace fCraft.MapConversion {
             }
 
             List<IMapConverter> fallbackConverters = new List<IMapConverter>();
-            foreach( IMapConverter converter in AvailableConverters.Values ) {
+            foreach ( IMapConverter converter in AvailableConverters.Values ) {
                 try {
-                    if( converter.StorageType == targetType && converter.ClaimsName( fileName ) ) {
-                        if( converter.Claims( fileName ) ) {
+                    if ( converter.StorageType == targetType && converter.ClaimsName( fileName ) ) {
+                        if ( converter.Claims( fileName ) ) {
                             return converter.Format;
                         }
                     } else {
@@ -55,10 +56,10 @@ namespace fCraft.MapConversion {
                 } catch { }
             }
 
-            if( tryFallbackConverters ) {
-                foreach( IMapConverter converter in fallbackConverters ) {
+            if ( tryFallbackConverters ) {
+                foreach ( IMapConverter converter in fallbackConverters ) {
                     try {
-                        if( converter.Claims( fileName ) ) {
+                        if ( converter.Claims( fileName ) ) {
                             return converter.Format;
                         }
                     } catch { }
@@ -70,12 +71,12 @@ namespace fCraft.MapConversion {
         // ReSharper restore EmptyGeneralCatchClause
 
 
-        public static bool TryLoadHeader( [NotNull] string fileName, out Map map ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static bool TryLoadHeader ( [NotNull] string fileName, out Map map ) {
+            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 map = LoadHeader( fileName );
                 return true;
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 Logger.Log( LogType.Error,
                             "MapUtility.TryLoadHeader: {0}: {1}",
                             ex.GetType().Name, ex.Message );
@@ -85,13 +86,13 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static Map LoadHeader( [NotNull] string fileName ) {
+        public static Map LoadHeader ( [NotNull] string fileName ) {
             // ReSharper disable EmptyGeneralCatchClause
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
 
             MapStorageType targetType = MapStorageType.SingleFile;
-            if( !File.Exists( fileName ) ) {
-                if( Directory.Exists( fileName ) ) {
+            if ( !File.Exists( fileName ) ) {
+                if ( Directory.Exists( fileName ) ) {
                     targetType = MapStorageType.Directory;
                 } else {
                     throw new FileNotFoundException();
@@ -101,25 +102,25 @@ namespace fCraft.MapConversion {
             List<IMapConverter> fallbackConverters = new List<IMapConverter>();
 
             // first try all converters for the file extension
-            foreach( IMapConverter converter in AvailableConverters.Values ) {
+            foreach ( IMapConverter converter in AvailableConverters.Values ) {
                 bool claims = false;
                 try {
-                    claims = (converter.StorageType == targetType) &&
+                    claims = ( converter.StorageType == targetType ) &&
                              converter.ClaimsName( fileName ) &&
                              converter.Claims( fileName );
-                } catch{ }
-                if( claims ) {
+                } catch { }
+                if ( claims ) {
                     try {
                         Map map = converter.LoadHeader( fileName );
                         map.HasChangedSinceSave = false;
                         return map;
-                    } catch( NotImplementedException ) { }
+                    } catch ( NotImplementedException ) { }
                 } else {
                     fallbackConverters.Add( converter );
                 }
             }
 
-            foreach( IMapConverter converter in fallbackConverters ) {
+            foreach ( IMapConverter converter in fallbackConverters ) {
                 try {
                     Map map = converter.LoadHeader( fileName );
                     map.HasChangedSinceSave = false;
@@ -132,12 +133,12 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static bool TryLoad( [NotNull] string fileName, out Map map ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static bool TryLoad ( [NotNull] string fileName, out Map map ) {
+            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 map = Load( fileName );
                 return true;
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 Logger.Log( LogType.Error,
                             "MapUtility.TryLoad: {0}", ex );
                 map = null;
@@ -147,11 +148,11 @@ namespace fCraft.MapConversion {
 
 
         // ReSharper disable EmptyGeneralCatchClause
-        public static Map Load( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static Map Load ( [NotNull] string fileName ) {
+            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
-            if( !File.Exists( fileName ) ) {
-                if( Directory.Exists( fileName ) ) {
+            if ( !File.Exists( fileName ) ) {
+                if ( Directory.Exists( fileName ) ) {
                     targetType = MapStorageType.Directory;
                 } else {
                     throw new FileNotFoundException();
@@ -161,14 +162,14 @@ namespace fCraft.MapConversion {
             List<IMapConverter> fallbackConverters = new List<IMapConverter>();
 
             // first try all converters for the file extension
-            foreach( IMapConverter converter in AvailableConverters.Values ) {
+            foreach ( IMapConverter converter in AvailableConverters.Values ) {
                 bool claims = false;
                 try {
-                    claims = (converter.StorageType == targetType) &&
+                    claims = ( converter.StorageType == targetType ) &&
                              converter.ClaimsName( fileName ) &&
                              converter.Claims( fileName );
                 } catch { }
-                if( claims ) {
+                if ( claims ) {
                     Map map = converter.Load( fileName );
                     map.HasChangedSinceSave = false;
                     return map;
@@ -177,7 +178,7 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            foreach( IMapConverter converter in fallbackConverters ) {
+            foreach ( IMapConverter converter in fallbackConverters ) {
                 try {
                     Map map = converter.Load( fileName );
                     map.HasChangedSinceSave = false;
@@ -190,16 +191,16 @@ namespace fCraft.MapConversion {
         // ReSharper restore EmptyGeneralCatchClause
 
 
-        public static bool TrySave( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            if( format == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "format" );
+        public static bool TrySave ( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {
+            if ( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
+            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( format == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "format" );
 
-            if( AvailableConverters.ContainsKey( format ) ) {
+            if ( AvailableConverters.ContainsKey( format ) ) {
                 IMapConverter converter = AvailableConverters[format];
                 try {
                     return converter.Save( mapToSave, fileName );
-                } catch( Exception ex ) {
+                } catch ( Exception ex ) {
                     Logger.LogAndReportCrash( "Map failed to save", "MapConversion", ex, false );
                     return false;
                 }
@@ -209,14 +210,14 @@ namespace fCraft.MapConversion {
         }
 
 
-        internal static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( destination == null ) throw new ArgumentNullException( "destination" );
+        internal static void ReadAll ( [NotNull] Stream source, [NotNull] byte[] destination ) {
+            if ( source == null ) throw new ArgumentNullException( "source" );
+            if ( destination == null ) throw new ArgumentNullException( "destination" );
             int bytesRead = 0;
             int bytesLeft = destination.Length;
-            while( bytesLeft > 0 ) {
+            while ( bytesLeft > 0 ) {
                 int readPass = source.Read( destination, bytesRead, bytesLeft );
-                if( readPass == 0 ) throw new EndOfStreamException();
+                if ( readPass == 0 ) throw new EndOfStreamException();
                 bytesRead += readPass;
                 bytesLeft -= readPass;
             }

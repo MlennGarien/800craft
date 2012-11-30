@@ -30,20 +30,20 @@ namespace fCraft {
         public String World { get; set; }
         public Vector3I AffectedBlock { get; set; }
         public MessageBlockRange Range { get; set; }
-        public String Place { get; set; }
+        public String Message { get; set; }
 
         public MessageBlock () {
             //empty
         }
 
-        public MessageBlock ( String world, Vector3I affectedBlock, String Name, String Creator, String Place ) {
+        public MessageBlock ( String world, Vector3I affectedBlock, String Name, String Creator, String Message ) {
             this.World = world;
             this.AffectedBlock = affectedBlock;
             this.Range = MessageBlock.CalculateRange( this );
             this.Name = Name;
             this.Creator = Creator;
             this.Created = DateTime.UtcNow;
-            this.Place = Place;
+            this.Message = Message;
         }
 
         public static MessageBlockRange CalculateRange ( MessageBlock MessageBlock ) {
@@ -58,9 +58,9 @@ namespace fCraft {
         }
 
         public bool IsInRange ( Player player ) {
-            if ( ( player.Position.X / 32 ) <= Range.Xmax && ( player.Position.X / 32 ) >= Range.Xmin ) {
-                if ( ( player.Position.Y / 32 ) <= Range.Ymax && ( player.Position.Y / 32 ) >= Range.Ymin ) {
-                    if ( ( ( player.Position.Z / 32 ) - 1 ) <= Range.Zmax && ( ( player.Position.Z / 32 ) - 1 ) >= Range.Zmin ) {
+            if ( ( player.Position.X / 32 ) <= Range.Xmax + 1 && ( player.Position.X / 32 ) >= Range.Xmin - 1 ) {
+                if ( ( player.Position.Y / 32 ) <= Range.Ymax + 1 && ( player.Position.Y / 32 ) >= Range.Ymin - 1 ) {
+                    if ( ( ( player.Position.Z / 32 ) - 1 ) <= Range.Zmax + 1 && ( ( player.Position.Z / 32 ) - 1 ) >= Range.Zmin - 1 ) {
                         return true;
                     }
                 }
@@ -79,6 +79,14 @@ namespace fCraft {
             }
 
             return false;
+        }
+
+        public String GetMessage () {
+            if ( this.Message == null ) return "";
+            if ( this.Message.Length < 1 ) return "";
+            string SortedMessage = Color.ReplacePercentCodes( Message );
+            SortedMessage = Chat.ReplaceEmoteKeywords( SortedMessage );
+            return String.Format( "MessageBlock: {0}{1}", Color.Green, SortedMessage );
         }
 
         public static String GenerateName ( World world ) {
@@ -135,7 +143,7 @@ namespace fCraft {
                 this.AffectedBlock = new Vector3I( Range.Xmin, Range.Ymin, Range.Zmin );
             }
 
-            if ( !removeOperation.Prepare( new[]{this.AffectedBlock} ) ) {
+            if ( !removeOperation.Prepare( new[] { this.AffectedBlock } ) ) {
                 throw new Exception( "Unable to remove MessageBlock." );
             }
 
@@ -189,11 +197,7 @@ namespace fCraft {
             [DataMember]
             public int ZMax;
             [DataMember]
-            public String Place;
-            [DataMember]
-            public Position DesiredOutput;
-            [DataMember]
-            public bool HasDesiredOutput;
+            public String Message;
 
             public SerializedData ( MessageBlock MessageBlock ) {
                 lock ( MessageBlock ) {
@@ -208,7 +212,7 @@ namespace fCraft {
                     YMax = MessageBlock.Range.Ymax;
                     ZMin = MessageBlock.Range.Zmin;
                     ZMax = MessageBlock.Range.Zmax;
-                    Place = MessageBlock.Place;
+                    Message = MessageBlock.Message;
                 }
             }
 
@@ -219,7 +223,7 @@ namespace fCraft {
                 MessageBlock.World = World;
                 MessageBlock.AffectedBlock = AffectedBlock;
                 MessageBlock.Range = new MessageBlockRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
-                MessageBlock.Place = Place;
+                MessageBlock.Message = Message;
             }
         }
     }
