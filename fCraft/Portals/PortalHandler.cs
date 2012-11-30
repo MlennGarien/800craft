@@ -119,6 +119,7 @@ namespace fCraft.Portals {
                                         Portal portal = PortalHandler.GetInstance().GetPortal( e.Player );
 
                                         World world = WorldManager.FindWorldExact( portal.World );
+                                        if ( world == null ) return;
                                         // Teleport player, portal protection
                                         switch ( world.AccessSecurity.CheckDetailed( e.Player.Info ) ) {
                                             case SecurityCheckResult.Allowed:

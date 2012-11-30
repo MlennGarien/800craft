@@ -101,6 +101,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoRank\AutoRankManager.cs" />
+    <Compile Include="AutoRank\Conditions.cs" />
+    <Compile Include="AutoRank\Criterion.cs" />
+    <Compile Include="Commands\BuildingCommands.cs" />
+    <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Commands\Command Handlers\BroModeHandler.cs" />
     <Compile Include="Commands\Command Handlers\FlyHandler.cs" />
     <Compile Include="Commands\Command Handlers\GunHandler.cs" />
@@ -116,11 +121,21 @@
     <Compile Include="Commands\Command Handlers\Math Handlers\SimpleParser.cs" />
     <Compile Include="Commands\Command Handlers\RealmHandler.cs" />
     <Compile Include="Commands\Command Handlers\VoteHandler.cs" />
+    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\CommandCategory.cs" />
+    <Compile Include="Commands\CommandDescriptor.cs" />
+    <Compile Include="Commands\CommandManager.cs" />
     <Compile Include="Commands\DevCommands.cs" />
+    <Compile Include="Commands\DonatePlugin.cs" />
     <Compile Include="Commands\FunCommands.cs" />
+    <Compile Include="Commands\InfoCommands.cs" />
+    <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\MathCommands.cs" />
+    <Compile Include="Commands\ModerationCommands.cs" />
     <Compile Include="Commands\System.Drawing\FontHandler.cs" />
     <Compile Include="Commands\System.Drawing\ShapesLib.cs" />
+    <Compile Include="Commands\WorldCommands.cs" />
+    <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Doors\Door.cs" />
     <Compile Include="Doors\DoorException.cs" />
     <Compile Include="Doors\DoorHandler.cs" />
@@ -130,10 +145,6 @@
     <Compile Include="Drawing\DrawOps\BlockDBDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\DrawImageOperation.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
-    <Compile Include="AutoRank\AutoRankManager.cs" />
-    <Compile Include="Commands\ModerationCommands.cs" />
-    <Compile Include="Commands\MaintenanceCommands.cs" />
-    <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Drawing\DrawOps\CylinderDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\Maze.cs" />
     <Compile Include="Drawing\DrawOps\MazeCuboidDrawOperation.cs" />
@@ -194,11 +205,6 @@
     <Compile Include="Games\PlayerProximityTracker.cs" />
     <Compile Include="Utils\RWLSExtension.cs" />
     <Compile Include="Utils\Vector3F.cs" />
-    <Compile Include="Commands\CommandDescriptor.cs" />
-    <Compile Include="Commands\WorldCommands.cs" />
-    <Compile Include="Commands\BuildingCommands.cs" />
-    <Compile Include="Commands\CommandManager.cs" />
-    <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="MapConversion\MapD3.cs" />
     <Compile Include="MapConversion\MapMyne.cs" />
     <Compile Include="MapConversion\MapJTE.cs" />
@@ -227,7 +233,6 @@
     <Compile Include="Network\PacketWriter.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\Player.Networking.cs" />
-    <Compile Include="Commands\Command.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Trie.cs" />
     <Compile Include="World\Block.cs" />
@@ -274,9 +279,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoRank\Conditions.cs" />
-    <Compile Include="AutoRank\Criterion.cs" />
-    <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
     <Compile Include="Drawing\DrawOps\TriangleDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\TriangleWireframeDrawOperation.cs" />
@@ -311,7 +313,6 @@
     <Compile Include="Drawing\IBrush.cs" />
     <Compile Include="Drawing\Brushes\NormalBrush.cs" />
     <Compile Include="Drawing\Axis.cs" />
-    <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="MapConversion\MapOpticraft.cs" />
     <Compile Include="MapConversion\MapFCMv4.cs" />
