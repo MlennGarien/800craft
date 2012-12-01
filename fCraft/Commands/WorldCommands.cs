@@ -1520,7 +1520,7 @@ namespace fCraft {
             string worldName = cmd.Next();
             World world;
             if ( worldName == null ) {
-                player.MessageNoWorld( worldName );
+                CdEnv.PrintUsage( player );
                 return;
             } else {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
