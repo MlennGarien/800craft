@@ -256,7 +256,7 @@ namespace fCraft.ServerGUI {
         }
         void GetSetSkin() {
             GetSkin();
-            pictureBox1.Image = CorrectSkin( webSkin );
+            pictureBox1.Image =  webSkin;
             Rectangle rect = new Rectangle( 8, 8, 8, 8 );
             Rectangle rect2 = new Rectangle( 40, 8, 8, 8 );
             Image bitmap1 = cropImage( pictureBox1.Image, rect );
@@ -275,7 +275,6 @@ namespace fCraft.ServerGUI {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                 g.DrawImage( sourceBMP, 0, 0, width, height );
             }
-          
             return result;
         }
 
@@ -283,7 +282,7 @@ namespace fCraft.ServerGUI {
             Bitmap bmpImage = new Bitmap( img );
             Bitmap bmpCrop = bmpImage.Clone( cropArea,
             bmpImage.PixelFormat );
-            return ( Image )( bmpCrop );
+            return bmpCrop as Image;
         }
         private static Image EmptySkin {
             get {
@@ -329,82 +328,6 @@ namespace fCraft.ServerGUI {
             using ( Graphics grD = Graphics.FromImage( destBitmap ) ) {
                 grD.DrawImage( srcBitmap, destRegion, srcRegion, GraphicsUnit.Pixel );
             }
-        }
-
-        private Rectangle ConvertRectangleToImage ( Rectangle clicked, Image image ) {
-            //get size of original image
-            Size size = image.Size;
-            //get value of scale
-            float num = Math.Min( ( float )( ( ( float )ClientRectangle.Width ) / ( ( float )size.Width ) ), ( float )( ( ( float )ClientRectangle.Height ) / ( ( float )size.Height ) ) );
-            //scale size to calculate translation
-            size.Width = ( int )( size.Width * num );
-            size.Height = ( int )( size.Height * num );
-            //reverse translation
-            clicked.X -= ( ClientRectangle.Width - size.Width ) / 2;
-            clicked.Y -= ( ClientRectangle.Height - size.Height ) / 2;
-            //reverse scale
-            clicked.X = ( int )( clicked.X / num );
-            clicked.Y = ( int )( clicked.Y / num );
-            clicked.Width = ( int )( clicked.Width / num );
-            clicked.Height = ( int )( clicked.Height / num );
-            //return image coordinates
-            return clicked;
-        }
-        private unsafe Image CorrectSkin ( Image skin ) {
-            if ( skin == null )
-                return EmptySkin;
-            Bitmap bitmap = new Bitmap( skin );
-            Rectangle rect = new Rectangle( 0, 0, bitmap.Width, bitmap.Height );
-            System.Drawing.Imaging.BitmapData bitmapdata = bitmap.LockBits( rect, System.Drawing.Imaging.ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
-            for ( int index1 = 0; index1 < 16; ++index1 ) {
-                byte* numPtr = ( byte* )( ( IntPtr )( void* )bitmapdata.Scan0 + ( index1 * bitmapdata.Stride ) );
-                int index2 = 3;
-                while ( index2 < 128 ) {
-                    numPtr[index2] = byte.MaxValue;
-                    index2 += 4;
-                }
-            }
-            for ( int index1 = 16; index1 < 32; ++index1 ) {
-                byte* numPtr = ( byte* )( ( IntPtr )( void* )bitmapdata.Scan0 + ( index1 * bitmapdata.Stride ) );
-                int index2 = 3;
-                while ( index2 < 256 ) {
-                    numPtr[index2] = byte.MaxValue;
-                    index2 += 4;
-                }
-            }
-            bool flag = false;
-            for ( int index1 = 0; index1 < 8; ++index1 ) {
-                byte* numPtr = ( byte* )( ( IntPtr )( void* )bitmapdata.Scan0 + ( index1 * bitmapdata.Stride ) );
-                int index2 = 163;
-                while ( index2 < 224 ) {
-                    if ( ( int )numPtr[index2] != ( int )byte.MaxValue )
-                        flag = true;
-                    index2 += 4;
-                }
-            }
-            for ( int index1 = 8; index1 < 16; ++index1 ) {
-                byte* numPtr = ( byte* )( ( IntPtr )( void* )bitmapdata.Scan0 + ( index1 * bitmapdata.Stride ) );
-                int index2 = 131;
-                while ( index2 < 256 ) {
-                    if ( ( int )numPtr[index2] != ( int )byte.MaxValue )
-                        flag = true;
-                    index2 += 4;
-                }
-            }
-            if ( !flag ) {
-                for ( int index1 = 0; index1 < 8; ++index1 ) {
-                    byte* numPtr = ( byte* )( ( IntPtr )( void* )bitmapdata.Scan0 + ( index1 * bitmapdata.Stride ) );
-                    for ( int index2 = 163; index2 < 224; ++index2 )
-                        numPtr[index2] = ( byte )0;
-                }
-                for ( int index1 = 8; index1 < 16; ++index1 ) {
-                    byte* numPtr = ( byte* )( ( IntPtr )( void* )bitmapdata.Scan0 + ( index1 * bitmapdata.Stride ) );
-                    for ( int index2 = 131; index2 < 256; ++index2 )
-                        numPtr[index2] = ( byte )0;
-                }
-            }
-            bitmap.UnlockBits( bitmapdata );
-            return ( Image )bitmap;
         }
         private void GetSkin () {
             System.Net.WebClient webClient = new System.Net.WebClient();

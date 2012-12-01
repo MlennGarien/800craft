@@ -223,7 +223,7 @@ namespace fCraft {
             Name = "MessageBlock",
             Aliases = new[] { "mb" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Build },
+            Permissions = new[] { Permission.ManageZones },
             IsConsoleSafe = false,
             Usage = "/MessageBlock [add | remove | info | list]",
             Help = "Create and controls a MessageBlock, options are: add, remove, list, info\n&S" +
@@ -248,10 +248,6 @@ namespace fCraft {
                 return;
             } else if ( option.ToLower() == "add" || option.ToLower() == "create" ) {
                 string Message = cmd.NextAll();
-                MessageBlock MessageBlock = new MessageBlock();
-                DrawOperation operation = new CuboidDrawOperation( player );
-                NormalBrush brush = new NormalBrush( player.LastUsedBlockType );
-                operation.Brush = brush;
                 player.SelectionStart( 1, MessageBlockAdd, Message, CdMessageBlock.Permissions );
                 player.Message( "MessageBlock: Place a block or type /mark to use your location." );
                 return;
@@ -1544,7 +1540,7 @@ namespace fCraft {
                 return;
             }
             #region 800Craft
-            //Copyright (C) <2012> <Jon Baker>
+            //Copyright (C) <2012> <Jon Baker> using open source texture packs from various sources
             if ( variable.ToLower() == "terrain" ) {
                 if ( valueText == null ) {
                     player.Message( "&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, prometheus, woodpunk, fall, snow, tron, " +

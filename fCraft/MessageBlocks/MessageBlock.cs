@@ -98,7 +98,7 @@ namespace fCraft {
                         bool taken = false;
 
                         foreach ( MessageBlock MessageBlock in world.Map.MessageBlocks ) {
-                            if ( MessageBlock.Name.Equals( "MessageBlock" + world.Map.MessageBlockID ) ) {
+                            if ( MessageBlock.Name.Equals( "MB" + world.Map.MessageBlockID ) ) {
                                 taken = true;
                                 break;
                             }
@@ -111,11 +111,11 @@ namespace fCraft {
                         }
                     }
 
-                    return "MessageBlock" + world.Map.MessageBlockID;
+                    return "MB" + world.Map.MessageBlockID;
                 }
             }
 
-            return "MessageBlock1";
+            return "MB1";
         }
 
         public static bool DoesNameExist ( World world, String name ) {
