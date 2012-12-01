@@ -133,22 +133,6 @@ namespace fCraft {
         }
 
         public void Remove ( Player requester ) {
-            NormalBrush brush = new NormalBrush( Block.Air, Block.Air );
-            DrawOperation removeOperation = new CuboidDrawOperation( requester );
-            removeOperation.AnnounceCompletion = false;
-            removeOperation.Brush = brush;
-            removeOperation.Context = BlockChangeContext.Drawn;
-
-            if ( this.AffectedBlock == null ) {
-                this.AffectedBlock = new Vector3I( Range.Xmin, Range.Ymin, Range.Zmin );
-            }
-
-            if ( !removeOperation.Prepare( new[] { this.AffectedBlock } ) ) {
-                throw new Exception( "Unable to remove MessageBlock." );
-            }
-
-            removeOperation.Begin();
-
             lock ( requester.World.Map.MessageBlocks.SyncRoot ) {
                 requester.World.Map.MessageBlocks.Remove( this );
             }
