@@ -126,7 +126,6 @@
     <Compile Include="Commands\CommandDescriptor.cs" />
     <Compile Include="Commands\CommandManager.cs" />
     <Compile Include="Commands\DevCommands.cs" />
-    <Compile Include="Commands\DonatePlugin.cs" />
     <Compile Include="Commands\FunCommands.cs" />
     <Compile Include="Commands\InfoCommands.cs" />
     <Compile Include="Commands\MaintenanceCommands.cs" />
