@@ -169,6 +169,8 @@ namespace fCraft {
                                               .JoinToString( " " );
                         player.Message( "&F  {0} &7= {1}", ch, keywords );
                     }
+                    if ( page < 3 )
+                        player.Message( "Type /List Emotes {0} for the next page", page + 1 );
 
                     break;
                 case "top10":

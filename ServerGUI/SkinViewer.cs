@@ -16,12 +16,13 @@ namespace fCraft.ServerGUI {
             player = player_;
             PlayerInfo info = player;
             GetSetSkin();
-            SetPlayerInfoText(info);
+            SetPlayerInfoText( info );
         }
 
-        void SetPlayerInfoText (PlayerInfo info) {
+        void SetPlayerInfoText ( PlayerInfo info ) {
             textBox1.Text = "";
             PlayerLabel.Text = player.Name;
+            SetTextRankColor( Color.GetName(player.Rank.Color) );
             if ( info.LastIP.Equals( System.Net.IPAddress.None ) ) {
                 textBox1.Text += String.Format( "About {0}&S: Never seen before.\n", info.ClassyName );
 
@@ -254,18 +255,71 @@ namespace fCraft.ServerGUI {
                 textBox1.Text = Color.StripColors( textBox1.Text );
             }
         }
-        void GetSetSkin() {
+        void GetSetSkin () {
             GetSkin();
-            pictureBox1.Image =  webSkin;
+            pictureBox1.Image = webSkin;
             Rectangle rect = new Rectangle( 8, 8, 8, 8 );
             Rectangle rect2 = new Rectangle( 40, 8, 8, 8 );
             Image bitmap1 = cropImage( pictureBox1.Image, rect );
             Image bitmap2 = cropImage( pictureBox1.Image, rect2 );
             pictureBox1.Image = bitmap1;
             using ( Graphics g = Graphics.FromImage( pictureBox1.Image ) ) {
-                g.DrawImage( bitmap2, new Point(0,0) );
+                g.DrawImage( bitmap2, new Point( 0, 0 ) );
             }
             pictureBox1.Image = ResizeBitmap( pictureBox1.Image as Bitmap, 128, 128 );
+        }
+
+        void SetTextRankColor ( string c ) {
+            switch ( c.ToLower() ) {
+                case "black":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Black;
+                    break;
+                case "navy":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Navy;
+                    break;
+                case "green":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Green;
+                    break;
+                case "teal":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Teal;
+                    break;
+                case "maroon":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Maroon;
+                    break;
+                case "purple":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Purple;
+                    break;
+                case "olive":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Olive;
+                    break;
+                case "silver":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Silver;
+                    break;
+                case "gray":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Gray;
+                    break;
+                case "blue":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Blue;
+                    break;
+                case "lime":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Lime;
+                    break;
+                case "aqua":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Aqua;
+                    break;
+                case "red":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Red;
+                    break;
+                case "magenta":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Magenta;
+                    break;
+                case "yellow":
+                    PlayerLabel.ForeColor = System.Drawing.Color.Yellow;
+                    break;
+                case "white":
+                    PlayerLabel.ForeColor = System.Drawing.Color.White;
+                    break;
+            }
         }
 
         private static Bitmap ResizeBitmap ( Bitmap sourceBMP, int width, int height ) {
@@ -333,7 +387,7 @@ namespace fCraft.ServerGUI {
             System.Net.WebClient webClient = new System.Net.WebClient();
             try {
                 byte[] buffer;
-                    buffer = webClient.DownloadData( "http://s3.amazonaws.com/MinecraftSkins/" + this.player.Name + ".png" );
+                buffer = webClient.DownloadData( "http://s3.amazonaws.com/MinecraftSkins/" + this.player.Name + ".png" );
                 if ( this.webSkin != null )
                     this.webSkin.Dispose();
                 this.webSkin = Image.FromStream( ( System.IO.Stream )new System.IO.MemoryStream( buffer ) );

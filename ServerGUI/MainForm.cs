@@ -503,7 +503,7 @@ namespace fCraft.ServerGUI {
                 if ( player == null ) return;
                 v = new SkinViewer( player );
                 v.Show();
-            } catch ( Exception ex ) { Logger.Log( LogType.Error, "" + ex ); }
+            } catch {  } //do nothing at all
         }
     }
 }

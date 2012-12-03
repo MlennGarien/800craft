@@ -223,7 +223,7 @@ namespace fCraft {
             Name = "MessageBlock",
             Aliases = new[] { "mb" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.ManageZones },
+            Permissions = new[] { Permission.ManageMessageBlocks },
             IsConsoleSafe = false,
             Usage = "/MessageBlock [add | remove | info | list]",
             Help = "Create and controls a MessageBlock, options are: add, remove, list, info\n&S" +
@@ -236,8 +236,8 @@ namespace fCraft {
                                 "Removes MessageBlock with name 'MessageBlock1'."},
                 { "list",       "&H/MessageBlock list\n&S" +
                                 "Gives you a list of MessageBlocks in the current world."},
-                { "info",       "&H/MessageBlock info MessageBlock1\n&S" +
-                                "Gives you information of MessageBlock with name 'MessageBlock1'."},
+                { "info",       "&H/MessageBlock info MB1\n&S" +
+                                "Gives you information of MessageBlock with name 'MB1'."},
             },
             Handler = MessageBlock
         };
@@ -354,7 +354,10 @@ namespace fCraft {
                 Player.RaisePlayerPlacedBlockEvent( player, player.WorldMap, Pos, player.WorldMap.GetBlock( Pos ), player.LastUsedBlockType, BlockChangeContext.Manual );
                 BlockUpdate blockUpdate = new BlockUpdate( null, Pos, player.LastUsedBlockType );
                 player.World.Map.QueueUpdate( blockUpdate );
-            } else player.Message( "&WError: No last used blocktype was found" );
+            } else {
+                player.Message( "&WError: No last used blocktype was found" );
+                return;
+            }
             MessageBlock MessageBlock = new MessageBlock( player.World.Name, mark,
                 MessageBlock.GenerateName( player.World ),
                 player.ClassyName, Message );

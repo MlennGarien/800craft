@@ -17,9 +17,9 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            208,
-            329,
-            new DateTime( 2012, 09, 30, 1, 0, 0, DateTimeKind.Utc ),
+            300,
+            1,
+            new DateTime( 2012, 12, 03, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Feature | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange
 #if DEBUG
@@ -31,7 +31,7 @@ namespace fCraft {
             get { return "800Craft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.209";
+        public const string LatestStable = "0.300_r1";
 
         public static string UpdateUrl { get; set; }
 

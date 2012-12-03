@@ -149,6 +149,8 @@ namespace fCraft {
 
         /// <summary> Ability to enable/disable, clear, and configure BlockDB. </summary>
         ManageBlockDB,
+        /// <summary> Ability to create/remove or view info on Message Blocks. </summary>
+        ManageMessageBlocks,
 
         /// <summary> Ability to import rank and ban lists from files.
         /// Useful if you are switching from another server software. </summary>
