@@ -42,7 +42,6 @@ namespace fCraft {
 
         internal static void Start() {
             Scheduler.NewBackgroundTask( Beat ).RunForever( Delay );
-            Scheduler.NewBackgroundTask(t=> HbSave()).RunForever(Delay);
         }
 
 
@@ -51,7 +50,7 @@ namespace fCraft {
 
             if( ConfigKey.HeartbeatEnabled.Enabled() ) {
                 SendMinecraftNetBeat();
-
+                HbSave();
             } else {
                 // If heartbeats are disabled, the server data is written
                 // to a text file instead (heartbeatdata.txt)
@@ -98,19 +97,18 @@ namespace fCraft {
             try
             {
                 const string SaverFile = "heartbeatsaver.txt";
+                
                 if (File.Exists(SaverFile))
                 {
                     File.Delete(SaverFile);
                 }
-                if (Server.CountPlayers(false) <= 0) return;
                 if (Salt == null) return;
-
+                if ( Server.CountPlayers( false ).ToString() == null ) return;
                 HbData = "port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" +
                     Uri.EscapeDataString(ConfigKey.ServerName.GetString()) +
                     "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString();
                 File.WriteAllText(SaverFile, HbData, Encoding.ASCII);
-            }
-            catch { }
+            } catch ( Exception ex ) { Logger.Log( LogType.Error, "" + ex ); }
         }
 
 

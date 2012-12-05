@@ -257,16 +257,19 @@ namespace fCraft.ServerGUI {
         }
         void GetSetSkin () {
             GetSkin();
-            pictureBox1.Image = webSkin;
-            Rectangle rect = new Rectangle( 8, 8, 8, 8 );
-            Rectangle rect2 = new Rectangle( 40, 8, 8, 8 );
-            Image bitmap1 = cropImage( pictureBox1.Image, rect );
-            Image bitmap2 = cropImage( pictureBox1.Image, rect2 );
-            pictureBox1.Image = bitmap1;
-            using ( Graphics g = Graphics.FromImage( pictureBox1.Image ) ) {
-                g.DrawImage( bitmap2, new Point( 0, 0 ) );
-            }
-            pictureBox1.Image = ResizeBitmap( pictureBox1.Image as Bitmap, 128, 128 );
+            pictureBox1.Image = new Bitmap(16, 32 );
+            Rectangle head = new Rectangle( 8, 8, 8, 8 );
+            Rectangle headOverlay = new Rectangle( 40, 8, 8, 8 );
+            CopyRegionIntoImage(webSkin as Bitmap, head, pictureBox1.Image as Bitmap, new Rectangle(4,0,8,8));//head
+            CopyRegionIntoImage(webSkin as Bitmap, headOverlay, pictureBox1.Image as Bitmap, new Rectangle(4,0,8,8));//headoverlay
+            CopyRegionIntoImage(webSkin as Bitmap, new Rectangle(20, 20, 8,12), pictureBox1.Image as Bitmap, new Rectangle(4,8,8,12));//body
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 0, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 4, 20, 4, 12 ) );//left leg
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 12, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 8, 20, 4, 12 ) );//right leg
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 40, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 0, 8, 4, 12 ) );//left arm
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 52, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 12, 8, 4, 12 ) );//right arm
+
+
+            pictureBox1.Image = ResizeBitmap( pictureBox1.Image as Bitmap, 64, 128 );
         }
 
         void SetTextRankColor ( string c ) {
