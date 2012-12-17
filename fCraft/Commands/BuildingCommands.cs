@@ -814,7 +814,9 @@ namespace fCraft {
                     player.Message( ex.MessageColored );
                     return;
                 }
-                UndoPlayerHandler2( player, new PlayerInfo[] { target } );
+                if ( player.World.BlockDB.IsEnabled ) {
+                    UndoPlayerHandler2( player, new PlayerInfo[] { target } );
+                }
                 if ( player.Can( Permission.Demote, target.Rank ) ) {
                     if ( target.Rank != RankManager.LowestRank ) {
                         player.LastUsedPlayerName = target.Name;

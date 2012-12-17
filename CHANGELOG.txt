@@ -1,3 +1,14 @@
+800Craft 0.302 (17/12/2012):
+Fixed a bug where BlockDB entries couldbe duplicated (thanks Rebcpl)
+Fixed a bug in /Realm physics if On/Off was null
+Fixed a bug in ChatSpamDetector
+Fixed a bug in /BanX if the world had blockdb disabled
+Updated InfoViewer
+
+--------------------------------------------------------------------------------
+
+800Craft 0.3:
+
 New:
 ----
 
