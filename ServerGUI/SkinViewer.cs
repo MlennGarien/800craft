@@ -22,7 +22,7 @@ namespace fCraft.ServerGUI {
         void SetPlayerInfoText ( PlayerInfo info ) {
             textBox1.Text = "";
             PlayerLabel.Text = player.Name;
-            SetTextRankColor( Color.GetName(player.Rank.Color) );
+            SetTextRankColor( Color.GetName( player.Rank.Color ) );
             if ( info.LastIP.Equals( System.Net.IPAddress.None ) ) {
                 textBox1.Text += String.Format( "About {0}&S: Never seen before.\n", info.ClassyName );
 
@@ -256,20 +256,33 @@ namespace fCraft.ServerGUI {
             }
         }
         void GetSetSkin () {
-            GetSkin();
-            pictureBox1.Image = new Bitmap(16, 32 );
+            GetSkin(); //get the skin (returns EmptySkin() if null or Exception)
+            Bitmap temp = new Bitmap( 16, 32 ); //finished skin size
             Rectangle head = new Rectangle( 8, 8, 8, 8 );
             Rectangle headOverlay = new Rectangle( 40, 8, 8, 8 );
-            CopyRegionIntoImage(webSkin as Bitmap, head, pictureBox1.Image as Bitmap, new Rectangle(4,0,8,8));//head
-            CopyRegionIntoImage(webSkin as Bitmap, headOverlay, pictureBox1.Image as Bitmap, new Rectangle(4,0,8,8));//headoverlay
-            CopyRegionIntoImage(webSkin as Bitmap, new Rectangle(20, 20, 8,12), pictureBox1.Image as Bitmap, new Rectangle(4,8,8,12));//body
-            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 0, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 4, 20, 4, 12 ) );//left leg
-            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 12, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 8, 20, 4, 12 ) );//right leg
-            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 40, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 0, 8, 4, 12 ) );//left arm
-            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 52, 20, 4, 12 ), pictureBox1.Image as Bitmap, new Rectangle( 12, 8, 4, 12 ) );//right arm
+            //stitch together the skin in 2d from the front
+            CopyRegionIntoImage( webSkin as Bitmap, head, temp, new Rectangle( 4, 0, 8, 8 ) );//head
+            CopyRegionIntoImage( webSkin as Bitmap, headOverlay, temp, new Rectangle( 4, 0, 8, 8 ) );//headoverlay
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 20, 20, 8, 12 ), temp, new Rectangle( 4, 8, 8, 12 ) );//body
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 0, 20, 4, 12 ), temp, new Rectangle( 4, 20, 4, 12 ) );//left leg
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 12, 20, 4, 12 ), temp, new Rectangle( 8, 20, 4, 12 ) );//right leg
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 40, 20, 4, 12 ), temp, new Rectangle( 0, 8, 4, 12 ) );//left arm
+            CopyRegionIntoImage( webSkin as Bitmap, new Rectangle( 52, 20, 4, 12 ), temp, new Rectangle( 12, 8, 4, 12 ) );//right arm
 
-
-            pictureBox1.Image = ResizeBitmap( pictureBox1.Image as Bitmap, 64, 128 );
+            //make picturebox the size of the head
+            pictureBox1.Image = new Bitmap( 8, 8 );
+            CopyRegionIntoImage( webSkin as Bitmap, head, pictureBox1.Image as Bitmap, new Rectangle( 0, 0, 8, 8 ) ); //copy over the head
+            CopyRegionIntoImage( webSkin as Bitmap, headOverlay, pictureBox1.Image as Bitmap, new Rectangle( 0, 0, 8, 8 ) ); //and overlay
+            pictureBox1.Image = MakeGrayscale( pictureBox1.Image as Bitmap ); //make it black and white
+            pictureBox1.Image = ResizeBitmap( pictureBox1.Image as Bitmap, 148, 148 ); //resize to picturebox max size
+            temp = ResizeBitmap( temp, 64, 128 ); //resize the stitched skin and then copy it onto the giant b/w head
+            CopyRegionIntoImage( temp, 
+                new Rectangle( 0, 0, temp.Width, temp.Height ), 
+                pictureBox1.Image as Bitmap, 
+                new Rectangle( pictureBox1.Image.Width - temp.Width, 
+                    pictureBox1.Height - ( temp.Height - 8 ), 
+                    temp.Width, 
+                    temp.Height ) );
         }
 
         void SetTextRankColor ( string c ) {
@@ -334,13 +347,6 @@ namespace fCraft.ServerGUI {
             }
             return result;
         }
-
-        private static Image cropImage ( Image img, Rectangle cropArea ) {
-            Bitmap bmpImage = new Bitmap( img );
-            Bitmap bmpCrop = bmpImage.Clone( cropArea,
-            bmpImage.PixelFormat );
-            return bmpCrop as Image;
-        }
         private static Image EmptySkin {
             get {
                 Image image = ( Image )new Bitmap( 64, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
@@ -396,6 +402,52 @@ namespace fCraft.ServerGUI {
                 this.webSkin = Image.FromStream( ( System.IO.Stream )new System.IO.MemoryStream( buffer ) );
             } catch {
                 this.webSkin = ( Image )null;
+            }
+        }
+        public static Bitmap MakeGrayscale ( Bitmap original ) {
+            unsafe {
+                //create an empty bitmap the same size as original
+                Bitmap newBitmap = new Bitmap( original.Width, original.Height );
+
+                //lock the original bitmap in memory
+                System.Drawing.Imaging.BitmapData originalData = original.LockBits(
+                   new Rectangle( 0, 0, original.Width, original.Height ),
+                   System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb );
+
+                //lock the new bitmap in memory
+                System.Drawing.Imaging.BitmapData newData = newBitmap.LockBits(
+                   new Rectangle( 0, 0, original.Width, original.Height ),
+                    System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb );
+
+                //set the number of bytes per pixel
+                int pixelSize = 3;
+
+                for ( int y = 0; y < original.Height; y++ ) {
+                    //get the data from the original image
+                    byte* oRow = ( byte* )originalData.Scan0 + ( y * originalData.Stride );
+
+                    //get the data from the new image
+                    byte* nRow = ( byte* )newData.Scan0 + ( y * newData.Stride );
+
+                    for ( int x = 0; x < original.Width; x++ ) {
+                        //create the grayscale version
+                        byte grayScale =
+                           ( byte )( ( oRow[x * pixelSize] * .11 ) + //B
+                           ( oRow[x * pixelSize + 1] * .59 ) +  //G
+                           ( oRow[x * pixelSize + 2] * .3 ) ); //R
+
+                        //set the new image's pixel to the grayscale version
+                        nRow[x * pixelSize] = grayScale; //B
+                        nRow[x * pixelSize + 1] = grayScale; //G
+                        nRow[x * pixelSize + 2] = grayScale; //R
+                    }
+                }
+
+                //unlock the bitmaps
+                newBitmap.UnlockBits( newData );
+                original.UnlockBits( originalData );
+
+                return newBitmap;
             }
         }
     }

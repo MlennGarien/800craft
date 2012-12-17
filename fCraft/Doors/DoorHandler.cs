@@ -64,7 +64,6 @@ namespace fCraft.Doors {
             if ( e.Action == ClickAction.Delete ) {
                 if ( e.Player.World.Map.Doors == null ) return;
                 if ( e.Player.IsMakingSelection ) return;
-                Player.RaisePlayerPlacedBlockEvent( e.Player, e.Player.WorldMap, e.Coords, e.Block, e.Block, BlockChangeContext.Manual );
                 lock ( openDoorsLock ) {
                     foreach ( Door door in e.Player.World.Map.Doors ) {
                         if ( door.IsInRange( e.Coords ) ) {

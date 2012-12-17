@@ -31,9 +31,9 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(63, 73);
+            this.pictureBox1.Location = new System.Drawing.Point(24, 64);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(64, 128);
+            this.pictureBox1.Size = new System.Drawing.Size(148, 148);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
@@ -51,9 +51,9 @@
             // PlayerLabel
             // 
             this.PlayerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.PlayerLabel.Location = new System.Drawing.Point(12, 45);
+            this.PlayerLabel.Location = new System.Drawing.Point(3, 36);
             this.PlayerLabel.Name = "PlayerLabel";
-            this.PlayerLabel.Size = new System.Drawing.Size(166, 25);
+            this.PlayerLabel.Size = new System.Drawing.Size(189, 25);
             this.PlayerLabel.TabIndex = 2;
             this.PlayerLabel.Text = "Player";
             this.PlayerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
