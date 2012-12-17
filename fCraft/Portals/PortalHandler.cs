@@ -70,9 +70,11 @@ namespace fCraft.Portals {
                                     ( short )( ( e.Coords.Z + 2 ) * 32 ), //posfix
                                     e.Player.Position.R,
                                     e.Player.Position.L );
+
+                                e.Player.PortalCache.Name = Portal.GenerateName( e.Player.PortalCache.World, true );
+                                string oldWorld = e.Player.PortalCache.World;
                                 e.Player.PortalCache.World = e.Player.World.Name;
-                                e.Player.PortalCache.Name = Portal.GenerateName( WorldManager.FindWorldExact(e.Player.PortalCache.World ));
-                                PortalHandler.CreatePortal( e.Player.PortalCache, WorldManager.FindWorldExact( e.Player.PortalWorld ) );
+                                PortalHandler.CreatePortal( e.Player.PortalCache, WorldManager.FindWorldExact( oldWorld ), true );
                                 e.Player.Message( " Portal finalized: Exit point at {0} on world {1}", e.Coords.ToString(), e.Player.World.ClassyName );
                                 e.Player.PortalCache = new Portal();
                                 e.Result = CanPlaceResult.Revert;
@@ -211,18 +213,28 @@ namespace fCraft.Portals {
             return portal;
         }
 
-        public static void CreatePortal ( Portal portal, World source ) {
-            World world = WorldManager.FindWorldExact( portal.World );
+        public static void CreatePortal ( Portal portal, World source, bool Custom ) {
+            try {
+                if ( Custom ) {
+                    if ( !source.IsLoaded ) {
+                        source.LoadMap();
+                    }
+                }
+                if ( source.Map.Portals == null ) {
+                    source.Map.Portals = new ArrayList();
+                }
 
-            if ( source.Map.Portals == null ) {
-                source.Map.Portals = new ArrayList();
+                lock ( source.Map.Portals.SyncRoot ) {
+                    source.Map.Portals.Add( portal );
+                }
+                if ( Custom ) {
+                    if ( source.IsLoaded ) {
+                        source.UnloadMap( true );
+                    }
+                }
+            } catch ( Exception e ) {
+                Logger.Log( LogType.Error, "PortalCreation: " + e );
             }
-
-            lock ( source.Map.Portals.SyncRoot ) {
-                source.Map.Portals.Add( portal );
-            }
-
-            //PortalDB.Save();
         }
 
         public static bool IsInRangeOfSpawnpoint ( World world, Vector3I block ) {

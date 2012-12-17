@@ -381,7 +381,7 @@ namespace fCraft {
             Help = "Controls portals, options are: create, remove, list, info, enable, disable\n&S" +
                    "See &H/Help portal <option>&S for details about each option.",
             HelpSections = new Dictionary<string, string>() {
-                { "create",     "&H/portal create Guest\n&S" +
+                { "create",     "&H/portal create water Guest\n&S" +
                                 "Creates a basic water portal to world Guest.\n&S" +
                                 "&H/portal create Guest lava test\n&S" +
                                 "Creates a lava portal with name 'test' to world Guest.\n" +
@@ -594,14 +594,15 @@ namespace fCraft {
                     }
 
                     if ( player.PortalName == null ) {
-                        player.PortalName = Portal.GenerateName( player.World );
+                        player.PortalName = Portal.GenerateName( player.World.Name, false );
                     }
 
                     if ( !CustomOutput ) {
                         Portal portal = new Portal( player.PortalWorld, marks, player.PortalName, player.Name, player.World.Name, false );
-                        PortalHandler.CreatePortal( portal, player.World );
+                        PortalHandler.CreatePortal( portal, player.World, false );
                         player.Message( "Successfully created portal with name " + portal.Name + "." );
                     } else {
+                        player.PortalCache.World = player.World.Name;
                         player.PortalCache = new Portal( player.PortalWorld, marks, player.PortalName, player.Name, player.World.Name, true );
                         player.Message( "  &SPortal started, place a red block for the desired output (can be multiworld)" );
                     }

@@ -129,7 +129,13 @@ namespace fCraft.Portals {
             return false;
         }
 
-        public static String GenerateName ( World world ) {
+        public static String GenerateName ( string World, bool Custom ) {
+            World world = WorldManager.FindWorldExact( World );
+            if ( Custom ) {
+                if ( !world.IsLoaded ) {
+                    world.LoadMap();
+                }
+            }
             if ( world.Map.Portals != null ) {
                 if ( world.Map.Portals.Count > 0 ) {
                     bool found = false;
@@ -150,11 +156,17 @@ namespace fCraft.Portals {
                             world.Map.portalID++;
                         }
                     }
-
+                    if ( Custom ) {
+                        if ( world.IsLoaded ) {
+                            world.UnloadMap( true );
+                        }
+                    }
                     return "portal" + world.Map.portalID;
                 }
             }
-
+            if ( world.IsLoaded ) {
+                world.UnloadMap( true );
+            }
             return "portal1";
         }
 
