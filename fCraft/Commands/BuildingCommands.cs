@@ -820,7 +820,7 @@ namespace fCraft {
                 if ( player.Can( Permission.Demote, target.Rank ) ) {
                     if ( target.Rank != RankManager.LowestRank ) {
                         player.LastUsedPlayerName = target.Name;
-                        target.ChangeRank( player, RankManager.LowestRank, cmd.NextAll(), false, true, false );
+                        target.ChangeRank( player, RankManager.LowestRank, reason, false, true, false );
                     }
                     Server.Players.Message( "{0}&S was BanX'd by {1}&S (with auto-demote):&W {2}", target.ClassyName, player.ClassyName, reason );
                     IRC.PlayerSomethingMessage( player, "BanX'd (with auto-demote)", target, reason );

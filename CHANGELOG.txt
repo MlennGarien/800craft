@@ -1,3 +1,15 @@
+800Craft 0.304 (19/12/2012):
+Fixed worlds sometimes not being saved as 'hidden'
+Fixed a rare bug in /BanX
+
+--------------------------------------------------------------------------------
+
+800Craft 0.303 (18/12/2012):
+Fixed portals with a desired output throwing a null exception because the map was not loaded
+Fixed portals from occasionaly all having the name 'portal1'
+
+--------------------------------------------------------------------------------
+
 800Craft 0.302 (17/12/2012):
 Fixed a bug where BlockDB entries couldbe duplicated (thanks Rebcpl)
 Fixed a bug in /Realm physics if On/Off was null
