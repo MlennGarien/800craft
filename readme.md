@@ -1,3 +1,7 @@
+## Download 800Craft 
+You can get 800Craft here: http://forum.800craft.net/index.php?/files/category/1-800craft-releases/ 
+Aaaaand here: http://sourceforge.net/projects/jonty800/ 
+
 ## About 800Craft 
 800Craft is a custom server developed by Jonty800 and GlennMR. 800Craft is forked from fCraft, it is designed to maintain high performance without lag or crashing while having a wide selection of implemented commands and features. 
 
