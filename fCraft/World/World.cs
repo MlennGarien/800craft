@@ -261,10 +261,13 @@ namespace fCraft {
                 }
                 plantPhysics = true;
                 CheckIfPhysicsStarted();
+                bool NotLoaded = false;
+                if ( !this.IsLoaded ) { this.LoadMap(); NotLoaded = true; }
                 _plantTask = new GrassTask(this);
                 AddPhysicsTask(_plantTask, 0);
                 if (announce)
                     Server.Message("{0}&S enabled Plant Physics on {1}", player.ClassyName, ClassyName);
+                if ( NotLoaded ) { this.UnloadMap( true ); }
             }
             catch (Exception e)
             {
