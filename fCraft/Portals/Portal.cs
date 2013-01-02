@@ -237,8 +237,6 @@ namespace fCraft.Portals {
             [DataMember]
             public String World;
             [DataMember]
-            public Vector3I[] AffectedBlocks;
-            [DataMember]
             public int XMin;
             [DataMember]
             public int XMax;
@@ -263,7 +261,6 @@ namespace fCraft.Portals {
                     Creator = portal.Creator;
                     Created = portal.Created;
                     World = portal.World;
-                    AffectedBlocks = portal.AffectedBlocks;
                     XMin = portal.Range.Xmin;
                     XMax = portal.Range.Xmax;
                     YMin = portal.Range.Ymin;
@@ -281,7 +278,6 @@ namespace fCraft.Portals {
                 portal.Creator = Creator;
                 portal.Created = Created;
                 portal.World = World;
-                portal.AffectedBlocks = AffectedBlocks;
                 portal.Range = new PortalRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
                 portal.Place = Place;
                 portal.DesiredOutput = DesiredOutput;

@@ -50,7 +50,7 @@ namespace fCraft {
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 
 
-        internal static void StartSession( [NotNull] TcpClient tcpClient ) {
+        public static void StartSession( [NotNull] TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             new Player( tcpClient );
         }

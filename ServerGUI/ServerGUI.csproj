@@ -103,9 +103,6 @@
     <Compile Include="SkinViewer.Designer.cs">
       <DependentUpon>SkinViewer.cs</DependentUpon>
     </Compile>
-    <Compile Include="TablessControl.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="UpdateWindow.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -805,7 +805,7 @@ namespace fCraft {
             } else {
                 string reason = cmd.NextAll();
 
-                if ( reason.Length < 1 )
+                if ( reason.Length < 1 || string.IsNullOrEmpty(reason) )
                     reason = "Reason Undefined: BanX";
                 try {
                     Player targetPlayer = target.PlayerObject;

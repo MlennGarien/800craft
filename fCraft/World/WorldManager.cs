@@ -391,9 +391,9 @@ namespace fCraft {
                     {
                         temp.Add( new XAttribute( "visitCount", world.VisitCount ) );
                     }
-                    /*if( world.IsHidden ) {
+                    if( world.IsHidden ) {
                         temp.Add( new XAttribute( "hidden", true ) );
-                    }*/
+                    }
                     temp.Add( world.BlockDB.SaveSettings() );
 
                     temp.Add(Physics.SaveSettings(world));

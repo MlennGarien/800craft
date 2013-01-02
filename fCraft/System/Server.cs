@@ -50,7 +50,7 @@ namespace fCraft {
 
         public static int Port { get; private set; }
 
-        public static Uri Uri { get; internal set; }
+        public static Uri Uri { get; set; }
 
 
         #region Command-line args
