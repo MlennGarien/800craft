@@ -201,14 +201,14 @@ namespace fCraft {
                 if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
                     world.BackupInterval = backupInterval;
                 } else {
-                    world.BackupInterval = World.DefaultBackupInterval;
+                    world.BackupInterval = WorldManager.DefaultBackupInterval;
                     Logger.Log( LogType.Warning,
                                 "WorldManager: Could not parse \"backup\" attribute of world \"{0}\", assuming default ({1}).",
                                 worldName,
                                 world.BackupInterval.ToMiniString() );
                 }
             } else {
-                world.BackupInterval = World.DefaultBackupInterval;
+                world.BackupInterval = WorldManager.DefaultBackupInterval;
             }
 
             XElement blockEl = el.Element( BlockDB.XmlRootName );
@@ -380,7 +380,7 @@ namespace fCraft {
                         temp.Add( world.BuildSecurity.Serialize( BuildSecurityXmlTagName ) );
                     }
 
-                    if( world.BackupInterval != World.DefaultBackupInterval ) {
+                    if( world.BackupInterval != WorldManager.DefaultBackupInterval ) {
                         temp.Add( new XAttribute( "backup", world.BackupInterval.ToTickString() ) );
                     }
 

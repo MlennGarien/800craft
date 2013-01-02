@@ -1006,7 +1006,7 @@ namespace fCraft {
                     case YesNoAuto.No:
                         return TimeSpan.Zero;
                     default: // case YesNoAuto.Auto:
-                        return DefaultBackupInterval;
+                        return WorldManager.DefaultBackupInterval;
                 }
             }
             set
@@ -1030,7 +1030,7 @@ namespace fCraft {
         /// <summary> Whether timed backups are enabled by default for worlds that have BackupEnabledState set to "Auto". </summary>
         public static bool DefaultBackupsEnabled
         {
-            get { return DefaultBackupInterval > TimeSpan.Zero; }
+            get { return WorldManager.DefaultBackupInterval > TimeSpan.Zero; }
         }
 
 
@@ -1047,7 +1047,7 @@ namespace fCraft {
                     default: //case YesNoAuto.Auto:
                         if (DefaultBackupsEnabled)
                         {
-                            return String.Format("every {0} (default)", DefaultBackupInterval.ToMiniString());
+                            return String.Format("every {0} (default)", WorldManager.DefaultBackupInterval.ToMiniString());
                         }
                         else
                         {
@@ -1274,8 +1274,6 @@ namespace fCraft {
 
         const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
                      JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
-
-        public static readonly TimeSpan DefaultBackupInterval = TimeSpan.FromSeconds( -1 );
 
 
         void SaveTask(SchedulerTask task)

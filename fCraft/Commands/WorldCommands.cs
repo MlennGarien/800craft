@@ -2545,7 +2545,7 @@ namespace fCraft {
                     if ( World.DefaultBackupsEnabled ) {
                         return String.Format( "World {0}&S is backed up every {1} (default)",
                                               world.ClassyName,
-                                              World.DefaultBackupInterval.ToMiniString() );
+                                              WorldManager.DefaultBackupInterval.ToMiniString() );
                     } else {
                         return String.Format( "Backups are disabled on {0}&S (default)",
                                               world.ClassyName );
