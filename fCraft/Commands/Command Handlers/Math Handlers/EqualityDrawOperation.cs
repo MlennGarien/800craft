@@ -1,4 +1,4 @@
-//Copyright (C) <2012>  <Jon Baker, Glenn Mariën and Lao Tszy>
+//Copyright (C) <2011 - 2013>  <Jon Baker, Glenn Mariën and Lao Tszy>
 
     //This program is free software: you can redistribute it and/or modify
     //it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
     //You should have received a copy of the GNU General Public License
     //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-//Copyright (C) <2012> Lao Tszy (lao_tszy@yahoo.co.uk)
+//Copyright (C) <2011 - 2013> Lao Tszy (lao_tszy@yahoo.co.uk)
 
 using System;
 using System.Collections.Generic;

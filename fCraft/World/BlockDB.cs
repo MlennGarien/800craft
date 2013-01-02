@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 //#define DEBUG_BLOCKDB
 using System;
 using System.Collections.Generic;

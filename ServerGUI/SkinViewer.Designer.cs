@@ -39,7 +39,9 @@
             // 
             // textBox1
             // 
+            this.textBox1.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.textBox1.Cursor = System.Windows.Forms.Cursors.Default;
+            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F);
             this.textBox1.Location = new System.Drawing.Point(198, 13);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
@@ -68,6 +70,7 @@
             this.Controls.Add(this.pictureBox1);
             this.MaximizeBox = false;
             this.Name = "SkinViewer";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "InfoViewer";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

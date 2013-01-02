@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 // Based on Forester script by dudecon, ported with permission.
 // Original: http://www.minecraftforum.net/viewtopic.php?f=25&t=9426
 using System;

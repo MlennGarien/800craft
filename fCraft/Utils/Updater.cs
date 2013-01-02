@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,9 +17,9 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            304,
-            7,
-            new DateTime( 2012, 12, 18, 1, 0, 0, DateTimeKind.Utc ),
+            305,
+            12,
+            new DateTime( 2013, 01, 02, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Bugfix
 #if DEBUG

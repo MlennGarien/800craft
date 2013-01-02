@@ -188,7 +188,7 @@ The 800Craft HeartBeatSaver is Copyright (C) <2011, 2012> Jon Baker
 and is ONLY to be distributed with copies of 800Craft.
 
 800Craft's license:
-Copyright (C) <2012> <Jon Baker, Glenn Mari�n and Lao Tszy>
+Copyright (C) <2011 - 2013> <Jon Baker, Glenn Mari�n and Lao Tszy>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -208,7 +208,7 @@ fCraft code and binaries are
 licensed and distributed under the permissive MIT License, reproduced here:
 
 ----
-Copyright 2009, 2010, 2011, 2012 Matvei Stefarov <me@matvei.org>
+Copyright 2009 - 2013 Matvei Stefarov <me@matvei.org>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

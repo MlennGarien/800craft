@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft {
     /// <summary> Provides a way for printing an object's name beautified with Minecraft color codes.

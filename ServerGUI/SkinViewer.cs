@@ -255,6 +255,7 @@ namespace fCraft.ServerGUI {
                 textBox1.Text = Color.StripColors( textBox1.Text );
             }
         }
+        
         void GetSetSkin () {
             GetSkin(); //get the skin (returns EmptySkin() if null or Exception)
             Bitmap temp = new Bitmap( 16, 32 ); //finished skin size

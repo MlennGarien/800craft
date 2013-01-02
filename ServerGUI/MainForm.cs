@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -491,6 +491,7 @@ namespace fCraft.ServerGUI {
             }
         }
 
+
         private void playerList_SelectedIndexChanged ( object sender, EventArgs e ) {
             try {
                 string s = ( string )playerList.Items[playerList.SelectedIndex];
@@ -504,6 +505,10 @@ namespace fCraft.ServerGUI {
                 v = new SkinViewer( player );
                 v.Show();
             } catch {  } //do nothing at all
+        }
+
+        private void contextMenuStrip1_Opening ( object sender, CancelEventArgs e ) {
+            
         }
     }
 }

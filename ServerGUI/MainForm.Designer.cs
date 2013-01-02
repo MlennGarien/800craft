@@ -79,7 +79,7 @@
             this.playerList.Name = "playerList";
             this.playerList.Size = new System.Drawing.Size(144, 368);
             this.playerList.TabIndex = 4;
-            this.playerList.SelectedIndexChanged += new System.EventHandler(this.playerList_SelectedIndexChanged);
+            this.playerList.DoubleClick += new System.EventHandler(this.playerList_SelectedIndexChanged);
             // 
             // playerListLabel
             // 

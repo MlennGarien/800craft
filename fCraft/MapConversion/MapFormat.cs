@@ -1,4 +1,4 @@
-// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.MapConversion {
     /// <summary> An enumeration of map formats supported by fCraft. </summary>
