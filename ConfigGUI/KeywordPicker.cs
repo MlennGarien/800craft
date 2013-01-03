@@ -14,7 +14,7 @@ namespace fCraft.ConfigGUI {
             new KeywordInfo("{PLAYERS}", "Number of players online", "Note that hidden players will not be included in this number." ),
             new KeywordInfo("{WORLDS}", "Number of worlds", "Number of worlds accessible by the player. Does not count hidden worlds." ),
             new KeywordInfo("{MOTD}", "MOTD", "Message-of-the-day (server subtitle), as specified in config." ),
-            new KeywordInfo("{VERSION}", "fCraft version", "Version of fCraft that this server is running." )
+            new KeywordInfo("{VERSION}", "800Craft version", "Version of 800Craft that this server is running." )
         };
 
         const int ButtonWidth = 150,
@@ -48,6 +48,10 @@ namespace fCraft.ConfigGUI {
                 Description = description;
             }
             public readonly string Keyword, LongName, Description;
+        }
+
+        private void pFlow_Paint ( object sender, PaintEventArgs e ) {
+
         }
     }
 }
