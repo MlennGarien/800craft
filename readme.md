@@ -1,3 +1,15 @@
+------------------------------------------------------------------
+
+This was 800Craft, a Minecraft Classic Server Software. 
+You are granted full permission to modify and distribute the code, 
+as long as you keep ALL copyright notifications (including fCraft's)
+
+Special thanks to GlennMR, LaoTszy, fragmer and #fCraft, Norablindsided, 
+rebelliousdude, XanderOrtiz, WaterGod469 and everyone who enjoyed the software.
+
+Thanks for all I have learned. Long live Minecraft Classic.
+
+------------------------------------------------------------------
 ## Download 800Craft 
 * You can get 800Craft here: http://forum.800craft.net/index.php?/files/category/1-800craft-releases/ 
 * Aaaaand here: http://sourceforge.net/projects/jonty800/ 
