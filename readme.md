@@ -1,8 +1,9 @@
 ## Download 800Craft Plus
-The website is currently experiencing technical difficulties. A link will be posted soon
+The website is currently experiencing technical difficulties. A link will be posted soon.
 
 ## About 800Craft 
-800Craft Plus is the continuation of 800Craft, and is developed by LeChosenOne and MrBluePotato
+800Craft Plus is the continuation of 800Craft, and is developed by LeChosenOne and MrBluePotato.
+
 800Craft was developed by Jonty800, GlennMR and LaoTszy.
 
 800craft Plus is designed to have tons of features, while not compromising speed and server efficency.
