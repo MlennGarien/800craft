@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("800Craft ServerGUI")]
-[assembly: AssemblyDescription("Graphical frontend for 800Craft server")]
+[assembly: AssemblyTitle("800Craft Plus Server")]
+[assembly: AssemblyDescription("GUI for 800Craft Plus Server")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("au70.net")]
-[assembly: AssemblyProduct("800Craft ServerGUI")]
+[assembly: AssemblyCompany("www.800craft.net")]
+[assembly: AssemblyProduct("800Craft Plus Server")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion( "0.6.1.7" )]
-[assembly: AssemblyFileVersion( "0.6.1.7" )]
+[assembly: AssemblyVersion("0.100")]
+[assembly: AssemblyFileVersion("0.100")]
 
 [assembly: CLSCompliant( false )]
 [assembly: NeutralResourcesLanguage( "en-US" )]

@@ -1,30 +1,14 @@
 ## Download 800Craft Plus
-* The website is currently experiencing technical difficulties. A link will be posted soon
+The website is currently experiencing technical difficulties. A link will be posted soon
 
 ## About 800Craft 
-800Craft is a custom server developed by Jonty800 and GlennMR, and then taken over by MrBluePotato and LeChosenOne after Jonty800 and GlennMR retired from developing. It then became known as 800craft Plus. 800Craft Plus is forked from fCraft, it is designed to maintain high performance without lag or crashing while having a wide selection of implemented commands and features. 
+800Craft Plus is the continuation of 800Craft, and is developed by LeChosenOne and MrBluePotato
+800Craft was developed by Jonty800, GlennMR and LaoTszy.
 
-## Installation (Windows)
+800craft Plus is designed to have tons of features, while not compromising speed and server efficency.
 
-800Craft Plus requires Microsoft .NET Framework 4.0. Your system may already have it
-installed, and you can download it from microsoft.com
-
-## Installation (Linux, Unix, MacOS X)
-
-800Craft Plus requires Mono 2.10 (recommended). You can
-download it from www.mono-project.org, or (on some Linux distributions) install
-it through your package manager.
-
-To be able to use graphical 800Craft Plus components (ServerGUI and ConfigGUI) you
-will also need GDI+ library (libgdiplus). Before starting 800Craft Plus, make sure
-that it has read/write permissions in the 800Craft Plus directory.
-
-To run ".exe" files with Mono, use the following syntax:
-Mono 2.6.4: "mono SomeFile.exe"
-Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
-
-If you're intending to run a public server that appears on minecraft.net's server list, you need to import https certificates to tell mono you trust them, this can be done by running mozroots --import --ask-remove as the 800Craft Plus user on your system.
-
+## Installation & Troubleshooting
+Read the "Read Me.txt" for installation and troubleshooting information
 
 ## 800Craft Plus Commands
 
