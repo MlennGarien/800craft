@@ -1,0 +1,6 @@
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\bin\Release\ServerCLI.exe.config
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\bin\Release\ServerCLI.exe
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\bin\Release\ServerCLI.pdb
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\ServerCLI\obj\Release\ServerCLI.csprojResolveAssemblyReference.cache
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\ServerCLI\obj\Release\ServerCLI.exe
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\ServerCLI\obj\Release\ServerCLI.pdb

@@ -1,0 +1,7 @@
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\bin\Release\UpdateInstaller.exe.config
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\bin\Release\UpdateInstaller.exe
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\bin\Release\UpdateInstaller.pdb
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\UpdateInstaller\obj\Release\fCraft.UpdateInstaller.Properties.Resources.resources
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\UpdateInstaller\obj\Release\UpdateInstaller.csproj.GenerateResource.Cache
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\UpdateInstaller\obj\Release\UpdateInstaller.exe
+C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\UpdateInstaller\obj\Release\UpdateInstaller.pdb
