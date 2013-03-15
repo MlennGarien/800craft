@@ -1,38 +1,32 @@
-## Download 800Craft 
-* You can get 800Craft here: http://forum.800craft.net/index.php?/files/category/1-800craft-releases/ 
-* Aaaaand here: http://sourceforge.net/projects/jonty800/ 
+## Download 800Craft Plus
+* The website is currently experiencing technical difficulties. A link will be posted soon
 
 ## About 800Craft 
-800Craft is a custom server developed by Jonty800 and GlennMR. 800Craft is forked from fCraft, it is designed to maintain high performance without lag or crashing while having a wide selection of implemented commands and features. 
-
-## History
-
-800Craft started off as Au70 v800.X, which was a private mod of fCraft built specifically for Au70 Galaxy by Jonty800. The software was placed in Sourceforge as a backup, but somehow went viral and suddenly there was a demand for new features from hosts who had found the software and were using it full-time. In October 2011, a Halloween Mod was released and was recommended to Project-Vanilla host 'GlennMR'. Glenn contacted Jonty800 personally and persuaded him to make an Official Software with him. The software then changed name to '800Craft' (the name of the sourceforge) and branch 0.1x was released in late December.
-
+800Craft is a custom server developed by Jonty800 and GlennMR, and then taken over by MrBluePotato and LeChosenOne after Jonty800 and GlennMR retired from developing. It then became known as 800craft Plus. 800Craft Plus is forked from fCraft, it is designed to maintain high performance without lag or crashing while having a wide selection of implemented commands and features. 
 
 ## Installation (Windows)
 
-800Craft requires Microsoft .NET Framework 4.0. Your system may already have it
+800Craft Plus requires Microsoft .NET Framework 4.0. Your system may already have it
 installed, and you can download it from microsoft.com
 
 ## Installation (Linux, Unix, MacOS X)
 
-800Craft requires Mono 2.10 (recommended). You can
+800Craft Plus requires Mono 2.10 (recommended). You can
 download it from www.mono-project.org, or (on some Linux distributions) install
 it through your package manager.
 
-To be able to use graphical 800Craft components (ServerGUI and ConfigGUI) you
-will also need GDI+ library (libgdiplus). Before starting 800Craft, make sure
-that it has read/write permissions in the 800Craft directory.
+To be able to use graphical 800Craft Plus components (ServerGUI and ConfigGUI) you
+will also need GDI+ library (libgdiplus). Before starting 800Craft Plus, make sure
+that it has read/write permissions in the 800Craft Plus directory.
 
 To run ".exe" files with Mono, use the following syntax:
 Mono 2.6.4: "mono SomeFile.exe"
 Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
 
-If you're intending to run a public server that appears on minecraft.net's server list, you need to import https certificates to tell mono you trust them, this can be done by running mozroots --import --ask-remove as the 800Craft user on your system.
+If you're intending to run a public server that appears on minecraft.net's server list, you need to import https certificates to tell mono you trust them, this can be done by running mozroots --import --ask-remove as the 800Craft Plus user on your system.
 
 
-## 800Craft Commands
+## 800Craft Plus Commands
 
 * Custom kick and ban commands such as: /Basscanon, /Gtfo, /Tempban, /Banx, /Warn
 
@@ -104,9 +98,7 @@ If you're intending to run a public server that appears on minecraft.net's serve
 
 * Create giant mazes with /MazeCuboid
 
-* Support for MineManager on 800Craft.net
-
-## 800Craft Physics
+## 800Craft Plus Physics
 
 
 * Fireworks
@@ -127,16 +119,10 @@ If you're intending to run a public server that appears on minecraft.net's serve
 * Mushrooms & flowers squash
 * Mushrooms & flowers die when not in sunlight
 
-
-## 800Craft MineManager
-MineManager is a control panel which you can use to manage nearly every aspect of your server. It is under constant development so features are added on a regular basis.
-
-Imagine yourself sitting at school and you receive a text message saying there's something wrong with your server. Obviously you want to fix this as soon as possible but you may not be able to access the server from school. That's where MineManager comes in handy, MineManager allows you to manage your server from 800Craft.net, and best of all, its 100% free!
-
 ## fCraft Commands and Features
 
 
-* All included in 800Craft
+* All included in 800Craft Plus
 
 /BInfo
 
