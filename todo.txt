@@ -1,13 +1,1 @@
-800Craft 0.3 plan:
-
-Water and tnt minor bug
-Func bug with 3x block updates
-Tower should use timer
-flowers shouldnt kill a player with /Gun
-air blocks & plants placed remove grass
-bullets replace portals
-
-Free for all ideas:
-Use the gunsheet code to make a bat.
-Every x minutes: weapon upgrade: Bat -> delayed bullets -> bullets -> tnt
-Gun is disabled upon hidden, so hide player for 3 secs during respawn
+To be removed...
