@@ -242,6 +242,7 @@ or any other files from Minecraft... neither does 800Craft.
 
 === Credits ===================================================================
 
+800Craft is the continuation of 800Craft, and is developed by LeChosenOne and MrBluePotato
 800Craft was developed by Jonty800, GlennMR and LaoTszy.
 
 Thanks again to fragmer, what a bro.
