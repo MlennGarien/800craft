@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>fCraft.ServerGUI.Program</StartupObject>
-    <ApplicationIcon>ServerGUI.ico</ApplicationIcon>
+    <ApplicationIcon>Server.ico</ApplicationIcon>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -121,6 +121,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Server.ico" />
     <Content Include="ServerGUI.ico" />
   </ItemGroup>
   <ItemGroup>
