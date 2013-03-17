@@ -9,7 +9,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fCraft.ServerCLI</RootNamespace>
-    <AssemblyName>Server %28CommandLine%29</AssemblyName>
+    <AssemblyName>Server %28Command Line%29</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>fCraft.ServerCLI.Program</StartupObject>
