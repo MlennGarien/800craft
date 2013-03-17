@@ -1,1 +1,7 @@
 /bin
+/ConfigGUI/obj
+/fCraftGUI/obj
+/ServerCLI/obj
+/ServerGUI/obj
+/UpdateInstaller/obj
+/UpdaterBuilder/obj
