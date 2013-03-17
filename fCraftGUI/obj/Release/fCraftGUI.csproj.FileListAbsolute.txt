@@ -6,3 +6,11 @@ C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\fCraftGUI\obj\Release\f
 C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.csproj.GenerateResource.Cache
 C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.dll
 C:\Users\Michael III\Desktop\800craft Plus\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.pdb
+C:\Users\Michael\Documents\GitHub\800craft-Plus\bin\Release\fCraftGUI.dll
+C:\Users\Michael\Documents\GitHub\800craft-Plus\bin\Release\fCraftGUI.pdb
+C:\Users\Michael\Documents\GitHub\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.csprojResolveAssemblyReference.cache
+C:\Users\Michael\Documents\GitHub\800craft-Plus\fCraftGUI\obj\Release\fCraft.GUI.AboutWindow.resources
+C:\Users\Michael\Documents\GitHub\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.Properties.Resources.resources
+C:\Users\Michael\Documents\GitHub\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.csproj.GenerateResource.Cache
+C:\Users\Michael\Documents\GitHub\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.dll
+C:\Users\Michael\Documents\GitHub\800craft-Plus\fCraftGUI\obj\Release\fCraftGUI.pdb
