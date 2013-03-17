@@ -162,6 +162,7 @@
     <Compile Include="MessageBlocks\MessageBlockHandler.cs" />
     <Compile Include="MessageBlocks\MessageBlockRange.cs" />
     <Compile Include="MessageBlocks\MessageBlockSerialization.cs" />
+    <Compile Include="Network\GlobalChat.cs" />
     <Compile Include="Physics\ExplodingPhysics.cs" />
     <Compile Include="Physics\Life\Life2d.cs" />
     <Compile Include="Physics\Life\Life2DZone.cs" />

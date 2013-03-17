@@ -593,7 +593,7 @@ namespace fCraft {
 
 
         // includes IRC color codes and non-printable ASCII
-        static readonly Regex
+        public static readonly Regex
             IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7E]" ),
             IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
 
@@ -960,7 +960,7 @@ namespace fCraft {
         }
 
 
-        static IRCMessage MessageParser ( [NotNull] string rawline, [NotNull] string actualBotNick ) {
+        public static IRCMessage MessageParser ( [NotNull] string rawline, [NotNull] string actualBotNick ) {
             if ( rawline == null ) throw new ArgumentNullException( "rawline" );
             if ( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
 

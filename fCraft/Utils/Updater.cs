@@ -31,7 +31,7 @@ namespace fCraft {
             get { return "800Craft Plus " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.100";
+        public const string LatestStable = "0.100_r1";
 
         public static string UpdateUrl { get; set; }
 
@@ -48,7 +48,7 @@ namespace fCraft {
         public static bool UpdateCheck () {
             try {
                 using ( WebClient client = new WebClient() ) {
-                    using ( Stream stream = client.OpenRead( "http://forums.au70.net/public/update.txt" ) ) {
+                    using ( Stream stream = client.OpenRead( "http://localhost/plustest/update.txt" ) ) {
                         stream.ReadTimeout = 1000;
                         using ( StreamReader reader = new StreamReader( stream ) ) {
                             string s = reader.ReadLine();

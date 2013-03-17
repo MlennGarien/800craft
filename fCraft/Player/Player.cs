@@ -174,6 +174,7 @@ namespace fCraft {
         public byte orangeOut;
         public bool GunMode = false;
 
+        public bool GlobalChat = false;
 
         public bool fireworkMode = false;
 

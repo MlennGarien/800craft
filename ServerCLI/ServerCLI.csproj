@@ -86,8 +86,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Command Line.ico" />
-    <Content Include="Server.ico" />
     <Content Include="ServerCLI.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
