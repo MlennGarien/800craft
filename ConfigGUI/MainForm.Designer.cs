@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -91,7 +91,6 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -284,7 +283,6 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.ReqsEditor = new System.Windows.Forms.Button();
             this.SwearEditor = new System.Windows.Forms.Button();
-            //this.GCcheckBox = new System.Windows.Forms.CheckBox();
             this.MaxCapsValue = new System.Windows.Forms.NumericUpDown();
             this.MaxCaps = new System.Windows.Forms.Label();
             this.HbBox1 = new System.Windows.Forms.CheckBox();
@@ -304,6 +302,7 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -395,7 +394,7 @@
             // 
             // tabGeneral
             // 
-            this.tabGeneral.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabGeneral.BackColor = System.Drawing.SystemColors.Control;
             this.tabGeneral.Controls.Add(this.gUpdaterSettings);
             this.tabGeneral.Controls.Add(this.groupBox2);
             this.tabGeneral.Controls.Add(this.gHelpAndSupport);
@@ -460,7 +459,7 @@
             this.groupBox2.Controls.Add(this.bChangelog);
             this.groupBox2.Controls.Add(this.bCredits);
             this.groupBox2.Controls.Add(this.bReadme);
-            this.groupBox2.Location = new System.Drawing.Point(329, 413);
+            this.groupBox2.Location = new System.Drawing.Point(8, 361);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(315, 55);
             this.groupBox2.TabIndex = 4;
@@ -898,7 +897,7 @@
             // 
             // tabChat
             // 
-            this.tabChat.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabChat.BackColor = System.Drawing.SystemColors.Control;
             this.tabChat.Controls.Add(this.gChatColors);
             this.tabChat.Controls.Add(this.gAppearence);
             this.tabChat.Controls.Add(this.chatPreview);
@@ -911,6 +910,7 @@
             // 
             // gChatColors
             // 
+            this.gChatColors.BackColor = System.Drawing.SystemColors.Control;
             this.gChatColors.Controls.Add(this.lColorMe);
             this.gChatColors.Controls.Add(this.bColorMe);
             this.gChatColors.Controls.Add(this.lColorWarning);
@@ -1067,6 +1067,7 @@
             // 
             // gAppearence
             // 
+            this.gAppearence.BackColor = System.Drawing.SystemColors.Control;
             this.gAppearence.Controls.Add(this.xShowConnectionMessages);
             this.gAppearence.Controls.Add(this.xShowJoinedWorldMessages);
             this.gAppearence.Controls.Add(this.xRankColorsInWorldNames);
@@ -1141,16 +1142,9 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point(7, 256);
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size(637, 241);
-            this.chatPreview.TabIndex = 2;
-            // 
             // tabWorlds
             // 
-            this.tabWorlds.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabWorlds.BackColor = System.Drawing.SystemColors.Control;
             this.tabWorlds.Controls.Add(this.xWoMEnableEnvExtensions);
             this.tabWorlds.Controls.Add(this.bMapPath);
             this.tabWorlds.Controls.Add(this.xMapPath);
@@ -1310,8 +1304,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size(636, 325);
             this.dgvWorlds.TabIndex = 0;
@@ -1369,8 +1363,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1379,7 +1373,7 @@
             // 
             // tabRanks
             // 
-            this.tabRanks.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabRanks.BackColor = System.Drawing.SystemColors.Control;
             this.tabRanks.Controls.Add(this.gPermissionLimits);
             this.tabRanks.Controls.Add(this.lRankList);
             this.tabRanks.Controls.Add(this.bLowerRank);
@@ -1843,7 +1837,7 @@
             // 
             // tabSecurity
             // 
-            this.tabSecurity.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabSecurity.BackColor = System.Drawing.SystemColors.Control;
             this.tabSecurity.Controls.Add(this.gBlockDB);
             this.tabSecurity.Controls.Add(this.gSecurityMisc);
             this.tabSecurity.Controls.Add(this.gSpamChat);
@@ -2230,7 +2224,7 @@
             // 
             // tabSavingAndBackup
             // 
-            this.tabSavingAndBackup.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabSavingAndBackup.BackColor = System.Drawing.SystemColors.Control;
             this.tabSavingAndBackup.Controls.Add(this.gDataBackup);
             this.tabSavingAndBackup.Controls.Add(this.gSaving);
             this.tabSavingAndBackup.Controls.Add(this.gBackups);
@@ -2445,7 +2439,7 @@
             // 
             // tabLogging
             // 
-            this.tabLogging.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabLogging.BackColor = System.Drawing.SystemColors.Control;
             this.tabLogging.Controls.Add(this.gLogFile);
             this.tabLogging.Controls.Add(this.gConsole);
             this.tabLogging.Location = new System.Drawing.Point(4, 24);
@@ -2599,7 +2593,7 @@
             // 
             // tabIRC
             // 
-            this.tabIRC.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabIRC.BackColor = System.Drawing.SystemColors.Control;
             this.tabIRC.Controls.Add(this.xIRCListShowNonEnglish);
             this.tabIRC.Controls.Add(this.gIRCOptions);
             this.tabIRC.Controls.Add(this.gIRCNetwork);
@@ -2987,7 +2981,7 @@
             // 
             // tabAdvanced
             // 
-            this.tabAdvanced.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabAdvanced.BackColor = System.Drawing.SystemColors.Control;
             this.tabAdvanced.Controls.Add(this.gPerformance);
             this.tabAdvanced.Controls.Add(this.gAdvancedMisc);
             this.tabAdvanced.Controls.Add(this.gCrashReport);
@@ -3337,9 +3331,9 @@
             // 
             this.lCrashReportDisclaimer.AutoSize = true;
             this.lCrashReportDisclaimer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lCrashReportDisclaimer.Location = new System.Drawing.Point(42, 42);
+            this.lCrashReportDisclaimer.Location = new System.Drawing.Point(22, 42);
             this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
-            this.lCrashReportDisclaimer.Size = new System.Drawing.Size(521, 39);
+            this.lCrashReportDisclaimer.Size = new System.Drawing.Size(590, 39);
             this.lCrashReportDisclaimer.TabIndex = 1;
             this.lCrashReportDisclaimer.Text = resources.GetString("lCrashReportDisclaimer.Text");
             this.lCrashReportDisclaimer.Click += new System.EventHandler(this.lCrashReportDisclaimer_Click);
@@ -3347,17 +3341,19 @@
             // xSubmitCrashReports
             // 
             this.xSubmitCrashReports.AutoSize = true;
+            this.xSubmitCrashReports.Checked = true;
+            this.xSubmitCrashReports.CheckState = System.Windows.Forms.CheckState.Checked;
             this.xSubmitCrashReports.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.xSubmitCrashReports.Location = new System.Drawing.Point(6, 20);
             this.xSubmitCrashReports.Name = "xSubmitCrashReports";
-            this.xSubmitCrashReports.Size = new System.Drawing.Size(486, 19);
+            this.xSubmitCrashReports.Size = new System.Drawing.Size(422, 19);
             this.xSubmitCrashReports.TabIndex = 0;
-            this.xSubmitCrashReports.Text = "Automatically submit crash reports to 800Craft developers (800Craft.net)";
+            this.xSubmitCrashReports.Text = "Automatically submit error reports to 800Craft Plus developers";
             this.xSubmitCrashReports.UseVisualStyleBackColor = true;
             // 
             // tabPage1
             // 
-            this.tabPage1.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
             this.tabPage1.Controls.Add(this.groupBox3);
             this.tabPage1.Controls.Add(this.groupBox1);
             this.tabPage1.Location = new System.Drawing.Point(4, 24);
@@ -3369,7 +3365,6 @@
             // 
             // groupBox3
             // 
-            //this.groupBox3.Controls.Add(this.GCcheckBox);
             this.groupBox3.Controls.Add(this.ReqsEditor);
             this.groupBox3.Controls.Add(this.SwearEditor);
             this.groupBox3.Controls.Add(this.MaxCapsValue);
@@ -3383,17 +3378,6 @@
             this.groupBox3.TabIndex = 27;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Other Configurations";
-                        
-            // 
-            // GCcheckBox
-            //              
-            /*this.GCcheckBox.AutoSize = true;
-            this.GCcheckBox.Location = new System.Drawing.Point(13, 94);
-            this.GCcheckBox.Name = "GCcheckBox";
-            this.GCcheckBox.Size = new System.Drawing.Size(205, 19);
-            this.GCcheckBox.TabIndex = 25;
-            this.GCcheckBox.Text = "Enable Global Chat on the server";
-            //this.GCcheckBox.UseVisualStyleBackColor = true;*/
             // 
             // ReqsEditor
             // 
@@ -3450,6 +3434,8 @@
             // HbBox1
             // 
             this.HbBox1.AutoSize = true;
+            this.HbBox1.Checked = true;
+            this.HbBox1.CheckState = System.Windows.Forms.CheckState.Checked;
             this.HbBox1.Location = new System.Drawing.Point(13, 69);
             this.HbBox1.Name = "HbBox1";
             this.HbBox1.Size = new System.Drawing.Size(229, 19);
@@ -3468,6 +3454,7 @@
             this.SwearBox.Name = "SwearBox";
             this.SwearBox.Size = new System.Drawing.Size(125, 21);
             this.SwearBox.TabIndex = 22;
+            this.SwearBox.Text = "&cCENSOR";
             this.SwearBox.TextChanged += new System.EventHandler(this.SwearBox_TextChanged);
             // 
             // label3
@@ -3637,11 +3624,18 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point(7, 256);
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size(637, 241);
+            this.chatPreview.TabIndex = 2;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(684, 568);
             this.Controls.Add(this.bApply);
             this.Controls.Add(this.bResetAll);

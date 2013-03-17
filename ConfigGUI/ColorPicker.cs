@@ -61,5 +61,10 @@ namespace fCraft.ConfigGUI {
             public System.Drawing.Color Foreground;
             public System.Drawing.Color Background;
         }
+
+        private void b0_Click(object sender, System.EventArgs e)
+        {
+
+        }
     }
 }

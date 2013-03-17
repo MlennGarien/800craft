@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("800Craft UpdateBuilder")]
 [assembly: AssemblyDescription("Tool for automating the process of building 800Craft update binaries.")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("au70.net")]
+[assembly: AssemblyCompany("800craft Dev-Team")]
 [assembly: AssemblyProduct("800Craft UpdateBuilder")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]

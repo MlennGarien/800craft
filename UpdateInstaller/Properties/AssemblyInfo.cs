@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("800Craft UpdateInstaller")]
 [assembly: AssemblyDescription("800Craft self-extracting updater")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("au70.net")]
+[assembly: AssemblyCompany("800craft Dev-Team")]
 [assembly: AssemblyProduct("800Craft UpdateInstaller")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]

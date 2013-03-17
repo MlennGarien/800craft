@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("800Craft Plus Configuration")]
 [assembly: AssemblyDescription("800Craft Plus Configuration Tool")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("www.800craft.net")]
+[assembly: AssemblyCompany("800craft Dev-Team")]
 [assembly: AssemblyProduct("800Craft Plus Config")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]

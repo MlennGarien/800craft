@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("800Craft Plus ServerCLI")]
 [assembly: AssemblyDescription("Command-line server for 800Craft Plus")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("www.800craft.net")]
+[assembly: AssemblyCompany("800craft Dev-Team")]
 [assembly: AssemblyProduct("800Craft Plus ServerCLI")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]

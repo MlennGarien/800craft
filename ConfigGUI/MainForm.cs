@@ -188,7 +188,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         private void bReportABug_Click( object sender, EventArgs e ) {
-            Process.Start("http://forums.au70.net/index.php/forum/32-800craft-server-software/");
+            Process.Start("http://800craft.net/index.php?/forum/5-bug-reports/");
         }
 
         private void nMaxPlayerPerWorld_Validating( object sender, CancelEventArgs e ) {
@@ -1520,7 +1520,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             selectedRank.FillLimit = Convert.ToInt32( nFillLimit.Value );
         }
 
-        const string ReadmeFileName = "README.txt";
+        const string ReadmeFileName = "ReadMe.txt";
         private void bReadme_Click( object sender, EventArgs e ) {
             try {
                 if( File.Exists( ReadmeFileName ) ) {
@@ -1529,7 +1529,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             } catch( Exception ) { }
         }
 
-        const string ChangelogFileName = "CHANGELOG.txt";
+        const string ChangelogFileName = "Changelog.txt";
         private void bChangelog_Click( object sender, EventArgs e ) {
             try {
                 if( File.Exists( ChangelogFileName ) ) {
@@ -1630,8 +1630,8 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if (!File.Exists(Paths.SwearWordsFileName))
             {
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("#This txt file should be filled with bad words that you want to be filtered out");
-                sb.AppendLine("#I have included some examples, excuse my language :P");
+                sb.AppendLine("#This text file should be filled with words that you want to be filtered out");
+                sb.AppendLine("#Pardon my French :P");
                 sb.AppendLine("fuck");
                 sb.AppendLine("fucking");
                 sb.AppendLine("fucked");

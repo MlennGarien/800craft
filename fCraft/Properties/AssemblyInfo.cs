@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("800Craft Plus")]
 [assembly: AssemblyDescription("A better Minecraft server, based on fCraft.")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("www.800craft.net")]
+[assembly: AssemblyCompany("800craft Dev-Team")]
 [assembly: AssemblyProduct("800Craft Plus")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]

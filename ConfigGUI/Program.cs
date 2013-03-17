@@ -37,7 +37,7 @@ namespace fCraft.ConfigGUI {
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Error in ConfigGUI", "ConfigGUI", ex, true );
                 if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
-                    MessageBox.Show( ex.ToString(), "fCraft ConfigGUI has crashed" );
+                    MessageBox.Show( ex.ToString(), "Configuration has crashed" );
                 }
             }
 #endif

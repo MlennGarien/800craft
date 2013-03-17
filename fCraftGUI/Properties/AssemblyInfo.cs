@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("800Craft Plus GUI")]
 [assembly: AssemblyDescription("Shared graphics-related functionality for 800Craft Plus")]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany("www.800craft.net")]
+[assembly: AssemblyCompany("800craft Dev-Team")]
 [assembly: AssemblyProduct("800Craft Plus GUI")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark( "" )]
