@@ -41,9 +41,9 @@
             this.lHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lHeader.Location = new System.Drawing.Point(12, 9);
             this.lHeader.Name = "lHeader";
-            this.lHeader.Size = new System.Drawing.Size(204, 13);
+            this.lHeader.Size = new System.Drawing.Size(232, 13);
             this.lHeader.TabIndex = 5;
-            this.lHeader.Text = "An update to 800Craft is available!";
+            this.lHeader.Text = "An update to 800Craft Plus is available!";
             // 
             // bCancel
             // 
