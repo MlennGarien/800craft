@@ -65,7 +65,7 @@ namespace fCraft {
                 Handler = delegate( Player player, Command cmd ) {
                     if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
                     BlockDB db = player.World.BlockDB;
-                    lock( db.SyncRoot ) {
+                    using( db.GetReadLock() ) {
                         player.Message( "BlockDB: CAP={0} SZ={1} FI={2}",
                                         db.CacheCapacity, db.CacheSize, db.LastFlushedIndex );
                     }
