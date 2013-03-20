@@ -4,6 +4,11 @@ This was 800Craft, a Minecraft Classic Server Software.
 You are granted full permission to modify and distribute the code, 
 as long as you keep ALL copyright notifications (including fCraft's)
 
+800Craft will be kept here as a contribution to the Open Source community. 
+800Craft has NO connection with any projects that are forked from this repo,
+thus 800Craft will not have an official successor or be held resonsible for any
+harmful content published by others.
+
 Special thanks to GlennMR, LaoTszy, fragmer and #fCraft, Norablindsided, 
 rebelliousdude, XanderOrtiz, WaterGod469 and everyone who enjoyed the software.
 
