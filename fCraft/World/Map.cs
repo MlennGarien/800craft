@@ -12,7 +12,7 @@ using System.Collections.Concurrent;
 
 namespace fCraft {
     public unsafe sealed class Map {
-        public const MapFormat SaveFormat = MapFormat.MCSharp;
+        public const MapFormat SaveFormat = MapFormat.FCMv3;
 
         /// <summary> The world associated with this map, if any. May be null. </summary>
         [CanBeNull]

@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Drawing;
-using LibNbt;
+/*using LibNbt;
 using LibNbt.Exceptions;
 using LibNbt.Queries;
-using LibNbt.Tags;
+using LibNbt.Tags;*/
 using System.IO.Compression;
 //Copyright (C) <2011 - 2013> <Jon Baker, Glenn Mariën and Lao Tszy>
 
