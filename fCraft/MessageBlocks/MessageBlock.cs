@@ -167,7 +167,11 @@ namespace fCraft {
             [DataMember]
             public String World;
             [DataMember]
-            public Vector3I AffectedBlock;
+            public int AffectedBlockX;
+            [DataMember]
+            public int AffectedBlockY;
+            [DataMember]
+            public int AffectedBlockZ;
             [DataMember]
             public int XMin;
             [DataMember]
@@ -189,7 +193,9 @@ namespace fCraft {
                     Creator = MessageBlock.Creator;
                     Created = MessageBlock.Created;
                     World = MessageBlock.World;
-                    AffectedBlock = MessageBlock.AffectedBlock;
+                    AffectedBlockX = MessageBlock.AffectedBlock.X;
+                    AffectedBlockY = MessageBlock.AffectedBlock.Y;
+                    AffectedBlockZ = MessageBlock.AffectedBlock.Z;
                     XMin = MessageBlock.Range.Xmin;
                     XMax = MessageBlock.Range.Xmax;
                     YMin = MessageBlock.Range.Ymin;
@@ -205,7 +211,7 @@ namespace fCraft {
                 MessageBlock.Creator = Creator;
                 MessageBlock.Created = Created;
                 MessageBlock.World = World;
-                MessageBlock.AffectedBlock = AffectedBlock;
+                MessageBlock.AffectedBlock = new Vector3I(AffectedBlockX, AffectedBlockY, AffectedBlockZ);
                 MessageBlock.Range = new MessageBlockRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
                 MessageBlock.Message = Message;
             }

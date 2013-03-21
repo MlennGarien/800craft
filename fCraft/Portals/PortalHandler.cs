@@ -64,12 +64,11 @@ namespace fCraft.Portals {
                                     e.Player.Message( "You can not place a block inside a portal" );
                                     return;
                                 }
-                                e.Player.PortalCache.DesiredOutput = new Position(
-                                    e.Coords.ToPlayerCoords().X,
-                                    e.Coords.ToPlayerCoords().Y,
-                                    ( short )( ( e.Coords.Z + 2 ) * 32 ), //posfix
-                                    e.Player.Position.R,
-                                    e.Player.Position.L );
+                                e.Player.PortalCache.DesiredOutputX = e.Coords.ToPlayerCoords().X;
+                                e.Player.PortalCache.DesiredOutputY = e.Coords.ToPlayerCoords().Y;
+                                e.Player.PortalCache.DesiredOutputZ = ( e.Coords.Z + 2 ) * 32;
+                                    e.Player.PortalCache.DesiredOutputR = e.Player.Position.R;
+                                    e.Player.PortalCache.DesiredOutputL = e.Player.Position.L;
 
                                 e.Player.PortalCache.Name = Portal.GenerateName( e.Player.PortalCache.World, true );
                                 string oldWorld = e.Player.PortalCache.World;
@@ -135,7 +134,7 @@ namespace fCraft.Portals {
                                                     if ( !portal.HasDesiredOutput ) {
                                                         e.Player.TeleportTo( e.Player.World.Map.Spawn );
                                                     } else {
-                                                        e.Player.TeleportTo( portal.DesiredOutput );
+                                                        e.Player.TeleportTo( new Position((short)portal.DesiredOutputX, (short)portal.DesiredOutputY, (short)portal.DesiredOutputZ, portal.DesiredOutputR, portal.DesiredOutputL) );
                                                     }
                                                     e.Player.LastWarnedPortal = DateTime.UtcNow;
                                                     e.Player.StandingInPortal = false;
@@ -145,7 +144,7 @@ namespace fCraft.Portals {
                                                     if ( !portal.HasDesiredOutput ) {
                                                         e.Player.JoinWorld( WorldManager.FindWorldExact( portal.World ), WorldChangeReason.Portal );
                                                     } else {
-                                                        e.Player.JoinWorld( WorldManager.FindWorldExact( portal.World ), WorldChangeReason.Portal, portal.DesiredOutput );
+                                                        e.Player.JoinWorld( WorldManager.FindWorldExact( portal.World ), WorldChangeReason.Portal, new Position( ( short )portal.DesiredOutputX, ( short )portal.DesiredOutputY, ( short )portal.DesiredOutputZ, portal.DesiredOutputR, portal.DesiredOutputL ) );
                                                     }
                                                 }
                                                 e.Player.Message( "You used portal: " + portal.Name );

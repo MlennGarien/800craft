@@ -31,7 +31,11 @@ namespace fCraft.Portals {
         public Vector3I[] AffectedBlocks { get; set; }
         public PortalRange Range { get; set; }
         public String Place { get; set; }
-        public Position DesiredOutput { get; set; }
+        public int DesiredOutputX { get; set; }
+        public int DesiredOutputY { get; set; }
+        public int DesiredOutputZ { get; set; }
+        public byte DesiredOutputR { get; set; }
+        public byte DesiredOutputL { get; set; }
         public bool HasDesiredOutput = false;
 
         public Portal () { 
@@ -251,7 +255,15 @@ namespace fCraft.Portals {
             [DataMember]
             public String Place;
             [DataMember]
-            public Position DesiredOutput;
+            public int DesiredOutputX;
+            [DataMember]
+            public int DesiredOutputY;
+            [DataMember]
+            public int DesiredOutputZ;
+            [DataMember]
+            public byte DesiredOutputR;
+            [DataMember]
+            public byte DesiredOutputL;
             [DataMember]
             public bool HasDesiredOutput;
 
@@ -268,7 +280,11 @@ namespace fCraft.Portals {
                     ZMin = portal.Range.Zmin;
                     ZMax = portal.Range.Zmax;
                     Place = portal.Place;
-                    DesiredOutput = portal.DesiredOutput;
+                    DesiredOutputX = portal.DesiredOutputX;
+                    DesiredOutputY = portal.DesiredOutputY;
+                    DesiredOutputZ = portal.DesiredOutputZ;
+                    DesiredOutputR = portal.DesiredOutputR;
+                    DesiredOutputL = portal.DesiredOutputL;
                     HasDesiredOutput = portal.HasDesiredOutput;
                 }
             }
@@ -280,7 +296,11 @@ namespace fCraft.Portals {
                 portal.World = World;
                 portal.Range = new PortalRange( XMin, XMax, YMin, YMax, ZMin, ZMax );
                 portal.Place = Place;
-                portal.DesiredOutput = DesiredOutput;
+                portal.DesiredOutputX = DesiredOutputX;
+                portal.DesiredOutputY = DesiredOutputY;
+                portal.DesiredOutputZ = DesiredOutputZ;
+                portal.DesiredOutputR = DesiredOutputR;
+                portal.DesiredOutputL = DesiredOutputL;
                 portal.HasDesiredOutput = HasDesiredOutput;
             }
         }

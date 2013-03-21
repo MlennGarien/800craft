@@ -22,12 +22,14 @@
  */
 using System;
 using System.Windows.Forms;
+using System.Net;
 
 namespace fCraft.ServerGUI {
     static class Program {
 
         [STAThread]
         static void Main() {
+            ServicePointManager.ServerCertificateValidationCallback = ( a, b, c, d ) => { return true; };
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
 #if DEBUG
