@@ -23,22 +23,17 @@ using System.Reflection;
 using System.Collections;
 using System.Security.Policy;
 
-namespace fCraft
-{
-    class PluginManager
-    {
+namespace fCraft {
+    class PluginManager {
         private static PluginManager instance;
         public List<Plugin> Plugins = new List<Plugin>();
 
-        private PluginManager()
-        {
+        private PluginManager () {
             // Empty bitch
         }
 
-        public static PluginManager GetInstance()
-        {
-            if (instance == null)
-            {
+        public static PluginManager GetInstance () {
+            if ( instance == null ) {
                 instance = new PluginManager();
                 instance.Initialize();
             }
@@ -46,76 +41,40 @@ namespace fCraft
             return instance;
         }
 
-        private void Initialize()
-        {
-            try
-            {
-                if (!Directory.Exists("plugins"))
-                {
-                    Directory.CreateDirectory("plugins");
+        private void Initialize () {
+            try {
+                if ( !Directory.Exists( "plugins" ) ) {
+                    Directory.CreateDirectory( "plugins" );
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.Error, "PluginManager.Initialize: " + ex);
+            } catch ( Exception ex ) {
+                Logger.Log( LogType.Error, "PluginManager.Initialize: " + ex );
                 return;
             }
 
             // Load plugins
-            String[] plugins = Directory.GetFiles("plugins", "*.dll");
+            String[] plugins = Directory.GetFiles( "plugins", "*.dll" );
 
-            if (plugins.Length == 0)
-            {
-                Logger.Log(LogType.ConsoleOutput, "PluginManager: No plugins found");
+            if ( plugins.Length == 0 ) {
+                Logger.Log( LogType.ConsoleOutput, "PluginManager: No plugins found" );
                 return;
-            }
-            else
-            {
-                Logger.Log(LogType.ConsoleOutput, "PluginManager: Loading " + plugins.Length + " plugins");
+            } else {
+                Logger.Log( LogType.ConsoleOutput, "PluginManager: Loading " + plugins.Length + " plugins" );
 
-                foreach (String plugin in plugins)
-                {
-                    try
-                    {
-                    	object instance = null;
-                        Assembly lib = null;
-                        
-                        //Use a memorystream to load the DLL so windows doesnt lock the file after unload
-                        using (FileStream fs = File.Open(plugin, FileMode.Open)) 
-                        {
-                        	using (MemoryStream ms = new MemoryStream())
-                        	{
-                        		byte[] buffer = new byte[1024];
-                        		int read = 0;
-                        		while ((read = fs.Read(buffer, 0, 1024)) > 0)
-                        			ms.Write(buffer, 0, read);
-                        		lib = Assembly.Load(ms.ToArray());
-                        		ms.Close();
-                        	}
-                        	fs.Close();
+                foreach ( String plugin in plugins ) {
+                    try {
+                        Type pluginType = null;
+                        String args = plugin.Substring( plugin.LastIndexOf( "\\" ) + 1, plugin.IndexOf( ".dll" ) - plugin.LastIndexOf( "\\" ) - 1 );
+                        Assembly assembly = Assembly.LoadFile( Path.GetFullPath( plugin ) );
+
+                        if ( assembly != null ) {
+                            pluginType = assembly.GetType( args + ".Init" );
+
+                            if ( pluginType != null ) {
+                                Plugins.Add( ( Plugin )Activator.CreateInstance( pluginType ) );
+                            }
                         }
-                        
-                        try
-                        {
-                        	//Loop through all the types in the DLL so we load all plugins within the DLL.
-                        	//This could also be used to find and load one plugin, just break after finding and adding the plugin
-                        	foreach (Type t in lib.GetTypes())
-                        	{
-                        		if (t.BaseType == typeof(Plugin))
-                        		{
-                        			instance = Activator.CreateInstance(t);
-                        			Plugins.Add((Plugin)instance);
-                        		}
-                        	}
-                        }
-                        catch (Exception ex) 
-                        { 
-                        	//TODO Print an error..?
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Log(LogType.Error, "PluginManager: Unable to load plugin at location " + plugin + ": " + ex);
+                    } catch ( Exception ex ) {
+                        Logger.Log( LogType.Error, "PluginManager: Unable to load plugin at location " + plugin + ": " + ex );
                     }
                 }
             }
@@ -123,21 +82,15 @@ namespace fCraft
             LoadPlugins();
         }
 
-        private void LoadPlugins()
-        {
-            if (Plugins.Count > 0)
-            {
-                foreach (Plugin plugin in Plugins)
-                {
-                    Logger.Log(LogType.ConsoleOutput, "PluginManager: Loading plugin " + plugin.Name);
+        private void LoadPlugins () {
+            if ( Plugins.Count > 0 ) {
+                foreach ( Plugin plugin in Plugins ) {
+                    Logger.Log( LogType.ConsoleOutput, "PluginManager: Loading plugin " + plugin.Name );
 
-                    try
-                    {
+                    try {
                         plugin.Initialize();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Log(LogType.Error, "PluginManager: Failed loading plugin " + plugin.Name + ": " + ex);
+                    } catch ( Exception ex ) {
+                        Logger.Log( LogType.Error, "PluginManager: Failed loading plugin " + plugin.Name + ": " + ex );
                     }
                 }
             }
