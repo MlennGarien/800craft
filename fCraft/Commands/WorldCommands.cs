@@ -226,7 +226,7 @@ namespace fCraft {
             Permissions = new[] { Permission.ManageMessageBlocks },
             IsConsoleSafe = false,
             Usage = "/MessageBlock [add | remove | info | list | test]",
-            Help = "Create and controls a MessageBlock, options are: add, remove, list, info\n&S" +
+            Help = "Create and controls a MessageBlock, options are: add, remove, list, info, test\n&S" +
                    "See &H/Help MessageBlock <option>&S for details about each option.",
             HelpSections = new Dictionary<string, string>() {
                 { "add",     "&H/MessageBlock add [Your Message Goes here]\n&S" +
