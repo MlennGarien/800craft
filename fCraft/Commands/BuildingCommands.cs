@@ -133,7 +133,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
             IsConsoleSafe = false,
-            Usage = "/Door [remove | info | list]",
+            Usage = "/Door [remove | info | list | test]",
             Help = "Controls doors, options are: remove, list, info\n&S" +
                    "See &H/Help Door <option>&S for details about each option.",
             HelpSections = new Dictionary<string, string>() {
@@ -143,6 +143,7 @@ namespace fCraft {
                                 "Gives you a list of doors in the current world."},
                 { "info",       "&H/Door info Door1\n&S" +
                                 "Gives you information of door with name 'Door1'."},
+                {"test",        "&HTests if a block is a door"},
             },
             Handler = Door
         };
@@ -234,21 +235,13 @@ namespace fCraft {
 
 
         static void DoorTestCallback ( Player player, Vector3I[] marks, object tag ) {
-            Vector3I Pos = marks[0];
-            if ( player.World != null && player.World.Map != null ) {
-                if ( player.WorldMap.Doors != null ) {
-                    if ( player.WorldMap.Doors.Count > 0 ) {
-                        Door door = fCraft.Doors.DoorHandler.GetDoor( Pos, player );
-                        if ( door == null ) {
-                            player.Message( "DoorTest: There is no door at this position" );
-                        } else {
-                            player.Message( "DoorTest: This position contains door '" + door.Name + "'" );
-                        }
-                    }
-                }
+            Vector3I Pos = marks[0]; Door door = fCraft.Doors.DoorHandler.GetDoor( Pos, player );
+            if ( door == null ) {
+                player.Message( "DoorTest: There is no door at this position" );
+            } else {
+                player.Message( "DoorTest: This position contains door '" + door.Name + "'" );
             }
         }
-
 
         static void DoorAdd ( Player player, Vector3I[] marks, object tag ) {
             int sx = Math.Min( marks[0].X, marks[1].X );

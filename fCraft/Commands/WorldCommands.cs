@@ -225,7 +225,7 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.ManageMessageBlocks },
             IsConsoleSafe = false,
-            Usage = "/MessageBlock [add | remove | info | list]",
+            Usage = "/MessageBlock [add | remove | info | list | test]",
             Help = "Create and controls a MessageBlock, options are: add, remove, list, info\n&S" +
                    "See &H/Help MessageBlock <option>&S for details about each option.",
             HelpSections = new Dictionary<string, string>() {
@@ -238,6 +238,7 @@ namespace fCraft {
                                 "Gives you a list of MessageBlocks in the current world."},
                 { "info",       "&H/MessageBlock info MB1\n&S" +
                                 "Gives you information of MessageBlock with name 'MB1'."},
+                {"test",        "&HTests if a block is a message block"},
             },
             Handler = MessageBlock
         };
@@ -300,7 +301,6 @@ namespace fCraft {
                                 }
                             }
                         }
-
                         if ( !found ) {
                             player.Message( "Could not find MessageBlock by name {0}.", MessageBlockName );
                         }
@@ -308,6 +308,9 @@ namespace fCraft {
                         player.Message( "Could not find MessageBlock as this world doesn't contain a MessageBlock." );
                     }
                 }
+            } else if ( option.ToLower().Equals( "test" ) ) {
+                player.SelectionStart( 1, MessageBlockTestCallback, null, CdMessageBlock.Permissions );
+                player.Message( "MessageBlockTest: Click a block or type /mark to use your location." );
             } else if ( option.ToLower().Equals( "list" ) ) {
                 if ( player.World.Map.MessageBlocks == null || player.World.Map.MessageBlocks.Count == 0 ) {
                     player.Message( "There are no MessageBlocks in {0}&S.", player.World.ClassyName );
@@ -323,6 +326,16 @@ namespace fCraft {
                 }
             } else {
                 CdMessageBlock.PrintUsage( player );
+            }
+        }
+
+        static void MessageBlockTestCallback ( Player player, Vector3I[] marks, object tag ) {
+            Vector3I Pos = marks[0];
+            MessageBlock messageblock = MessageBlockHandler.GetMessageBlock( player.World, Pos );
+            if ( messageblock == null ) {
+                player.Message( "MessageBlockTest: There is no door at this position" );
+            } else {
+                player.Message( "MessageBlockTest: This position contains door '" + messageblock.Name + "'" );
             }
         }
 
