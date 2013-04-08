@@ -224,8 +224,28 @@ namespace fCraft {
                     output.Append( doorNames.JoinToString( ", " ) );
                     player.Message( output.ToString() );
                 }
+            } else if ( option.ToLower() == "test" ) {
+                player.SelectionStart( 1, DoorTestCallback, null, CdDoor.Permissions );
+                player.Message( "DoorTest: Click a block or type /mark to use your location." );
             } else {
                 CdDoor.PrintUsage( player );
+            }
+        }
+
+
+        static void DoorTestCallback ( Player player, Vector3I[] marks, object tag ) {
+            Vector3I Pos = marks[0];
+            if ( player.World != null && player.World.Map != null ) {
+                if ( player.WorldMap.Doors != null ) {
+                    if ( player.WorldMap.Doors.Count > 0 ) {
+                        Door door = fCraft.Doors.DoorHandler.GetDoor( Pos, player );
+                        if ( door == null ) {
+                            player.Message( "DoorTest: There is no door at this position" );
+                        } else {
+                            player.Message( "DoorTest: This position contains door '" + door.Name + "'" );
+                        }
+                    }
+                }
             }
         }
 
