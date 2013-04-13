@@ -46,7 +46,8 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Resets spawn to the default location (top center of the map). </summary>
+        /// <summary> Resets the spawn to a valid Java 7 location (X, Y, and found Z)
+        /// Old behaviour: Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
             Spawn = new Position( Width * 16,
                                   Length * 16,
@@ -129,7 +130,6 @@ namespace fCraft {
             }
 
         	LifeZones = new Dictionary<string, Life2DZone>();
-
             ResetSpawn();
         }
 

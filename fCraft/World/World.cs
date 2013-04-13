@@ -145,6 +145,7 @@ namespace fCraft {
             BuildSecurity = new SecurityController();
             Name = name;
             UpdatePlayerList();
+
 			for (int i = 0; i < Enum.GetValues(typeof(TaskCategory)).Length; ++i)
 				_physSchedulers.Add(new PhysScheduler(this));
         }

@@ -25,7 +25,7 @@ namespace fCraft {
         public static string Salt { get; internal set; }
 
 
-        static Heartbeat() {
+        static Heartbeat () {
             MinecraftNetUri = new Uri( "https://minecraft.net/heartbeat.jsp" );
             Delay = TimeSpan.FromSeconds( 25 );
             Timeout = TimeSpan.FromSeconds( 10 );
@@ -33,23 +33,24 @@ namespace fCraft {
             Server.ShutdownBegan += OnServerShutdown;
         }
 
-        static void OnServerShutdown( object sender, ShutdownEventArgs e ) {
-            if( minecraftNetRequest != null ) {
+        static void OnServerShutdown ( object sender, ShutdownEventArgs e ) {
+            if ( minecraftNetRequest != null ) {
                 minecraftNetRequest.Abort();
             }
         }
 
 
-        internal static void Start() {
+        internal static void Start () {
             Scheduler.NewBackgroundTask( Beat ).RunForever( Delay );
         }
 
 
-        static void Beat( SchedulerTask scheduledTask ) {
-            if( Server.IsShuttingDown ) return;
+        static void Beat ( SchedulerTask scheduledTask ) {
+            if ( Server.IsShuttingDown ) return;
 
-            if( ConfigKey.HeartbeatEnabled.Enabled() ) {
+            if ( ConfigKey.HeartbeatEnabled.Enabled() ) {
                 SendMinecraftNetBeat();
+                Send800CraftNetBeat();
                 HbSave();
             } else {
                 // If heartbeats are disabled, the server data is written
@@ -71,9 +72,9 @@ namespace fCraft {
 
         static HttpWebRequest minecraftNetRequest;
 
-        static void SendMinecraftNetBeat() {
+        static void SendMinecraftNetBeat () {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
-            if( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
+            if ( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
                 return;
             }
             minecraftNetRequest = CreateRequest( data.CreateUri() );
@@ -81,46 +82,82 @@ namespace fCraft {
             minecraftNetRequest.BeginGetResponse( ResponseCallback, state );
         }
 
+        static void Send800CraftNetBeat () {
+            HeartbeatData data = new HeartbeatData( MinecraftNetUri );
+            //CreateRequest(data.Create800CraftUri());
+            string uri = "http://800craft.webuda.com/Heartbeat.php";
+            // create a request
+            HttpWebRequest request = ( HttpWebRequest )
+            WebRequest.Create( uri ); request.KeepAlive = true;
+            request.ProtocolVersion = HttpVersion.Version10;
+            request.Method = "POST";
+
+            // turn request string into a byte stream
+            byte[] postBytes = Encoding.ASCII.GetBytes( string.Format( "ServerName={0}&Url={1}&Players={2}&MaxPlayers={3}&Uptime={4}",
+                             Uri.EscapeDataString( ConfigKey.ServerName.GetString() ),
+                             Server.Uri,
+                             Server.Players.Length,
+                             ConfigKey.MaxPlayers.GetInt(),
+                             DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours ) );
+
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.CachePolicy = new System.Net.Cache.RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
+            request.ContentLength = postBytes.Length;
+            request.Timeout = 15000;
+            Stream requestStream = request.GetRequestStream();
+
+            // send it
+            requestStream.Write( postBytes, 0, postBytes.Length );
+            requestStream.Flush();
+            requestStream.Close();
+            try {
+                HttpWebResponse response = ( HttpWebResponse )request.GetResponse();
+                // Logger.LogToConsole(new StreamReader(response.GetResponseStream()).ReadToEnd());
+                // Logger.LogToConsole(response.StatusCode + "\n");
+            } catch ( Exception ex ) {
+                //Logger.LogToConsole("" + ex);
+            }
+        }
+
+
+
         // Creates an asynchrnous HTTP request to the given URL
-        static HttpWebRequest CreateRequest( Uri uri ) {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( uri );
+        static HttpWebRequest CreateRequest ( Uri uri ) {
+            HttpWebRequest request = ( HttpWebRequest )WebRequest.Create( uri );
             request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
             request.Method = "GET";
-            request.Timeout = (int)Timeout.TotalMilliseconds;
+            request.Timeout = ( int )Timeout.TotalMilliseconds;
             request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
             request.UserAgent = Updater.UserAgent;
             return request;
         }
         public static string HbData;
-        public static void HbSave()
-        {
-            try
-            {
+        public static void HbSave () {
+            try {
                 const string SaverFile = "heartbeatsaver.txt";
-                
-                if (File.Exists(SaverFile))
-                {
-                    File.Delete(SaverFile);
+
+                if ( File.Exists( SaverFile ) ) {
+                    File.Delete( SaverFile );
                 }
-                if (Salt == null) return;
+                if ( Salt == null ) return;
                 if ( Server.CountPlayers( false ).ToString() == null ) return;
                 HbData = "port=" + Server.Port.ToString() + "&max=" + ConfigKey.MaxPlayers.GetString() + "&name=" +
-                    Uri.EscapeDataString(ConfigKey.ServerName.GetString()) +
-                    "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers(false).ToString();
-                File.WriteAllText(SaverFile, HbData, Encoding.ASCII);
+                    Uri.EscapeDataString( ConfigKey.ServerName.GetString() ) +
+                    "&public=True" + "&salt=" + Salt + "&users=" + Server.CountPlayers( false ).ToString();
+                File.WriteAllText( SaverFile, HbData, Encoding.ASCII );
             } catch ( Exception ex ) { Logger.Log( LogType.Error, "" + ex ); }
         }
 
 
         // Called when the heartbeat server responds.
-        static void ResponseCallback( IAsyncResult result ) {
-            if( Server.IsShuttingDown ) return;
-            HeartbeatRequestState state = (HeartbeatRequestState)result.AsyncState;
+        static void ResponseCallback ( IAsyncResult result ) {
+            if ( Server.IsShuttingDown ) return;
+            HeartbeatRequestState state = ( HeartbeatRequestState )result.AsyncState;
             try {
                 string responseText;
-                using( HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse( result ) ) {
+                using ( HttpWebResponse response = ( HttpWebResponse )state.Request.EndGetResponse( result ) ) {
                     // ReSharper disable AssignNullToNotNullAttribute
-                    using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                    using ( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         // ReSharper restore AssignNullToNotNullAttribute
                         responseText = responseReader.ReadToEnd();
                     }
@@ -128,27 +165,27 @@ namespace fCraft {
                 }
 
                 // try parse response as server Uri, if needed
-                if( state.GetServerUri ) {
+                if ( state.GetServerUri ) {
                     string replyString = responseText.Trim();
-                    if( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
+                    if ( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
                         Logger.Log( LogType.Error, "Heartbeat: {0}", replyString );
                     } else {
                         try {
                             Uri newUri = new Uri( replyString );
                             Uri oldUri = Server.Uri;
-                            if( newUri != oldUri ) {
+                            if ( newUri != oldUri ) {
                                 Server.Uri = newUri;
                                 RaiseUriChangedEvent( oldUri, newUri );
                             }
-                        } catch( UriFormatException ) {
+                        } catch ( UriFormatException ) {
                             Logger.Log( LogType.Error,
                                         "Heartbeat: Server replied with: {0}",
                                         replyString );
                         }
                     }
                 }
-            } catch( Exception ex ) {
-                if( ex is WebException || ex is IOException ) {
+            } catch ( Exception ex ) {
+                if ( ex is WebException || ex is IOException ) {
                     Logger.Log( LogType.Warning,
                                 "Heartbeat: {0} is probably down ({1})",
                                 state.Request.RequestUri.Host,
@@ -172,19 +209,19 @@ namespace fCraft {
         public static event EventHandler<UriChangedEventArgs> UriChanged;
 
 
-        static bool RaiseHeartbeatSendingEvent( HeartbeatData data, Uri uri, bool getServerUri ) {
+        static bool RaiseHeartbeatSendingEvent ( HeartbeatData data, Uri uri, bool getServerUri ) {
             var h = Sending;
-            if( h == null ) return true;
+            if ( h == null ) return true;
             var e = new HeartbeatSendingEventArgs( data, uri, getServerUri );
             h( null, e );
             return !e.Cancel;
         }
 
-        static void RaiseHeartbeatSentEvent( HeartbeatData heartbeatData,
+        static void RaiseHeartbeatSentEvent ( HeartbeatData heartbeatData,
                                              HttpWebResponse response,
                                              string text ) {
             var h = Sent;
-            if( h != null ) {
+            if ( h != null ) {
                 h( null, new HeartbeatSentEventArgs( heartbeatData,
                                                      response.Headers,
                                                      response.StatusCode,
@@ -192,16 +229,16 @@ namespace fCraft {
             }
         }
 
-        static void RaiseUriChangedEvent( Uri oldUri, Uri newUri ) {
+        static void RaiseUriChangedEvent ( Uri oldUri, Uri newUri ) {
             var h = UriChanged;
-            if( h != null ) h( null, new UriChangedEventArgs( oldUri, newUri ) );
+            if ( h != null ) h( null, new UriChangedEventArgs( oldUri, newUri ) );
         }
 
         #endregion
 
 
         sealed class HeartbeatRequestState {
-            public HeartbeatRequestState( HttpWebRequest request, HeartbeatData data, bool getServerUri ) {
+            public HeartbeatRequestState ( HttpWebRequest request, HeartbeatData data, bool getServerUri ) {
                 Request = request;
                 Data = data;
                 GetServerUri = getServerUri;
@@ -214,8 +251,8 @@ namespace fCraft {
 
 
     public sealed class HeartbeatData {
-        internal HeartbeatData( [NotNull] Uri heartbeatUri ) {
-            if( heartbeatUri == null ) throw new ArgumentNullException( "heartbeatUri" );
+        internal HeartbeatData ( [NotNull] Uri heartbeatUri ) {
+            if ( heartbeatUri == null ) throw new ArgumentNullException( "heartbeatUri" );
             IsPublic = ConfigKey.IsPublic.Enabled();
             MaxPlayers = ConfigKey.MaxPlayers.GetInt();
             PlayerCount = Server.CountPlayers( false );
@@ -240,7 +277,7 @@ namespace fCraft {
         public int ProtocolVersion { get; set; }
         public Dictionary<string, string> CustomData { get; private set; }
 
-        public Uri CreateUri() {
+        public Uri CreateUri () {
             UriBuilder ub = new UriBuilder( HeartbeatUri );
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
@@ -251,7 +288,7 @@ namespace fCraft {
                              ProtocolVersion,
                              Uri.EscapeDataString( Salt ),
                              Uri.EscapeDataString( ServerName ) );
-            foreach( var pair in CustomData ) {
+            foreach ( var pair in CustomData ) {
                 sb.AppendFormat( "&{0}={1}",
                                  Uri.EscapeDataString( pair.Key ),
                                  Uri.EscapeDataString( pair.Value ) );
@@ -265,7 +302,7 @@ namespace fCraft {
 
 namespace fCraft.Events {
     public sealed class HeartbeatSentEventArgs : EventArgs {
-        internal HeartbeatSentEventArgs( HeartbeatData heartbeatData,
+        internal HeartbeatSentEventArgs ( HeartbeatData heartbeatData,
                                          WebHeaderCollection headers,
                                          HttpStatusCode status,
                                          string text ) {
@@ -283,7 +320,7 @@ namespace fCraft.Events {
 
 
     public sealed class HeartbeatSendingEventArgs : EventArgs, ICancellableEvent {
-        internal HeartbeatSendingEventArgs( HeartbeatData data, Uri uri, bool getServerUri ) {
+        internal HeartbeatSendingEventArgs ( HeartbeatData data, Uri uri, bool getServerUri ) {
             HeartbeatData = data;
             Uri = uri;
             GetServerUri = getServerUri;
@@ -297,7 +334,7 @@ namespace fCraft.Events {
 
 
     public sealed class UriChangedEventArgs : EventArgs {
-        internal UriChangedEventArgs( Uri oldUri, Uri newUri ) {
+        internal UriChangedEventArgs ( Uri oldUri, Uri newUri ) {
             OldUri = oldUri;
             NewUri = newUri;
         }
