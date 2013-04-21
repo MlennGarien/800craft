@@ -91,34 +91,36 @@ I get errors when my PlayerDB / Worlds / Config tries to save:
 
 	Possible causes of this are as follows:
 
-	1. Running 800Craft from a protected system directory (e.g. Windows or ProgramFiles folder) while using 	
-	a non-administrative user account. In that case, 800Craft's data should go into AppData, ProgramData, 	
+	1. Running 800Craft from a protected system directory (e.g. Windows 
+	or ProgramFiles folder) while using a non-administrative user account. 
+	In that case, 800Craft's data should go into AppData, ProgramData, 	
 	or some directory owned by your user account.
 
-	2. Accidentally running 800Craft from a temporary folder. If you downloaded 800Craft in a zip file, and 	
-	tried to run it directly from the zip file, it'll end up being extracted and launched from a temporary 	
-	folder. Instead, extract all files to a permanent location before running 800Craft.
+	2. Accidentally running 800Craft from a temporary folder. If you downloaded 
+	800Craft in a zip file, and tried to run it directly from the zip file, 
+	it'll end up being extracted and launched from a temporary folder. Instead, 
+	extract all files to a permanent location before running 800Craft.
 
-	3. Launching two copies of 800Craft. UnauthorizedAccessException can happen when two processes try to 	
-	write to the same file at the same time. In that case, don't run two instances of 800Craft from the 	
-	same directory.
+	3. Launching two copies of 800Craft. UnauthorizedAccessException can happen 
+	when two processes try to write to the same file at the same time. In that 
+	case, don't run two instances of 800Craft from the same directory.
 
-	4. Launching a sandboxed, freshly-downloaded copy of 800Craft. Open file properties, and see if there 	
-	is a "Security" note indicating that the file came from the Internet, and an "Unblock" button next to 	
-	it.
+	4. Launching a sandboxed, freshly-downloaded copy of 800Craft. Open file 
+	properties, and see if there is a "Security" note indicating that the file 
+	came from the Internet, and an "Unblock" button next to it.
 
-	5. Trying to write to a read-only file. Make sure none of 800Craft's files are marked as read-only (in 	
-	files' properties).
+	5. Trying to write to a read-only file. Make sure none of 800Craft's files are 
+	marked as read-only (in files' properties).
 
-	6. Trying to write to a read-only drive. Make sure you're not running 800Craft from a USB drive, 	
-	CD/DVD, or a remote network share.
+	6. Trying to write to a read-only drive. Make sure you're not running 800Craft 
+	from a USB drive, CD/DVD, or a remote network share.
 
-	7. Trying to treat a directory as a file (e.g. saving a file with an exact name as an existing 	
-	directory). Unlikely as it is, make sure there's no directory named "PlayerDB.txt" in 800Craft's 	
-	folders.
+	7. Trying to treat a directory as a file (e.g. saving a file with an exact name 
+	as an existing directory). Unlikely as it is, make sure there's no directory named 
+	"PlayerDB.txt" in 800Craft's folders.
 
-	8. If all else fails, try to run 800Craft as Administrator. UAC can sometimes get in the way even if 	
-	you do everything right.
+	8. If all else fails, try to run 800Craft as Administrator. UAC can sometimes get 
+	in the way even if you do everything right.
 
 
 
