@@ -21,6 +21,8 @@ namespace fCraft {
         [CanBeNull]
         public string DisplayedName;
 
+        public string MojangAccount;
+
         /// <summary>Player's title.</summary>
         [CanBeNull]
         public string TitleName;
@@ -444,7 +446,10 @@ namespace fCraft {
             if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) { // LEGACY
                 info.LastFailedLoginIP = IPAddress.None;
             }
-            // skip 14
+            // 14 is now mojang account
+            if ( fields[14].Length > 0 ) {
+                info.MojangAccount = fields[14];
+            }
 
             fields[15].ToDateTime( ref info.FirstLoginDate );
 
@@ -977,7 +982,10 @@ namespace fCraft {
             LastFailedLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 12
 
             if( !LastFailedLoginIP.Equals( IPAddress.None ) ) sb.Append( LastFailedLoginIP.ToString() ); // 13
-            sb.Append( ',', 2 ); // skip 14
+            sb.Append( ',');
+
+            sb.Append( MojangAccount); //14
+            sb.Append( ',' );
 
             FirstLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 15
             LastLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 16
@@ -1108,6 +1116,8 @@ namespace fCraft {
             writer.Write( (byte)BanStatus ); // 13
             WriteDate( writer, BanDate ); // 14
             WriteString( writer, BannedBy ); // 15
+            //fuck knows
+            WriteString( writer, MojangAccount ); // 15
             WriteString( writer, BanReason ); // 16
             if( BanStatus == BanStatus.Banned ) {
                 WriteDate( writer, BannedUntil ); // 14

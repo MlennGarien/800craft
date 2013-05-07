@@ -39,7 +39,7 @@ namespace fCraft {
         const string Header = "fCraft PlayerDB | Row format: " +
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
                               "UnbanDate,UnbannedBy,BanReason,UnbanReason,LastFailedLoginDate," +
-                              "LastFailedLoginIP,UNUSED,FirstLoginDate,LastLoginDate,TotalTime," +
+                              "LastFailedLoginIP,MojangAccount,FirstLoginDate,LastLoginDate,TotalTime," +
                               "BlocksBuilt,BlocksDeleted,TimesVisited,MessagesWritten,PromoCount,TitleName," +
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
@@ -502,6 +502,12 @@ namespace fCraft {
             lock( AddLocker ) {
                 return Trie.Get( name );
             }
+        }
+
+        public static PlayerInfo[] FindPlayerInfoByEmail ( [NotNull] string name ) {
+            if ( name == null ) throw new ArgumentNullException( "name" );
+            CheckIfLoaded();
+            return PlayerInfoList.Where( p => p.MojangAccount == name ).ToArray();
         }
 
         [CanBeNull]

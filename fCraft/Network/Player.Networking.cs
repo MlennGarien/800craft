@@ -535,14 +535,76 @@ namespace fCraft {
             }
 
             string givenName = ReadString();
-
+            string packetPlayerName = "";
+            bool UsedMojang = false;
             // Check name for nonstandard characters
-            if( !IsValidName( givenName ) ) {
-                Logger.Log( LogType.SuspiciousActivity,
-                            "Player.LoginSequence: Unacceptable player name: {0} ({1})",
-                            givenName, IP );
-                KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
-                return false;
+            if ( !IsValidName( givenName ) ) {
+                //check if email, provide crappy support here
+                if ( givenName.Contains( "@" ) ) {
+                    UsedMojang = true;
+                    PlayerInfo[] temp = PlayerDB.FindPlayerInfoByEmail(givenName);
+                    if ( temp != null && temp.Length == 1 ) {
+                        givenName = temp[0].Name;
+                    } else {
+                        packetPlayerName = givenName;
+                        int length = new Random().Next( 4, 6 );
+                        string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name
+                        if ( trimmedName == null ) throw new ArgumentNullException( "trimmedName" );
+                        if ( trimmedName.Length < 2 || trimmedName.Length > 16 ) {
+                            trimmedName = trimmedName.Substring( 0, 15 - length ); //shorten name
+                        }
+
+                        //checks here not needed, just protection from anyone forking the project then modifying this
+                        if ( length < 0 ) throw new ArgumentOutOfRangeException( "length", "length cannot be less than zero." );
+                        if ( string.IsNullOrEmpty( allowedChars ) ) throw new ArgumentException( "allowedChars may not be empty." );
+
+                        const int byteSize = 0x100;
+                        var allowedCharSet = new HashSet<char>( allowedChars ).ToArray();
+
+                        //further protection
+                        if ( byteSize < allowedCharSet.Length ) throw new ArgumentException( String.Format( "allowedChars may contain no more than {0} characters.", byteSize ) );
+
+                        // Guid.NewGuid and System.Random are not particularly random. By using a
+                        // cryptographically-secure random number generator, the caller is always
+                        // protected, regardless of use.
+                        using ( var rng = new System.Security.Cryptography.RNGCryptoServiceProvider() ) {
+                            var result = new StringBuilder();
+                            var buf = new byte[128];
+                            while ( result.Length < length ) {
+                                rng.GetBytes( buf );
+                                for ( var i = 0; i < buf.Length && result.Length < length; ++i ) {
+                                    // Divide the byte into allowedCharSet-sized groups. If the
+                                    // random value falls into the last group and the last group is
+                                    // too small to choose from the entire allowedCharSet, ignore
+                                    // the value in order to avoid biasing the result.
+                                    var outOfRangeStart = byteSize - ( byteSize % allowedCharSet.Length );
+                                    if ( outOfRangeStart <= buf[i] ) continue;
+                                    result.Append( allowedCharSet[buf[i] % allowedCharSet.Length] );
+                                }
+                            }
+                            givenName = trimmedName + result.ToString();
+                            PlayerInfo[] Players = PlayerDB.FindPlayers( givenName );
+                            while ( Players.Length != 0 ) {
+                                //Name already exists. Reroll
+                                if ( givenName.Length - 4 == 0 ) {
+                                    Logger.Log( LogType.SuspiciousActivity,
+                                    "Player.LoginSequence: Unacceptable player name, player failed to get new name", IP );
+                                    KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
+                                    return false;
+                                }
+                                givenName = givenName.Substring( 0, givenName.Length - 1 );
+                                Players = PlayerDB.FindPlayers( givenName );
+                            }
+                        }
+                    }
+                } else {
+                    Logger.Log( LogType.SuspiciousActivity,
+                                "Player.LoginSequence: Unacceptable player name: {0} ({1})",
+                                givenName, IP );
+                    KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
+                    return false;
+                }
             }
 
             string verificationCode = ReadString();
@@ -552,35 +614,45 @@ namespace fCraft {
             // ReSharper disable PossibleNullReferenceException
             Position = WorldManager.MainWorld.Map.Spawn;
             // ReSharper restore PossibleNullReferenceException
+
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
-
-            if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
-                IsVerified = true;
-                // update capitalization of player's name
-                if( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
-                    Info.Name = givenName;
+            if ( !UsedMojang ) {
+                if ( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
+                    IsVerified = true;
+                    // update capitalization of player's name
+                    if ( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
+                        Info.Name = givenName;
+                    }
                 }
-
+            } else if ( UsedMojang ) {
+                if ( Server.VerifyName( packetPlayerName, verificationCode, Heartbeat.Salt ) ) {
+                    IsVerified = true;
+                    // update capitalization of player's name
+                    if ( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
+                        Info.Name = givenName;
+                    }
+                    Info.MojangAccount = packetPlayerName;
+                }
             } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
                 string standardMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).",
                                                         Name, IP );
-                if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
+                if ( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
                     Logger.Log( LogType.SuspiciousActivity,
                                 "{0} Player was identified as connecting from localhost and allowed in.",
                                 standardMessage );
                     IsVerified = true;
 
-                } else if( IP.IsLAN() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
+                } else if ( IP.IsLAN() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
                     Logger.Log( LogType.SuspiciousActivity,
                                 "{0} Player was identified as connecting from LAN and allowed in.",
                                 standardMessage );
                     IsVerified = true;
 
-                } else if( Info.TimesVisited > 1 && Info.LastIP.Equals( IP ) ) {
-                    switch( nameVerificationMode ) {
+                } else if ( Info.TimesVisited > 1 && Info.LastIP.Equals( IP ) ) {
+                    switch ( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                             Info.ProcessFailedLogin( this );
                             Logger.Log( LogType.SuspiciousActivity,
@@ -600,7 +672,7 @@ namespace fCraft {
                     }
 
                 } else {
-                    switch( nameVerificationMode ) {
+                    switch ( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                         case NameVerificationMode.Balanced:
                             Info.ProcessFailedLogin( this );
