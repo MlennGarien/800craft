@@ -541,11 +541,12 @@ namespace fCraft {
             if ( !IsValidName( givenName ) ) {
                 //check if email, provide crappy support here
                 if ( givenName.Contains( "@" ) ) {
+                    UsedMojang = true;
                     PlayerInfo[] temp = PlayerDB.FindPlayerInfoByEmail(givenName);
                     if ( temp != null && temp.Length == 1 ) {
+                        packetPlayerName = givenName;
                         givenName = temp[0].Name;
                     } else {
-                        UsedMojang = true;
                         packetPlayerName = givenName;
                         int length = new Random().Next( 4, 6 );
                         string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
