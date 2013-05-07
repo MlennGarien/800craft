@@ -678,7 +678,7 @@ namespace fCraft {
                             Info.ProcessFailedLogin( this );
                             Logger.Log( LogType.SuspiciousActivity,
                                         "{0} IP did not match. Player was kicked.",
-                                        standardMessage );
+                                        standardMessage);
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
 
