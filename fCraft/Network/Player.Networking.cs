@@ -552,9 +552,9 @@ namespace fCraft {
                         string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                         string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name
                         if ( trimmedName == null ) throw new ArgumentNullException( "trimmedName" );
-                        if ( trimmedName.Length < 2 || trimmedName.Length > 16 ) {
+                        if ( trimmedName.Length > 16 ) {
                             trimmedName = trimmedName.Substring( 0, 15 - length ); //shorten name
-                        }
+                        } //not needed for names less than 3 (me@url.com) - random string should always exceed 3 chars
 
                         //checks here not needed, just protection from anyone forking the project then modifying this
                         if ( length < 0 ) throw new ArgumentOutOfRangeException( "length", "length cannot be less than zero." );
