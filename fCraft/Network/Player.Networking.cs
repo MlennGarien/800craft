@@ -535,22 +535,20 @@ namespace fCraft {
             }
 
             string givenName = ReadString();
-            string packetPlayerName = "";
+            string packetPlayerName = givenName; //make a copy of the full name, in case Mojang support is needed
             bool UsedMojang = false;
             // Check name for nonstandard characters
             if ( !IsValidName( givenName ) ) {
                 //check if email, provide crappy support here
-                if ( givenName.Contains( "@" ) ) {
+                if ( givenName.Contains( "@" ) ) { //if the user is an email address
                     UsedMojang = true;
-                    PlayerInfo[] temp = PlayerDB.FindPlayerInfoByEmail(givenName);
-                    if ( temp != null && temp.Length == 1 ) {
-                        packetPlayerName = givenName;
+                    PlayerInfo[] temp = PlayerDB.FindPlayerInfoByEmail(givenName); //check if they have been here before
+                    if ( temp != null && temp.Length == 1 ) { //restore name if needed
                         givenName = temp[0].Name;
-                    } else {
-                        packetPlayerName = givenName;
+                    } else { //else, new player. Build a unique name
                         int length = new Random().Next( 4, 6 );
-                        string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                        string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name
+                        string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //TODO, add Valid name chars like "_"
+                        string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name ("Jonty800"@email.com)
                         if ( trimmedName == null ) throw new ArgumentNullException( "trimmedName" );
                         if ( trimmedName.Length > 16 ) {
                             trimmedName = trimmedName.Substring( 0, 15 - length ); //shorten name
@@ -584,18 +582,20 @@ namespace fCraft {
                                     result.Append( allowedCharSet[buf[i] % allowedCharSet.Length] );
                                 }
                             }
-                            givenName = trimmedName + result.ToString();
-                            PlayerInfo[] Players = PlayerDB.FindPlayers( givenName );
-                            while ( Players.Length != 0 ) {
+                            givenName = trimmedName + result.ToString(); //this is now the player's new name
+                            //run a test to see if it is unique or not (unable to test)
+                            PlayerInfo[] Players = PlayerDB.FindPlayers( givenName ); //gather matches
+                            while ( Players.Length != 0 ) { //while matches were found
                                 //Name already exists. Reroll
-                                if ( givenName.Length - 4 == 0 ) {
+                                if ( givenName.Length - 4 == 0 ) { //kick if substring causes invalid name
                                     Logger.Log( LogType.SuspiciousActivity,
                                     "Player.LoginSequence: Unacceptable player name, player failed to get new name", IP );
                                     KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
                                     return false;
+                                    //returning false breaks loops in C#, right? haha been a while
                                 }
-                                givenName = givenName.Substring( 0, givenName.Length - 1 );
-                                Players = PlayerDB.FindPlayers( givenName );
+                                givenName = givenName.Substring( 0, givenName.Length - 1 ); //keep trimming a char off of the name
+                                Players = PlayerDB.FindPlayers( givenName ); //update Players based on new name
                             }
                         }
                     }
