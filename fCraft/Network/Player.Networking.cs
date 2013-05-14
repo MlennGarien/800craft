@@ -546,13 +546,18 @@ namespace fCraft {
                     if ( temp != null && temp.Length == 1 ) { //restore name if needed
                         givenName = temp[0].Name;
                     } else { //else, new player. Build a unique name
-                        int length = new Random().Next( 4, 6 );
-                        string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //TODO, add Valid name chars like "_"
+                        int length = new Random().Next( 2, 4 );
+                        string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                         string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name ("Jonty800"@email.com)
                         if ( trimmedName == null ) throw new ArgumentNullException( "trimmedName" );
                         if ( trimmedName.Length > 16 ) {
                             trimmedName = trimmedName.Substring( 0, 15 - length ); //shorten name
-                        } //not needed for names less than 3 (me@url.com) - random string should always exceed 3 chars
+                        }
+                        foreach ( char ch in trimmedName.ToCharArray() ) { //replace invalid chars with "_"
+                            if ( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
+                                trimmedName = trimmedName.Replace( ch, '_' );
+                            }
+                        }
 
                         //checks here not needed, just protection from anyone forking the project then modifying this
                         if ( length < 0 ) throw new ArgumentOutOfRangeException( "length", "length cannot be less than zero." );
@@ -587,7 +592,7 @@ namespace fCraft {
                             PlayerInfo[] Players = PlayerDB.FindPlayers( givenName ); //gather matches
                             while ( Players.Length != 0 ) { //while matches were found
                                 //Name already exists. Reroll
-                                if ( givenName.Length - 4 == 0 ) { //kick if substring causes invalid name
+                                if ( givenName.Length - 4 <= 0 ) { //kick if substring causes invalid name
                                     Logger.Log( LogType.SuspiciousActivity,
                                     "Player.LoginSequence: Unacceptable player name, player failed to get new name", IP );
                                     KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
@@ -618,6 +623,9 @@ namespace fCraft {
 
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
+
+            //TODO rewrite this section; 
+
             if ( !UsedMojang ) {
                 if ( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
                     IsVerified = true;
