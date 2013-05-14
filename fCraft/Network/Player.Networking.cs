@@ -542,66 +542,36 @@ namespace fCraft {
                 //check if email, provide crappy support here
                 if ( givenName.Contains( "@" ) ) { //if the user is an email address
                     UsedMojang = true;
-                    PlayerInfo[] temp = PlayerDB.FindPlayerInfoByEmail(givenName); //check if they have been here before
+                    PlayerInfo[] temp = PlayerDB.FindPlayerInfoByEmail( givenName ); //check if they have been here before
                     if ( temp != null && temp.Length == 1 ) { //restore name if needed
                         givenName = temp[0].Name;
                     } else { //else, new player. Build a unique name
-                        int length = new Random().Next( 2, 4 );
-                        string allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                        Logger.Log( LogType.SystemActivity, "Email account " + givenName + " connected, attemping to create unique new name" );
+                        int nameAppend = PlayerDB.PlayerInfoList.Where( p => p.MojangAccount != null ).Count() + 1;
                         string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name ("Jonty800"@email.com)
                         if ( trimmedName == null ) throw new ArgumentNullException( "trimmedName" );
                         if ( trimmedName.Length > 16 ) {
-                            trimmedName = trimmedName.Substring( 0, 15 - length ); //shorten name
+                            trimmedName = trimmedName.Substring( 0, 15 - ( nameAppend.ToString().Length ) ); //shorten name
                         }
                         foreach ( char ch in trimmedName.ToCharArray() ) { //replace invalid chars with "_"
                             if ( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
                                 trimmedName = trimmedName.Replace( ch, '_' );
                             }
                         }
-
-                        //checks here not needed, just protection from anyone forking the project then modifying this
-                        if ( length < 0 ) throw new ArgumentOutOfRangeException( "length", "length cannot be less than zero." );
-                        if ( string.IsNullOrEmpty( allowedChars ) ) throw new ArgumentException( "allowedChars may not be empty." );
-
-                        const int byteSize = 0x100;
-                        var allowedCharSet = new HashSet<char>( allowedChars ).ToArray();
-
-                        //further protection
-                        if ( byteSize < allowedCharSet.Length ) throw new ArgumentException( String.Format( "allowedChars may contain no more than {0} characters.", byteSize ) );
-
-                        // Guid.NewGuid and System.Random are not particularly random. By using a
-                        // cryptographically-secure random number generator, the caller is always
-                        // protected, regardless of use.
-                        using ( var rng = new System.Security.Cryptography.RNGCryptoServiceProvider() ) {
-                            var result = new StringBuilder();
-                            var buf = new byte[128];
-                            while ( result.Length < length ) {
-                                rng.GetBytes( buf );
-                                for ( var i = 0; i < buf.Length && result.Length < length; ++i ) {
-                                    // Divide the byte into allowedCharSet-sized groups. If the
-                                    // random value falls into the last group and the last group is
-                                    // too small to choose from the entire allowedCharSet, ignore
-                                    // the value in order to avoid biasing the result.
-                                    var outOfRangeStart = byteSize - ( byteSize % allowedCharSet.Length );
-                                    if ( outOfRangeStart <= buf[i] ) continue;
-                                    result.Append( allowedCharSet[buf[i] % allowedCharSet.Length] );
-                                }
+                        givenName = trimmedName + "." + nameAppend.ToString(); //this is now the player's new name
+                        //run a test to see if it is unique or not (unable to test)
+                        PlayerInfo[] Players = PlayerDB.FindPlayers( givenName ); //gather matches
+                        while ( Players.Length != 0 ) { //while matches were found
+                            //Name already exists. Reroll
+                            if ( givenName.Length > 14 ) { //kick if substring causes invalid name
+                                Logger.Log( LogType.SuspiciousActivity,
+                                "Player.LoginSequence: Unacceptable player name, player failed to get new name", IP );
+                                KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
+                                return false;
+                                //returning false breaks loops in C#, right? haha been a while
                             }
-                            givenName = trimmedName + result.ToString(); //this is now the player's new name
-                            //run a test to see if it is unique or not (unable to test)
-                            PlayerInfo[] Players = PlayerDB.FindPlayers( givenName ); //gather matches
-                            while ( Players.Length != 0 ) { //while matches were found
-                                //Name already exists. Reroll
-                                if ( givenName.Length - 4 <= 0 ) { //kick if substring causes invalid name
-                                    Logger.Log( LogType.SuspiciousActivity,
-                                    "Player.LoginSequence: Unacceptable player name, player failed to get new name", IP );
-                                    KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
-                                    return false;
-                                    //returning false breaks loops in C#, right? haha been a while
-                                }
-                                givenName = givenName.Substring( 0, givenName.Length - 1 ); //keep trimming a char off of the name
-                                Players = PlayerDB.FindPlayers( givenName ); //update Players based on new name
-                            }
+                            givenName = givenName + (nameAppend + 1); //keep adding a new number to the end of the string until unique
+                            Players = PlayerDB.FindPlayers( givenName ); //update Players based on new name
                         }
                     }
                 } else {
@@ -624,23 +594,14 @@ namespace fCraft {
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
 
-            //TODO rewrite this section; 
 
-            if ( !UsedMojang ) {
-                if ( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
-                    IsVerified = true;
-                    // update capitalization of player's name
-                    if ( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
-                        Info.Name = givenName;
-                    }
+            if ( Server.VerifyName( packetPlayerName, verificationCode, Heartbeat.Salt ) ) {
+                IsVerified = true;
+                // update capitalization of player's name
+                if ( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
+                    Info.Name = givenName;
                 }
-            } else if ( UsedMojang ) {
-                if ( Server.VerifyName( packetPlayerName, verificationCode, Heartbeat.Salt ) ) {
-                    IsVerified = true;
-                    // update capitalization of player's name
-                    if ( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
-                        Info.Name = givenName;
-                    }
+                if ( UsedMojang ) {
                     Info.MojangAccount = packetPlayerName;
                 }
             } else {
@@ -687,7 +648,7 @@ namespace fCraft {
                             Info.ProcessFailedLogin( this );
                             Logger.Log( LogType.SuspiciousActivity,
                                         "{0} IP did not match. Player was kicked.",
-                                        standardMessage);
+                                        standardMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
 
