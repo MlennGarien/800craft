@@ -510,6 +510,12 @@ namespace fCraft {
             return PlayerInfoList.Where( p => p.MojangAccount == name ).ToArray();
         }
 
+        public static int FindHostNameCount ( [NotNull] string name ) {
+            if ( name == null ) throw new ArgumentNullException( "name" );
+            CheckIfLoaded();
+            return PlayerInfoList.Where( p => p.MojangAccount.EndsWith( name ) ).ToArray().Length;
+        }
+
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
             if( player == null ) throw new ArgumentNullException( "player" );

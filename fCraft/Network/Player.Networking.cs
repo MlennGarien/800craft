@@ -363,6 +363,7 @@ namespace fCraft {
                             FlyCache.TryRemove(block.ToString(), out removed);
                         }
                     }
+
                     // Create new block parts
                     for (int i = -1; i <= 1; i++) //reduced width and length by 1
                     {
@@ -549,6 +550,8 @@ namespace fCraft {
                         Logger.Log( LogType.SystemActivity, "Email account " + givenName + " connected, attemping to create unique new name" );
                         int nameAppend = PlayerDB.PlayerInfoList.Where( p => p.MojangAccount != null ).Count() + 1;
                         string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name ("Jonty800"@email.com)
+                        string HostName = givenName.Split( '@' )[1];
+                        nameAppend = PlayerDB.FindHostNameCount( HostName ) + 1;
                         if ( trimmedName == null ) throw new ArgumentNullException( "trimmedName" );
                         if ( trimmedName.Length > 16 ) {
                             trimmedName = trimmedName.Substring( 0, 15 - ( nameAppend.ToString().Length ) ); //shorten name
