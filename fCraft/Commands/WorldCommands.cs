@@ -706,6 +706,8 @@ namespace fCraft {
         };
 
         internal static void Realm ( Player player, Command cmd ) {
+            string playerName = player.Name.Replace( ".", "-" );
+
             string Choice = cmd.Next();
             if ( Choice == null ) {
                 CdRealm.PrintUsage( player );
@@ -717,7 +719,7 @@ namespace fCraft {
                     break;
 
                 case "env":
-                    if ( player.World.Name == player.Name ) {
+                    if ( player.World.Name == playerName ) {
                         string variable = cmd.Next();
                         string valueText = cmd.Next();
                         EnvHandler( player, new Command( "/Env " + player.World.Name + " " + variable + " " + valueText ) );
@@ -729,7 +731,7 @@ namespace fCraft {
 
                 case "review":
 
-                    if ( player.World.Name == player.Name ) {
+                    if ( player.World.Name == playerName ) {
                         var recepientList = Server.Players.Can( Permission.ReadStaffChat )
                                               .NotIgnoring( player )
                                               .Union( player );
@@ -756,14 +758,14 @@ namespace fCraft {
 
                 case "flush":
 
-                    WorldFlushHandler( player, new Command( "/wflush " + player.Name ) );
+                    WorldFlushHandler( player, new Command( "/wflush " + playerName ) );
                     break;
 
                 case "create":
 
                     string Theme = cmd.Next();
                     string Template = cmd.Next();
-                    if ( player.World.Name == player.Name ) {
+                    if ( player.World.Name == playerName ) {
                         player.Message( "You cannot create a new Realm when you are inside your Realm" );
                         return;
                     }
@@ -779,23 +781,21 @@ namespace fCraft {
                     break;
 
                 case "home":
-                    JoinHandler( player, new Command( "/join " + player.Name ) );
+                    JoinHandler( player, new Command( "/join " + playerName ) );
                     break;
 
                 case "help":
-
                     player.Message( "To build a realm, use /realm create. To activate it so you can build, use /realm activate. " +
-                    "If you find yourself unable to build in your Realm, use /realm activate again. " +
-                    "If there are any Bugs, report them to Jonty800@gmail.com." );
+                    "If you find yourself unable to build in your Realm, use /realm activate again.");
                     break;
 
                 case "activate": {
-                        if ( player.World.Name == player.Name ) {
+                        if ( player.World.Name == playerName ) {
                             player.Message( "You cannot use /Realm activate when you are in your Realm" );
                             return;
                         }
-                        RealmHandler.RealmLoad( player, cmd, player.Name + ".fcm", player.Name, RankManager.HighestRank.Name, RankManager.DefaultBuildRank.Name );
-                        World realmworld = WorldManager.FindWorldExact( player.Name );
+                        RealmHandler.RealmLoad( player, cmd, playerName + ".fcm", playerName, RankManager.HighestRank.Name, RankManager.DefaultBuildRank.Name );
+                        World realmworld = WorldManager.FindWorldExact( playerName );
                         if ( realmworld == null ) return;
                         if ( !realmworld.AccessSecurity.Check( player.Info ) ) {
                             realmworld.AccessSecurity.Include( player.Info );
@@ -808,7 +808,7 @@ namespace fCraft {
                     }
 
                 case "control":
-                    World w1 = WorldManager.FindWorldExact( player.Name );
+                    World w1 = WorldManager.FindWorldExact( playerName );
                     if ( w1 == null ) return;
                     if ( !w1.AccessSecurity.Check( player.Info ) ) {
                         w1.AccessSecurity.Include( player.Info );
@@ -823,7 +823,7 @@ namespace fCraft {
 
                 case "spawn":
 
-                    if ( player.World.Name == player.Name ) {
+                    if ( player.World.Name == playerName ) {
                         ModerationCommands.SetSpawnHandler( player, new Command( "/setspawn" ) );
                         return;
                     } else {
@@ -845,7 +845,7 @@ namespace fCraft {
                         player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
                         return;
                     }
-                    if ( world.Name != player.Name ) {
+                    if ( world.Name != playerName ) {
                         player.Message( "&WYou can only turn physics on in your realm" );
                         return;
                     }
@@ -902,7 +902,6 @@ namespace fCraft {
                     }
 
                 case "allow":
-
                     string toAllow = cmd.Next();
 
                     if ( toAllow == null ) {
@@ -958,9 +957,7 @@ namespace fCraft {
                     break;
 
                 case "ban":
-
                     string Ban = cmd.Next();
-
                     if ( Ban == null ) {
                         player.Message( "Bans a player from accessing your Realm. Useage: /Realm ban playername." );
                         return;
@@ -983,11 +980,9 @@ namespace fCraft {
                             return;
                         }
                     }
-
                     break;
 
                 case "unban":
-
                     string UnBan = cmd.Next();
 
                     if ( UnBan == null ) {
