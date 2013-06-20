@@ -107,6 +107,7 @@
     <Compile Include="Commands\BuildingCommands.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Commands\Command Handlers\BroModeHandler.cs" />
+    <Compile Include="Commands\Command Handlers\FeedData.cs" />
     <Compile Include="Commands\Command Handlers\FlyHandler.cs" />
     <Compile Include="Commands\Command Handlers\GunHandler.cs" />
     <Compile Include="Commands\Command Handlers\LifeHandler.cs" />
@@ -200,6 +201,11 @@
     <Compile Include="Portals\PortalException.cs" />
     <Compile Include="Portals\PortalHandler.cs" />
     <Compile Include="Portals\PortalRange.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Utils\Direction.cs" />
     <Compile Include="Utils\HeartbeatSaverUtil.cs" />
     <Compile Include="Utils\PathFinding.cs" />
@@ -345,7 +351,15 @@
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\font.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

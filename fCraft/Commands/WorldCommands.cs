@@ -55,6 +55,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPhysics );
             CommandManager.RegisterCommand( CdWorldSet );
             CommandManager.RegisterCommand( CdMessageBlock );
+            CommandManager.RegisterCommand( CdFeed );
+            Player.JoinedWorld += FeedSettings.PlayerJoiningWorld;
         }
         #region 800Craft
 
@@ -84,6 +86,128 @@ namespace fCraft {
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
+        static readonly CommandDescriptor CdFeed = new CommandDescriptor {
+            Name = "Feed",
+            Category = CommandCategory.Building,
+            Permissions = new Permission[] { Permission.EditPlayerDB },
+            RepeatableSelection = true,
+            IsConsoleSafe = false,
+            Help = "/Feed then click two positions. Will create a 60 block feed in the direction of the 2nd block",
+            Handler = FeedHandler,
+        };
+
+        static void FeedHandler ( Player player, Command cmd ) {
+            string Option = cmd.Next();
+            if ( Option == null ) {
+                player.Message( "Argument cannot be null, try /Feed <create | remove | list>" );
+                return;
+            }
+
+            if ( Option.ToLower() == "create" ) {
+                player.Message( "Feed: Click 2 blocks or use &H/Mark&S to set direction." );
+                player.SelectionStart( 2, FeedCallback, Option, Permission.Draw );
+                return;
+            }
+            if ( Option.ToLower() == "list" ) {
+                FeedData[] list = player.World.Feeds.Values.OrderBy( feed => feed.Id ).ToArray();
+                if ( list.Length == 0 ) {
+                    player.Message( "No feeds running." );
+                } else {
+                    player.Message( "There are {0} feeds running:", list.Length );
+                    foreach ( FeedData data in list ) {
+                        player.Message( "  #{0} ({1},{2},{3}) World: {4}",
+                                        data.Id, data.StartPos.X, data.StartPos.Y, data.StartPos.Z, data.world.ClassyName );
+                    }
+                }
+                return;
+            }
+
+            if ( Option.ToLower() == "remove" || Option.ToLower() == "stop" ) {
+                int Id;
+                if ( cmd.NextInt( out Id ) ) {
+                    FeedData data = FeedData.FindFeedById( Id, player.World );
+                    if ( data == null ) {
+                        player.Message( "Given feed (#{0}) does not exist.", Id );
+                    } else {
+                        data.started = false;
+                        FeedData.RemoveFeedFromList( data, player.World );
+                        player.Message( "Feed #" + Id + " has been removed" );
+                    }
+                } else {
+                    player.Message( "&WUnable to remove any feeds. Try /Feed remove <ID>" );
+                }
+                return;
+            } else {
+                player.Message( "&WUnknown argument. Check /Help Feed" );
+                return;
+            }
+        }
+
+        static void FeedCallback ( Player player, Vector3I[] marks, object tag ) {
+            Direction direction = DirectionFinder.GetDirection( marks );
+            if ( Math.Abs( marks[1].X - marks[0].X ) > Math.Abs( marks[1].Y - marks[0].Y ) ) {
+                if ( marks[0].X < marks[1].X ) {
+                    direction = Direction.one;
+                } else {
+                    direction = Direction.two;
+                }
+            } else if ( Math.Abs( marks[1].X - marks[0].X ) < Math.Abs( marks[1].Y - marks[0].Y ) ) {
+                if ( marks[0].Y < marks[1].Y ) {
+                    direction = Direction.three;
+                } else {
+                    direction = Direction.four;
+                }
+            } 
+            else return;
+            System.Drawing.Bitmap bmp = fCraft.Properties.Resources.font;
+            FeedData data = new FeedData( Block.Lava, marks[0], bmp, player.World, direction );
+            data.StartPos = marks[0];
+            int x1 = 0, y1 = 0, z1 = 0;
+            switch ( direction ) {
+                case Direction.one:
+                    for ( int x = data.StartPos.X; x < data.StartPos.X + 60; x++ ) {
+                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                            player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )x, ( short )data.StartPos.Y, ( short )z, Block.Black ) );
+                            x1 = x; z1 = z;
+                        }
+                    }
+                    data.EndPos = new Vector3I( x1, marks[0].Y, z1 );
+                    data.FinishPos = new Vector3I( x1, marks[0].Y, z1 );
+                    break;
+
+                case Direction.two:
+                    for ( int x = data.StartPos.X; x > data.StartPos.X - 60; x-- ) {
+                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                            player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )x, ( short )data.StartPos.Y, ( short )z, Block.Black ) );
+                            x1 = x; z1 = z;
+                        }
+                    }
+                    data.EndPos = new Vector3I( x1, marks[0].Y, z1 );
+                    data.FinishPos = new Vector3I( x1, marks[0].Y, z1 );
+                    break;
+                case Direction.three:
+                    for ( int y = data.StartPos.Y; y < data.StartPos.Y + 60; y++ ) {
+                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                            player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )data.StartPos.X, ( short )y, ( short )z, Block.Black ) );
+                            y1 = y; z1 = z;
+                        }
+                    }
+                    data.EndPos = new Vector3I( marks[0].X, y1, z1 );
+                    data.FinishPos = new Vector3I( marks[0].X, y1, z1 );
+                    break;
+                case Direction.four:
+                    for ( int y = data.StartPos.Y; y > data.StartPos.Y - 60; y-- ) {
+                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                            player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )data.StartPos.X, ( short )y, ( short )z, Block.Black ) );
+                            y1 = y; z1 = z;
+                        }
+                    }
+                    data.EndPos = new Vector3I( marks[0].X, y1, z1 );
+                    data.FinishPos = new Vector3I( marks[0].X, y1, z1 );
+                    break;
+            }
+        }
 
         #region Physics
         static readonly CommandDescriptor CdPhysics = new CommandDescriptor {
@@ -786,7 +910,7 @@ namespace fCraft {
 
                 case "help":
                     player.Message( "To build a realm, use /realm create. To activate it so you can build, use /realm activate. " +
-                    "If you find yourself unable to build in your Realm, use /realm activate again.");
+                    "If you find yourself unable to build in your Realm, use /realm activate again." );
                     break;
 
                 case "activate": {
@@ -849,7 +973,7 @@ namespace fCraft {
                         player.Message( "&WYou can only turn physics on in your realm" );
                         return;
                     }
-                    
+
                     switch ( phyOption.ToLower() ) {
                         case "water":
                             if ( onOff.ToLower() == "on" ) {

@@ -57,6 +57,9 @@ namespace fCraft {
         public Vector3I footballPos;
         public Player[, ,] positions;
 
+        //feeds
+        public Dictionary<int, FeedData> Feeds = new Dictionary<int, FeedData>();
+
         public string Greeting = null;
 
         /// <summary> Whether this world is currently pending unload 
@@ -101,8 +104,6 @@ namespace fCraft {
 
         [NotNull]
         public SecurityController BuildSecurity { get; internal set; }
-
-
 
         public DateTime LoadedOn { get; internal set; }
 
