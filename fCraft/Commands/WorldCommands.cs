@@ -57,6 +57,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdMessageBlock );
             CommandManager.RegisterCommand( CdFeed );
             Player.JoinedWorld += FeedSettings.PlayerJoiningWorld;
+            Player.PlacingBlock += FeedSettings.PlayerPlacingBlock;
         }
         #region 800Craft
 
@@ -161,24 +162,25 @@ namespace fCraft {
             } 
             else return;
             System.Drawing.Bitmap bmp = fCraft.Properties.Resources.font;
-            FeedData data = new FeedData( Block.Lava, marks[0], bmp, player.World, direction );
+            FeedData data = new FeedData( Block.Lava, marks[0], bmp, player.World, direction, player );
             data.StartPos = marks[0];
             int x1 = 0, y1 = 0, z1 = 0;
             switch ( direction ) {
                 case Direction.one:
                     for ( int x = data.StartPos.X; x < data.StartPos.X + 60; x++ ) {
-                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                        for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )x, ( short )data.StartPos.Y, ( short )z, Block.Black ) );
                             x1 = x; z1 = z;
                         }
                     }
                     data.EndPos = new Vector3I( x1, marks[0].Y, z1 );
                     data.FinishPos = new Vector3I( x1, marks[0].Y, z1 );
+                    
                     break;
 
                 case Direction.two:
                     for ( int x = data.StartPos.X; x > data.StartPos.X - 60; x-- ) {
-                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                        for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )x, ( short )data.StartPos.Y, ( short )z, Block.Black ) );
                             x1 = x; z1 = z;
                         }
@@ -188,7 +190,7 @@ namespace fCraft {
                     break;
                 case Direction.three:
                     for ( int y = data.StartPos.Y; y < data.StartPos.Y + 60; y++ ) {
-                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                        for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )data.StartPos.X, ( short )y, ( short )z, Block.Black ) );
                             y1 = y; z1 = z;
                         }
@@ -198,7 +200,7 @@ namespace fCraft {
                     break;
                 case Direction.four:
                     for ( int y = data.StartPos.Y; y > data.StartPos.Y - 60; y-- ) {
-                        for ( int z = data.StartPos.Z - 1; z < data.StartPos.Z + 9; z++ ) {
+                        for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )data.StartPos.X, ( short )y, ( short )z, Block.Black ) );
                             y1 = y; z1 = z;
                         }

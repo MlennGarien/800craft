@@ -6,16 +6,31 @@ using fCraft;
 using System.Collections.Concurrent;
 using System.Drawing;
 using fCraft.Events;
+using fCraft.Drawing;
 
 namespace fCraft {
 
     public static class FeedSettings {
-        public static Bitmap ImageCache = null;
-        public static void PlayerJoiningWorld ( object sender, PlayerJoinedWorldEventArgs e ) {
 
+        public static Bitmap ImageCache = null;
+
+        public static void PlayerJoiningWorld ( object sender, PlayerJoinedWorldEventArgs e ) {
             foreach ( FeedData data in e.NewWorld.Feeds.Values.Where( f => !f.started ) ) {
                 if ( data.world.Name == e.NewWorld.Name ) {
                     data.Start();
+                }
+            }
+        }
+        public static void PlayerPlacingBlock ( object sender, PlayerPlacingBlockEventArgs e ) {
+            foreach ( FeedData feed in e.Player.World.Feeds.Values ) {
+                for ( int x = feed.StartPos.X; x <= feed.FinishPos.X; x++ ) {
+                    for ( int y = feed.StartPos.Y; y <= feed.FinishPos.Y; y++ ) {
+                        for ( int z = feed.StartPos.Z; z <= feed.FinishPos.Z; z++ ) {
+                            if ( e.Coords == new Vector3I( x, y, z ) ) {
+                                e.Result = CanPlaceResult.Revert;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -24,8 +39,10 @@ namespace fCraft {
     public sealed class FeedData {
         public bool started = false;
         public Vector3I StartPos; //the start position
-        public Vector3I EndPos; //the moving position
         public Vector3I FinishPos; //the end position, start -> end
+
+        public Vector3I EndPos; //the moving position
+        
         public Vector3I Pos; //the position of the blockupdate
         public List<byte> last = new List<byte>();
         public List<byte> originalMap = new List<byte>();
@@ -42,8 +59,9 @@ namespace fCraft {
         public static List<String> Messages;
         public Direction direction;
         public SchedulerTask task;
+        public Player player;
 
-        public FeedData ( Block _textType, Vector3I _pos, Bitmap Image, World world, Direction direction_ ) {
+        public FeedData ( Block _textType, Vector3I _pos, Bitmap Image, World world, Direction direction_, Player player_ ) {
             direction = direction_;
             Blocks = new ConcurrentDictionary<string, Vector3I>();
             Init( Image, world );
@@ -54,7 +72,20 @@ namespace fCraft {
             MessageCount = 0;
             Sentence = FeedData.Messages[MessageCount];
             Id = System.Threading.Interlocked.Increment( ref feedCounter );
+            player = player_;
+            NormalBrush brush = new NormalBrush( Block.Wood );
+            DrawOperation Operation = new CuboidWireframeDrawOperation( player );
+            Operation.AnnounceCompletion = false;
+            Operation.Brush = brush;
+            Operation.Context = BlockChangeContext.Drawn;
+            
+            if ( !Operation.Prepare( new Vector3I[] { StartPos, FinishPos } ) ) {
+                throw new Exception( "Unable to cubw frame." );
+            }
+
+            Operation.Begin();
             AddFeedToList( this, world );
+            
             Start();
         }
 
@@ -255,7 +286,7 @@ namespace fCraft {
         }
 
         public void Render ( string text, Block t ) {
-            Byte temp = textType;
+            byte temp = textType;
             textType = ( byte )t;
             Render( text );
             textType = temp;
