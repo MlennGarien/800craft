@@ -55,7 +55,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPhysics );
             CommandManager.RegisterCommand( CdWorldSet );
             CommandManager.RegisterCommand( CdMessageBlock );
-            CommandManager.RegisterCommand( CdFeed );
+            //CommandManager.RegisterCommand( CdFeed );
             Player.JoinedWorld += FeedSettings.PlayerJoiningWorld;
             Player.PlacingBlock += FeedSettings.PlayerPlacingBlock;
         }

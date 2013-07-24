@@ -163,20 +163,24 @@ namespace fCraft {
         static void Door ( Player player, Command cmd ) {
             string option = cmd.Next();
             if ( option == null ) {
+                int MaxNumberOfDoorsPerPlayer = 5;
+                if ( DoorHandler.GetPlayerOwnedDoorsNumber( player.World, player ) >= MaxNumberOfDoorsPerPlayer ) {
+                    player.Message( "You cannot place any more doors, a player can have a maximum of {0} doors per world", 
+                        MaxNumberOfDoorsPerPlayer );
+                    return;
+                }
                 Door door = new Door();
                 player.SelectionStart( 2, DoorAdd, door, CdDoor.Permissions );
-                player.Message( "Door: Place a block or type /mark to use your location." );
+                player.Message( "Door: Place a block or type /Mark to use your location." );
                 return;
             } else if ( option.ToLower().Equals( "remove" ) || option.ToLower().Equals( "rd" ) ) {
                 string doorName = cmd.Next();
-
                 if ( doorName == null ) {
                     player.Message( "No door name specified." );
                 } else {
                     if ( player.World.Map.Doors != null && player.World.Map.Doors.Count > 0 ) {
                         bool found = false;
                         Door doorFound = null;
-
                         lock ( player.World.Map.Doors.SyncRoot ) {
                             foreach ( Door door in player.World.Map.Doors ) {
                                 if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
@@ -185,7 +189,6 @@ namespace fCraft {
                                     break;
                                 }
                             }
-
                             if ( !found ) {
                                 player.Message( "Could not find door by name {0}.", doorName );
                             } else {
@@ -199,13 +202,11 @@ namespace fCraft {
                 }
             } else if ( option.ToLower().Equals( "info" ) ) {
                 string doorName = cmd.Next();
-
                 if ( doorName == null ) {
                     player.Message( "No door name specified." );
                 } else {
                     if ( player.World.Map.Doors != null && player.World.Map.Doors.Count > 0 ) {
                         bool found = false;
-
                         lock ( player.World.Map.Doors.SyncRoot ) {
                             foreach ( Door door in player.World.Map.Doors ) {
                                 if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
@@ -216,7 +217,6 @@ namespace fCraft {
                                 }
                             }
                         }
-
                         if ( !found ) {
                             player.Message( "Could not find door by name {0}.", doorName );
                         }
@@ -245,7 +245,6 @@ namespace fCraft {
             }
         }
 
-
         static void DoorTestCallback ( Player player, Vector3I[] marks, object tag ) {
             Vector3I Pos = marks[0]; Door door = fCraft.Doors.DoorHandler.GetDoor( Pos, player );
             if ( door == null ) {
@@ -260,10 +259,10 @@ namespace fCraft {
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
             int ey = Math.Max( marks[0].Y, marks[1].Y );
-            int sh = Math.Min( marks[0].Z, marks[1].Z );
-            int eh = Math.Max( marks[0].Z, marks[1].Z );
+            int sz = Math.Min( marks[0].Z, marks[1].Z );
+            int ez = Math.Max( marks[0].Z, marks[1].Z );
 
-            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( eh - sh + 1 );
+            int volume = ( ex - sx + 1 ) * ( ey - sy + 1 ) * ( ez - sz + 1 );
             if ( volume > 30 ) {
                 player.Message( "Doors are only allowed to be {0} blocks", 30 );
                 return;
@@ -285,7 +284,7 @@ namespace fCraft {
             List<Vector3I> blocks = new List<Vector3I>();
             for ( int x = sx; x < ex; x++ ) {
                 for ( int y = sy; y < ey; y++ ) {
-                    for ( int z = sh; z < eh; z++ ) {
+                    for ( int z = sz; z < ez; z++ ) {
                         if ( player.CanPlace( player.World.Map, new Vector3I( x, y, z ), Block.Wood, BlockChangeContext.Manual ) != CanPlaceResult.Allowed ) {
                             player.Message( "Cannot add a door to world {0}&S: Build permissions in this area replied with 'denied'.",
                                         player.World.ClassyName );
@@ -295,13 +294,18 @@ namespace fCraft {
                     }
                 }
             }
-
             Door door = new Door( player.World.Name,
                 blocks.ToArray(),
                 fCraft.Doors.Door.GenerateName( player.World ),
                 player.ClassyName );
-            door.Range = new DoorRange( sx, ex, sy, ey, sh, eh );
-
+            door.Range = new DoorRange( sx, ex, sy, ey, sz, ez );
+            foreach ( Vector3I v in DoorHandler.GetInstance().GetAffectedBlocks( door ) ) {
+                if ( DoorHandler.GetInstance().GetDoor( player.World, v) != null ) {
+                    player.Message( "You can not build a door inside a door, U MAD BRO?" );
+                    player.World.Map.DoorID--;
+                    return;
+                }
+            }
             DoorHandler.CreateDoor( door, player.World );
             Logger.Log( LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name );
             player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );

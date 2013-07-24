@@ -381,8 +381,8 @@ namespace fCraft {
             // list loaded worlds
             WorldManager.UpdateWorldList();
             Logger.Log( LogType.SystemActivity,
-                        "All available worlds: {0}",
-                        WorldManager.Worlds.JoinToString( ", ", w => w.Name ) );
+                        "{0} available worlds: {0}",
+                        WorldManager.Worlds.Length );
 
             Logger.Log( LogType.SystemActivity,
                         "Main world: {0}; default rank: {1}",

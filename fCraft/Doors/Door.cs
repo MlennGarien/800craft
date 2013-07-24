@@ -176,6 +176,7 @@ namespace fCraft.Doors {
 
             return false;
         }
+        
 
         public void Remove ( Player requester ) {
             NormalBrush brush = new NormalBrush( Block.Air, Block.Air );

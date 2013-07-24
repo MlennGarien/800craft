@@ -38,11 +38,14 @@ namespace fCraft {
         /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
         Redone = 512,
 
-        /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
+        /// <summary> A player-made portal </summary>
         Portal = 1024,
 
-        /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
+        /// <summary> Block modified by physics </summary>
         Physics = 2048,
+
+        /// <summary> A player-made door</summary>
+        Door = 4096,
 
 
         /// <summary> Combination of Manual and Replaced (as used by /Paint). </summary>

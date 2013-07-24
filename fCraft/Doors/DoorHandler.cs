@@ -54,14 +54,12 @@ namespace fCraft.Doors {
             if ( e.Map.Doors == null ) return;
             if ( e.Map.World != null ) {
                 if ( e.Map != null ) {
-                    if ( e.Context != BlockChangeContext.Manual ) {
-                        if ( e.Map.Doors.Count > 0 ) {
-                            lock ( e.Map.Doors.SyncRoot ) {
-                                foreach ( Door door in e.Map.Doors ) {
-                                    if ( e.Map == null ) break;
-                                    if ( door.IsInRange( e.Coords ) ) {
-                                        e.Result = CanPlaceResult.Revert;
-                                    }
+                    if ( e.Map.Doors.Count > 0 ) {
+                        lock ( e.Map.Doors.SyncRoot ) {
+                            foreach ( Door door in e.Map.Doors ) {
+                                if ( e.Map == null ) break;
+                                if ( door.IsInRange( e.Coords ) ) {
+                                    e.Result = CanPlaceResult.Revert;
                                 }
                             }
                         }
@@ -105,6 +103,28 @@ namespace fCraft.Doors {
             }
 
             return Door;
+        }
+
+        public Vector3I[] GetAffectedBlocks ( Door door ) {
+            Vector3I[] temp = new Vector3I[] { };
+            List<Vector3I> temp2 = new List<Vector3I>();
+            for(int x = door.Range.Xmin; x < door.Range.Xmax; x++)
+                for ( int y = door.Range.Ymin; y < door.Range.Ymax; y++ )
+                    for ( int z = door.Range.Zmin; z < door.Range.Zmax; z++ ) {
+                        temp2.Add( new Vector3I( x, y, z ) );
+                    }
+            temp = temp2.ToArray();
+            return temp;
+        }
+
+        public static int GetPlayerOwnedDoorsNumber ( World world, Player player ) {
+            int Number = 0;
+            foreach ( Door door in world.Map.Doors ) {
+                if ( door.Creator == player.Name ) {
+                    Number++;
+                }
+            }
+            return Number;
         }
 
         public Door GetDoor ( World world, Vector3I block ) {

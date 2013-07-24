@@ -26,7 +26,7 @@ namespace fCraft {
 
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
 
-        static Player() {
+        static Player () {
             MaxBlockPlacementRange = 7 * 32;
             SocketTimeout = 10000;
         }
@@ -50,13 +50,13 @@ namespace fCraft {
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 
 
-        public static void StartSession( [NotNull] TcpClient tcpClient ) {
-            if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
+        public static void StartSession ( [NotNull] TcpClient tcpClient ) {
+            if ( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             new Player( tcpClient );
         }
 
-        Player( [NotNull] TcpClient tcpClient ) {
-            if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
+        Player ( [NotNull] TcpClient tcpClient ) {
+            if ( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
             State = SessionState.Connecting;
             LoginTime = DateTime.UtcNow;
             LastActiveTime = DateTime.UtcNow;
@@ -72,8 +72,8 @@ namespace fCraft {
             Metadata = new MetadataCollection<object>();
 
             try {
-                IP = ((IPEndPoint)(client.Client.RemoteEndPoint)).Address;
-                if( Server.RaiseSessionConnectingEvent( IP ) ) return;
+                IP = ( ( IPEndPoint )( client.Client.RemoteEndPoint ) ).Address;
+                if ( Server.RaiseSessionConnectingEvent( IP ) ) return;
 
                 stream = client.GetStream();
                 reader = new BinaryReader( stream );
@@ -85,11 +85,11 @@ namespace fCraft {
                 };
                 ioThread.Start();
 
-            } catch( SocketException ) {
+            } catch ( SocketException ) {
                 // Mono throws SocketException when accessing Client.RemoteEndPoint on disconnected sockets
                 Disconnect();
 
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 Logger.LogAndReportCrash( "Session failed to start", "800Craft", ex, false );
                 Disconnect();
             }
@@ -98,12 +98,12 @@ namespace fCraft {
 
         #region I/O Loop
 
-        void IoLoop() {
+        void IoLoop () {
             try {
                 Server.RaiseSessionConnectedEvent( this );
 
                 // try to log the player in, otherwise die.
-                if( !LoginSequence() ) return;
+                if ( !LoginSequence() ) return;
 
                 BandwidthUseMode = Info.BandwidthUseMode;
 
@@ -114,14 +114,14 @@ namespace fCraft {
                     pingCounter = 0;
 
                 // main i/o loop
-                while( canSend ) {
+                while ( canSend ) {
                     int packetsSent = 0;
 
                     // detect player disconnect
-                    if( pollCounter > SocketPollInterval ) {
-                        if( !client.Connected ||
-                            (client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0) ) {
-                            if( Info != null ) {
+                    if ( pollCounter > SocketPollInterval ) {
+                        if ( !client.Connected ||
+                            ( client.Client.Poll( 1000, SelectMode.SelectRead ) && client.Client.Available == 0 ) ) {
+                            if ( Info != null ) {
                                 Logger.Log( LogType.Debug,
                                             "Player.IoLoop: Lost connection to player {0} ({1}).", Name, IP );
                             } else {
@@ -131,7 +131,7 @@ namespace fCraft {
                             LeaveReason = LeaveReason.ClientQuit;
                             return;
                         }
-                        if( pingCounter > PingInterval ) {
+                        if ( pingCounter > PingInterval ) {
                             writer.WritePing();
                             BytesSent++;
                             pingCounter = 0;
@@ -139,55 +139,55 @@ namespace fCraft {
                         }
                         pingCounter++;
                         pollCounter = 0;
-                        if( IsUsingWoM ) {
+                        if ( IsUsingWoM ) {
                             MessageNowPrefixed( "", "^detail.user=" + InfoCommands.GetCompassString( Position.R ) );
                         }
                     }
                     pollCounter++;
 
-                    if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                    if ( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
                         UpdateVisibleEntities();
                         lastMovementUpdate = DateTime.UtcNow;
                     }
 
                     // send output to player
-                    while (canSend && packetsSent < Server.MaxSessionPacketsPerTick){
-                        if (!priorityOutputQueue.TryDequeue(out packet))
-                            if (!outputQueue.TryDequeue(out packet)) break;
+                    while ( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
+                        if ( !priorityOutputQueue.TryDequeue( out packet ) )
+                            if ( !outputQueue.TryDequeue( out packet ) ) break;
 
-                        if( IsDeaf && packet.OpCode == OpCode.Message ) continue;
+                        if ( IsDeaf && packet.OpCode == OpCode.Message ) continue;
 
                         writer.Write( packet.Data );
                         BytesSent += packet.Data.Length;
                         packetsSent++;
 
-                        if( packet.OpCode == OpCode.Kick ) {
+                        if ( packet.OpCode == OpCode.Kick ) {
                             writer.Flush();
-                            if( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
+                            if ( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
                             return;
                         }
 
-                        if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                        if ( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
                             UpdateVisibleEntities();
                             lastMovementUpdate = DateTime.UtcNow;
                         }
                     }
 
                     // check if player needs to change worlds
-                    if( canSend ) {
-                        lock( joinWorldLock ) {
-                            if( forcedWorldToJoin != null ) {
-                                while (priorityOutputQueue.TryDequeue(out packet)){
+                    if ( canSend ) {
+                        lock ( joinWorldLock ) {
+                            if ( forcedWorldToJoin != null ) {
+                                while ( priorityOutputQueue.TryDequeue( out packet ) ) {
                                     writer.Write( packet.Data );
                                     BytesSent += packet.Data.Length;
                                     packetsSent++;
-                                    if( packet.OpCode == OpCode.Kick ) {
+                                    if ( packet.OpCode == OpCode.Kick ) {
                                         writer.Flush();
-                                        if( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
+                                        if ( LeaveReason == LeaveReason.Unknown ) LeaveReason = LeaveReason.Kick;
                                         return;
                                     }
                                 }
-                                if( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn, worldChangeReason ) ) {
+                                if ( !JoinWorldNow( forcedWorldToJoin, useWorldSpawn, worldChangeReason ) ) {
                                     Logger.Log( LogType.Warning,
                                                 "Player.IoLoop: Player was asked to force-join a world, but it was full." );
                                     KickNow( "World is full.", LeaveReason.ServerFull );
@@ -196,7 +196,7 @@ namespace fCraft {
                             }
                         }
 
-                        if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                        if ( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
                             UpdateVisibleEntities();
                             lastMovementUpdate = DateTime.UtcNow;
                         }
@@ -204,12 +204,12 @@ namespace fCraft {
 
 
                     // get input from player
-                    while( canReceive && stream.DataAvailable ) {
+                    while ( canReceive && stream.DataAvailable ) {
                         byte opcode = reader.ReadByte();
-                        switch( (OpCode)opcode ) {
+                        switch ( ( OpCode )opcode ) {
 
                             case OpCode.Message:
-                                if( !ProcessMessagePacket() ) return;
+                                if ( !ProcessMessagePacket() ) return;
                                 break;
 
                             case OpCode.Teleport:
@@ -233,7 +233,7 @@ namespace fCraft {
                                 return;
                         }
 
-                        if( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
+                        if ( DateTime.UtcNow.Subtract( lastMovementUpdate ) > movementUpdateInterval ) {
                             UpdateVisibleEntities();
                             lastMovementUpdate = DateTime.UtcNow;
                         }
@@ -242,13 +242,13 @@ namespace fCraft {
                     Thread.Sleep( SleepDelay );
                 }
 
-            } catch( IOException ) {
+            } catch ( IOException ) {
                 LeaveReason = LeaveReason.ClientQuit;
 
-            } catch( SocketException ) {
+            } catch ( SocketException ) {
                 LeaveReason = LeaveReason.ClientQuit;
 #if !DEBUG
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 LeaveReason = LeaveReason.ServerError;
                 Logger.LogAndReportCrash( "Error in Player.IoLoop", "800Craft", ex, false );
 #endif
@@ -260,18 +260,18 @@ namespace fCraft {
         }
 
 
-        bool ProcessMessagePacket() {
+        bool ProcessMessagePacket () {
             BytesReceived += 66;
             ResetIdleTimer();
             reader.ReadByte();
             string message = ReadString();
 
-            if( !IsSuper && message.StartsWith( "/womid " ) ) {
+            if ( !IsSuper && message.StartsWith( "/womid " ) ) {
                 IsUsingWoM = true;
                 return true;
             }
 
-            if( Chat.ContainsInvalidChars( message ) ) {
+            if ( Chat.ContainsInvalidChars( message ) ) {
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.ParseMessage: {0} attempted to write illegal characters in chat and was kicked.",
                             Name );
@@ -284,11 +284,11 @@ namespace fCraft {
 #else
             try {
                 ParseMessage( message, false );
-            } catch( IOException ) {
+            } catch ( IOException ) {
                 throw;
-            } catch( SocketException ) {
+            } catch ( SocketException ) {
                 throw;
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 Logger.LogAndReportCrash( "Error while parsing player's message", "800Craft", ex, false );
                 MessageNow( "&WError while handling your message ({0}: {1})." +
                             "It is recommended that you reconnect to the server.",
@@ -299,7 +299,7 @@ namespace fCraft {
         }
 
 
-        void ProcessMovementPacket() {
+        void ProcessMovementPacket () {
             BytesReceived += 10;
             reader.ReadByte();
             Position newPos = new Position {
@@ -314,25 +314,25 @@ namespace fCraft {
 
             // calculate difference between old and new positions
             Position delta = new Position {
-                X = (short)(newPos.X - oldPos.X),
-                Y = (short)(newPos.Y - oldPos.Y),
-                Z = (short)(newPos.Z - oldPos.Z),
-                R = (byte)Math.Abs( newPos.R - oldPos.R ),
-                L = (byte)Math.Abs( newPos.L - oldPos.L )
+                X = ( short )( newPos.X - oldPos.X ),
+                Y = ( short )( newPos.Y - oldPos.Y ),
+                Z = ( short )( newPos.Z - oldPos.Z ),
+                R = ( byte )Math.Abs( newPos.R - oldPos.R ),
+                L = ( byte )Math.Abs( newPos.L - oldPos.L )
             };
 
             // skip everything if player hasn't moved
-            if( delta.IsZero ) return;
+            if ( delta.IsZero ) return;
 
-            bool rotChanged = (delta.R != 0) || (delta.L != 0);
+            bool rotChanged = ( delta.R != 0 ) || ( delta.L != 0 );
 
             // only reset the timer if player rotated
             // if player is just pushed around, rotation does not change (and timer should not reset)
-            if( rotChanged ) ResetIdleTimer();
+            if ( rotChanged ) ResetIdleTimer();
 
-            if( Info.IsFrozen ) {
+            if ( Info.IsFrozen ) {
                 // special handling for frozen players
-                if( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
+                if ( delta.X * delta.X + delta.Y * delta.Y > AntiSpeedMaxDistanceSquared ||
                     Math.Abs( delta.Z ) > 40 ) {
                     SendNow( PacketWriter.MakeSelfTeleport( Position ) );
                 }
@@ -346,36 +346,29 @@ namespace fCraft {
                 delta.Z = 0;
 
             }
-            if (IsFlying)
-            {
-                Vector3I oldPosi = new Vector3I(oldPos.X / 32, oldPos.Y / 32, oldPos.Z / 32);
-                Vector3I newPosi = new Vector3I(newPos.X / 32, newPos.Y / 32, newPos.Z / 32);
+            if ( IsFlying ) {
+                Vector3I oldPosi = new Vector3I( oldPos.X / 32, oldPos.Y / 32, oldPos.Z / 32 );
+                Vector3I newPosi = new Vector3I( newPos.X / 32, newPos.Y / 32, newPos.Z / 32 );
                 //Checking e.Old vs e.New increases accuracy, checking old vs new uses a lot less updates
-                if ((oldPosi.X != newPosi.X) || (oldPosi.Y != newPosi.Y) || (oldPosi.Z != newPosi.Z))
-                {
+                if ( ( oldPosi.X != newPosi.X ) || ( oldPosi.Y != newPosi.Y ) || ( oldPosi.Z != newPosi.Z ) ) {
                     //finally, /fly decends
-                    if ((oldPos.Z > newPos.Z))
-                    {
-                        foreach (Vector3I block in FlyCache.Values)
-                        {
-                            SendNow(PacketWriter.MakeSetBlock(block, Block.Air));
+                    if ( ( oldPos.Z > newPos.Z ) ) {
+                        foreach ( Vector3I block in FlyCache.Values ) {
+                            SendNow( PacketWriter.MakeSetBlock( block, Block.Air ) );
                             Vector3I removed;
-                            FlyCache.TryRemove(block.ToString(), out removed);
+                            FlyCache.TryRemove( block.ToString(), out removed );
                         }
                     }
-
                     // Create new block parts
-                    for (int i = -1; i <= 1; i++) //reduced width and length by 1
+                    for ( int i = -1; i <= 1; i++ ) //reduced width and length by 1
                     {
-                        for (int j = -1; j <= 1; j++)
-                        {
-                            for (int k = 2; k <= 3; k++) //added a 2nd layer
+                        for ( int j = -1; j <= 1; j++ ) {
+                            for ( int k = 2; k <= 3; k++ ) //added a 2nd layer
                             {
-                                Vector3I layer = new Vector3I(newPosi.X + i, newPosi.Y + j, newPosi.Z - k);
-                                if (World.Map.GetBlock(layer) == Block.Air)
-                                {
-                                    SendNow(PacketWriter.MakeSetBlock(layer, Block.Glass));
-                                    FlyCache.TryAdd(layer.ToString(), layer);
+                                Vector3I layer = new Vector3I( newPosi.X + i, newPosi.Y + j, newPosi.Z - k );
+                                if ( World.Map.GetBlock( layer ) == Block.Air ) {
+                                    SendNow( PacketWriter.MakeSetBlock( layer, Block.Glass ) );
+                                    FlyCache.TryAdd( layer.ToString(), layer );
                                 }
                             }
                         }
@@ -383,51 +376,38 @@ namespace fCraft {
 
 
                     // Remove old blocks
-                    foreach (Vector3I block in FlyCache.Values)
-                    {
-                        if (fCraft.Utils.FlyHandler.CanRemoveBlock(this, block, newPosi))
-                        {
-                            SendNow(PacketWriter.MakeSetBlock(block, Block.Air));
+                    foreach ( Vector3I block in FlyCache.Values ) {
+                        if ( fCraft.Utils.FlyHandler.CanRemoveBlock( this, block, newPosi ) ) {
+                            SendNow( PacketWriter.MakeSetBlock( block, Block.Air ) );
                             Vector3I removed;
-                            FlyCache.TryRemove(block.ToString(), out removed);
+                            FlyCache.TryRemove( block.ToString(), out removed );
                         }
                     }
                 }
-            }
-
-            else if (!Can(Permission.UseSpeedHack))
-            {
+            } else if ( !Can( Permission.UseSpeedHack ) ) {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // speedhack detection
-                if (DetectMovementPacketSpam())
-                {
+                if ( DetectMovementPacketSpam() ) {
                     return;
 
-                }
-                else if ((distSquared - delta.Z * delta.Z > AntiSpeedMaxDistanceSquared || delta.Z > AntiSpeedMaxJumpDelta) &&
-                         speedHackDetectionCounter >= 0)
-                {
+                } else if ( ( distSquared - delta.Z * delta.Z > AntiSpeedMaxDistanceSquared || delta.Z > AntiSpeedMaxJumpDelta ) &&
+                           speedHackDetectionCounter >= 0 ) {
 
-                    if (speedHackDetectionCounter == 0)
-                    {
+                    if ( speedHackDetectionCounter == 0 ) {
                         lastValidPosition = Position;
-                    }
-                    else if (speedHackDetectionCounter > 1)
-                    {
+                    } else if ( speedHackDetectionCounter > 1 ) {
                         DenyMovement();
                         speedHackDetectionCounter = 0;
                         return;
                     }
                     speedHackDetectionCounter++;
 
-                }
-                else
-                {
+                } else {
                     speedHackDetectionCounter = 0;
                 }
             }
 
-            if( RaisePlayerMovingEvent( this, newPos ) ) {
+            if ( RaisePlayerMovingEvent( this, newPos ) ) {
                 DenyMovement();
                 return;
             }
@@ -437,19 +417,19 @@ namespace fCraft {
         }
 
 
-        void ProcessSetBlockPacket() {
+        void ProcessSetBlockPacket () {
             BytesReceived += 9;
-            if( World == null || World.Map == null ) return;
+            if ( World == null || World.Map == null ) return;
             ResetIdleTimer();
             short x = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             short z = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
             short y = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
-            ClickAction action = (reader.ReadByte() == 1) ? ClickAction.Build : ClickAction.Delete;
+            ClickAction action = ( reader.ReadByte() == 1 ) ? ClickAction.Build : ClickAction.Delete;
             byte type = reader.ReadByte();
 
             // if a player is using InDev or SurvivalTest client, they may try to
             // place blocks that are not found in MC Classic. Convert them!
-            if( type > 49 ) {
+            if ( type > 49 ) {
                 type = MapDat.MapBlock( type );
             }
 
@@ -459,9 +439,9 @@ namespace fCraft {
             // Sometimes MC allows clicking out of bounds,
             // like at map transitions or at the top layer of the world.
             // Those clicks should be simply ignored.
-            if( World.Map.InBounds( coords ) ) {
-                var e = new PlayerClickingEventArgs( this, coords, action, (Block)type );
-                if( RaisePlayerClickingEvent( e ) ) {
+            if ( World.Map.InBounds( coords ) ) {
+                var e = new PlayerClickingEventArgs( this, coords, action, ( Block )type );
+                if ( RaisePlayerClickingEvent( e ) ) {
                     RevertBlockNow( coords );
                 } else {
                     RaisePlayerClickedEvent( this, coords, e.Action, e.Block );
@@ -473,27 +453,27 @@ namespace fCraft {
         #endregion
 
 
-        void Disconnect() {
+        void Disconnect () {
             State = SessionState.Disconnected;
             Server.UnregisterSession( this );
             Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
 
-            if( HasRegistered ) {
+            if ( HasRegistered ) {
                 Server.UnregisterPlayer( this );
                 RaisePlayerDisconnectedEvent( this, LeaveReason );
             }
 
-            if( reader != null ) {
+            if ( reader != null ) {
                 reader.Close();
                 reader = null;
             }
 
-            if( writer != null ) {
+            if ( writer != null ) {
                 writer.Close();
                 writer = null;
             }
 
-            if( client != null ) {
+            if ( client != null ) {
                 client.Close();
                 client = null;
             }
@@ -502,18 +482,18 @@ namespace fCraft {
         }
 
 
-        bool LoginSequence() {
+        bool LoginSequence () {
             byte opcode = reader.ReadByte();
 
-            switch( opcode ) {
-                case (byte)OpCode.Handshake:
+            switch ( opcode ) {
+                case ( byte )OpCode.Handshake:
                     break;
 
                 case 2:
                     GentlyKickBetaClients();
                     return false;
 
-                case (byte)'G':
+                case ( byte )'G':
                     ServeCfg();
                     return false;
 
@@ -527,7 +507,7 @@ namespace fCraft {
 
             // Check protocol version
             int clientProtocolVersion = reader.ReadByte();
-            if( clientProtocolVersion != Config.ProtocolVersion ) {
+            if ( clientProtocolVersion != Config.ProtocolVersion ) {
                 Logger.Log( LogType.Error,
                             "Player.LoginSequence: Wrong protocol version: {0}.",
                             clientProtocolVersion );
@@ -550,8 +530,6 @@ namespace fCraft {
                         Logger.Log( LogType.SystemActivity, "Email account " + givenName + " connected, attemping to create unique new name" );
                         int nameAppend = PlayerDB.PlayerInfoList.Where( p => p.MojangAccount != null ).Count() + 1;
                         string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name ("Jonty800"@email.com)
-                        string HostName = givenName.Split( '@' )[1];
-                        nameAppend = PlayerDB.FindHostNameCount( HostName ) + 1;
                         if ( trimmedName == null ) throw new ArgumentNullException( "trimmedName" );
                         if ( trimmedName.Length > 16 ) {
                             trimmedName = trimmedName.Substring( 0, 15 - ( nameAppend.ToString().Length ) ); //shorten name
@@ -573,7 +551,7 @@ namespace fCraft {
                                 return false;
                                 //returning false breaks loops in C#, right? haha been a while
                             }
-                            givenName = givenName + (nameAppend + 1); //keep adding a new number to the end of the string until unique
+                            givenName = givenName + ( nameAppend + 1 ); //keep adding a new number to the end of the string until unique
                             Players = PlayerDB.FindPlayers( givenName ); //update Players based on new name
                         }
                     }
@@ -665,23 +643,21 @@ namespace fCraft {
                 }
             }
 
-            if (Info.IsBanned)
-            {
-                if (Info.BannedUntil < DateTime.UtcNow && (Info.BannedUntil != DateTime.MinValue))
-                {
-                    Info.Unban(Player.Console, "Tempban expired", true, true);
+            if ( Info.IsBanned ) {
+                if ( Info.BannedUntil < DateTime.UtcNow && ( Info.BannedUntil != DateTime.MinValue ) ) {
+                    Info.Unban( Player.Console, "Tempban expired", true, true );
                     Info.BannedUntil = DateTime.MinValue;
                 }
             }
             // Check if player is banned
-            if( Info.IsBanned ) {
+            if ( Info.IsBanned ) {
                 Info.ProcessFailedLogin( this );
                 Logger.Log( LogType.SuspiciousActivity,
                             "Banned player {0} tried to log in from {1}",
                             Name, IP );
                 string bannedMessage;
-                if( Info.BannedBy != null ) {
-                    if( Info.BanReason != null ) {
+                if ( Info.BannedBy != null ) {
+                    if ( Info.BanReason != null ) {
                         bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
                                                        Info.TimeSinceBan.ToMiniString(),
                                                        Info.BannedBy,
@@ -692,7 +668,7 @@ namespace fCraft {
                                                        Info.BannedBy );
                     }
                 } else {
-                    if( Info.BanReason != null ) {
+                    if ( Info.BanReason != null ) {
                         bannedMessage = String.Format( "Banned {0} ago: {1}",
                                                        Info.TimeSinceBan.ToMiniString(),
                                                        Info.BanReason );
@@ -701,14 +677,14 @@ namespace fCraft {
                                                        Info.TimeSinceBan.ToMiniString() );
                     }
                 }
-                KickNow(bannedMessage, LeaveReason.LoginFailed);
+                KickNow( bannedMessage, LeaveReason.LoginFailed );
                 return false;
             }
 
 
             // Check if player's IP is banned
             IPBanInfo ipBanInfo = IPBanList.Get( IP );
-            if( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
+            if ( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
                 Info.ProcessFailedLogin( this );
                 ipBanInfo.ProcessAttempt( this );
                 Logger.Log( LogType.SuspiciousActivity,
@@ -723,7 +699,7 @@ namespace fCraft {
 
 
             // Check if max number of connections is reached for IP
-            if( !Server.RegisterSession( this ) ) {
+            if ( !Server.RegisterSession( this ) ) {
                 Info.ProcessFailedLogin( this );
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}",
@@ -734,7 +710,7 @@ namespace fCraft {
 
 
             // Check if player is paid (if required)
-            if( ConfigKey.PaidPlayersOnly.Enabled() ) {
+            if ( ConfigKey.PaidPlayersOnly.Enabled() ) {
                 SendNow( PacketWriter.MakeHandshake( this,
                                                      ConfigKey.ServerName.GetString(),
                                                      "Please wait; Checking paid status..." ) );
@@ -743,13 +719,13 @@ namespace fCraft {
 
 
             // Any additional security checks should be done right here
-            if( RaisePlayerConnectingEvent( this ) ) return false;
+            if ( RaisePlayerConnectingEvent( this ) ) return false;
 
 
             // ----==== beyond this point, player is considered connecting (allowed to join) ====----
 
             // Register player for future block updates
-            if( !Server.RegisterPlayer( this ) ) {
+            if ( !Server.RegisterPlayer( this ) ) {
                 Logger.Log( LogType.SystemActivity,
                             "Player {0} was kicked because server is full.", Name );
                 string kickMessage = String.Format( "Sorry, server is full ({0}/{1})",
@@ -772,8 +748,8 @@ namespace fCraft {
             // Send server information
             string serverName = ConfigKey.ServerName.GetString();
             string motd;
-            if( ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
-                if( IP.Equals( IPAddress.Loopback ) ) {
+            if ( ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
+                if ( IP.Equals( IPAddress.Loopback ) ) {
                     motd = "&0cfg=localhost:" + Server.Port + "/" + startingWorld.Name + "~motd";
                 } else {
                     motd = "&0cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + startingWorld.Name + "~motd";
@@ -784,12 +760,12 @@ namespace fCraft {
             SendNow( PacketWriter.MakeHandshake( this, serverName, motd ) );
 
             // AutoRank
-            if( ConfigKey.AutoRankEnabled.Enabled() ) {
+            if ( ConfigKey.AutoRankEnabled.Enabled() ) {
                 Rank newRank = AutoRankManager.Check( Info );
-                if( newRank != null ) {
+                if ( newRank != null ) {
                     try {
                         Info.ChangeRank( AutoRank, newRank, "~AutoRank", true, true, true );
-                    } catch( PlayerOpException ex ) {
+                    } catch ( PlayerOpException ex ) {
                         Logger.Log( LogType.Error,
                                     "AutoRank failed on player {0}: {1}",
                                     ex.Player.Name, ex.Message );
@@ -797,8 +773,8 @@ namespace fCraft {
                 }
             }
 
-            bool firstTime = (Info.TimesVisited == 1);
-            if( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
+            bool firstTime = ( Info.TimesVisited == 1 );
+            if ( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
                 Logger.Log( LogType.Warning,
                             "Could not load main world ({0}) for connecting player {1} (from {2}): " +
                             "Either main world is full, or an error occured.",
@@ -813,19 +789,19 @@ namespace fCraft {
             var canSee = Server.Players.CanSee( this );
 
             // Announce join
-            if( ConfigKey.ShowConnectionMessages.Enabled() ) {
+            if ( ConfigKey.ShowConnectionMessages.Enabled() ) {
                 // ReSharper disable AssignNullToNotNullAttribute
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
                 // ReSharper restore AssignNullToNotNullAttribute
                 canSee.Message( message );
             }
 
-            if( !IsVerified ) {
+            if ( !IsVerified ) {
                 canSee.Message( "&WName and IP of {0}&W are unverified!", ClassyName );
             }
 
-            if( Info.IsHidden ) {
-                if( Can( Permission.Hide ) ) {
+            if ( Info.IsHidden ) {
+                if ( Can( Permission.Hide ) ) {
                     canSee.Message( "&8Player {0}&8 logged in hidden. Pssst.", ClassyName );
                 } else {
                     Info.IsHidden = false;
@@ -836,7 +812,7 @@ namespace fCraft {
             PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( IP, 25 )
                                                      .Where( playerFromSameIP => playerFromSameIP.IsBanned )
                                                      .ToArray();
-            if( bannedPlayerNames.Length > 0 ) {
+            if ( bannedPlayerNames.Length > 0 ) {
                 canSee.Message( "&WPlayer {0}&W logged in from an IP shared by banned players: {1}",
                                 ClassyName, bannedPlayerNames.JoinToClassyString() );
                 Logger.Log( LogType.SuspiciousActivity,
@@ -845,7 +821,7 @@ namespace fCraft {
             }
 
             // check if player is still muted
-            if( Info.MutedUntil > DateTime.UtcNow ) {
+            if ( Info.MutedUntil > DateTime.UtcNow ) {
                 Message( "&WYou were previously muted by {0}&W, {1} left.",
                          Info.MutedByClassy, Info.TimeMutedLeft.ToMiniString() );
                 canSee.Message( "&WPlayer {0}&W was previously muted by {1}&W, {2} left.",
@@ -853,8 +829,8 @@ namespace fCraft {
             }
 
             // check if player is still frozen
-            if( Info.IsFrozen ) {
-                if( Info.FrozenOn != DateTime.MinValue ) {
+            if ( Info.IsFrozen ) {
+                if ( Info.FrozenOn != DateTime.MinValue ) {
                     Message( "&WYou were previously frozen {0} ago by {1}",
                              Info.TimeSinceFrozen.ToMiniString(),
                              Info.FrozenByClassy );
@@ -871,13 +847,13 @@ namespace fCraft {
             }
 
             // Welcome message
-            if( File.Exists( Paths.GreetingFileName ) ) {
+            if ( File.Exists( Paths.GreetingFileName ) ) {
                 string[] greetingText = File.ReadAllLines( Paths.GreetingFileName );
-                foreach( string greetingLine in greetingText ) {
+                foreach ( string greetingLine in greetingText ) {
                     MessageNow( Server.ReplaceTextKeywords( this, greetingLine ) );
                 }
             } else {
-                if( firstTime ) {
+                if ( firstTime ) {
                     MessageNow( "Welcome to {0}", ConfigKey.ServerName.GetString() );
                 } else {
                     MessageNow( "Welcome back to {0}", ConfigKey.ServerName.GetString() );
@@ -888,7 +864,7 @@ namespace fCraft {
             }
 
             // A reminder for first-time users
-            if( PlayerDB.Size == 1 && Info.Rank != RankManager.HighestRank ) {
+            if ( PlayerDB.Size == 1 && Info.Rank != RankManager.HighestRank ) {
                 Message( "Type &H/Rank {0} {1}&S in console to promote yourself",
                          Name, RankManager.HighestRank.Name );
             }
@@ -904,24 +880,24 @@ namespace fCraft {
         }
 
 
-        void GentlyKickBetaClients() {
+        void GentlyKickBetaClients () {
             // This may be someone connecting with an SMP client
             int strLen = IPAddress.NetworkToHostOrder( reader.ReadInt16() );
 
-            if( strLen >= 2 && strLen <= 16 ) {
-                string smpPlayerName = Encoding.BigEndianUnicode.GetString( reader.ReadBytes( strLen*2 ) );
+            if ( strLen >= 2 && strLen <= 16 ) {
+                string smpPlayerName = Encoding.BigEndianUnicode.GetString( reader.ReadBytes( strLen * 2 ) );
 
                 Logger.Log( LogType.Warning,
                             "Player.LoginSequence: Player \"{0}\" tried connecting with Minecraft Beta client from {1}. " +
-                            "800Craft does not support Minecraft Beta.", 
+                            "800Craft does not support Minecraft Beta.",
                             smpPlayerName, IP );
 
                 // send SMP KICK packet
-                writer.Write( (byte)255 );
+                writer.Write( ( byte )255 );
                 byte[] stringData = Encoding.BigEndianUnicode.GetBytes( NoSmpMessage );
-                writer.Write( (short)NoSmpMessage.Length );
+                writer.Write( ( short )NoSmpMessage.Length );
                 writer.Write( stringData );
-                BytesSent += (1 + stringData.Length);
+                BytesSent += ( 1 + stringData.Length );
                 writer.Flush();
 
             } else {
@@ -934,16 +910,16 @@ namespace fCraft {
 
 
         static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(~motd)? .+", RegexOptions.Compiled );
-        void ServeCfg() {
-            using( StreamReader textReader = new StreamReader( stream ) ) {
-                using( StreamWriter textWriter = new StreamWriter( stream ) ) {
+        void ServeCfg () {
+            using ( StreamReader textReader = new StreamReader( stream ) ) {
+                using ( StreamWriter textWriter = new StreamWriter( stream ) ) {
                     string firstLine = "G" + textReader.ReadLine();
                     var match = HttpFirstLine.Match( firstLine );
-                    if( match.Success ) {
+                    if ( match.Success ) {
                         string worldName = match.Groups[1].Value;
                         bool firstTime = match.Groups[2].Success;
                         World world = WorldManager.FindWorldExact( worldName );
-                        if( world != null ) {
+                        if ( world != null ) {
                             string cfg = world.GenerateWoMConfig( firstTime );
                             byte[] content = Encoding.UTF8.GetBytes( cfg );
                             textWriter.WriteLine( "HTTP/1.1 200 OK" );
@@ -973,9 +949,9 @@ namespace fCraft {
         Position postJoinPosition;
         bool useWorldSpawn;
 
-        public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason ) {
-            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            lock( joinWorldLock ) {
+        public void JoinWorld ( [NotNull] World newWorld, WorldChangeReason reason ) {
+            if ( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+            lock ( joinWorldLock ) {
                 useWorldSpawn = true;
                 postJoinPosition = Position.Zero;
                 forcedWorldToJoin = newWorld;
@@ -984,12 +960,12 @@ namespace fCraft {
         }
 
 
-        public void JoinWorld( [NotNull] World newWorld, WorldChangeReason reason, Position position ) {
-            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
+        public void JoinWorld ( [NotNull] World newWorld, WorldChangeReason reason, Position position ) {
+            if ( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+            if ( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
                 throw new ArgumentOutOfRangeException( "reason" );
             }
-            lock( joinWorldLock ) {
+            lock ( joinWorldLock ) {
                 useWorldSpawn = false;
                 postJoinPosition = position;
                 forcedWorldToJoin = newWorld;
@@ -998,12 +974,12 @@ namespace fCraft {
         }
 
 
-        internal bool JoinWorldNow( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
-            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
-            if( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
+        internal bool JoinWorldNow ( [NotNull] World newWorld, bool doUseWorldSpawn, WorldChangeReason reason ) {
+            if ( newWorld == null ) throw new ArgumentNullException( "newWorld" );
+            if ( !Enum.IsDefined( typeof( WorldChangeReason ), reason ) ) {
                 throw new ArgumentOutOfRangeException( "reason" );
             }
-            if( Thread.CurrentThread != ioThread ) {
+            if ( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "Player.JoinWorldNow may only be called from player's own thread. " +
                                                      "Use Player.JoinWorld instead." );
             }
@@ -1011,8 +987,8 @@ namespace fCraft {
             string textLine1 = ConfigKey.ServerName.GetString();
             string textLine2;
 
-            if( IsUsingWoM && ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
-                if( IP.Equals( IPAddress.Loopback ) ) {
+            if ( IsUsingWoM && ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
+                if ( IP.Equals( IPAddress.Loopback ) ) {
                     textLine2 = "cfg=localhost:" + Server.Port + "/" + newWorld.Name;
                 } else {
                     textLine2 = "cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + newWorld.Name;
@@ -1021,7 +997,7 @@ namespace fCraft {
                 textLine2 = "Loading world " + newWorld.ClassyName;
             }
 
-            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
+            if ( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
                 Logger.Log( LogType.Warning,
                             "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.",
                             Name, newWorld.Name );
@@ -1031,8 +1007,8 @@ namespace fCraft {
             World oldWorld = World;
 
             // remove player from the old world
-            if( oldWorld != null && oldWorld != newWorld ) {
-                if( !oldWorld.ReleasePlayer( this ) ) {
+            if ( oldWorld != null && oldWorld != newWorld ) {
+                if ( !oldWorld.ReleasePlayer( this ) ) {
                     Logger.Log( LogType.Error,
                                 "Player.JoinWorldNow: Player asked to be released from its world, " +
                                 "but the world did not contain the player." );
@@ -1046,10 +1022,10 @@ namespace fCraft {
             Map map;
 
             // try to join the new world
-            if( oldWorld != newWorld ) {
-                bool announce = (oldWorld != null) && (oldWorld.Name != newWorld.Name);
+            if ( oldWorld != newWorld ) {
+                bool announce = ( oldWorld != null ) && ( oldWorld.Name != newWorld.Name );
                 map = newWorld.AcceptPlayer( this, announce );
-                if( map == null ) {
+                if ( map == null ) {
                     return false;
                 }
             } else {
@@ -1058,14 +1034,14 @@ namespace fCraft {
             World = newWorld;
 
             // Set spawn point
-            if( doUseWorldSpawn ) {
+            if ( doUseWorldSpawn ) {
                 Position = map.Spawn;
             } else {
                 Position = postJoinPosition;
             }
 
             // Start sending over the level copy
-            if( oldWorld != null ) {
+            if ( oldWorld != null ) {
                 SendNow( PacketWriter.MakeHandshake( this, textLine1, textLine2 ) );
             }
 
@@ -1080,7 +1056,7 @@ namespace fCraft {
             byte[] buffer = new byte[1024];
             int mapBytesSent = 0;
             byte[] blockData;
-            using( MemoryStream mapStream = new MemoryStream() ) {
+            using ( MemoryStream mapStream = new MemoryStream() ) {
                 map.GetCompressedCopy( mapStream, true );
                 blockData = mapStream.ToArray();
             }
@@ -1089,18 +1065,18 @@ namespace fCraft {
                         blockData.Length, Name );
 
             // Transfer the map copy
-            while( mapBytesSent < blockData.Length ) {
+            while ( mapBytesSent < blockData.Length ) {
                 int chunkSize = blockData.Length - mapBytesSent;
-                if( chunkSize > 1024 ) {
+                if ( chunkSize > 1024 ) {
                     chunkSize = 1024;
                 } else {
                     // CRC fix for ManicDigger
-                    for( int i = 0; i < buffer.Length; i++ ) {
+                    for ( int i = 0; i < buffer.Length; i++ ) {
                         buffer[i] = 0;
                     }
                 }
                 Array.Copy( blockData, mapBytesSent, buffer, 0, chunkSize );
-                byte progress = (byte)(100 * mapBytesSent / blockData.Length);
+                byte progress = ( byte )( 100 * mapBytesSent / blockData.Length );
 
                 // write in chunks of 1024 bytes or less
                 writer.WriteMapChunk( buffer, chunkSize, progress );
@@ -1125,25 +1101,25 @@ namespace fCraft {
             writer.WriteTeleport( 255, Position );
             BytesSent += 10;
 
-            if (oldWorld == newWorld){
-                if (!newWorld.IsRealm){
-                    Message("Rejoined world {0}", newWorld.ClassyName);
-                }else{
-                    Message("Rejoined realm {0}", newWorld.ClassyName);
+            if ( oldWorld == newWorld ) {
+                if ( !newWorld.IsRealm ) {
+                    Message( "Rejoined world {0}", newWorld.ClassyName );
+                } else {
+                    Message( "Rejoined realm {0}", newWorld.ClassyName );
                 }
-            }else{
-                if (!newWorld.IsRealm){
-                    Message("Joined world {0}", newWorld.ClassyName);
-                }else{
-                    Message("Joined realm {0}", newWorld.ClassyName);
+            } else {
+                if ( !newWorld.IsRealm ) {
+                    Message( "Joined world {0}", newWorld.ClassyName );
+                } else {
+                    Message( "Joined realm {0}", newWorld.ClassyName );
                 }
-                if (newWorld != WorldManager.MainWorld){
+                if ( newWorld != WorldManager.MainWorld ) {
                     newWorld.VisitCount++;
                 }
                 string greeting = newWorld.Greeting;
-                if (greeting != null){
-                    greeting = Chat.ReplaceTextKeywords(this, greeting);
-                    Message("&R* {0}: {1}", newWorld.Name, greeting);
+                if ( greeting != null ) {
+                    greeting = Chat.ReplaceTextKeywords( this, greeting );
+                    Message( "&R* {0}: {1}", newWorld.Name, greeting );
                 }
             }
             RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
@@ -1162,8 +1138,8 @@ namespace fCraft {
         /// <summary> Send packet to player (not thread safe, sync, immediate).
         /// Should NEVER be used from any thread other than this session's ioThread.
         /// Not thread-safe (for performance reason). </summary>
-        public void SendNow( Packet packet ) {
-            if( Thread.CurrentThread != ioThread ) {
+        public void SendNow ( Packet packet ) {
+            if ( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
             }
             writer.Write( packet.Data );
@@ -1173,35 +1149,33 @@ namespace fCraft {
 
         /// <summary> Send packet (thread-safe, async, priority queue).
         /// This is used for most packets (movement, chat, etc). </summary>
-        public void Send( Packet packet ) {
-            if( canQueue ) priorityOutputQueue.Enqueue( packet );
+        public void Send ( Packet packet ) {
+            if ( canQueue ) priorityOutputQueue.Enqueue( packet );
         }
 
 
         /// <summary> Send packet (thread-safe, asynchronous, delayed queue).
         /// This is currently only used for block updates. </summary>
-        public void SendLowPriority( Packet packet ) {
-            if( canQueue ) outputQueue.Enqueue( packet );
+        public void SendLowPriority ( Packet packet ) {
+            if ( canQueue ) outputQueue.Enqueue( packet );
         }
 
         #endregion
 
 
-        string ReadString() {
+        string ReadString () {
             return Encoding.ASCII.GetString( reader.ReadBytes( 64 ) ).TrimEnd();
         }
 
 
         /// <summary> Clears the low priority player queue. </summary>
-        void ClearLowPriotityOutputQueue()
-        {
+        void ClearLowPriotityOutputQueue () {
             outputQueue = new ConcurrentQueue<Packet>();
         }
 
 
         /// <summary> Clears the priority player queue. </summary>
-        void ClearPriorityOutputQueue()
-        {
+        void ClearPriorityOutputQueue () {
             priorityOutputQueue = new ConcurrentQueue<Packet>();
         }
 
@@ -1210,9 +1184,9 @@ namespace fCraft {
 
         /// <summary> Kick (asynchronous). Immediately blocks all client input, but waits
         /// until client thread has sent the kick packet. </summary>
-        public void Kick( [NotNull] string message, LeaveReason leaveReason ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
+        public void Kick ( [NotNull] string message, LeaveReason leaveReason ) {
+            if ( message == null ) throw new ArgumentNullException( "message" );
+            if ( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
                 throw new ArgumentOutOfRangeException( "leaveReason" );
             }
             State = SessionState.PendingDisconnect;
@@ -1232,12 +1206,12 @@ namespace fCraft {
 
         /// <summary> Kick (synchronous). Immediately sends the kick packet.
         /// Can only be used from IoThread (this is not thread-safe). </summary>
-        void KickNow( [NotNull] string message, LeaveReason leaveReason ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
+        void KickNow ( [NotNull] string message, LeaveReason leaveReason ) {
+            if ( message == null ) throw new ArgumentNullException( "message" );
+            if ( !Enum.IsDefined( typeof( LeaveReason ), leaveReason ) ) {
                 throw new ArgumentOutOfRangeException( "leaveReason" );
             }
-            if( Thread.CurrentThread != ioThread ) {
+            if ( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "KickNow may only be called from player's own thread." );
             }
             State = SessionState.PendingDisconnect;
@@ -1252,15 +1226,15 @@ namespace fCraft {
 
 
         /// <summary> Blocks the calling thread until this session disconnects. </summary>
-        public void WaitForDisconnect() {
-            if( Thread.CurrentThread == ioThread ) {
+        public void WaitForDisconnect () {
+            if ( Thread.CurrentThread == ioThread ) {
                 throw new InvalidOperationException( "Cannot call WaitForDisconnect from IoThread." );
             }
-            if( ioThread != null && ioThread.IsAlive ) {
+            if ( ioThread != null && ioThread.IsAlive ) {
                 try {
                     ioThread.Join();
-                } catch( NullReferenceException ) {
-                } catch( ThreadStateException ) { }
+                } catch ( NullReferenceException ) {
+                } catch ( ThreadStateException ) { }
             }
         }
 
@@ -1293,71 +1267,60 @@ namespace fCraft {
         DateTime antiSpeedLastNotification = DateTime.UtcNow;
 
 
-        void ResetVisibleEntities() {
-            foreach( var pos in entities.Values ) {
+        void ResetVisibleEntities () {
+            foreach ( var pos in entities.Values ) {
                 SendNow( PacketWriter.MakeRemoveEntity( pos.Id ) );
             }
             freePlayerIDs.Clear();
-            for( int i = 1; i <= sbyte.MaxValue; i++ ) {
-                freePlayerIDs.Push( (sbyte)i );
+            for ( int i = 1; i <= sbyte.MaxValue; i++ ) {
+                freePlayerIDs.Push( ( sbyte )i );
             }
             playersToRemove.Clear();
             entities.Clear();
         }
 
 
-        void UpdateVisibleEntities() {
-            if( World == null ) PlayerOpException.ThrowNoWorld( this );
-            if (possessionPlayer != null)
-            {
-                if (!possessionPlayer.IsOnline || possessionPlayer.IsSpectating)
-                {
-                    Message("You have been released from possession");
+        void UpdateVisibleEntities () {
+            if ( World == null ) PlayerOpException.ThrowNoWorld( this );
+            if ( possessionPlayer != null ) {
+                if ( !possessionPlayer.IsOnline || possessionPlayer.IsSpectating ) {
+                    Message( "You have been released from possession" );
                     possessionPlayer = null;
-                }
-                else
-                {
+                } else {
                     Position sendTo = possessionPlayer.Position;
                     World possessedWorld = possessionPlayer.World;
-                    if (possessedWorld == null)
-                    {
-                        throw new InvalidOperationException("Possess: Something weird just happened (error 404).");
+                    if ( possessedWorld == null ) {
+                        throw new InvalidOperationException( "Possess: Something weird just happened (error 404)." );
                     }
-                    if (possessedWorld != World)
-                    {
-                        if (CanJoin(possessedWorld))
-                        {
+                    if ( possessedWorld != World ) {
+                        if ( CanJoin( possessedWorld ) ) {
                             postJoinPosition = sendTo;
-                            Message("Joined {0}&S (possessed)",
-                                     possessedWorld.ClassyName);
-                            JoinWorldNow(possessedWorld, false, WorldChangeReason.SpectateTargetJoined);
-                        }
-                        else
-                        {
-                            possessionPlayer.Message("Stopped possessing {0}&S (they cannot join {1}&S)",
+                            Message( "Joined {0}&S (possessed)",
+                                     possessedWorld.ClassyName );
+                            JoinWorldNow( possessedWorld, false, WorldChangeReason.SpectateTargetJoined );
+                        } else {
+                            possessionPlayer.Message( "Stopped possessing {0}&S (they cannot join {1}&S)",
                                       ClassyName,
-                                      possessedWorld.ClassyName);
+                                      possessedWorld.ClassyName );
                             possessionPlayer = null;
                         }
-                    }
-                    else if (sendTo != Position)
-                    {
-                        SendNow(PacketWriter.MakeSelfTeleport(sendTo));
+                    } else if ( sendTo != Position ) {
+                        SendNow( PacketWriter.MakeSelfTeleport( sendTo ) );
                     }
                 }
             }
-            if( spectatedPlayer != null ) {
-                if( !spectatedPlayer.IsOnline || !CanSee( spectatedPlayer ) ) {
+            if ( spectatedPlayer != null ) {
+                if ( !spectatedPlayer.IsOnline || !CanSee( spectatedPlayer ) ) {
                     Message( "Stopped spectating {0}&S (disconnected)", spectatedPlayer.ClassyName );
                     spectatedPlayer = null;
                 } else {
                     Position spectatePos = spectatedPlayer.Position;
                     World spectateWorld = spectatedPlayer.World;
-                    if( spectateWorld == null ) {
+                    if ( spectateWorld == null ) {
                         throw new InvalidOperationException( "Trying to spectate player without a world." );
                     }
-                    if( spectateWorld != World ) {
-                        if( CanJoin( spectateWorld ) ) {
+                    if ( spectateWorld != World ) {
+                        if ( CanJoin( spectateWorld ) ) {
                             postJoinPosition = spectatePos;
                             Message( "Joined {0}&S to continue spectating {1}",
                                      spectateWorld.ClassyName,
@@ -1369,7 +1332,7 @@ namespace fCraft {
                                      spectateWorld.ClassyName );
                             spectatedPlayer = null;
                         }
-                    } else if( spectatePos != Position ) {
+                    } else if ( spectatePos != Position ) {
                         SendNow( PacketWriter.MakeSelfTeleport( spectatePos ) );
                     }
                 }
@@ -1378,9 +1341,9 @@ namespace fCraft {
             Player[] worldPlayerList = World.Players;
             Position pos = Position;
 
-            for( int i = 0; i < worldPlayerList.Length; i++ ) {
+            for ( int i = 0; i < worldPlayerList.Length; i++ ) {
                 Player otherPlayer = worldPlayerList[i];
-                if( otherPlayer == this ||
+                if ( otherPlayer == this ||
                     !CanSeeMoving( otherPlayer ) ||
                     spectatedPlayer == otherPlayer || possessionPlayer != null ) continue;
 
@@ -1389,27 +1352,27 @@ namespace fCraft {
 
                 VisibleEntity entity;
                 // if Player has a corresponding VisibleEntity
-                if( entities.TryGetValue( otherPlayer, out entity ) ) {
+                if ( entities.TryGetValue( otherPlayer, out entity ) ) {
                     entity.MarkedForRetention = true;
 
-                    if( entity.LastKnownRank != otherPlayer.Info.Rank) {
+                    if ( entity.LastKnownRank != otherPlayer.Info.Rank ) {
                         ReAddEntity( entity, otherPlayer, otherPos );
                         entity.LastKnownRank = otherPlayer.Info.Rank;
                     }
-					if( otherPlayer.entityChanged ){
-						ReAddEntity( entity, otherPlayer, otherPos );
-                            otherPlayer.entityChanged = false;
-						
-					}else if( entity.Hidden ) {
-                        if( distance < entityShowingThreshold ) {
+                    if ( otherPlayer.entityChanged ) {
+                        ReAddEntity( entity, otherPlayer, otherPos );
+                        otherPlayer.entityChanged = false;
+
+                    } else if ( entity.Hidden ) {
+                        if ( distance < entityShowingThreshold ) {
                             ShowEntity( entity, otherPos );
                         }
 
                     } else {
-                        if( distance > entityHidingThreshold ) {
+                        if ( distance > entityHidingThreshold ) {
                             HideEntity( entity );
 
-                        } else if( entity.LastKnownPosition != otherPos ) {
+                        } else if ( entity.LastKnownPosition != otherPos ) {
                             MoveEntity( entity, otherPos );
                         }
                     }
@@ -1420,8 +1383,8 @@ namespace fCraft {
 
 
             // Find entities to remove (not marked for retention).
-            foreach( var pair in entities ) {
-                if( pair.Value.MarkedForRetention ) {
+            foreach ( var pair in entities ) {
+                if ( pair.Value.MarkedForRetention ) {
                     pair.Value.MarkedForRetention = false;
                 } else {
                     playersToRemove.Push( pair.Key );
@@ -1429,20 +1392,20 @@ namespace fCraft {
             }
 
             // Remove non-retained entities
-            while( playersToRemove.Count > 0 ) {
+            while ( playersToRemove.Count > 0 ) {
                 RemoveEntity( playersToRemove.Pop() );
             }
 
             fullUpdateCounter++;
-            if( fullUpdateCounter >= FullPositionUpdateInterval ) {
+            if ( fullUpdateCounter >= FullPositionUpdateInterval ) {
                 fullUpdateCounter = 0;
             }
         }
 
 
-        void AddEntity( [NotNull] Player player, Position newPos ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( freePlayerIDs.Count > 0 ) {
+        void AddEntity ( [NotNull] Player player, Position newPos ) {
+            if ( player == null ) throw new ArgumentNullException( "player" );
+            if ( freePlayerIDs.Count > 0 ) {
                 var pos = new VisibleEntity( newPos, freePlayerIDs.Pop(), player.Info.Rank );
                 entities.Add( player, pos );
                 SendNow( PacketWriter.MakeAddEntity( pos.Id, player.ListName, newPos ) );
@@ -1450,60 +1413,60 @@ namespace fCraft {
         }
 
 
-        void HideEntity( [NotNull] VisibleEntity entity ) {
-            if( entity == null ) throw new ArgumentNullException( "entity" );
+        void HideEntity ( [NotNull] VisibleEntity entity ) {
+            if ( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = true;
             entity.LastKnownPosition = VisibleEntity.HiddenPosition;
             SendNow( PacketWriter.MakeTeleport( entity.Id, VisibleEntity.HiddenPosition ) );
         }
 
 
-        void ShowEntity( [NotNull] VisibleEntity entity, Position newPos ) {
-            if( entity == null ) throw new ArgumentNullException( "entity" );
+        void ShowEntity ( [NotNull] VisibleEntity entity, Position newPos ) {
+            if ( entity == null ) throw new ArgumentNullException( "entity" );
             entity.Hidden = false;
             entity.LastKnownPosition = newPos;
             SendNow( PacketWriter.MakeTeleport( entity.Id, newPos ) );
         }
 
 
-        void ReAddEntity( [NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos ) {
-            if( entity == null ) throw new ArgumentNullException( "entity" );
-            if( player == null ) throw new ArgumentNullException( "player" );
+        void ReAddEntity ( [NotNull] VisibleEntity entity, [NotNull] Player player, Position newPos ) {
+            if ( entity == null ) throw new ArgumentNullException( "entity" );
+            if ( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entity.Id ) );
             SendNow( PacketWriter.MakeAddEntity( entity.Id, player.ListName, newPos ) );
             entity.LastKnownPosition = newPos;
         }
 
 
-        void RemoveEntity( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        void RemoveEntity ( [NotNull] Player player ) {
+            if ( player == null ) throw new ArgumentNullException( "player" );
             SendNow( PacketWriter.MakeRemoveEntity( entities[player].Id ) );
             freePlayerIDs.Push( entities[player].Id );
             entities.Remove( player );
         }
 
 
-        void MoveEntity( [NotNull] VisibleEntity entity, Position newPos ) {
-            if( entity == null ) throw new ArgumentNullException( "entity" );
+        void MoveEntity ( [NotNull] VisibleEntity entity, Position newPos ) {
+            if ( entity == null ) throw new ArgumentNullException( "entity" );
             Position oldPos = entity.LastKnownPosition;
 
             // calculate difference between old and new positions
             Position delta = new Position {
-                X = (short)(newPos.X - oldPos.X),
-                Y = (short)(newPos.Y - oldPos.Y),
-                Z = (short)(newPos.Z - oldPos.Z),
-                R = (byte)Math.Abs( newPos.R - oldPos.R ),
-                L = (byte)Math.Abs( newPos.L - oldPos.L )
+                X = ( short )( newPos.X - oldPos.X ),
+                Y = ( short )( newPos.Y - oldPos.Y ),
+                Z = ( short )( newPos.Z - oldPos.Z ),
+                R = ( byte )Math.Abs( newPos.R - oldPos.R ),
+                L = ( byte )Math.Abs( newPos.L - oldPos.L )
             };
 
-            bool posChanged = (delta.X != 0) || (delta.Y != 0) || (delta.Z != 0);
-            bool rotChanged = (delta.R != 0) || (delta.L != 0);
+            bool posChanged = ( delta.X != 0 ) || ( delta.Y != 0 ) || ( delta.Z != 0 );
+            bool rotChanged = ( delta.R != 0 ) || ( delta.L != 0 );
 
-            if( skipUpdates ) {
+            if ( skipUpdates ) {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // movement optimization
-                if( distSquared < SkipMovementThresholdSquared &&
-                    (delta.R * delta.R + delta.L * delta.L) < SkipRotationThresholdSquared &&
+                if ( distSquared < SkipMovementThresholdSquared &&
+                    ( delta.R * delta.R + delta.L * delta.L ) < SkipRotationThresholdSquared &&
                     !entity.SkippedLastMove ) {
 
                     entity.SkippedLastMove = true;
@@ -1514,8 +1477,8 @@ namespace fCraft {
 
             Packet packet;
             // create the movement packet
-            if( partialUpdates && delta.FitsIntoMoveRotatePacket && fullUpdateCounter < FullPositionUpdateInterval ) {
-                if( posChanged && rotChanged ) {
+            if ( partialUpdates && delta.FitsIntoMoveRotatePacket && fullUpdateCounter < FullPositionUpdateInterval ) {
+                if ( posChanged && rotChanged ) {
                     // incremental position + rotation update
                     packet = PacketWriter.MakeMoveRotate( entity.Id, new Position {
                         X = delta.X,
@@ -1525,11 +1488,11 @@ namespace fCraft {
                         L = newPos.L
                     } );
 
-                } else if( posChanged ) {
+                } else if ( posChanged ) {
                     // incremental position update
                     packet = PacketWriter.MakeMove( entity.Id, delta );
 
-                } else if( rotChanged ) {
+                } else if ( rotChanged ) {
                     // absolute rotation update
                     packet = PacketWriter.MakeRotate( entity.Id, newPos );
                 } else {
@@ -1549,7 +1512,7 @@ namespace fCraft {
         sealed class VisibleEntity {
             public static readonly Position HiddenPosition = new Position( 0, 0, short.MinValue );
 
-            public VisibleEntity( Position newPos, sbyte newId, Rank newRank ) {
+            public VisibleEntity ( Position newPos, sbyte newId, Rank newRank ) {
                 Id = newId;
                 LastKnownPosition = newPos;
                 MarkedForRetention = true;
@@ -1568,11 +1531,11 @@ namespace fCraft {
 
         Position lastValidPosition; // used in speedhack detection
 
-        bool DetectMovementPacketSpam() {
-            if( antiSpeedPacketLog.Count >= AntiSpeedMaxPacketCount ) {
+        bool DetectMovementPacketSpam () {
+            if ( antiSpeedPacketLog.Count >= AntiSpeedMaxPacketCount ) {
                 DateTime oldestTime = antiSpeedPacketLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
-                if( spamTimer < AntiSpeedMaxPacketInterval ) {
+                if ( spamTimer < AntiSpeedMaxPacketInterval ) {
                     DenyMovement();
                     return true;
                 }
@@ -1582,9 +1545,9 @@ namespace fCraft {
         }
 
 
-        void DenyMovement() {
+        void DenyMovement () {
             SendNow( PacketWriter.MakeSelfTeleport( lastValidPosition ) );
-            if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
+            if ( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
                 Message( "&WYou are not allowed to speedhack." );
                 antiSpeedLastNotification = DateTime.UtcNow;
             }
@@ -1611,37 +1574,37 @@ namespace fCraft {
             set {
                 bandwidthUseMode = value;
                 BandwidthUseMode actualValue = value;
-                if( value == BandwidthUseMode.Default ) {
+                if ( value == BandwidthUseMode.Default ) {
                     actualValue = ConfigKey.BandwidthUseMode.GetEnum<BandwidthUseMode>();
                 }
-                switch( actualValue ) {
+                switch ( actualValue ) {
                     case BandwidthUseMode.VeryLow:
-                        entityShowingThreshold = (40 * 32) * (40 * 32);
-                        entityHidingThreshold = (42 * 32) * (42 * 32);
+                        entityShowingThreshold = ( 40 * 32 ) * ( 40 * 32 );
+                        entityHidingThreshold = ( 42 * 32 ) * ( 42 * 32 );
                         partialUpdates = true;
                         skipUpdates = true;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 100 );
                         break;
 
                     case BandwidthUseMode.Low:
-                        entityShowingThreshold = (50 * 32) * (50 * 32);
-                        entityHidingThreshold = (52 * 32) * (52 * 32);
+                        entityShowingThreshold = ( 50 * 32 ) * ( 50 * 32 );
+                        entityHidingThreshold = ( 52 * 32 ) * ( 52 * 32 );
                         partialUpdates = true;
                         skipUpdates = true;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                         break;
 
                     case BandwidthUseMode.Normal:
-                        entityShowingThreshold = (68 * 32) * (68 * 32);
-                        entityHidingThreshold = (70 * 32) * (70 * 32);
+                        entityShowingThreshold = ( 68 * 32 ) * ( 68 * 32 );
+                        entityHidingThreshold = ( 70 * 32 ) * ( 70 * 32 );
                         partialUpdates = true;
                         skipUpdates = false;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
                         break;
 
                     case BandwidthUseMode.High:
-                        entityShowingThreshold = (128 * 32) * (128 * 32);
-                        entityHidingThreshold = (130 * 32) * (130 * 32);
+                        entityShowingThreshold = ( 128 * 32 ) * ( 128 * 32 );
+                        entityHidingThreshold = ( 130 * 32 ) * ( 130 * 32 );
                         partialUpdates = true;
                         skipUpdates = false;
                         movementUpdateInterval = TimeSpan.FromMilliseconds( 50 );
@@ -1680,7 +1643,7 @@ namespace fCraft {
         public double BytesReceivedRate { get; private set; }
 
 
-        void MeasureBandwidthUseRates() {
+        void MeasureBandwidthUseRates () {
             int sentDelta = BytesSent - lastBytesSent;
             int receivedDelta = BytesReceived - lastBytesReceived;
             TimeSpan timeDelta = DateTime.UtcNow.Subtract( lastMeasurementDate );
