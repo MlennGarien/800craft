@@ -5,10 +5,12 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    public sealed partial class TextEditorPopup : Form {
-        public string OriginalText { get; private set; }
-        public string FileName { get; private set; }
 
+    public sealed partial class TextEditorPopup : Form {
+
+        public string OriginalText { get; private set; }
+
+        public string FileName { get; private set; }
 
         public TextEditorPopup( string fileName, string defaultValue ) {
             InitializeComponent();
@@ -16,7 +18,7 @@ namespace fCraft.ConfigGUI {
             FileName = fileName;
             Text = "Editing " + FileName;
 
-            if( File.Exists( fileName ) ) {
+            if ( File.Exists( fileName ) ) {
                 OriginalText = File.ReadAllText( fileName );
             } else {
                 OriginalText = defaultValue;
@@ -26,10 +28,9 @@ namespace fCraft.ConfigGUI {
             lWarning.Visible = ContainsLongLines();
         }
 
-        bool ContainsLongLines() {
-            return tText.Lines.Any( line => (line.Length > 62) );
+        private bool ContainsLongLines() {
+            return tText.Lines.Any( line => ( line.Length > 62 ) );
         }
-
 
         private void tRules_KeyDown( object sender, KeyEventArgs e ) {
             lWarning.Visible = ContainsLongLines();
@@ -40,10 +41,12 @@ namespace fCraft.ConfigGUI {
             Close();
         }
 
-        ColorPicker colorPicker;
+        private ColorPicker colorPicker;
+
         private void bInsertColor_Click( object sender, EventArgs e ) {
-            if( colorPicker == null ) colorPicker = new ColorPicker("Insert color",0);
-            if( colorPicker.ShowDialog() == DialogResult.OK){
+            if ( colorPicker == null )
+                colorPicker = new ColorPicker( "Insert color", 0 );
+            if ( colorPicker.ShowDialog() == DialogResult.OK ) {
                 string colorToInsert = Color.Parse( colorPicker.ColorIndex );
                 int selectionStart = tText.SelectionStart;
                 tText.Paste( colorToInsert );
@@ -52,10 +55,12 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-        KeywordPicker keywordPicker;
+        private KeywordPicker keywordPicker;
+
         private void bInsertKeyword_Click( object sender, EventArgs e ) {
-            if( keywordPicker == null ) keywordPicker = new KeywordPicker();
-            if( keywordPicker.ShowDialog() == DialogResult.OK ) {
+            if ( keywordPicker == null )
+                keywordPicker = new KeywordPicker();
+            if ( keywordPicker.ShowDialog() == DialogResult.OK ) {
                 int selectionStart = tText.SelectionStart;
                 tText.Paste( keywordPicker.Result );
                 tText.Select( selectionStart, keywordPicker.Result.Length );

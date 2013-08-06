@@ -7,61 +7,60 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+
     public sealed class MapMinerCPP : IMapConverter {
 
         public string ServerName {
             get { return "MinerCPP/LuaCraft"; }
         }
 
-
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.MinerCPP; }
         }
 
-
         public bool ClaimsName( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase );
         }
 
-
         public bool Claims( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             try {
-                using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                using ( FileStream mapStream = File.OpenRead( fileName ) ) {
+                    using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                         BinaryReader bs = new BinaryReader( gs );
-                        return (bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef);
+                        return ( bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef );
                     }
                 }
-            } catch( Exception ) {
+            } catch ( Exception ) {
                 return false;
             }
         }
 
-
         public Map LoadHeader( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
+            using ( FileStream mapStream = File.OpenRead( fileName ) ) {
                 // Setup a GZipStream to decompress and read the map file
-                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
+                using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                     return LoadHeaderInternal( gs );
                 }
             }
         }
 
-
-        static Map LoadHeaderInternal( [NotNull] Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
+        private static Map LoadHeaderInternal( [NotNull] Stream stream ) {
+            if ( stream == null )
+                throw new ArgumentNullException( "stream" );
             BinaryReader bs = new BinaryReader( stream );
 
             // Read in the magic number
-            if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
+            if ( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
                 throw new MapFormatException( "MinerCPP map header is incorrect." );
             }
 
@@ -92,16 +91,15 @@ namespace fCraft.MapConversion {
             return map;
         }
 
-
         public Map Load( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
+            using ( FileStream mapStream = File.OpenRead( fileName ) ) {
                 // Setup a GZipStream to decompress and read the map file
-                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-
+                using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
                     Map map = LoadHeaderInternal( gs );
 
-                    if( !map.ValidateHeader() ) {
+                    if ( !map.ValidateHeader() ) {
                         throw new MapFormatException( "One or more of the map dimensions are invalid." );
                     }
 
@@ -114,12 +112,13 @@ namespace fCraft.MapConversion {
             }
         }
 
-
         public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.Create( fileName ) ) {
-                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
+            if ( mapToSave == null )
+                throw new ArgumentNullException( "mapToSave" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
+            using ( FileStream mapStream = File.Create( fileName ) ) {
+                using ( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
                     BinaryWriter bs = new BinaryWriter( gs );
 
                     // Write out the magic number
@@ -127,9 +126,9 @@ namespace fCraft.MapConversion {
 
                     // Save the map dimensions
                     // XYZ(?)
-                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.Width ) );
-                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.Height ) );
-                    bs.Write( (ushort)IPAddress.HostToNetworkOrder( (short)mapToSave.Length ) );
+                    bs.Write( ( ushort )IPAddress.HostToNetworkOrder( ( short )mapToSave.Width ) );
+                    bs.Write( ( ushort )IPAddress.HostToNetworkOrder( ( short )mapToSave.Height ) );
+                    bs.Write( ( ushort )IPAddress.HostToNetworkOrder( ( short )mapToSave.Length ) );
 
                     // Save the spawn location
                     bs.Write( IPAddress.HostToNetworkOrder( mapToSave.Spawn.X ) );

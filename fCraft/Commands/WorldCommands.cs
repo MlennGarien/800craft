@@ -3,20 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using fCraft.MapConversion;
-using JetBrains.Annotations;
-using fCraft.Drawing;
-using fCraft.Portals;
 using System.Text;
-using System.Threading;
-using fCraft.Events;
+using fCraft.Drawing;
+using fCraft.MapConversion;
+using fCraft.Portals;
+using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Contains commands related to world management. </summary>
-    static class WorldCommands {
-        const int WorldNamesPerPage = 30;
 
-        internal static void Init () {
+    /// <summary> Contains commands related to world management. </summary>
+    internal static class WorldCommands {
+        private const int WorldNamesPerPage = 30;
+
+        internal static void Init() {
             CommandManager.RegisterCommand( CdBlockDB );
             CommandManager.RegisterCommand( CdBlockInfo );
 
@@ -59,6 +58,7 @@ namespace fCraft {
             Player.JoinedWorld += FeedSettings.PlayerJoiningWorld;
             Player.PlacingBlock += FeedSettings.PlayerPlacingBlock;
         }
+
         #region 800Craft
 
         /*        ----
@@ -88,7 +88,7 @@ namespace fCraft {
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
 
-        static readonly CommandDescriptor CdFeed = new CommandDescriptor {
+        private static readonly CommandDescriptor CdFeed = new CommandDescriptor {
             Name = "Feed",
             Category = CommandCategory.Building,
             Permissions = new Permission[] { Permission.EditPlayerDB },
@@ -98,7 +98,7 @@ namespace fCraft {
             Handler = FeedHandler,
         };
 
-        static void FeedHandler ( Player player, Command cmd ) {
+        private static void FeedHandler( Player player, Command cmd ) {
             string Option = cmd.Next();
             if ( Option == null ) {
                 player.Message( "Argument cannot be null, try /Feed <create | remove | list>" );
@@ -145,7 +145,7 @@ namespace fCraft {
             }
         }
 
-        static void FeedCallback ( Player player, Vector3I[] marks, object tag ) {
+        private static void FeedCallback( Player player, Vector3I[] marks, object tag ) {
             Direction direction = DirectionFinder.GetDirection( marks );
             if ( Math.Abs( marks[1].X - marks[0].X ) > Math.Abs( marks[1].Y - marks[0].Y ) ) {
                 if ( marks[0].X < marks[1].X ) {
@@ -159,8 +159,8 @@ namespace fCraft {
                 } else {
                     direction = Direction.four;
                 }
-            } 
-            else return;
+            } else
+                return;
             System.Drawing.Bitmap bmp = fCraft.Properties.Resources.font;
             FeedData data = new FeedData( Block.Lava, marks[0], bmp, player.World, direction, player );
             data.StartPos = marks[0];
@@ -170,39 +170,45 @@ namespace fCraft {
                     for ( int x = data.StartPos.X; x < data.StartPos.X + 60; x++ ) {
                         for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )x, ( short )data.StartPos.Y, ( short )z, Block.Black ) );
-                            x1 = x; z1 = z;
+                            x1 = x;
+                            z1 = z;
                         }
                     }
                     data.EndPos = new Vector3I( x1, marks[0].Y, z1 );
                     data.FinishPos = new Vector3I( x1, marks[0].Y, z1 );
-                    
+
                     break;
 
                 case Direction.two:
                     for ( int x = data.StartPos.X; x > data.StartPos.X - 60; x-- ) {
                         for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )x, ( short )data.StartPos.Y, ( short )z, Block.Black ) );
-                            x1 = x; z1 = z;
+                            x1 = x;
+                            z1 = z;
                         }
                     }
                     data.EndPos = new Vector3I( x1, marks[0].Y, z1 );
                     data.FinishPos = new Vector3I( x1, marks[0].Y, z1 );
                     break;
+
                 case Direction.three:
                     for ( int y = data.StartPos.Y; y < data.StartPos.Y + 60; y++ ) {
                         for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )data.StartPos.X, ( short )y, ( short )z, Block.Black ) );
-                            y1 = y; z1 = z;
+                            y1 = y;
+                            z1 = z;
                         }
                     }
                     data.EndPos = new Vector3I( marks[0].X, y1, z1 );
                     data.FinishPos = new Vector3I( marks[0].X, y1, z1 );
                     break;
+
                 case Direction.four:
                     for ( int y = data.StartPos.Y; y > data.StartPos.Y - 60; y-- ) {
                         for ( int z = data.StartPos.Z; z < data.StartPos.Z + 9; z++ ) {
                             player.World.Map.QueueUpdate( new BlockUpdate( null, ( short )data.StartPos.X, ( short )y, ( short )z, Block.Black ) );
-                            y1 = y; z1 = z;
+                            y1 = y;
+                            z1 = z;
                         }
                     }
                     data.EndPos = new Vector3I( marks[0].X, y1, z1 );
@@ -212,7 +218,8 @@ namespace fCraft {
         }
 
         #region Physics
-        static readonly CommandDescriptor CdPhysics = new CommandDescriptor {
+
+        private static readonly CommandDescriptor CdPhysics = new CommandDescriptor {
             Name = "Physics",
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.Physics },
@@ -238,7 +245,7 @@ namespace fCraft {
             Handler = PhysicsHandler
         };
 
-        private static void PhysicsHandler ( Player player, Command cmd ) {
+        private static void PhysicsHandler( Player player, Command cmd ) {
             string option = cmd.Next();
             World world = player.World;
             if ( option == null ) {
@@ -261,6 +268,7 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 case "gun":
                     if ( NextOp.ToLower() == "on" ) {
                         world.EnableGunPhysics( player, true );
@@ -271,6 +279,7 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 case "plant":
                     if ( NextOp.ToLower() == "off" ) {
                         world.DisablePlantPhysics( player, true );
@@ -281,6 +290,7 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 case "fireworks":
                 case "firework":
                     if ( NextOp.ToLower() == "on" ) {
@@ -303,6 +313,7 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 case "water":
                     if ( NextOp.ToLower() == "on" ) {
                         world.EnableWaterPhysics( player, true );
@@ -313,19 +324,25 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 case "all":
                     if ( NextOp.ToLower() == "on" ) {
                         if ( !world.tntPhysics ) {
                             world.EnableTNTPhysics( player, false );
-                        } if ( !world.sandPhysics ) {
+                        }
+                        if ( !world.sandPhysics ) {
                             world.EnableSandPhysics( player, false );
-                        } if ( !world.fireworkPhysics ) {
+                        }
+                        if ( !world.fireworkPhysics ) {
                             world.EnableFireworkPhysics( player, false );
-                        } if ( !world.waterPhysics ) {
+                        }
+                        if ( !world.waterPhysics ) {
                             world.EnableWaterPhysics( player, false );
-                        } if ( !world.plantPhysics ) {
+                        }
+                        if ( !world.plantPhysics ) {
                             world.EnablePlantPhysics( player, false );
-                        } if ( !world.gunPhysics ) {
+                        }
+                        if ( !world.gunPhysics ) {
                             world.EnableGunPhysics( player, false );
                         }
                         Server.Players.Message( "{0}&S turned ALL Physics on for {1}", player.ClassyName, world.ClassyName );
@@ -333,15 +350,20 @@ namespace fCraft {
                     } else if ( NextOp.ToLower() == "off" ) {
                         if ( world.tntPhysics ) {
                             world.DisableTNTPhysics( player, false );
-                        } if ( world.sandPhysics ) {
+                        }
+                        if ( world.sandPhysics ) {
                             world.DisableSandPhysics( player, false );
-                        } if ( world.fireworkPhysics ) {
+                        }
+                        if ( world.fireworkPhysics ) {
                             world.DisableFireworkPhysics( player, false );
-                        } if ( world.waterPhysics ) {
+                        }
+                        if ( world.waterPhysics ) {
                             world.DisableWaterPhysics( player, false );
-                        } if ( world.plantPhysics ) {
+                        }
+                        if ( world.plantPhysics ) {
                             world.DisablePlantPhysics( player, false );
-                        } if ( world.gunPhysics ) {
+                        }
+                        if ( world.gunPhysics ) {
                             world.DisableGunPhysics( player, false );
                         }
                         Server.Players.Message( "{0}&S turned ALL Physics off for {1}", player.ClassyName, world.ClassyName );
@@ -349,15 +371,18 @@ namespace fCraft {
                     }
                     break;
 
-                default: CdPhysics.PrintUsage( player );
+                default:
+                    CdPhysics.PrintUsage( player );
                     break;
             }
             WorldManager.SaveWorldList();
         }
-        #endregion
+
+        #endregion Physics
 
         #region MessageBlocks
-        static readonly CommandDescriptor CdMessageBlock = new CommandDescriptor {
+
+        private static readonly CommandDescriptor CdMessageBlock = new CommandDescriptor {
             Name = "MessageBlock",
             Aliases = new[] { "mb" },
             Category = CommandCategory.Building,
@@ -380,7 +405,8 @@ namespace fCraft {
             },
             Handler = MessageBlock
         };
-        static void MessageBlock ( Player player, Command cmd ) {
+
+        private static void MessageBlock( Player player, Command cmd ) {
             string option = cmd.Next();
             if ( option == null ) {
                 CdMessageBlock.PrintUsage( player );
@@ -467,7 +493,7 @@ namespace fCraft {
             }
         }
 
-        static void MessageBlockTestCallback ( Player player, Vector3I[] marks, object tag ) {
+        private static void MessageBlockTestCallback( Player player, Vector3I[] marks, object tag ) {
             Vector3I Pos = marks[0];
             MessageBlock messageblock = MessageBlockHandler.GetMessageBlock( player.World, Pos );
             if ( messageblock == null ) {
@@ -477,7 +503,7 @@ namespace fCraft {
             }
         }
 
-        static void MessageBlockAdd ( Player player, Vector3I[] marks, object tag ) {
+        private static void MessageBlockAdd( Player player, Vector3I[] marks, object tag ) {
             string Message = ( string )tag;
             Vector3I mark = marks[0];
             if ( !player.Info.Rank.AllowSecurityCircumvention ) {
@@ -487,6 +513,7 @@ namespace fCraft {
                         player.Message( "Cannot add a MessageBlock to world {0}&S: You are barred from building here.",
                                         player.World.ClassyName );
                         return;
+
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot add a MessageBlock to world {0}&S: You are not allowed to build here.",
                                         player.World.ClassyName );
@@ -519,11 +546,12 @@ namespace fCraft {
             Logger.Log( LogType.UserActivity, "{0} created MessageBlock {1} (on world {2})", player.Name, MessageBlock.Name, player.World.Name );
             player.Message( "MessageBlock created on world {0}&S with name {1}", player.World.ClassyName, MessageBlock.Name );
         }
-        #endregion
+
+        #endregion MessageBlocks
 
         #region portals
 
-        static readonly CommandDescriptor CdPortal = new CommandDescriptor {
+        private static readonly CommandDescriptor CdPortal = new CommandDescriptor {
             Name = "Portal",
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.UsePortal },
@@ -551,11 +579,12 @@ namespace fCraft {
             Handler = PortalH
         };
 
-        struct PDATA {
+        private struct PDATA {
             public bool custom;
             public DrawOperation op;
         }
-        private static void PortalH ( Player player, Command command ) {
+
+        private static void PortalH( Player player, Command command ) {
             try {
                 String option = command.Next();
 
@@ -566,7 +595,8 @@ namespace fCraft {
                         string blockTypeOrName = command.Next();
                         DrawOperation operation = new CuboidDrawOperation( player );
                         NormalBrush brush = new NormalBrush( Block.Water, Block.Water );
-                        if ( blockTypeOrName == null ) blockTypeOrName = "water";
+                        if ( blockTypeOrName == null )
+                            blockTypeOrName = "water";
                         if ( blockTypeOrName.ToLower().Equals( "lava" ) ) {
                             brush = new NormalBrush( Block.Lava, Block.Lava );
                         } else if ( !blockTypeOrName.ToLower().Equals( "water" ) ) {
@@ -579,7 +609,8 @@ namespace fCraft {
                         operation.Brush = brush;
                         if ( world != null && WorldManager.FindWorldExact( world ) != null ) {
                             player.PortalWorld = world;
-                        } else player.PortalWorld = player.World.Name;
+                        } else
+                            player.PortalWorld = player.World.Name;
                         player.SelectionStart( operation.ExpectedMarks, PortalCreateCallback, new PDATA() { op = operation, custom = CustomOutput }, Permission.Draw );
                         player.Message( "Click {0} blocks or use &H/Mark&S to mark the area of the portal.", operation.ExpectedMarks );
 
@@ -587,7 +618,6 @@ namespace fCraft {
                             return; //custom, continue in Selectstart
                         }
                         if ( world != null && WorldManager.FindWorldExact( world ) != null ) {
-
                             string portalName = command.Next();
 
                             if ( portalName == null ) {
@@ -704,7 +734,7 @@ namespace fCraft {
             }
         }
 
-        static void PortalCreateCallback ( Player player, Vector3I[] marks, object tag ) {
+        private static void PortalCreateCallback( Player player, Vector3I[] marks, object tag ) {
             try {
                 World world = WorldManager.FindWorldExact( player.PortalWorld );
 
@@ -712,7 +742,8 @@ namespace fCraft {
                     PDATA pd = ( PDATA )tag;
                     DrawOperation op = pd.op;
                     bool CustomOutput = pd.custom;
-                    if ( !op.Prepare( marks ) ) return;
+                    if ( !op.Prepare( marks ) )
+                        return;
                     if ( !player.CanDraw( op.BlocksTotalEstimate ) ) {
                         player.MessageNow( "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
                                            player.Info.Rank.DrawLimit,
@@ -768,9 +799,10 @@ namespace fCraft {
                 Logger.Log( LogType.Error, "WorldCommands.PortalCreateCallback: " + ex );
             }
         }
-        #endregion
 
-        static readonly CommandDescriptor CdWorldSearch = new CommandDescriptor {
+        #endregion portals
+
+        private static readonly CommandDescriptor CdWorldSearch = new CommandDescriptor {
             Name = "Worldsearch",
             Aliases = new[] { "ws" },
             Category = CommandCategory.World,
@@ -781,7 +813,7 @@ namespace fCraft {
             Handler = WorldSearchHandler
         };
 
-        static void WorldSearchHandler ( Player player, Command cmd ) {
+        private static void WorldSearchHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if ( worldName == null ) {
                 CdWorldSearch.PrintUsage( player );
@@ -799,7 +831,8 @@ namespace fCraft {
                     player.MessageManyMatches( "worlds", WorldNames );
                 } else {
                     int offset;
-                    if ( !cmd.NextInt( out offset ) ) offset = 0;
+                    if ( !cmd.NextInt( out offset ) )
+                        offset = 0;
 
                     if ( offset >= WorldNames.Count() )
                         offset = Math.Max( 0, WorldNames.Length - 30 );
@@ -819,8 +852,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdRealm = new CommandDescriptor {
+        private static readonly CommandDescriptor CdRealm = new CommandDescriptor {
             Name = "Realm",
             Category = CommandCategory.World,
             Permissions = new[] { Permission.Realm },
@@ -831,7 +863,7 @@ namespace fCraft {
             Handler = Realm,
         };
 
-        internal static void Realm ( Player player, Command cmd ) {
+        internal static void Realm( Player player, Command cmd ) {
             string playerName = player.Name.Replace( ".", "-" );
 
             string Choice = cmd.Next();
@@ -872,13 +904,15 @@ namespace fCraft {
 
                     Choice = player.World.Name;
                     World world = WorldManager.FindWorldOrPrintMatches( player, Choice );
-                    if ( world == null ) player.Message( "You need to enter a realm name" );
+                    if ( world == null )
+                        player.Message( "You need to enter a realm name" );
 
                     if ( world.IsRealm ) {
                         Server.Players.Message( "{0}&S likes realm {1}.",
                                                player.ClassyName, world.ClassyName );
                         return;
-                    } else player.Message( "You are not in a Realm" );
+                    } else
+                        player.Message( "You are not in a Realm" );
 
                     break;
 
@@ -922,7 +956,8 @@ namespace fCraft {
                         }
                         RealmHandler.RealmLoad( player, cmd, playerName + ".fcm", playerName, RankManager.HighestRank.Name, RankManager.DefaultBuildRank.Name );
                         World realmworld = WorldManager.FindWorldExact( playerName );
-                        if ( realmworld == null ) return;
+                        if ( realmworld == null )
+                            return;
                         if ( !realmworld.AccessSecurity.Check( player.Info ) ) {
                             realmworld.AccessSecurity.Include( player.Info );
                         }
@@ -935,7 +970,8 @@ namespace fCraft {
 
                 case "control":
                     World w1 = WorldManager.FindWorldExact( playerName );
-                    if ( w1 == null ) return;
+                    if ( w1 == null )
+                        return;
                     if ( !w1.AccessSecurity.Check( player.Info ) ) {
                         w1.AccessSecurity.Include( player.Info );
                         player.Message( "You have regained access control of your realm" );
@@ -983,24 +1019,30 @@ namespace fCraft {
                             }
                             if ( onOff.ToLower() == "off" ) {
                                 world.DisableWaterPhysics( player, true );
-                            } else player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
+                            } else
+                                player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
                             break;
+
                         case "plant":
                             if ( onOff.ToLower() == "on" ) {
                                 world.EnablePlantPhysics( player, true );
                             }
                             if ( onOff.ToLower() == "off" ) {
                                 world.DisablePlantPhysics( player, true );
-                            } else player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
+                            } else
+                                player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
                             break;
+
                         case "gun":
                             if ( onOff.ToLower() == "on" ) {
                                 world.EnableGunPhysics( player, true );
                             }
                             if ( onOff.ToLower() == "off" ) {
                                 world.DisableGunPhysics( player, true );
-                            } else player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
+                            } else
+                                player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
                             break;
+
                         case "firework":
                         case "fireworks":
                             if ( onOff.ToLower() == "on" ) {
@@ -1008,9 +1050,12 @@ namespace fCraft {
                             }
                             if ( onOff.ToLower() == "off" ) {
                                 world.DisableFireworkPhysics( player, true );
-                            } else player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
+                            } else
+                                player.Message( "&WInvalid option: /Realm Physics [Type] [On/Off]" );
                             break;
-                        default: player.Message( "&WInvalid option: /Realm physics [Plant|Water|Gun|Fireworks] On/Off" );
+
+                        default:
+                            player.Message( "&WInvalid option: /Realm physics [Plant|Water|Gun|Fireworks] On/Off" );
                             break;
                     }
                     break;
@@ -1064,7 +1109,6 @@ namespace fCraft {
                     }
                     PlayerInfo targetUnallow = PlayerDB.FindPlayerInfoOrPrintMatches( player, Unallow );
 
-
                     if ( targetUnallow == null ) {
                         player.Message( "Please enter the name of the player you want to stop building in your Realm." );
                         return;
@@ -1089,7 +1133,6 @@ namespace fCraft {
                         return;
                     }
                     Player targetBan = Server.FindPlayerOrPrintMatches( player, Ban, false, true );
-
 
                     if ( targetBan == null ) {
                         player.Message( "Please enter the name of the player you want to ban from your Realm." );
@@ -1138,7 +1181,7 @@ namespace fCraft {
 
         #region BlockDB
 
-        static readonly CommandDescriptor CdBlockDB = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBlockDB = new CommandDescriptor {
             Name = "BlockDB",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -1176,7 +1219,7 @@ namespace fCraft {
             Handler = BlockDBHandler
         };
 
-        static void BlockDBHandler ( Player player, Command cmd ) {
+        private static void BlockDBHandler( Player player, Command cmd ) {
             if ( !BlockDB.IsEnabledGlobally ) {
                 player.Message( "&WBlockDB is disabled on this server." );
                 return;
@@ -1212,7 +1255,8 @@ namespace fCraft {
             }
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( world == null ) return;
+            if ( world == null )
+                return;
             BlockDB db = world.BlockDB;
 
             using ( db.GetWriteLock() ) {
@@ -1250,12 +1294,10 @@ namespace fCraft {
                         // enables BlockDB
                         if ( db.EnabledState == YesNoAuto.Yes ) {
                             player.Message( "BlockDB is already manually enabled on world {0}", world.ClassyName );
-
                         } else if ( db.EnabledState == YesNoAuto.Auto && db.IsEnabled ) {
                             db.EnabledState = YesNoAuto.Yes;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB was auto-enabled, and is now manually enabled on world {0}", world.ClassyName );
-
                         } else {
                             Logger.Log( LogType.UserActivity,
                                         "BlockDB: Player {0} enabled BlockDB on world {1} (was {2})",
@@ -1270,7 +1312,6 @@ namespace fCraft {
                         // disables BlockDB
                         if ( db.EnabledState == YesNoAuto.No ) {
                             player.Message( "BlockDB is already manually disabled on world {0}", world.ClassyName );
-
                         } else if ( db.IsEnabled ) {
                             if ( cmd.IsConfirmed ) {
                                 db.EnabledState = YesNoAuto.No;
@@ -1330,11 +1371,9 @@ namespace fCraft {
 
                             if ( limitString.Equals( "none", StringComparison.OrdinalIgnoreCase ) ) {
                                 limitNumber = 0;
-
                             } else if ( !Int32.TryParse( limitString, out limitNumber ) ) {
                                 CdBlockDB.PrintUsage( player );
                                 return;
-
                             } else if ( limitNumber < 0 ) {
                                 player.Message( "BlockDB: Limit must be non-negative." );
                                 return;
@@ -1344,20 +1383,17 @@ namespace fCraft {
                             if ( db.Limit == limitNumber ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
                                                world.ClassyName, limitDisplayString );
-
                             } else if ( !cmd.IsConfirmed && limitNumber != 0 ) {
                                 Logger.Log( LogType.UserActivity,
                                             "BlockDB: Asked {0} to confirm changing BlockDB limit on world {1}",
                                             player.Name, world.Name );
                                 player.Confirm( cmd, "BlockDB: Change limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
-
                             } else {
                                 db.Limit = limitNumber;
                                 WorldManager.SaveWorldList();
                                 player.Message( "BlockDB: Limit for world {0}&S set to {1}",
                                                world.ClassyName, limitDisplayString );
                             }
-
                         } else {
                             player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
                         }
@@ -1382,7 +1418,6 @@ namespace fCraft {
                             TimeSpan limit;
                             if ( limitString.Equals( "none", StringComparison.OrdinalIgnoreCase ) ) {
                                 limit = TimeSpan.Zero;
-
                             } else if ( !limitString.TryParseMiniTimespan( out limit ) ) {
                                 CdBlockDB.PrintUsage( player );
                                 return;
@@ -1400,13 +1435,11 @@ namespace fCraft {
                                     player.Message( "BlockDB: Time limit for world {0}&S is already set to {1}",
                                                     world.ClassyName, db.TimeLimit.ToMiniString() );
                                 }
-
                             } else if ( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
                                 Logger.Log( LogType.UserActivity,
                                             "BlockDB: Asked {0} to confirm changing BlockDB time limit on world {1}",
                                             player.Name, world.Name );
                                 player.Confirm( cmd, "BlockDB: Change time limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
-
                             } else {
                                 db.TimeLimit = limit;
                                 WorldManager.SaveWorldList();
@@ -1418,7 +1451,6 @@ namespace fCraft {
                                                     world.ClassyName, db.TimeLimit.ToMiniString() );
                                 }
                             }
-
                         } else {
                             player.Message( "Block tracking is disabled on world {0}", world.ClassyName );
                         }
@@ -1455,7 +1487,6 @@ namespace fCraft {
                                 player.Message( "BlockDB preloading is {0} for world {1}",
                                                 ( db.IsPreloaded ? "ON" : "OFF" ),
                                                 world.ClassyName );
-
                             } else if ( param.Equals( "on", StringComparison.OrdinalIgnoreCase ) ) {
                                 // turns preload on
                                 if ( db.IsPreloaded ) {
@@ -1465,7 +1496,6 @@ namespace fCraft {
                                     WorldManager.SaveWorldList();
                                     player.Message( "BlockDB preloading is now enabled on world {0}", world.ClassyName );
                                 }
-
                             } else if ( param.Equals( "off", StringComparison.OrdinalIgnoreCase ) ) {
                                 // turns preload off
                                 if ( !db.IsPreloaded ) {
@@ -1475,7 +1505,6 @@ namespace fCraft {
                                     WorldManager.SaveWorldList();
                                     player.Message( "BlockDB preloading is now disabled on world {0}", world.ClassyName );
                                 }
-
                             } else {
                                 CdBlockDB.PrintUsage( player );
                             }
@@ -1492,12 +1521,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion BlockDB
 
         #region BlockInfo
 
-        static readonly CommandDescriptor CdBlockInfo = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBlockInfo = new CommandDescriptor {
             Name = "BInfo",
             Category = CommandCategory.World,
             Aliases = new[] { "b", "bi", "whodid", "about" },
@@ -1508,9 +1536,10 @@ namespace fCraft {
             Handler = BlockInfoHandler
         };
 
-        static void BlockInfoHandler ( Player player, Command cmd ) {
+        private static void BlockInfoHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             // Make sure BlockDB is usable
             if ( !BlockDB.IsEnabledGlobally ) {
@@ -1535,7 +1564,6 @@ namespace fCraft {
                 coords.Y = Math.Min( map.Length - 1, Math.Max( 0, coords.Y ) );
                 coords.Z = Math.Min( map.Height - 1, Math.Max( 0, coords.Z ) );
                 BlockInfoSelectionCallback( player, new[] { coords }, null );
-
             } else {
                 // Otherwise, start a selection
                 player.Message( "BInfo: Click a block to look it up." );
@@ -1543,7 +1571,7 @@ namespace fCraft {
             }
         }
 
-        static void BlockInfoSelectionCallback ( Player player, Vector3I[] marks, object tag ) {
+        private static void BlockInfoSelectionCallback( Player player, Vector3I[] marks, object tag ) {
             var args = new BlockInfoLookupArgs {
                 Player = player,
                 World = player.World,
@@ -1553,15 +1581,15 @@ namespace fCraft {
             Scheduler.NewBackgroundTask( BlockInfoSchedulerCallback, args ).RunOnce();
         }
 
-
-        sealed class BlockInfoLookupArgs {
+        private sealed class BlockInfoLookupArgs {
             public Player Player;
             public World World;
             public Vector3I Coordinate;
         }
 
-        const int MaxBlockChangesToList = 15;
-        static void BlockInfoSchedulerCallback ( SchedulerTask task ) {
+        private const int MaxBlockChangesToList = 15;
+
+        private static void BlockInfoSchedulerCallback( SchedulerTask task ) {
             BlockInfoLookupArgs args = ( BlockInfoLookupArgs )task.UserState;
             if ( !args.World.BlockDB.IsEnabled ) {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
@@ -1590,12 +1618,15 @@ namespace fCraft {
                         case BlockChangeContext.Manual:
                             contextString = "";
                             break;
+
                         case BlockChangeContext.PaintedCombo:
                             contextString = " (Painted)";
                             break;
+
                         case BlockChangeContext.RedoneCombo:
                             contextString = " (Redone)";
                             break;
+
                         default:
                             if ( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
                                 entry.Context != BlockChangeContext.Drawn ) {
@@ -1623,12 +1654,13 @@ namespace fCraft {
             }
         }
 
-        #endregion
-        #endregion
+        #endregion BlockInfo
+
+        #endregion 800Craft
 
         #region Env
 
-        static readonly CommandDescriptor CdEnv = new CommandDescriptor {
+        private static readonly CommandDescriptor CdEnv = new CommandDescriptor {
             Name = "Env",
             Category = CommandCategory.World,
             Permissions = new[] { Permission.ManageWorlds },
@@ -1663,7 +1695,7 @@ namespace fCraft {
             Handler = EnvHandler
         };
 
-        static void EnvHandler ( Player player, Command cmd ) {
+        private static void EnvHandler( Player player, Command cmd ) {
             if ( !ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
                 player.Message( "Env command is disabled on this server." );
                 return;
@@ -1675,7 +1707,8 @@ namespace fCraft {
                 return;
             } else {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if ( world == null ) return;
+                if ( world == null )
+                    return;
             }
 
             string variable = cmd.Next();
@@ -1694,7 +1727,9 @@ namespace fCraft {
                 }
                 return;
             }
+
             #region 800Craft
+
             //Copyright (C) <2011 - 2013> <Jon Baker> using open source texture packs from various sources
             if ( variable.ToLower() == "terrain" ) {
                 if ( valueText == null ) {
@@ -1706,66 +1741,87 @@ namespace fCraft {
                     case "normal":
                         world.Terrain = "bc4acee575474f5266105430c3cc628b8b3948a2";
                         break;
+
                     case "arbot":
                         world.Terrain = "1e3eb03d8efaa862679d36c9044ce47e861ea25e";
                         break;
+
                     case "cool":
                         world.Terrain = "165917066357092a2e7f6b0ec358c05b36b0efa7";
                         break;
+
                     case "deadly":
                         world.Terrain = "cb45307db4addbaac1504529fef79d773a6e31f5";
                         break;
+
                     case "shroom":
                         world.Terrain = "f31b086dbae92cc1741476a3697506192b8f5814";
                         break;
+
                     case "prometheus":
                         world.Terrain = "f66479f2d6c812806c3e768442d45a08a868ad16";
                         break;
+
                     case "woodpunk":
                         world.Terrain = "dff99c37e4a792e10c3b775e6bded725f18ed6fe";
                         break;
+
                     case "simple":
                         world.Terrain = "85f783c3a70c0c9d523eb39e080c2ed95f45bfc2";
                         break;
+
                     case "highres":
                         world.Terrain = "f3dac271d7bce9954baad46e183a6a910a30d13b";
                         break;
+
                     case "hexeretic":
                         world.Terrain = "d8e75476281087c8482ac636a8b8e4a59fadd525";
                         break;
+
                     case "tron":
                         world.Terrain = "ba851c9544ba5e4eed3a8fc9b8b5bf25a4dd45e0";
                         break;
+
                     case "8bit":
                         world.Terrain = "5a3fb1994e2ae526815ceaaca3a4dac0051aa890";
                         break;
+
                     case "mario":
                         world.Terrain = "e98a37ddccbc6144306bd08f41248324965c4e5a";
                         break;
+
                     case "fall":
                         world.Terrain = "b7c6dcb7a858639077f95ef94e8e2d51bedc3307";
                         break;
+
                     case "dokucraft":
                         world.Terrain = "a101cadafd02019e14d727d3329a923a40ef040b";
                         break;
+
                     case "indev":
                         world.Terrain = "73d1ef4441725bdcc9ac3616205faa3dff46e12a";
                         break;
+
                     case "doomcraft":
                         world.Terrain = "8b72beb6fea6ed1e01c1e32e08edf5f784bc919c";
                         break;
+
                     case "messa":
                         world.Terrain = "db0feeac8702704a3146a71365622db55fb5a4c4";
                         break;
+
                     case "portal":
                         world.Terrain = "d4b455134394763296994d0c819b0ac0ea338457";
                         break;
+
                     case "snow":
                         world.Terrain = "0b18fb3b41874ac5fbcb43532d62e6b742adc25e";
                         break;
+
                     case "zelda":
                         world.Terrain = "b25e3bffe57c4f6a35ae42bb6116fcb21c50fa6f";
                         break;
+
                     default:
                         player.Message( "&A/Env [WorldName] terrain [Normal, arbot, cool, deadly, shroom, prometheus, woodpunk, fall, snow, tron, " +
                     "mario, highres, 8bit, simple, indev, messa, portal, dokucraft, doomcraft, hexeretic, zelda " );
@@ -1787,7 +1843,8 @@ namespace fCraft {
                     return;
                 }
             }
-            #endregion
+
+            #endregion 800Craft
 
             if ( variable.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
                 if ( cmd.IsConfirmed ) {
@@ -1929,7 +1986,7 @@ namespace fCraft {
             }
         }
 
-        static int ParseHexColor ( string text ) {
+        private static int ParseHexColor( string text ) {
             byte red, green, blue;
             switch ( text.Length ) {
                 case 3:
@@ -1937,30 +1994,36 @@ namespace fCraft {
                     green = ( byte )( HexToValue( text[1] ) * 16 + HexToValue( text[1] ) );
                     blue = ( byte )( HexToValue( text[2] ) * 16 + HexToValue( text[2] ) );
                     break;
+
                 case 4:
-                    if ( text[0] != '#' ) throw new FormatException();
+                    if ( text[0] != '#' )
+                        throw new FormatException();
                     red = ( byte )( HexToValue( text[1] ) * 16 + HexToValue( text[1] ) );
                     green = ( byte )( HexToValue( text[2] ) * 16 + HexToValue( text[2] ) );
                     blue = ( byte )( HexToValue( text[3] ) * 16 + HexToValue( text[3] ) );
                     break;
+
                 case 6:
                     red = ( byte )( HexToValue( text[0] ) * 16 + HexToValue( text[1] ) );
                     green = ( byte )( HexToValue( text[2] ) * 16 + HexToValue( text[3] ) );
                     blue = ( byte )( HexToValue( text[4] ) * 16 + HexToValue( text[5] ) );
                     break;
+
                 case 7:
-                    if ( text[0] != '#' ) throw new FormatException();
+                    if ( text[0] != '#' )
+                        throw new FormatException();
                     red = ( byte )( HexToValue( text[1] ) * 16 + HexToValue( text[2] ) );
                     green = ( byte )( HexToValue( text[3] ) * 16 + HexToValue( text[4] ) );
                     blue = ( byte )( HexToValue( text[5] ) * 16 + HexToValue( text[6] ) );
                     break;
+
                 default:
                     throw new FormatException();
             }
             return red * 256 * 256 + green * 256 + blue;
         }
 
-        static byte HexToValue ( char c ) {
+        private static byte HexToValue( char c ) {
             if ( c >= '0' && c <= '9' ) {
                 return ( byte )( c - '0' );
             } else if ( c >= 'A' && c <= 'F' ) {
@@ -1972,7 +2035,7 @@ namespace fCraft {
             }
         }
 
-        static void TimeCheck ( SchedulerTask task ) {
+        private static void TimeCheck( SchedulerTask task ) {
             foreach ( World world in WorldManager.Worlds ) {
                 if ( world.RealisticEnv ) {
                     int sky;
@@ -2087,12 +2150,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Env
 
         #region Gen
 
-        static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
+        private static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
             Name = "Gen",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -2102,7 +2164,7 @@ namespace fCraft {
             Handler = GenHandler
         };
 
-        static void GenHandler ( Player player, Command cmd ) {
+        private static void GenHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
             string themeName = cmd.Next();
             string templateName;
@@ -2120,10 +2182,8 @@ namespace fCraft {
             // parse special template names (which do not need a theme)
             if ( themeName.Equals( "ocean" ) ) {
                 genOcean = true;
-
             } else if ( themeName.Equals( "empty" ) ) {
                 genEmpty = true;
-
             } else {
                 templateName = cmd.Next();
                 if ( templateName == null ) {
@@ -2136,19 +2196,15 @@ namespace fCraft {
                 if ( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
                     theme = MapGenTheme.Forest;
                     noTrees = true;
-
                 } else if ( templateName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
                     theme = MapGenTheme.Forest;
                     noTrees = true;
                     swapThemeAndTemplate = true;
-
                 } else if ( EnumUtil.TryParse( themeName, out theme, true ) ) {
                     noTrees = ( theme != MapGenTheme.Forest );
-
                 } else if ( EnumUtil.TryParse( templateName, out theme, true ) ) {
                     noTrees = ( theme != MapGenTheme.Forest );
                     swapThemeAndTemplate = true;
-
                 } else {
                     player.Message( "Gen: Unrecognized theme \"{0}\". Available themes are: Grass, {1}",
                                     themeName,
@@ -2260,7 +2316,6 @@ namespace fCraft {
                     player.Confirm( cmd, "Replace THIS MAP with a generated one ({0})?", templateFullName );
                     return;
                 }
-
             } else {
                 if ( cmd.HasNext ) {
                     CdGenerate.PrintUsage( player );
@@ -2296,13 +2351,10 @@ namespace fCraft {
 
             if ( genEmpty ) {
                 map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
-
             } else if ( genOcean ) {
                 map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
-
             } else if ( genFlatgrass ) {
                 map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
-
             } else {
                 MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
                 if ( theme == MapGenTheme.Desert ) {
@@ -2330,7 +2382,8 @@ namespace fCraft {
                     player.Message( "&WAn error occured while saving generated map to {0}", fileName );
                 }
             } else {
-                if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+                if ( playerWorld == null )
+                    PlayerOpException.ThrowNoWorld( player );
                 player.MessageNow( "Generation done. Changing map..." );
                 playerWorld.MapChangedBy = player.Name;
                 playerWorld.ChangeMap( map );
@@ -2338,11 +2391,11 @@ namespace fCraft {
             Server.RequestGC();
         }
 
-        #endregion
+        #endregion Gen
 
         #region Join
 
-        static readonly CommandDescriptor CdJoin = new CommandDescriptor {
+        private static readonly CommandDescriptor CdJoin = new CommandDescriptor {
             Name = "Join",
             Aliases = new[] { "j", "load", "goto", "map" },
             Category = CommandCategory.World,
@@ -2351,7 +2404,7 @@ namespace fCraft {
             Handler = JoinHandler
         };
 
-        static void JoinHandler ( Player player, Command cmd ) {
+        private static void JoinHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if ( worldName == null ) {
                 CdJoin.PrintUsage( player );
@@ -2371,7 +2424,6 @@ namespace fCraft {
 
             if ( worlds.Length > 1 ) {
                 player.MessageManyMatches( "world", worlds );
-
             } else if ( worlds.Length == 1 ) {
                 World world = worlds[0];
                 player.LastUsedWorldName = world.Name;
@@ -2387,16 +2439,17 @@ namespace fCraft {
                             player.Message( "ERROR: Failed to join world. See log for details." );
                         }
                         break;
+
                     case SecurityCheckResult.BlackListed:
                         player.Message( "Cannot join world {0}&S: you are blacklisted.",
                                         world.ClassyName );
                         break;
+
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot join world {0}&S: must be {1}+",
                                         world.ClassyName, world.AccessSecurity.MinRank.ClassyName );
                         break;
                 }
-
             } else {
                 // no worlds found - see if player meant to type in "/Join" and not "/TP"
                 Player[] players = Server.FindPlayers( player, worldName, true );
@@ -2410,12 +2463,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Join
 
         #region WLock, WUnlock
 
-        static readonly CommandDescriptor CdWorldLock = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldLock = new CommandDescriptor {
             Name = "WLock",
             Aliases = new[] { "lock" },
             Category = CommandCategory.World,
@@ -2430,7 +2482,7 @@ namespace fCraft {
             Handler = WorldLockHandler
         };
 
-        static void WorldLockHandler ( Player player, Command cmd ) {
+        private static void WorldLockHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
 
             World world;
@@ -2448,12 +2500,11 @@ namespace fCraft {
                     return;
                 } else {
                     world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                    if ( world == null ) return;
+                    if ( world == null )
+                        return;
                 }
-
             } else if ( player.World != null ) {
                 world = player.World;
-
             } else {
                 player.Message( "When called from console, /WLock requires a world name." );
                 return;
@@ -2466,8 +2517,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdWorldUnlock = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldUnlock = new CommandDescriptor {
             Name = "WUnlock",
             Aliases = new[] { "unlock" },
             Category = CommandCategory.World,
@@ -2478,7 +2528,7 @@ namespace fCraft {
             Handler = WorldUnlockHandler
         };
 
-        static void WorldUnlockHandler ( Player player, Command cmd ) {
+        private static void WorldUnlockHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
 
             World world;
@@ -2496,12 +2546,11 @@ namespace fCraft {
                     return;
                 } else {
                     world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                    if ( world == null ) return;
+                    if ( world == null )
+                        return;
                 }
-
             } else if ( player.World != null ) {
                 world = player.World;
-
             } else {
                 player.Message( "When called from console, /WLock requires a world name." );
                 return;
@@ -2514,26 +2563,26 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion WLock, WUnlock
 
         #region Spawn
 
-        static readonly CommandDescriptor CdSpawn = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSpawn = new CommandDescriptor {
             Name = "Spawn",
             Category = CommandCategory.World,
             Help = "Teleports you to the current map's spawn.",
             Handler = SpawnHandler
         };
 
-        static void SpawnHandler ( Player player, Command cmd ) {
-            if ( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+        private static void SpawnHandler( Player player, Command cmd ) {
+            if ( player.World == null )
+                PlayerOpException.ThrowNoWorld( player );
             player.TeleportTo( player.World.LoadMap().Spawn );
         }
 
-        #endregion
+        #endregion Spawn
 
-        static readonly CommandDescriptor CdWorldSet = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldSet = new CommandDescriptor {
             Name = "WSet",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -2551,7 +2600,7 @@ namespace fCraft {
             Handler = WorldSetHandler
         };
 
-        static void WorldSetHandler ( Player player, Command cmd ) {
+        private static void WorldSetHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             string varName = cmd.Next();
             string value = cmd.NextAll();
@@ -2561,7 +2610,8 @@ namespace fCraft {
             }
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( world == null ) return;
+            if ( world == null )
+                return;
 
             switch ( varName.ToLower() ) {
                 case "hide":
@@ -2602,7 +2652,6 @@ namespace fCraft {
                     if ( String.IsNullOrEmpty( value ) ) {
                         player.Message( GetBackupSettingsString( world ) );
                         return;
-
                     } else if ( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ||
                                value.StartsWith( "disable", StringComparison.OrdinalIgnoreCase ) ) {
                         // Disable backups on the world
@@ -2621,7 +2670,6 @@ namespace fCraft {
                         } else {
                             world.BackupEnabledState = YesNoAuto.Auto;
                         }
-
                     } else if ( value.TryParseMiniTimespan( out backupInterval ) ) {
                         if ( backupInterval == TimeSpan.Zero ) {
                             // Set world's backup interval to 0, which is equivalent to disabled
@@ -2671,14 +2719,12 @@ namespace fCraft {
             }
         }
 
-
-        static void MessageSameBackupSettings ( Player player, World world ) {
+        private static void MessageSameBackupSettings( Player player, World world ) {
             player.Message( "Backup settings for {0}&S are already \"{1}\"",
                             world.ClassyName, world.BackupSettingDescription );
         }
 
-
-        static string GetBackupSettingsString ( World world ) {
+        private static string GetBackupSettingsString( World world ) {
             switch ( world.BackupEnabledState ) {
                 case YesNoAuto.Yes:
                     return String.Format( "World {0}&S is backed up every {1}",
@@ -2704,7 +2750,7 @@ namespace fCraft {
 
         #region Worlds
 
-        static readonly CommandDescriptor CdWorlds = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorlds = new CommandDescriptor {
             Name = "Worlds",
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
@@ -2719,7 +2765,7 @@ namespace fCraft {
             Handler = WorldsHandler
         };
 
-        static void WorldsHandler ( Player player, Command cmd ) {
+        private static void WorldsHandler( Player player, Command cmd ) {
             string param = cmd.Next();
             World[] worlds;
 
@@ -2731,7 +2777,6 @@ namespace fCraft {
                 listName = "available worlds";
                 extraParam = "";
                 worlds = WorldManager.Worlds.Where( w => !w.IsRealm ).Where( player.CanSee ).ToArray();
-
             } else {
                 switch ( Char.ToLower( param[0] ) ) {
                     case 'a':
@@ -2739,21 +2784,25 @@ namespace fCraft {
                         extraParam = "all ";
                         worlds = WorldManager.Worlds;
                         break;
+
                     case 'h':
                         listName = "hidden worlds";
                         extraParam = "hidden ";
                         worlds = WorldManager.Worlds.Where( w => !player.CanSee( w ) ).ToArray();
                         break;
+
                     case 'r':
                         listName = "Available Realms";
                         extraParam = "realms";
                         worlds = WorldManager.Worlds.Where( w => w.IsRealm ).ToArray();
                         break;
+
                     case 'p':
                         listName = "populated worlds";
                         extraParam = "populated ";
                         worlds = WorldManager.Worlds.Where( w => w.Players.Any( player.CanSee ) ).ToArray();
                         break;
+
                     case '@':
                         if ( param.Length == 1 ) {
                             CdWorlds.PrintUsage( player );
@@ -2770,6 +2819,7 @@ namespace fCraft {
                         worlds = WorldManager.Worlds.Where( w => ( w.BuildSecurity.MinRank <= rank ) && player.CanSee( w ) )
                                                     .ToArray();
                         break;
+
                     default:
                         CdWorlds.PrintUsage( player );
                         return;
@@ -2782,11 +2832,9 @@ namespace fCraft {
 
             if ( worlds.Length == 0 ) {
                 player.Message( "There are no {0}.", listName );
-
             } else if ( worlds.Length <= WorldNamesPerPage || player.IsSuper ) {
                 player.MessagePrefixed( "&S  ", "&SThere are {0} {1}: {2}",
                                         worlds.Length, listName, worlds.JoinToClassyString() );
-
             } else {
                 if ( offset >= worlds.Length ) {
                     offset = Math.Max( 0, worlds.Length - WorldNamesPerPage );
@@ -2805,12 +2853,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Worlds
 
         #region WorldAccess
 
-        static readonly CommandDescriptor CdWorldAccess = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldAccess = new CommandDescriptor {
             Name = "WAccess",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -2822,8 +2869,9 @@ namespace fCraft {
             Handler = WorldAccessHandler
         };
 
-        static void WorldAccessHandler ( [NotNull] Player player, Command cmd ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
+        private static void WorldAccessHandler( [NotNull] Player player, Command cmd ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
             // Print information about the current world
@@ -2838,8 +2886,8 @@ namespace fCraft {
 
             // Find a world by name
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( world == null ) return;
-
+            if ( world == null )
+                return;
 
             string name = cmd.Next();
             if ( name == null ) {
@@ -2860,7 +2908,8 @@ namespace fCraft {
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if ( info == null ) return;
+                    if ( info == null )
+                        return;
 
                     // prevent players from whitelisting themselves to bypass protection
                     if ( player.Info == info && !player.Info.Rank.AllowSecurityCircumvention ) {
@@ -2885,7 +2934,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( world.AccessSecurity.Include( info ) ) {
                         case PermissionOverride.Deny:
@@ -2938,7 +2988,8 @@ namespace fCraft {
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if ( info == null ) return;
+                    if ( info == null )
+                        return;
 
                     if ( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
                         world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
@@ -2948,7 +2999,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( world.AccessSecurity.Exclude( info ) ) {
                         case PermissionOverride.Deny:
@@ -2999,13 +3051,11 @@ namespace fCraft {
                     Rank rank = RankManager.FindRank( name );
                     if ( rank == null ) {
                         player.MessageNoRank( name );
-
                     } else if ( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.AccessSecurity.MinRank > rank &&
                                world.AccessSecurity.MinRank > player.Info.Rank ) {
                         player.Message( "&WYou must be ranked {0}&W+ to lower the access rank for world {1}",
                                         world.AccessSecurity.MinRank.ClassyName, world.ClassyName );
-
                     } else {
                         // list players who are redundantly blacklisted
                         var exceptionList = world.AccessSecurity.ExceptionList;
@@ -3052,12 +3102,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion WorldAccess
 
         #region WorldBuild
 
-        static readonly CommandDescriptor CdWorldBuild = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldBuild = new CommandDescriptor {
             Name = "WBuild",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -3069,8 +3118,9 @@ namespace fCraft {
             Handler = WorldBuildHandler
         };
 
-        static void WorldBuildHandler ( [NotNull] Player player, Command cmd ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
+        private static void WorldBuildHandler( [NotNull] Player player, Command cmd ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
             string worldName = cmd.Next();
 
             // Print information about the current world
@@ -3085,8 +3135,8 @@ namespace fCraft {
 
             // Find a world by name
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( world == null ) return;
-
+            if ( world == null )
+                return;
 
             string name = cmd.Next();
             if ( name == null ) {
@@ -3103,7 +3153,8 @@ namespace fCraft {
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if ( info == null ) return;
+                    if ( info == null )
+                        return;
 
                     // prevent players from whitelisting themselves to bypass protection
                     if ( player.Info == info && !player.Info.Rank.AllowSecurityCircumvention ) {
@@ -3128,7 +3179,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( world.BuildSecurity.Include( info ) ) {
                         case PermissionOverride.Deny:
@@ -3181,7 +3233,8 @@ namespace fCraft {
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if ( info == null ) return;
+                    if ( info == null )
+                        return;
 
                     if ( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooHigh ||
                         world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
@@ -3191,7 +3244,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( world.BuildSecurity.Exclude( info ) ) {
                         case PermissionOverride.Deny:
@@ -3296,12 +3350,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion WorldBuild
 
         #region WorldFlush
 
-        static readonly CommandDescriptor CdWorldFlush = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldFlush = new CommandDescriptor {
             Name = "WFlush",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -3312,14 +3365,14 @@ namespace fCraft {
             Handler = WorldFlushHandler
         };
 
-        static void WorldFlushHandler ( Player player, Command cmd ) {
+        private static void WorldFlushHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             World world = player.World;
 
             if ( worldName != null ) {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if ( world == null ) return;
-
+                if ( world == null )
+                    return;
             } else if ( world == null ) {
                 player.Message( "When using /WFlush from console, you must specify a world name." );
                 return;
@@ -3337,12 +3390,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion WorldFlush
 
         #region WorldInfo
 
-        static readonly CommandDescriptor CdWorldInfo = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldInfo = new CommandDescriptor {
             Name = "WInfo",
             Aliases = new[] { "mapinfo" },
             Category = CommandCategory.World | CommandCategory.Info,
@@ -3354,7 +3406,7 @@ namespace fCraft {
             Handler = WorldInfoHandler
         };
 
-        static void WorldInfoHandler ( Player player, Command cmd ) {
+        private static void WorldInfoHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if ( worldName == null ) {
                 if ( player.World == null ) {
@@ -3366,7 +3418,8 @@ namespace fCraft {
             }
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( world == null ) return;
+            if ( world == null )
+                return;
 
             player.Message( "World {0}&S has {1} player(s) on.",
                             world.ClassyName,
@@ -3441,12 +3494,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion WorldInfo
 
         #region WorldLoad
 
-        static readonly CommandDescriptor CdWorldLoad = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldLoad = new CommandDescriptor {
             Name = "WLoad",
             Aliases = new[] { "wadd" },
             Category = CommandCategory.World,
@@ -3466,8 +3518,7 @@ namespace fCraft {
             Handler = WorldLoadHandler
         };
 
-
-        static void WorldLoadHandler ( Player player, Command cmd ) {
+        private static void WorldLoadHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
             string worldName = cmd.Next();
 
@@ -3483,7 +3534,8 @@ namespace fCraft {
             }
 
             string fullFileName = WorldManager.FindMapFile( player, fileName );
-            if ( fullFileName == null ) return;
+            if ( fullFileName == null )
+                return;
 
             // Loading map into current world
             if ( worldName == null ) {
@@ -3511,8 +3563,6 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "{0} loaded new map for world \"{1}\" from {2}",
                             player.Name, world.Name, fileName );
-
-
             } else {
                 // Loading to some other (or new) world
                 if ( !World.IsValidName( worldName ) ) {
@@ -3584,7 +3634,6 @@ namespace fCraft {
                         Logger.Log( LogType.UserActivity,
                                     "{0} loaded new map for world \"{1}\" from {2}",
                                     player.Name, world.Name, fullFileName );
-
                     } else {
                         // Adding a new world
                         string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
@@ -3649,12 +3698,11 @@ namespace fCraft {
             Server.RequestGC();
         }
 
-        #endregion
-
+        #endregion WorldLoad
 
         #region WorldMain
 
-        static readonly CommandDescriptor CdWorldMain = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldMain = new CommandDescriptor {
             Name = "WMain",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -3666,7 +3714,7 @@ namespace fCraft {
             Handler = WorldMainHandler
         };
 
-        static void WorldMainHandler ( Player player, Command cmd ) {
+        private static void WorldMainHandler( Player player, Command cmd ) {
             string param = cmd.Next();
             if ( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
@@ -3707,7 +3755,6 @@ namespace fCraft {
                         SetRankMainWorld( player, rank, world );
                     }
                 }
-
             } else {
                 World world = WorldManager.FindWorldOrPrintMatches( player, param );
                 if ( world != null ) {
@@ -3716,8 +3763,7 @@ namespace fCraft {
             }
         }
 
-
-        static void SetRankMainWorld ( Player player, Rank rank, World world ) {
+        private static void SetRankMainWorld( Player player, Rank rank, World world ) {
             if ( world == rank.MainWorld ) {
                 player.Message( "World {0}&S is already set as main for {1}&S.",
                                 world.ClassyName, rank.ClassyName );
@@ -3755,11 +3801,9 @@ namespace fCraft {
                         player.Name, world.Name, rank.Name );
         }
 
-
-        static void SetMainWorld ( Player player, World world ) {
+        private static void SetMainWorld( Player player, World world ) {
             if ( world == WorldManager.MainWorld ) {
                 player.Message( "World {0}&S is already set as main.", world.ClassyName );
-
             } else if ( !player.Info.Rank.AllowSecurityCircumvention && !player.CanJoin( world ) ) {
                 // Prevent players from exploiting /WMain to gain access to restricted maps
                 switch ( world.AccessSecurity.CheckDetailed( player.Info ) ) {
@@ -3767,11 +3811,11 @@ namespace fCraft {
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "You are not allowed to set {0}&S as the main world (by rank).", world.ClassyName );
                         return;
+
                     case SecurityCheckResult.BlackListed:
                         player.Message( "You are not allowed to set {0}&S as the main world (blacklisted).", world.ClassyName );
                         return;
                 }
-
             } else {
                 if ( world.AccessSecurity.HasRestrictions ) {
                     world.AccessSecurity.Reset();
@@ -3797,12 +3841,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion WorldMain
 
         #region WorldRename
 
-        static readonly CommandDescriptor CdWorldRename = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldRename = new CommandDescriptor {
             Name = "WRename",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -3812,7 +3855,7 @@ namespace fCraft {
             Handler = WorldRenameHandler
         };
 
-        static void WorldRenameHandler ( Player player, Command cmd ) {
+        private static void WorldRenameHandler( Player player, Command cmd ) {
             string oldName = cmd.Next();
             string newName = cmd.Next();
             if ( oldName == null || newName == null ) {
@@ -3821,7 +3864,8 @@ namespace fCraft {
             }
 
             World oldWorld = WorldManager.FindWorldOrPrintMatches( player, oldName );
-            if ( oldWorld == null ) return;
+            if ( oldWorld == null )
+                return;
             oldName = oldWorld.Name;
 
             if ( !World.IsValidName( newName ) ) {
@@ -3847,16 +3891,20 @@ namespace fCraft {
                     case WorldOpExceptionCode.NoChangeNeeded:
                         player.MessageNow( "WRename: World is already named \"{0}\"", oldName );
                         return;
+
                     case WorldOpExceptionCode.DuplicateWorldName:
                         player.MessageNow( "WRename: Another world named \"{0}\" already exists.", newName );
                         return;
+
                     case WorldOpExceptionCode.InvalidWorldName:
                         player.MessageNow( "WRename: Invalid world name: \"{0}\"", newName );
                         return;
+
                     case WorldOpExceptionCode.MapMoveError:
                         player.MessageNow( "WRename: World \"{0}\" was renamed to \"{1}\", but the map file could not be moved due to an error: {2}",
                                             oldName, newName, ex.InnerException );
                         return;
+
                     default:
                         player.MessageNow( "&WWRename: Unexpected error renaming world \"{0}\": {1}", oldName, ex.Message );
                         Logger.Log( LogType.Error,
@@ -3875,12 +3923,11 @@ namespace fCraft {
                               player.ClassyName, oldName, newName );
         }
 
-        #endregion
-
+        #endregion WorldRename
 
         #region WorldSave
 
-        static readonly CommandDescriptor CdWorldSave = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldSave = new CommandDescriptor {
             Name = "WSave",
             Aliases = new[] { "save" },
             Category = CommandCategory.World,
@@ -3893,7 +3940,7 @@ namespace fCraft {
             Handler = WorldSaveHandler
         };
 
-        static void WorldSaveHandler ( Player player, Command cmd ) {
+        private static void WorldSaveHandler( Player player, Command cmd ) {
             string p1 = cmd.Next(), p2 = cmd.Next();
             if ( p1 == null ) {
                 CdWorldSave.PrintUsage( player );
@@ -3910,7 +3957,8 @@ namespace fCraft {
                 }
             } else {
                 world = WorldManager.FindWorldOrPrintMatches( player, p1 );
-                if ( world == null ) return;
+                if ( world == null )
+                    return;
                 fileName = p2;
             }
 
@@ -3977,12 +4025,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion WorldSave
 
         #region WorldUnload
 
-        static readonly CommandDescriptor CdWorldUnload = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldUnload = new CommandDescriptor {
             Name = "WUnload",
             Aliases = new[] { "wremove", "wdelete" },
             Category = CommandCategory.World,
@@ -3994,7 +4041,7 @@ namespace fCraft {
             Handler = WorldUnloadHandler
         };
 
-        static void WorldUnloadHandler ( Player player, Command cmd ) {
+        private static void WorldUnloadHandler( Player player, Command cmd ) {
             string worldName = cmd.Next();
             if ( worldName == null ) {
                 CdWorldUnload.PrintUsage( player );
@@ -4002,7 +4049,8 @@ namespace fCraft {
             }
 
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( world == null ) return;
+            if ( world == null )
+                return;
 
             try {
                 WorldManager.RemoveWorld( world );
@@ -4013,10 +4061,12 @@ namespace fCraft {
                                            "Assign a new main world before deleting this one.",
                                            world.ClassyName );
                         return;
+
                     case WorldOpExceptionCode.WorldNotFound:
                         player.MessageNow( "&WWorld {0}&W is already unloaded.",
                                            world.ClassyName );
                         return;
+
                     default:
                         player.MessageNow( "&WUnexpected error occured while unloading world {0}&W: {1}",
                                            world.ClassyName, ex.GetType().Name );
@@ -4040,6 +4090,6 @@ namespace fCraft {
             Server.RequestGC();
         }
 
-        #endregion
+        #endregion WorldUnload
     }
 }

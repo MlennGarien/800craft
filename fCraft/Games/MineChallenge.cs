@@ -30,15 +30,16 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using fCraft;
-using fCraft.Events;
 using System.Threading;
+using fCraft.Events;
 
 namespace fCraft.Games {
+
     public class MineChallenge {
+
         //stuff
         public static Thread GameThread;
+
         public static World world;
         public static int redRoundsWon;
         public static int blueRoundsWon;
@@ -58,7 +59,7 @@ namespace fCraft.Games {
         }
 
         //init
-        public static void Init ( World world_ ) {
+        public static void Init( World world_ ) {
             world = world_;
             Player.JoinedWorld += WorldChanging;
             Player.Clicked += playerClicking;
@@ -70,7 +71,7 @@ namespace fCraft.Games {
 
         //games
 
-        public static void math1 () {
+        public static void math1() {
             world.Games.Remove( math1 );
             world.Players.Message( "&WKeyboards at the ready..." );
             Thread.Sleep( 5000 );
@@ -88,7 +89,7 @@ namespace fCraft.Games {
             gamePicker();
         }
 
-        public static void math2 () {
+        public static void math2() {
             world.Games.Remove( math2 );
             world.Players.Message( "&WKeyboards at the ready... stuff is about to happen!" );
             Thread.Sleep( 5000 );
@@ -106,7 +107,7 @@ namespace fCraft.Games {
             gamePicker();
         }
 
-        public static void getOffGrass () {
+        public static void getOffGrass() {
             world.Games.Remove( getOffGrass );
             mode = GameMode.getOffGrass;
             Map map = world.Map;
@@ -132,7 +133,7 @@ namespace fCraft.Games {
             gamePicker();
         }
 
-        public static void pinkPlatform () {
+        public static void pinkPlatform() {
             world.Games.Remove( pinkPlatform );
             mode = GameMode.pinkplatform;
             Map map = world.Map;
@@ -165,7 +166,7 @@ namespace fCraft.Games {
             gamePicker();
         }
 
-        public static void shootBlack () {
+        public static void shootBlack() {
             world.Games.Remove( shootBlack );
             mode = GameMode.shootblack;
             GunModeOn();
@@ -194,7 +195,7 @@ namespace fCraft.Games {
         }
 
         //events
-        public static void playerClicking ( object sender, PlayerClickedEventArgs e ) {
+        public static void playerClicking( object sender, PlayerClickedEventArgs e ) {
             if ( e.Player.World.GameOn ) {
                 if ( Games.MineChallenge.mode == Games.MineChallenge.GameMode.NULL ) {
                     if ( platform.Values.Count > 0 ) {
@@ -209,7 +210,7 @@ namespace fCraft.Games {
             }
         }
 
-        public static void PositionCheck () {
+        public static void PositionCheck() {
             foreach ( Player player in world.Players ) {
                 foreach ( Vector3I platBlock in platform.Values ) {
                     if ( ( player.Position.X / 32 ) == platBlock.X ) {
@@ -230,9 +231,7 @@ namespace fCraft.Games {
             }
         }
 
-
-
-        public static void WorldChanging ( object sender, PlayerJoinedWorldEventArgs e ) {
+        public static void WorldChanging( object sender, PlayerJoinedWorldEventArgs e ) {
             if ( e.OldWorld != null ) {
                 if ( e.OldWorld != e.NewWorld && e.NewWorld.GameOn ) {
                     if ( !e.NewWorld.blueTeam.Contains( e.Player ) && !e.NewWorld.redTeam.Contains( e.Player ) ) {
@@ -248,10 +247,9 @@ namespace fCraft.Games {
             }
         }
 
-
         //voids
 
-        public static void teamNotify () {
+        public static void teamNotify() {
             foreach ( Player player in world.Players ) {
                 if ( world.blueTeam.Contains( player ) ) {
                     player.Message( "&9You are on the Blue Team" );
@@ -261,7 +259,7 @@ namespace fCraft.Games {
             }
         }
 
-        public static void GameAdder ( World world ) {
+        public static void GameAdder( World world ) {
             world.Games.Add( pinkPlatform );
             world.Games.Add( shootBlack );
             world.Games.Add( math1 );
@@ -269,34 +267,36 @@ namespace fCraft.Games {
             world.Games.Add( getOffGrass );
         }
 
-        public static void scoreCounter () {
+        public static void scoreCounter() {
             if ( world.blueScore > world.redScore ) {
                 blueRoundsWon++;
                 world.Players.Message( "&SThe &9Blues&S won that round: &9{0} &S- &C{1}", world.blueScore, world.redScore );
-            } if ( world.redScore > world.blueScore ) {
+            }
+            if ( world.redScore > world.blueScore ) {
                 redRoundsWon++;
                 world.Players.Message( "&SThe &CReds&S won that round: &9{0} &S- &C{1}", world.blueScore, world.redScore );
             } else {
                 world.Players.Message( "&SIt was a tie! Both teams get a point! &9{0} &S- &C{1}", world.blueScore, world.redScore );
-                blueRoundsWon++; redRoundsWon++;
+                blueRoundsWon++;
+                redRoundsWon++;
             }
         }
 
-        public static void wait ( int time ) {
+        public static void wait( int time ) {
             Thread.Sleep( time );
             if ( !world.GameOn ) {
                 return;
             }
         }
 
-        public static void interval () {
+        public static void interval() {
             wait( 5000 );
             world.Players.Message( "&SScores so far: &9Blues {0} &S- &CReds {1}", blueRoundsWon.ToString(), redRoundsWon.ToString() );
             teamNotify();
             wait( 5000 );
         }
 
-        public static void TeamChooser ( Player player, World world ) {
+        public static void TeamChooser( Player player, World world ) {
             if ( !world.blueTeam.Contains( player ) && !world.redTeam.Contains( player ) ) {
                 if ( world.blueTeam.Count() > world.redTeam.Count() ) {
                     world.redTeam.Add( player );
@@ -311,7 +311,7 @@ namespace fCraft.Games {
             }
         }
 
-        public static void teamRemover ( Player player, World world ) {
+        public static void teamRemover( Player player, World world ) {
             if ( world.blueTeam.Contains( player ) ) {
                 world.blueTeam.Remove( player );
                 player.Message( "&SRemoving you from the game" );
@@ -320,26 +320,28 @@ namespace fCraft.Games {
                 player.Message( "&SRemoving you from the game" );
             }
         }
-        public static void Start ( Player player, World world ) {
+
+        public static void Start( Player player, World world ) {
             GameThread = new Thread( new ThreadStart( delegate {
-                 Init( world );
-                 world.GameOn = true;
-                 Server.Players.Message( "{0}&S Started a game of MineChallenge on world {1}",
-                     player.ClassyName, world.ClassyName );
-                 foreach ( Player p in world.Players ) {
-                     TeamChooser( p, world );
-                 }
-                 Server.Players.Message( "&SThe game will start in 60 Seconds." );
-                 GameAdder( world );
-                 // wait(60000);
-                 world.Players.Message( "&SThe game has started!." );
-                 wait( 2000 );
-                 gamePicker();
-                 Scheduler.NewTask( t => PositionCheck() ).RunForever( TimeSpan.FromSeconds( 1 ) );
-             } ) ); GameThread.Start();
+                Init( world );
+                world.GameOn = true;
+                Server.Players.Message( "{0}&S Started a game of MineChallenge on world {1}",
+                    player.ClassyName, world.ClassyName );
+                foreach ( Player p in world.Players ) {
+                    TeamChooser( p, world );
+                }
+                Server.Players.Message( "&SThe game will start in 60 Seconds." );
+                GameAdder( world );
+                // wait(60000);
+                world.Players.Message( "&SThe game has started!." );
+                wait( 2000 );
+                gamePicker();
+                Scheduler.NewTask( t => PositionCheck() ).RunForever( TimeSpan.FromSeconds( 1 ) );
+            } ) );
+            GameThread.Start();
         }
 
-        public static void gamePicker () {
+        public static void gamePicker() {
             if ( world.Games.Count() < 1 ) {
                 Stop( Player.Console );
                 return;
@@ -351,7 +353,7 @@ namespace fCraft.Games {
             world.Games[i]();
         }
 
-        public static void Stop ( Player player ) {
+        public static void Stop( Player player ) {
             world.Players.Message( "&SThe game has ended! The scores are: \n&9Blue Team {0} &S- &CRed Team {1}", blueRoundsWon, redRoundsWon );
             world.GameOn = false;
             Clear();
@@ -359,14 +361,14 @@ namespace fCraft.Games {
         }
 
         //needs a rewrite for new gun code
-        public static void GunModeOn () {
+        public static void GunModeOn() {
             foreach ( Player player in world.Players ) {
                 player.GunMode = true;
                 player.Message( "GunMode Activated" );
             }
         }
 
-        public static void GunModeOff () {
+        public static void GunModeOff() {
             foreach ( Player player in world.Players ) {
                 player.GunMode = false;
                 foreach ( Vector3I block in player.GunCache.Values ) {
@@ -375,7 +377,7 @@ namespace fCraft.Games {
             }
         }
 
-        public static void Clear () {
+        public static void Clear() {
             world.blueTeam.Clear();
             world.redTeam.Clear();
             world.blueScore = 0;

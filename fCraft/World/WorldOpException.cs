@@ -2,6 +2,7 @@
 using System;
 
 namespace fCraft {
+
     public sealed class WorldOpException : Exception {
 
         public WorldOpExceptionCode ErrorCode { get; private set; }
@@ -27,8 +28,8 @@ namespace fCraft {
         }
 
         public static string GetMessage( string worldName, WorldOpExceptionCode code ) {
-            if( worldName != null ) {
-                switch( code ) {
+            if ( worldName != null ) {
+                switch ( code ) {
                     case WorldOpExceptionCode.CannotDoThatToMainWorld:
                         return "This operation cannot be done on the main world (" +
                                worldName + "). Assign a new main world and try again.";
@@ -74,7 +75,7 @@ namespace fCraft {
                         return "Unexpected error occured while working on world \"" + worldName + "\"";
                 }
             } else {
-                switch( code ) {
+                switch ( code ) {
                     case WorldOpExceptionCode.CannotDoThatToMainWorld:
                         return "This operation cannot be done on the main world. " +
                                "Assign a new main world and try again.";
@@ -122,7 +123,6 @@ namespace fCraft {
             }
         }
     }
-
 
     /// <summary> List of common world operation issues. Used by WorldOpException. </summary>
     public enum WorldOpExceptionCode {

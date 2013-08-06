@@ -3,20 +3,22 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using fCraft.Events;
 using fCraft.GUI;
-using System.Threading;
 
 namespace fCraft.ServerGUI {
 
     public sealed partial class MainForm : Form {
-        volatile bool shutdownPending, startupComplete, shutdownComplete;
-        const int MaxLinesInLog = 2000,
-                  LinesToTrimWhenExceeded = 50;
-        SkinViewer v;
+        private volatile bool shutdownPending, startupComplete, shutdownComplete;
 
-        public MainForm () {
+        private const int MaxLinesInLog = 2000,
+                  LinesToTrimWhenExceeded = 50;
+
+        private SkinViewer v;
+
+        public MainForm() {
             InitializeComponent();
             Shown += StartUp;
             console.OnCommand += console_Enter;
@@ -27,9 +29,10 @@ namespace fCraft.ServerGUI {
         }
 
         #region Startup
-        Thread startupThread;
 
-        void StartUp ( object sender, EventArgs a ) {
+        private Thread startupThread;
+
+        private void StartUp( object sender, EventArgs a ) {
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
             Server.PlayerListChanged += OnPlayerListChanged;
@@ -40,23 +43,25 @@ namespace fCraft.ServerGUI {
             startupThread.Start();
         }
 
-
-        void StartupThread () {
+        private void StartupThread() {
 #if !DEBUG
             try {
 #endif
                 Server.InitLibrary( Environment.GetCommandLineArgs() );
-                if ( shutdownPending ) return;
+                if ( shutdownPending )
+                    return;
 
                 Server.InitServer();
-                if ( shutdownPending ) return;
+                if ( shutdownPending )
+                    return;
 
                 BeginInvoke( ( Action )OnInitSuccess );
 
                 // check for updates
                 UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
                 if ( updaterMode != UpdaterMode.Disabled ) {
-                    if ( shutdownPending ) return;
+                    if ( shutdownPending )
+                        return;
                     if ( Updater.UpdateCheck() ) {
                         if ( updaterMode == UpdaterMode.Notify ) {
                             String updateMsg = String.Format( "An 800Craft update is available! Visit http://github.com/glennmr/800Craft/downloads to download. " +
@@ -74,7 +79,6 @@ namespace fCraft.ServerGUI {
                     }
                 }
 
-
                 // set process priority
                 if ( !ConfigKey.ProcessPriority.IsBlank() ) {
                     try {
@@ -85,7 +89,8 @@ namespace fCraft.ServerGUI {
                     }
                 }
 
-                if ( shutdownPending ) return;
+                if ( shutdownPending )
+                    return;
                 if ( Server.StartServer() ) {
                     startupComplete = true;
                     BeginInvoke( ( Action )OnStartupSuccess );
@@ -100,13 +105,11 @@ namespace fCraft.ServerGUI {
 #endif
         }
 
-
-        void OnInitSuccess () {
+        private void OnInitSuccess() {
             Text = "800Craft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
         }
 
-
-        void OnStartupSuccess () {
+        private void OnStartupSuccess() {
             if ( !ConfigKey.HeartbeatEnabled.Enabled() ) {
                 uriDisplay.Text = "Heartbeat disabled. See externalurl.txt";
             }
@@ -114,17 +117,15 @@ namespace fCraft.ServerGUI {
             console.Text = "";
         }
 
-
-        void OnStartupFailure () {
+        private void OnStartupFailure() {
             Shutdown( ShutdownReason.FailedToStart, Server.HasArg( ArgKey.ExitOnCrash ) );
         }
 
-        #endregion
-
+        #endregion Startup
 
         #region Shutdown
 
-        protected override void OnFormClosing ( FormClosingEventArgs e ) {
+        protected override void OnFormClosing( FormClosingEventArgs e ) {
             if ( startupThread != null && !shutdownComplete ) {
                 Shutdown( ShutdownReason.ProcessClosing, true );
                 e.Cancel = true;
@@ -133,9 +134,9 @@ namespace fCraft.ServerGUI {
             }
         }
 
-
-        void Shutdown ( ShutdownReason reason, bool quit ) {
-            if ( shutdownPending ) return;
+        private void Shutdown( ShutdownReason reason, bool quit ) {
+            if ( shutdownPending )
+                return;
             shutdownPending = true;
             console.Enabled = false;
             console.Text = "Shutting down...";
@@ -147,8 +148,7 @@ namespace fCraft.ServerGUI {
             Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, quit, false ), false );
         }
 
-
-        void OnServerShutdownEnded ( object sender, ShutdownEventArgs e ) {
+        private void OnServerShutdownEnded( object sender, ShutdownEventArgs e ) {
             try {
                 BeginInvoke( ( Action )delegate {
                     shutdownComplete = true;
@@ -160,6 +160,7 @@ namespace fCraft.ServerGUI {
                                 Application.Exit();
                             }
                             break;
+
                         default:
                             Application.Exit();
                             break;
@@ -169,13 +170,14 @@ namespace fCraft.ServerGUI {
             } catch ( InvalidOperationException ) { }
         }
 
-        #endregion
+        #endregion Shutdown
 
-
-        public void OnLogged ( object sender, LogEventArgs e ) {
-            if ( !e.WriteToConsole ) return;
+        public void OnLogged( object sender, LogEventArgs e ) {
+            if ( !e.WriteToConsole )
+                return;
             try {
-                if ( shutdownComplete ) return;
+                if ( shutdownComplete )
+                    return;
                 if ( logBox.InvokeRequired ) {
                     BeginInvoke( ( EventHandler<LogEventArgs> )OnLogged, sender, e );
                 } else {
@@ -194,6 +196,7 @@ namespace fCraft.ServerGUI {
                         case LogType.PrivateChat:
                             logBox.SelectionColor = System.Drawing.Color.Teal;
                             break;
+
                         case LogType.IRC:
                             if ( ThemeBox.SelectedItem == null ) {
                                 logBox.SelectionColor = System.Drawing.Color.LightBlue;
@@ -202,15 +205,18 @@ namespace fCraft.ServerGUI {
                                     default:
                                         logBox.SelectionColor = System.Drawing.Color.LightSkyBlue;
                                         break;
+
                                     case "New 800Craft":
                                         logBox.SelectionColor = System.Drawing.Color.Navy;
                                         break;
                                 }
                             }
                             break;
+
                         case LogType.ChangedWorld:
                             logBox.SelectionColor = System.Drawing.Color.Orange;
                             break;
+
                         case LogType.Warning:
                             if ( ThemeBox.SelectedItem == null ) {
                                 logBox.SelectionColor = System.Drawing.Color.Yellow;
@@ -219,19 +225,23 @@ namespace fCraft.ServerGUI {
                                     default:
                                         logBox.SelectionColor = System.Drawing.Color.MediumOrchid;
                                         break;
+
                                     case "New 800Craft":
                                         logBox.SelectionColor = System.Drawing.Color.Yellow;
                                         break;
                                 }
                             }
                             break;
+
                         case LogType.Debug:
                             logBox.SelectionColor = System.Drawing.Color.DarkGray;
                             break;
+
                         case LogType.Error:
                         case LogType.SeriousError:
                             logBox.SelectionColor = System.Drawing.Color.Red;
                             break;
+
                         case LogType.ConsoleInput:
                         case LogType.ConsoleOutput:
                             if ( ThemeBox.SelectedItem == null ) {
@@ -241,12 +251,14 @@ namespace fCraft.ServerGUI {
                                     default:
                                         logBox.SelectionColor = System.Drawing.Color.Black;
                                         break;
+
                                     case "New 800Craft":
                                         logBox.SelectionColor = System.Drawing.Color.White;
                                         break;
                                 }
                             }
                             break;
+
                         default:
                             if ( ThemeBox.SelectedItem == null ) {
                                 logBox.SelectionColor = System.Drawing.Color.LightGray;
@@ -255,6 +267,7 @@ namespace fCraft.ServerGUI {
                                     default:
                                         logBox.SelectionColor = System.Drawing.Color.Black;
                                         break;
+
                                     case "New 800Craft":
                                         logBox.SelectionColor = System.Drawing.Color.LightGray;
                                         break;
@@ -268,7 +281,8 @@ namespace fCraft.ServerGUI {
                         logBox.SelectionStart = 0;
                         logBox.SelectionLength = logBox.GetFirstCharIndexFromLine( LinesToTrimWhenExceeded );
                         userSelectionStart -= logBox.SelectionLength;
-                        if ( userSelectionStart < 0 ) userSelecting = false;
+                        if ( userSelectionStart < 0 )
+                            userSelecting = false;
                         string textToAdd = "----- cut off, see " + Logger.CurrentLogFileName + " for complete log -----" + Environment.NewLine;
                         logBox.SelectedText = textToAdd;
                         userSelectionStart += textToAdd.Length;
@@ -287,10 +301,10 @@ namespace fCraft.ServerGUI {
             } catch ( InvalidOperationException ) { }
         }
 
-
-        public void OnHeartbeatUriChanged ( object sender, UriChangedEventArgs e ) {
+        public void OnHeartbeatUriChanged( object sender, UriChangedEventArgs e ) {
             try {
-                if ( shutdownPending ) return;
+                if ( shutdownPending )
+                    return;
                 if ( uriDisplay.InvokeRequired ) {
                     BeginInvoke( ( EventHandler<UriChangedEventArgs> )OnHeartbeatUriChanged,
                             sender, e );
@@ -303,10 +317,10 @@ namespace fCraft.ServerGUI {
             } catch ( InvalidOperationException ) { }
         }
 
-
-        public void OnPlayerListChanged ( object sender, EventArgs e ) {
+        public void OnPlayerListChanged( object sender, EventArgs e ) {
             try {
-                if ( shutdownPending ) return;
+                if ( shutdownPending )
+                    return;
                 if ( playerList.InvokeRequired ) {
                     BeginInvoke( ( EventHandler )OnPlayerListChanged, null, EventArgs.Empty );
                 } else {
@@ -320,8 +334,7 @@ namespace fCraft.ServerGUI {
             } catch ( InvalidOperationException ) { }
         }
 
-
-        private void console_Enter () {
+        private void console_Enter() {
             string[] separator = { Environment.NewLine };
             string[] lines = console.Text.Trim().Split( separator, StringSplitOptions.RemoveEmptyEntries );
             foreach ( string line in lines ) {
@@ -346,8 +359,7 @@ namespace fCraft.ServerGUI {
             console.Text = "";
         }
 
-
-        private void bPlay_Click ( object sender, EventArgs e ) {
+        private void bPlay_Click( object sender, EventArgs e ) {
             try {
                 Process.Start( uriDisplay.Text );
             } catch ( Exception ) {
@@ -355,18 +367,17 @@ namespace fCraft.ServerGUI {
             }
         }
 
-        private void logBox_TextChanged ( object sender, EventArgs e ) {
-
+        private void logBox_TextChanged( object sender, EventArgs e ) {
         }
-        private void Link_Clicked ( object sender, LinkClickedEventArgs e ) {
+
+        private void Link_Clicked( object sender, LinkClickedEventArgs e ) {
             System.Diagnostics.Process.Start( e.LinkText );
         }
 
-        private void MainForm_Load ( object sender, EventArgs e ) {
-
+        private void MainForm_Load( object sender, EventArgs e ) {
         }
 
-        private void comboBox1_SelectedIndexChanged ( object sender, EventArgs e ) {
+        private void comboBox1_SelectedIndexChanged( object sender, EventArgs e ) {
             if ( SizeBox.SelectedItem.ToString() == "Normal" ) {
                 logBox.ZoomFactor = 1;
             }
@@ -378,12 +389,12 @@ namespace fCraft.ServerGUI {
             }
         }
 
-        private void CopyMenuOnClickHandler ( object sender, EventArgs e ) {
+        private void CopyMenuOnClickHandler( object sender, EventArgs e ) {
             if ( logBox.SelectedText.Length > 0 )
                 Clipboard.SetText( logBox.SelectedText.ToString(), TextDataFormat.Text );
         }
 
-        private void CopyMenuPopupHandler ( object sender, EventArgs e ) {
+        private void CopyMenuPopupHandler( object sender, EventArgs e ) {
             ContextMenu menu = sender as ContextMenu;
             if ( menu != null ) {
                 menu.MenuItems[0].Enabled = ( logBox.SelectedText.Length > 0 );
@@ -391,7 +402,8 @@ namespace fCraft.ServerGUI {
         }
 
         private bool _isBlackText = false;
-        private void ThemeBox_SelectedIndexChanged ( object sender, EventArgs e ) {
+
+        private void ThemeBox_SelectedIndexChanged( object sender, EventArgs e ) {
             if ( ThemeBox.SelectedItem.ToString().Equals( "New 800Craft" ) ) { SetNewTheme(); }
             if ( ThemeBox.SelectedItem.ToString().Equals( "Old 800Craft" ) ) { SetOldTheme(); }
             if ( ThemeBox.SelectedItem.ToString().Equals( "Pink" ) ) { SetPinkTheme(); }
@@ -401,8 +413,7 @@ namespace fCraft.ServerGUI {
             if ( ThemeBox.SelectedItem.ToString().Equals( "Grey" ) ) { SetGreyTheme(); }
         }
 
-
-        public void SetNewTheme () {
+        public void SetNewTheme() {
             BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             playerList.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             if ( logBox.BackColor != System.Drawing.Color.Black ) {
@@ -414,7 +425,8 @@ namespace fCraft.ServerGUI {
                 _isBlackText = false;
             }
         }
-        public void SetOldTheme () {
+
+        public void SetOldTheme() {
             BackColor = System.Drawing.SystemColors.GradientActiveCaption;
             playerList.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             logBox.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
@@ -426,7 +438,8 @@ namespace fCraft.ServerGUI {
                 _isBlackText = true;
             }
         }
-        public void SetPinkTheme () {
+
+        public void SetPinkTheme() {
             BackColor = System.Drawing.Color.Pink;
             playerList.BackColor = System.Drawing.Color.LightPink;
             logBox.BackColor = System.Drawing.Color.LightPink;
@@ -439,7 +452,7 @@ namespace fCraft.ServerGUI {
             }
         }
 
-        public void SetYellowTheme () {
+        public void SetYellowTheme() {
             BackColor = System.Drawing.Color.LightGoldenrodYellow;
             playerList.BackColor = System.Drawing.Color.LightYellow;
             logBox.BackColor = System.Drawing.Color.LightYellow;
@@ -452,7 +465,7 @@ namespace fCraft.ServerGUI {
             }
         }
 
-        public void SetGreenTheme () {
+        public void SetGreenTheme() {
             BackColor = System.Drawing.Color.SpringGreen;
             playerList.BackColor = System.Drawing.Color.LightGreen;
             logBox.BackColor = System.Drawing.Color.LightGreen;
@@ -465,7 +478,7 @@ namespace fCraft.ServerGUI {
             }
         }
 
-        public void SetPurpleTheme () {
+        public void SetPurpleTheme() {
             BackColor = System.Drawing.Color.MediumPurple;
             playerList.BackColor = System.Drawing.Color.Plum;
             logBox.BackColor = System.Drawing.Color.Plum;
@@ -478,7 +491,7 @@ namespace fCraft.ServerGUI {
             }
         }
 
-        public void SetGreyTheme () {
+        public void SetGreyTheme() {
             BackColor = System.Drawing.SystemColors.Control;
             playerList.BackColor = System.Drawing.SystemColors.ControlLight;
             logBox.BackColor = System.Drawing.SystemColors.ControlLight;
@@ -491,8 +504,7 @@ namespace fCraft.ServerGUI {
             }
         }
 
-
-        private void playerList_SelectedIndexChanged ( object sender, EventArgs e ) {
+        private void playerList_SelectedIndexChanged( object sender, EventArgs e ) {
             try {
                 string s = ( string )playerList.Items[playerList.SelectedIndex];
                 s = s.Substring( s.IndexOf( '-' ),
@@ -501,14 +513,14 @@ namespace fCraft.ServerGUI {
                     .Replace( " ", "" )
                     .Trim();
                 PlayerInfo player = PlayerDB.FindPlayerInfoExact( s );
-                if ( player == null ) return;
+                if ( player == null )
+                    return;
                 v = new SkinViewer( player );
                 v.Show();
-            } catch {  } //do nothing at all
+            } catch { } //do nothing at all
         }
 
-        private void contextMenuStrip1_Opening ( object sender, CancelEventArgs e ) {
-            
+        private void contextMenuStrip1_Opening( object sender, CancelEventArgs e ) {
         }
     }
 }

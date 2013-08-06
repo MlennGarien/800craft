@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using fCraft.Events;
 
 namespace fCraft {
-    class ZombieGame {
+
+    internal class ZombieGame {
 
         /// <summary>
         /// The name for the zombie skin
@@ -42,12 +41,11 @@ namespace fCraft {
         /// </summary>
         private static bool _started = false;
 
-
         /// <summary>
         /// Class instance
         /// </summary>
         /// <param name="world">Game world</param>
-        public ZombieGame ( World world ) {
+        public ZombieGame( World world ) {
             _world = world;
             startTime = DateTime.UtcNow;
             _humanCount = _world.Players.Length;
@@ -60,19 +58,18 @@ namespace fCraft {
         /// <summary>
         /// Method to start the game
         /// </summary>
-        public void Start () {
+        public void Start() {
             _world.gameMode = GameMode.ZombieSurvival; //set the game mode
             _humanCount = _world.Players.Where( p => p.iName != _zomb ).Count(); //count all players
             Scheduler.NewTask( t => _world.Players.Message( "&WThe game will be starting soon..." ) )
                 .RunRepeating( TimeSpan.FromSeconds( 0 ), TimeSpan.FromSeconds( 20 ), 2 );
         }
 
-
         /// <summary>
         /// Method to stop the game
         /// </summary>
         /// <param name="player">Player stopping the game. If null, presume game has finished by itself</param>
-        public void Stop ( Player player ) {
+        public void Stop( Player player ) {
             if ( player != null ) {
                 _world.Players.Message( "{0}&S stopped the game of Infection on world {1}",
                     player.ClassyName, _world.ClassyName );
@@ -89,21 +86,22 @@ namespace fCraft {
         /// <summary>
         /// Pick a random player and infect them
         /// </summary>
-        public void RandomPick () {
+        public void RandomPick() {
             Random rand = new Random();
             int min = 0;
-            int max = _world.Players.Length; 
+            int max = _world.Players.Length;
             int num = rand.Next( min, max );
             Player p = _world.Players[num];
             ToZombie( null, p );
         }
-        Random rand = new Random();
+
+        private Random rand = new Random();
 
         /// <summary>
         /// Repeating task, checks things
         /// </summary>
         /// <param name="task">Task in question</param>
-        public void Interval ( SchedulerTask task ) {
+        public void Interval( SchedulerTask task ) {
             //check to stop Interval
             if ( _world.gameMode != GameMode.ZombieSurvival || _world == null ) {
                 _world = null;
@@ -149,18 +147,19 @@ namespace fCraft {
             if ( lastChecked != null && ( DateTime.UtcNow - lastChecked ).TotalSeconds >= 30 ) {
                 _world.Players.Message( "&WThere are {0} humans", _humanCount.ToString() );
                 foreach ( Player p in _world.Players ) {
-                    if ( p.iName == _zomb ) p.Message( "&8You are " + _zomb );
-                    else p.Message( "&8You are a Human" );
+                    if ( p.iName == _zomb )
+                        p.Message( "&8You are " + _zomb );
+                    else
+                        p.Message( "&8You are a Human" );
                 }
                 lastChecked = DateTime.UtcNow;
             }
         }
 
-
         /// <summary>
         /// Event: Manages a player changing world
         /// </summary>
-        void OnChangedWorld ( object sender, PlayerJoinedWorldEventArgs e ) {
+        private void OnChangedWorld( object sender, PlayerJoinedWorldEventArgs e ) {
             if ( e.OldWorld != null ) {
                 if ( e.OldWorld.gameMode == GameMode.ZombieSurvival && e.NewWorld != e.OldWorld ) {
                     if ( e.Player.iName != null )
@@ -171,7 +170,7 @@ namespace fCraft {
                         e.Player.entityChanged = true;
                         e.Player.Message( "&WYou arrived late, so you are " + _zomb );
                     }
-                    if ( e.Player.IsUsingWoM ) 
+                    if ( e.Player.IsUsingWoM )
                         e.Player.Message( "&HUsing WoM? Be sure to turn off hacks" );
                 }
             }
@@ -180,7 +179,7 @@ namespace fCraft {
         /// <summary>
         /// Event: Manages a player's movement
         /// </summary>
-        void OnPlayerMoved ( object sender, PlayerMovedEventArgs e ) {
+        private void OnPlayerMoved( object sender, PlayerMovedEventArgs e ) {
             if ( e.Player.World.gameMode == GameMode.ZombieSurvival ) {
                 if ( e.Player.World.Name == _world.Name && _world != null ) {
                     if ( e.NewPosition != null ) {
@@ -218,7 +217,7 @@ namespace fCraft {
         /// <summary>
         /// Used to spawn all players at a random position on the map
         /// </summary>
-        void ShufflePlayerPositions () {
+        private void ShufflePlayerPositions() {
             foreach ( Player p in _world.Players ) {
                 int x = rand.Next( 2, _world.Map.Width );
                 int y = rand.Next( 2, _world.Map.Length );
@@ -238,7 +237,7 @@ namespace fCraft {
         /// </summary>
         /// <param name="infector">Player infecting other</param>
         /// <param name="target">Guy getting infected</param>
-        public void ToZombie ( Player infector, Player target ) {
+        public void ToZombie( Player infector, Player target ) {
             if ( infector == null ) {
                 _world.Players.Message( "{0}&S has been the first to get &cInfected. &9Panic!!!!!",
                         target.ClassyName );
@@ -265,7 +264,7 @@ namespace fCraft {
         /// <summary>
         /// Reverts all names (disinfects all)
         /// </summary>
-        void RevertNames () {
+        private void RevertNames() {
             foreach ( Player p in _world.Players ) {
                 RevertPlayerName( p );
             }
@@ -275,7 +274,7 @@ namespace fCraft {
         /// Disinfects one player
         /// </summary>
         /// <param name="p">Player in question</param>
-        public void RevertPlayerName ( Player p ) {
+        public void RevertPlayerName( Player p ) {
             if ( p.iName == _zomb ) {
                 p.iName = null;
                 p.entityChanged = true;

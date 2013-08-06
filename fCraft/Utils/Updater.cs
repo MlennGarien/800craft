@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
@@ -10,9 +11,9 @@ using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
-using System.IO;
 
 namespace fCraft {
+
     /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
 
@@ -35,17 +36,18 @@ namespace fCraft {
 
         public static string UpdateUrl { get; set; }
 
-        static Updater () {
+        static Updater() {
             UpdateCheckTimeout = 4000;
             UpdateUrl = "http://au70.net/UpdateCheck.php?r={0}";
         }
+
         public static int WebVersion;
         public static string WebVersionFullString;
         public static string DownloadLocation;
         public static string UpdaterLocation;
         public static string Changelog;
 
-        public static bool UpdateCheck () {
+        public static bool UpdateCheck() {
             try {
                 using ( WebClient client = new WebClient() ) {
                     using ( Stream stream = client.OpenRead( "http://forums.au70.net/public/update.txt" ) ) {
@@ -78,12 +80,14 @@ namespace fCraft {
 
         public static int UpdateCheckTimeout { get; set; }
 
-        public static UpdaterResult CheckForUpdates () {
+        public static UpdaterResult CheckForUpdates() {
             UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
-            if ( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
+            if ( mode == UpdaterMode.Disabled )
+                return UpdaterResult.NoUpdate;
 
             string url = String.Format( UpdateUrl, CurrentRelease.Revision );
-            if ( RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
+            if ( RaiseCheckingForUpdatesEvent( ref url ) )
+                return UpdaterResult.NoUpdate;
 
             Logger.Log( LogType.SystemActivity, "Checking for 800Craft updates..." );
             try {
@@ -138,9 +142,7 @@ namespace fCraft {
             }
         }
 
-
         public static bool RunAtShutdown { get; set; }
-
 
         #region Events
 
@@ -148,51 +150,55 @@ namespace fCraft {
         /// The update Url may be overridden. </summary>
         public static event EventHandler<CheckingForUpdatesEventArgs> CheckingForUpdates;
 
-
         /// <summary> Occurs when fCraft has just checked for updates. </summary>
         public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
 
-
-        static bool RaiseCheckingForUpdatesEvent ( ref string updateUrl ) {
+        private static bool RaiseCheckingForUpdatesEvent( ref string updateUrl ) {
             var h = CheckingForUpdates;
-            if ( h == null ) return false;
+            if ( h == null )
+                return false;
             var e = new CheckingForUpdatesEventArgs( updateUrl );
             h( null, e );
             updateUrl = e.Url;
             return e.Cancel;
         }
 
-
-        static void RaiseCheckedForUpdatesEvent ( string url, UpdaterResult result ) {
+        private static void RaiseCheckedForUpdatesEvent( string url, UpdaterResult result ) {
             var h = CheckedForUpdates;
-            if ( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
+            if ( h != null )
+                h( null, new CheckedForUpdatesEventArgs( url, result ) );
         }
 
-        #endregion
+        #endregion Events
     }
 
-
     public sealed class UpdaterResult {
+
         public static UpdaterResult NoUpdate {
             get {
                 return new UpdaterResult( false, null, new ReleaseInfo[0] );
             }
         }
-        internal UpdaterResult ( bool updateAvailable, Uri downloadUri, IEnumerable<ReleaseInfo> releases ) {
+
+        internal UpdaterResult( bool updateAvailable, Uri downloadUri, IEnumerable<ReleaseInfo> releases ) {
             UpdateAvailable = updateAvailable;
             DownloadUri = downloadUri;
             History = releases.OrderByDescending( r => r.Revision ).ToArray();
             LatestRelease = releases.FirstOrDefault();
         }
+
         public bool UpdateAvailable { get; private set; }
+
         public Uri DownloadUri { get; private set; }
+
         public ReleaseInfo[] History { get; private set; }
+
         public ReleaseInfo LatestRelease { get; private set; }
     }
 
-
     public sealed class ReleaseInfo {
-        internal ReleaseInfo ( int version, int revision, DateTime releaseDate,
+
+        internal ReleaseInfo( int version, int revision, DateTime releaseDate,
                               string summary, string changeLog, ReleaseFlags releaseType ) {
             Version = version;
             Revision = revision;
@@ -239,38 +245,48 @@ namespace fCraft {
 
         public string[] ChangeLog { get; private set; }
 
-        public static ReleaseFlags StringToReleaseFlags ( [NotNull] string str ) {
-            if ( str == null ) throw new ArgumentNullException( "str" );
+        public static ReleaseFlags StringToReleaseFlags( [NotNull] string str ) {
+            if ( str == null )
+                throw new ArgumentNullException( "str" );
             ReleaseFlags flags = ReleaseFlags.None;
             for ( int i = 0; i < str.Length; i++ ) {
                 switch ( Char.ToUpper( str[i] ) ) {
                     case 'A':
                         flags |= ReleaseFlags.APIChange;
                         break;
+
                     case 'B':
                         flags |= ReleaseFlags.Bugfix;
                         break;
+
                     case 'C':
                         flags |= ReleaseFlags.ConfigFormatChange;
                         break;
+
                     case 'D':
                         flags |= ReleaseFlags.Dev;
                         break;
+
                     case 'F':
                         flags |= ReleaseFlags.Feature;
                         break;
+
                     case 'M':
                         flags |= ReleaseFlags.MapFormatChange;
                         break;
+
                     case 'P':
                         flags |= ReleaseFlags.PlayerDBFormatChange;
                         break;
+
                     case 'S':
                         flags |= ReleaseFlags.Security;
                         break;
+
                     case 'U':
                         flags |= ReleaseFlags.Unstable;
                         break;
+
                     case 'O':
                         flags |= ReleaseFlags.Optimized;
                         break;
@@ -279,46 +295,66 @@ namespace fCraft {
             return flags;
         }
 
-        public static string ReleaseFlagsToString ( ReleaseFlags flags ) {
+        public static string ReleaseFlagsToString( ReleaseFlags flags ) {
             StringBuilder sb = new StringBuilder();
-            if ( ( flags & ReleaseFlags.APIChange ) == ReleaseFlags.APIChange ) sb.Append( 'A' );
-            if ( ( flags & ReleaseFlags.Bugfix ) == ReleaseFlags.Bugfix ) sb.Append( 'B' );
-            if ( ( flags & ReleaseFlags.ConfigFormatChange ) == ReleaseFlags.ConfigFormatChange ) sb.Append( 'C' );
-            if ( ( flags & ReleaseFlags.Dev ) == ReleaseFlags.Dev ) sb.Append( 'D' );
-            if ( ( flags & ReleaseFlags.Feature ) == ReleaseFlags.Feature ) sb.Append( 'F' );
-            if ( ( flags & ReleaseFlags.MapFormatChange ) == ReleaseFlags.MapFormatChange ) sb.Append( 'M' );
-            if ( ( flags & ReleaseFlags.PlayerDBFormatChange ) == ReleaseFlags.PlayerDBFormatChange ) sb.Append( 'P' );
-            if ( ( flags & ReleaseFlags.Security ) == ReleaseFlags.Security ) sb.Append( 'S' );
-            if ( ( flags & ReleaseFlags.Unstable ) == ReleaseFlags.Unstable ) sb.Append( 'U' );
-            if ( ( flags & ReleaseFlags.Optimized ) == ReleaseFlags.Optimized ) sb.Append( 'O' );
+            if ( ( flags & ReleaseFlags.APIChange ) == ReleaseFlags.APIChange )
+                sb.Append( 'A' );
+            if ( ( flags & ReleaseFlags.Bugfix ) == ReleaseFlags.Bugfix )
+                sb.Append( 'B' );
+            if ( ( flags & ReleaseFlags.ConfigFormatChange ) == ReleaseFlags.ConfigFormatChange )
+                sb.Append( 'C' );
+            if ( ( flags & ReleaseFlags.Dev ) == ReleaseFlags.Dev )
+                sb.Append( 'D' );
+            if ( ( flags & ReleaseFlags.Feature ) == ReleaseFlags.Feature )
+                sb.Append( 'F' );
+            if ( ( flags & ReleaseFlags.MapFormatChange ) == ReleaseFlags.MapFormatChange )
+                sb.Append( 'M' );
+            if ( ( flags & ReleaseFlags.PlayerDBFormatChange ) == ReleaseFlags.PlayerDBFormatChange )
+                sb.Append( 'P' );
+            if ( ( flags & ReleaseFlags.Security ) == ReleaseFlags.Security )
+                sb.Append( 'S' );
+            if ( ( flags & ReleaseFlags.Unstable ) == ReleaseFlags.Unstable )
+                sb.Append( 'U' );
+            if ( ( flags & ReleaseFlags.Optimized ) == ReleaseFlags.Optimized )
+                sb.Append( 'O' );
             return sb.ToString();
         }
 
-        public static string[] ReleaseFlagsToStringArray ( ReleaseFlags flags ) {
+        public static string[] ReleaseFlagsToStringArray( ReleaseFlags flags ) {
             List<string> list = new List<string>();
-            if ( ( flags & ReleaseFlags.APIChange ) == ReleaseFlags.APIChange ) list.Add( "API Changes" );
-            if ( ( flags & ReleaseFlags.Bugfix ) == ReleaseFlags.Bugfix ) list.Add( "Fixes" );
-            if ( ( flags & ReleaseFlags.ConfigFormatChange ) == ReleaseFlags.ConfigFormatChange ) list.Add( "Config Changes" );
-            if ( ( flags & ReleaseFlags.Dev ) == ReleaseFlags.Dev ) list.Add( "Developer" );
-            if ( ( flags & ReleaseFlags.Feature ) == ReleaseFlags.Feature ) list.Add( "New Features" );
-            if ( ( flags & ReleaseFlags.MapFormatChange ) == ReleaseFlags.MapFormatChange ) list.Add( "Map Format Changes" );
-            if ( ( flags & ReleaseFlags.PlayerDBFormatChange ) == ReleaseFlags.PlayerDBFormatChange ) list.Add( "PlayerDB Changes" );
-            if ( ( flags & ReleaseFlags.Security ) == ReleaseFlags.Security ) list.Add( "Security Patch" );
-            if ( ( flags & ReleaseFlags.Unstable ) == ReleaseFlags.Unstable ) list.Add( "Unstable" );
-            if ( ( flags & ReleaseFlags.Optimized ) == ReleaseFlags.Optimized ) list.Add( "Optimized" );
+            if ( ( flags & ReleaseFlags.APIChange ) == ReleaseFlags.APIChange )
+                list.Add( "API Changes" );
+            if ( ( flags & ReleaseFlags.Bugfix ) == ReleaseFlags.Bugfix )
+                list.Add( "Fixes" );
+            if ( ( flags & ReleaseFlags.ConfigFormatChange ) == ReleaseFlags.ConfigFormatChange )
+                list.Add( "Config Changes" );
+            if ( ( flags & ReleaseFlags.Dev ) == ReleaseFlags.Dev )
+                list.Add( "Developer" );
+            if ( ( flags & ReleaseFlags.Feature ) == ReleaseFlags.Feature )
+                list.Add( "New Features" );
+            if ( ( flags & ReleaseFlags.MapFormatChange ) == ReleaseFlags.MapFormatChange )
+                list.Add( "Map Format Changes" );
+            if ( ( flags & ReleaseFlags.PlayerDBFormatChange ) == ReleaseFlags.PlayerDBFormatChange )
+                list.Add( "PlayerDB Changes" );
+            if ( ( flags & ReleaseFlags.Security ) == ReleaseFlags.Security )
+                list.Add( "Security Patch" );
+            if ( ( flags & ReleaseFlags.Unstable ) == ReleaseFlags.Unstable )
+                list.Add( "Unstable" );
+            if ( ( flags & ReleaseFlags.Optimized ) == ReleaseFlags.Optimized )
+                list.Add( "Optimized" );
             return list.ToArray();
         }
 
-        public bool IsFlagged ( ReleaseFlags flag ) {
+        public bool IsFlagged( ReleaseFlags flag ) {
             return ( Flags & flag ) == flag;
         }
     }
-
 
     #region Enums
 
     /// <summary> Updater behavior. </summary>
     public enum UpdaterMode {
+
         /// <summary> Does not check for updates. </summary>
         Disabled,
 
@@ -335,7 +371,6 @@ namespace fCraft {
         /// <summary> Checks for updates, automatically downloads and installs the updates, and restarts the server. </summary>
         Auto,
     }
-
 
     /// <summary> A list of release flags/attributes.
     /// Use binary flag logic (value & flag == flag) or Release.IsFlagged() to test for flags. </summary>
@@ -375,28 +410,31 @@ namespace fCraft {
         Optimized = 512
     }
 
-    #endregion
+    #endregion Enums
 }
 
-
 namespace fCraft.Events {
+
     public sealed class CheckingForUpdatesEventArgs : EventArgs, ICancellableEvent {
-        internal CheckingForUpdatesEventArgs ( string url ) {
+
+        internal CheckingForUpdatesEventArgs( string url ) {
             Url = url;
         }
 
         public string Url { get; set; }
+
         public bool Cancel { get; set; }
     }
 
-
     public sealed class CheckedForUpdatesEventArgs : EventArgs {
-        internal CheckedForUpdatesEventArgs ( string url, UpdaterResult result ) {
+
+        internal CheckedForUpdatesEventArgs( string url, UpdaterResult result ) {
             Url = url;
             Result = result;
         }
 
         public string Url { get; private set; }
+
         public UpdaterResult Result { get; private set; }
     }
 }

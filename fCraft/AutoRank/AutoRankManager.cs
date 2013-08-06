@@ -7,8 +7,8 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.AutoRank {
-    public static class AutoRankManager {
 
+    public static class AutoRankManager {
         internal static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
 
         public static readonly List<Criterion> Criteria = new List<Criterion>();
@@ -20,27 +20,27 @@ namespace fCraft.AutoRank {
             get { return Criteria.Count > 0; }
         }
 
-
         /// <summary> Adds a new criterion to the list. Throws an ArgumentException on duplicates. </summary>
         public static void Add( [NotNull] Criterion criterion ) {
-            if( criterion == null ) throw new ArgumentNullException( "criterion" );
-            if( Criteria.Contains( criterion ) ) throw new ArgumentException( "This criterion has already been added." );
+            if ( criterion == null )
+                throw new ArgumentNullException( "criterion" );
+            if ( Criteria.Contains( criterion ) )
+                throw new ArgumentException( "This criterion has already been added." );
             Criteria.Add( criterion );
         }
-
 
         /// <summary> Checks whether a given player is due for a promotion or demotion. </summary>
         /// <param name="info"> PlayerInfo to check. </param>
         /// <returns> Null if no rank change is needed, or a rank to promote/demote to. </returns>
         [CanBeNull]
         public static Rank Check( [NotNull] PlayerInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
+            if ( info == null )
+                throw new ArgumentNullException( "info" );
             // ReSharper disable LoopCanBeConvertedToQuery
-            for( int i = 0; i < Criteria.Count; i++ ) {
-                if( Criteria[i].FromRank == info.Rank &&
+            for ( int i = 0; i < Criteria.Count; i++ ) {
+                if ( Criteria[i].FromRank == info.Rank &&
                     !info.IsBanned &&
                     Criteria[i].Condition.Eval( info ) ) {
-
                     return Criteria[i].ToRank;
                 }
             }
@@ -48,34 +48,34 @@ namespace fCraft.AutoRank {
             return null;
         }
 
-
         internal static void TaskCallback( SchedulerTask schedulerTask ) {
-            if( !ConfigKey.AutoRankEnabled.Enabled() ) return;
+            if ( !ConfigKey.AutoRankEnabled.Enabled() )
+                return;
             PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
             MaintenanceCommands.DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
         }
 
-
         public static bool Init() {
             Criteria.Clear();
 
-            if( File.Exists( Paths.AutoRankFileName ) ) {
+            if ( File.Exists( Paths.AutoRankFileName ) ) {
                 try {
                     XDocument doc = XDocument.Load( Paths.AutoRankFileName );
-                    if( doc.Root == null ) return false;
-                    foreach( XElement el in doc.Root.Elements( "Criterion" ) ) {
+                    if ( doc.Root == null )
+                        return false;
+                    foreach ( XElement el in doc.Root.Elements( "Criterion" ) ) {
                         try {
                             Add( new Criterion( el ) );
-                        } catch( Exception ex ) {
+                        } catch ( Exception ex ) {
                             Logger.Log( LogType.Error,
                                         "AutoRank.Init: Could not parse an AutoRank criterion: {0}", ex );
                         }
                     }
-                    if( Criteria.Count == 0 ) {
+                    if ( Criteria.Count == 0 ) {
                         Logger.Log( LogType.Warning, "AutoRank.Init: No criteria loaded." );
                     }
                     return true;
-                } catch( Exception ex ) {
+                } catch ( Exception ex ) {
                     Logger.Log( LogType.Error,
                                 "AutoRank.Init: Could not parse the AutoRank file: {0}", ex );
                     return false;
@@ -86,7 +86,6 @@ namespace fCraft.AutoRank {
             }
         }
     }
-
 
     #region Enums
 
@@ -112,9 +111,9 @@ namespace fCraft.AutoRank {
         Lte
     }
 
-
     /// <summary> Enumeration of quantifiable PlayerInfo fields (or field combinations) that may be used with AutoRank conditions. </summary>
     public enum ConditionField {
+
         /// <summary> Time since first login (first time the player connected), in seconds.
         /// For players who have been entered into PlayerDB but have never logged in, this is a huge value. </summary>
         TimeSinceFirstLogin,
@@ -166,5 +165,5 @@ namespace fCraft.AutoRank {
         TimeSinceLastKick
     }
 
-    #endregion
+    #endregion Enums
 }

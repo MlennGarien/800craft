@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
+
     internal sealed partial class ColorPicker : Form {
         public static readonly Dictionary<int, ColorPair> ColorPairs = new Dictionary<int, ColorPair>();
         public int ColorIndex;
-
 
         static ColorPicker() {
             ColorPairs.Add( 0, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Black ) );
@@ -26,7 +26,6 @@ namespace fCraft.ConfigGUI {
             ColorPairs.Add( 7, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.Silver ) );
             ColorPairs.Add( 15, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.White ) );
         }
-
 
         public ColorPicker( string title, int oldColorIndex ) {
             InitializeComponent();
@@ -52,12 +51,13 @@ namespace fCraft.ConfigGUI {
             bf.Click += delegate { ColorIndex = 15; DialogResult = DialogResult.OK; Close(); };
         }
 
-
         internal struct ColorPair {
+
             public ColorPair( System.Drawing.Color foreground, System.Drawing.Color background ) {
                 Foreground = foreground;
                 Background = background;
             }
+
             public System.Drawing.Color Foreground;
             public System.Drawing.Color Background;
         }

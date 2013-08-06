@@ -26,20 +26,15 @@
         ----*/
 
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using fCraft.MapConversion;
-using JetBrains.Annotations;
-using fCraft.Drawing;
-using System.Collections;
-using System.Text;
-using System.Threading;
 
 namespace fCraft {
-    class RealmHandler {
-        public static void RealmLoad ( Player player, Command cmd, string fileName, string worldName, string buildRankName, string accessRankName ) {
 
+    internal class RealmHandler {
+
+        public static void RealmLoad( Player player, Command cmd, string fileName, string worldName, string buildRankName, string accessRankName ) {
             if ( worldName == null && player.World == null ) {
                 player.Message( "When using /realm from console, you must specify the realm name." );
                 return;
@@ -52,7 +47,8 @@ namespace fCraft {
             }
 
             string fullFileName = WorldManager.FindMapFile( player, fileName );
-            if ( fullFileName == null ) return;
+            if ( fullFileName == null )
+                return;
 
             // Loading map into current realm
             if ( worldName == null ) {
@@ -186,7 +182,6 @@ namespace fCraft {
                         World newWorld;
                         try {
                             newWorld = WorldManager.AddWorld( player, worldName, map, false );
-
                         } catch ( WorldOpException ex ) {
                             player.Message( "RealmLoad: {0}", ex.Message );
                             return;
@@ -216,7 +211,6 @@ namespace fCraft {
                         player.MessageNow( "Access permission is {0}+&S, and build permission is {1}+",
                                            newWorld.AccessSecurity.MinRank.ClassyName,
                                            newWorld.BuildSecurity.MinRank.ClassyName );
-
                     }
                 }
             }
@@ -224,8 +218,7 @@ namespace fCraft {
             Server.RequestGC();
         }
 
-
-        public static void RealmCreate ( Player player, Command cmd, string themeName, string templateName ) {
+        public static void RealmCreate( Player player, Command cmd, string themeName, string templateName ) {
             MapGenTemplate template;
             MapGenTheme theme;
 
@@ -256,7 +249,7 @@ namespace fCraft {
                 return;
             }
 
-            string fileName = player.Name.Replace(".", "-");
+            string fileName = player.Name.Replace( ".", "-" );
             string fullFileName = null;
 
             if ( fileName == null ) {
@@ -319,7 +312,6 @@ namespace fCraft {
             }
 
             if ( !Enum.IsDefined( typeof( MapGenTheme ), theme ) || !Enum.IsDefined( typeof( MapGenTemplate ), template ) ) {
-
                 return;
             }
 
@@ -345,7 +337,6 @@ namespace fCraft {
                     MapGenerator generator = new MapGenerator( args );
                     map = generator.Generate();
                 }
-
             } catch ( Exception ex ) {
                 Logger.Log( LogType.Error, "MapGenerator: Generation failed: {0}",
                             ex );
@@ -365,10 +356,7 @@ namespace fCraft {
             }
         }
 
-
-
-
-        internal static void RealmAccess ( Player player, Command cmd, string worldName, string name ) {
+        internal static void RealmAccess( Player player, Command cmd, string worldName, string name ) {
             // Print information about the current realm
             if ( worldName == null ) {
                 if ( player.World == null ) {
@@ -381,7 +369,8 @@ namespace fCraft {
 
             // Find a realm by name
             World realm = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( realm == null ) return;
+            if ( realm == null )
+                return;
 
             if ( name == null ) {
                 player.Message( realm.AccessSecurity.GetDescription( realm, "realm", "accessed" ) );
@@ -394,21 +383,20 @@ namespace fCraft {
 
             bool changesWereMade = false;
             do {
-                if ( name.Length < 2 ) continue;
+                if ( name.Length < 2 )
+                    continue;
                 // Whitelisting individuals
                 if ( name.StartsWith( "+" ) ) {
                     PlayerInfo info;
                     if ( !PlayerDB.FindPlayerInfo( name.Substring( 1 ), out info ) ) {
                         player.Message( "More than one player found matching \"{0}\"", name.Substring( 1 ) );
                         continue;
-
                     } else if ( info == null ) {
                         player.MessageNoPlayer( name.Substring( 1 ) );
                         continue;
                     }
 
                     // prevent players from whitelisting themselves to bypass protection
-
 
                     if ( realm.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.Allowed ) {
                         player.Message( "{0}&S is already allowed to access {1}&S (by rank)",
@@ -417,7 +405,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( realm.AccessSecurity.Include( info ) ) {
                         case PermissionOverride.Deny:
@@ -480,7 +469,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( realm.AccessSecurity.Exclude( info ) ) {
                         case PermissionOverride.Deny:
@@ -529,7 +519,6 @@ namespace fCraft {
                     Rank rank = RankManager.FindRank( name );
                     if ( rank == null ) {
                         player.MessageNoRank( name );
-
                     } else {
                         // list players who are redundantly blacklisted
                         var exceptionList = realm.AccessSecurity.ExceptionList;
@@ -576,10 +565,7 @@ namespace fCraft {
             }
         }
 
-
-        internal static void RealmBuild ( Player player, Command cmd, string worldName, string name, string NameIfRankIsName ) {
-
-
+        internal static void RealmBuild( Player player, Command cmd, string worldName, string name, string NameIfRankIsName ) {
             // Print information about the current realm
             if ( worldName == null ) {
                 if ( player.World == null ) {
@@ -592,8 +578,8 @@ namespace fCraft {
 
             // Find a realm by name
             World realm = WorldManager.FindWorldOrPrintMatches( player, worldName );
-            if ( realm == null ) return;
-
+            if ( realm == null )
+                return;
 
             if ( name == null ) {
                 player.Message( realm.BuildSecurity.GetDescription( realm, "realm", "modified" ) );
@@ -602,7 +588,8 @@ namespace fCraft {
 
             bool changesWereMade = false;
             do {
-                if ( name.Length < 2 ) continue;
+                if ( name.Length < 2 )
+                    continue;
                 // Whitelisting individuals
                 if ( name.StartsWith( "+" ) ) {
                     PlayerInfo info;
@@ -614,8 +601,6 @@ namespace fCraft {
                         continue;
                     }
 
-
-
                     if ( realm.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.Allowed ) {
                         player.Message( "{0}&S is already allowed to build in {1}&S (by rank)",
                                         info.ClassyName, realm.ClassyName );
@@ -623,7 +608,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( realm.BuildSecurity.Include( info ) ) {
                         case PermissionOverride.Deny:
@@ -685,7 +671,8 @@ namespace fCraft {
                     }
 
                     Player target = info.PlayerObject;
-                    if ( target == player ) target = null; // to avoid duplicate messages
+                    if ( target == player )
+                        target = null; // to avoid duplicate messages
 
                     switch ( realm.BuildSecurity.Exclude( info ) ) {
                         case PermissionOverride.Deny:

@@ -1,27 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
-using fCraft;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
-using fCraft.Events;
+using System.Linq;
 using fCraft.Drawing;
+using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft {
 
     public static class FeedSettings {
-
         public static Bitmap ImageCache = null;
 
-        public static void PlayerJoiningWorld ( object sender, PlayerJoinedWorldEventArgs e ) {
+        public static void PlayerJoiningWorld( object sender, PlayerJoinedWorldEventArgs e ) {
             foreach ( FeedData data in e.NewWorld.Feeds.Values.Where( f => !f.started ) ) {
                 if ( data.world.Name == e.NewWorld.Name ) {
                     data.Start();
                 }
             }
         }
-        public static void PlayerPlacingBlock ( object sender, PlayerPlacingBlockEventArgs e ) {
+
+        public static void PlayerPlacingBlock( object sender, PlayerPlacingBlockEventArgs e ) {
             foreach ( FeedData feed in e.Player.World.Feeds.Values ) {
                 for ( int x = feed.StartPos.X; x <= feed.FinishPos.X; x++ ) {
                     for ( int y = feed.StartPos.Y; y <= feed.FinishPos.Y; y++ ) {
@@ -42,7 +41,7 @@ namespace fCraft {
         public Vector3I FinishPos; //the end position, start -> end
 
         public Vector3I EndPos; //the moving position
-        
+
         public Vector3I Pos; //the position of the blockupdate
         public List<byte> last = new List<byte>();
         public List<byte> originalMap = new List<byte>();
@@ -61,7 +60,7 @@ namespace fCraft {
         public SchedulerTask task;
         public Player player;
 
-        public FeedData ( Block _textType, Vector3I _pos, Bitmap Image, World world, Direction direction_, Player player_ ) {
+        public FeedData( Block _textType, Vector3I _pos, Bitmap Image, World world, Direction direction_, Player player_ ) {
             direction = direction_;
             Blocks = new ConcurrentDictionary<string, Vector3I>();
             Init( Image, world );
@@ -78,35 +77,37 @@ namespace fCraft {
             Operation.AnnounceCompletion = false;
             Operation.Brush = brush;
             Operation.Context = BlockChangeContext.Drawn;
-            
+
             if ( !Operation.Prepare( new Vector3I[] { StartPos, FinishPos } ) ) {
                 throw new Exception( "Unable to cubw frame." );
             }
 
             Operation.Begin();
             AddFeedToList( this, world );
-            
+
             Start();
         }
 
-        public void Start () {
+        public void Start() {
             started = true;
             task = Scheduler.NewTask( StartFeed );
             task.RunForever( TimeSpan.FromMilliseconds( 600 ) );
         }
 
         public static int feedCounter;
-        static readonly object FeedListLock = new object();
+        private static readonly object FeedListLock = new object();
 
-        static void AddFeedToList ( [NotNull] FeedData data, [NotNull] World world ) {
-            if ( data == null ) throw new ArgumentNullException( "Feed" );
+        private static void AddFeedToList( [NotNull] FeedData data, [NotNull] World world ) {
+            if ( data == null )
+                throw new ArgumentNullException( "Feed" );
             lock ( FeedListLock ) {
                 world.Feeds.Add( data.Id, data );
             }
         }
 
-        public static void RemoveFeedFromList ( [NotNull] FeedData data, [NotNull] World world ) {
-            if ( data == null ) throw new ArgumentNullException( "feed" );
+        public static void RemoveFeedFromList( [NotNull] FeedData data, [NotNull] World world ) {
+            if ( data == null )
+                throw new ArgumentNullException( "feed" );
             lock ( FeedListLock ) {
                 world.Feeds.Remove( data.Id );
             }
@@ -121,7 +122,7 @@ namespace fCraft {
         }
 
         [CanBeNull]
-        public static FeedData FindFeedById ( int id, World world ) {
+        public static FeedData FindFeedById( int id, World world ) {
             lock ( FeedListLock ) {
                 FeedData result;
                 if ( world.Feeds.TryGetValue( id, out result ) ) {
@@ -131,8 +132,10 @@ namespace fCraft {
                 }
             }
         }
-        static Permission[] per = new Permission[] { Permission.Promote, Permission.Demote, Permission.ReadStaffChat };
-        public static void AddMessages () {
+
+        private static Permission[] per = new Permission[] { Permission.Promote, Permission.Demote, Permission.ReadStaffChat };
+
+        public static void AddMessages() {
             if ( Messages != null ) {
                 Messages.Clear();
             }
@@ -148,7 +151,8 @@ namespace fCraft {
             Messages.Add( "This scrolling feed is cool!" );
             Messages.Add( "This server has had " + PlayerDB.PlayerInfoList.Count() + " unique visitors" );
         }
-        public void Init ( Bitmap Image, World _world ) {
+
+        public void Init( Bitmap Image, World _world ) {
             world = _world;
             List<List<bool>> pixels = new List<List<bool>>();
             //open up PNG file
@@ -192,9 +196,11 @@ namespace fCraft {
         }
 
         public bool done = true; //check to see if one cycle is complete
-        private void StartFeed ( SchedulerTask task ) {
+
+        private void StartFeed( SchedulerTask task ) {
             if ( !started ) { task.Stop(); return; }
-            if ( !done ) return;
+            if ( !done )
+                return;
             try {
                 done = false;
                 RemoveText();
@@ -204,6 +210,7 @@ namespace fCraft {
                         case Direction.two:
                             EndPos.X = FinishPos.X;
                             break;
+
                         case Direction.three:
                         case Direction.four:
                             EndPos.Y = FinishPos.Y;
@@ -216,12 +223,15 @@ namespace fCraft {
                     case Direction.one:
                         EndPos.X -= 7;
                         break;
+
                     case Direction.two:
                         EndPos.X += 7;
                         break;
+
                     case Direction.three:
                         EndPos.Y -= 7;
                         break;
+
                     case Direction.four:
                         EndPos.Y += 7;
                         break;
@@ -233,7 +243,8 @@ namespace fCraft {
         }
 
         public bool ChangeMessage = false; //a check if the previous sentence is complete
-        public void RemoveText () {
+
+        public void RemoveText() {
             if ( Blocks.Values.Count < 1 ) { ChangeMessage = true; }
             foreach ( Vector3I block in Blocks.Values ) {
                 if ( world.Map == null ) {
@@ -249,7 +260,7 @@ namespace fCraft {
         }
 
         //makes the block updates
-        public void Render ( string text ) {
+        public void Render( string text ) {
             List<byte> current = new List<byte>();
             for ( int p = 0; p < text.Length; p++ ) {
                 char c = text[p];
@@ -285,7 +296,7 @@ namespace fCraft {
             done = true;
         }
 
-        public void Render ( string text, Block t ) {
+        public void Render( string text, Block t ) {
             byte temp = textType;
             textType = ( byte )t;
             Render( text );
@@ -293,7 +304,7 @@ namespace fCraft {
         }
 
         //gets the next sentence
-        public void PickNewMessage () {
+        public void PickNewMessage() {
             if ( FeedData.Messages.Count() > 0 ) {
                 FeedData.AddMessages();
                 if ( MessageCount == FeedData.Messages.Count() - 1 ) {
@@ -307,7 +318,7 @@ namespace fCraft {
         }
 
         //processess one blockupdate
-        public void sendWorldBlock ( int index, byte type ) {
+        public void sendWorldBlock( int index, byte type ) {
             if ( world.Map == null ) {
                 started = false;
                 return;
@@ -329,6 +340,7 @@ namespace fCraft {
                             }
                         }
                         break;
+
                     case Direction.two:
                         x = ( short )( EndPos.X - ( index / 8 ) );
                         y = ( short )StartPos.Y;
@@ -343,6 +355,7 @@ namespace fCraft {
                             }
                         }
                         break;
+
                     case Direction.three:
                         x = ( short )StartPos.X;
                         y = ( short )( EndPos.Y + ( index / 8 ) );
@@ -357,6 +370,7 @@ namespace fCraft {
                             }
                         }
                         break;
+
                     case Direction.four:
                         x = ( short )StartPos.X;
                         y = ( short )( EndPos.Y - ( index / 8 ) );
@@ -371,6 +385,7 @@ namespace fCraft {
                             }
                         }
                         break;
+
                     default:
                         break;
                 }

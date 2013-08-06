@@ -1,9 +1,11 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft {
+
     /// <summary> Enumerates the recognized command-line switches/arguments.
     /// Args are parsed in Server.InitLibrary </summary>
     public enum ArgKey {
+
         /// <summary> Working path (directory) that fCraft should use.
         /// If the path is relative, it's computed against the location of fCraft.dll </summary>
         Path,

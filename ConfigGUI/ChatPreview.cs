@@ -7,26 +7,28 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using fCraft.ConfigGUI.Properties;
 
-
 namespace fCraft.ConfigGUI {
+
     sealed partial class ChatPreview : UserControl {
 
-        struct ColorPair {
+        private struct ColorPair {
+
             public ColorPair( int r, int g, int b, int sr, int sg, int sb ) {
                 Foreground = new SolidBrush( System.Drawing.Color.FromArgb( r, g, b ) );
                 Shadow = new SolidBrush( System.Drawing.Color.FromArgb( sr, sg, sb ) );
             }
+
             public readonly Brush Foreground, Shadow;
         }
 
-        static readonly PrivateFontCollection Fonts;
-        static readonly Font MinecraftFont;
-        static readonly ColorPair[] ColorPairs;
+        private static readonly PrivateFontCollection Fonts;
+        private static readonly Font MinecraftFont;
+        private static readonly ColorPair[] ColorPairs;
 
         unsafe static ChatPreview() {
             Fonts = new PrivateFontCollection();
-            fixed( byte* fontPointer = Resources.MinecraftFont ) {
-                Fonts.AddMemoryFont( (IntPtr)fontPointer, Resources.MinecraftFont.Length );
+            fixed ( byte* fontPointer = Resources.MinecraftFont ) {
+                Fonts.AddMemoryFont( ( IntPtr )fontPointer, Resources.MinecraftFont.Length );
             }
             MinecraftFont = new Font( Fonts.Families[0], 12, FontStyle.Regular );
             ColorPairs = new[]{
@@ -50,14 +52,12 @@ namespace fCraft.ConfigGUI {
             };
         }
 
-
         public ChatPreview() {
             InitializeComponent();
             DoubleBuffered = true;
         }
 
-
-        sealed class TextSegment {
+        private sealed class TextSegment {
             public string Text;
             public ColorPair Color;
             public int X, Y;
@@ -68,26 +68,28 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-        static readonly Regex SplitByColorRegex = new Regex( "(&[0-9a-zA-Z])", RegexOptions.Compiled );
-        TextSegment[] segments;
+        private static readonly Regex SplitByColorRegex = new Regex( "(&[0-9a-zA-Z])", RegexOptions.Compiled );
+        private TextSegment[] segments;
 
         public void SetText( string[] lines ) {
             List<TextSegment> newSegments = new List<TextSegment>();
-            using( Bitmap b = new Bitmap( 1, 1 ) ) {
-                using( Graphics g = Graphics.FromImage( b ) ) { // graphics for string mesaurement
+            using ( Bitmap b = new Bitmap( 1, 1 ) ) {
+                using ( Graphics g = Graphics.FromImage( b ) ) { // graphics for string mesaurement
                     g.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 
                     int y = 5;
-                    for( int i = 0; i < lines.Length; i++ ) {
-                        if( lines[i] == null || lines[i].Length == 0 ) continue;
+                    for ( int i = 0; i < lines.Length; i++ ) {
+                        if ( lines[i] == null || lines[i].Length == 0 )
+                            continue;
                         int x = 5;
                         string[] plainTextSegments = SplitByColorRegex.Split( lines[i] );
 
                         int color = Color.ParseToIndex( Color.White );
 
-                        for( int j = 0; j < plainTextSegments.Length; j++ ) {
-                            if( plainTextSegments[j].Length == 0 ) continue;
-                            if( plainTextSegments[j][0] == '&' ) {
+                        for ( int j = 0; j < plainTextSegments.Length; j++ ) {
+                            if ( plainTextSegments[j].Length == 0 )
+                                continue;
+                            if ( plainTextSegments[j][0] == '&' ) {
                                 color = Color.ParseToIndex( plainTextSegments[j] );
                             } else {
                                 newSegments.Add( new TextSegment {
@@ -96,26 +98,24 @@ namespace fCraft.ConfigGUI {
                                     X = x,
                                     Y = y
                                 } );
-                                x += (int)g.MeasureString( plainTextSegments[j], MinecraftFont ).Width;
+                                x += ( int )g.MeasureString( plainTextSegments[j], MinecraftFont ).Width;
                             }
                         }
                         y += 20;
                     }
-
                 }
             }
             segments = newSegments.ToArray();
             Invalidate();
         }
 
-
         protected override void OnPaint( PaintEventArgs e ) {
             e.Graphics.DrawImageUnscaledAndClipped( Resources.ChatBackground, e.ClipRectangle );
 
             e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 
-            if( segments != null && segments.Length > 0 ) {
-                for( int i = 0; i < segments.Length; i++ ) {
+            if ( segments != null && segments.Length > 0 ) {
+                for ( int i = 0; i < segments.Length; i++ ) {
                     segments[i].Draw( e.Graphics );
                 }
             }

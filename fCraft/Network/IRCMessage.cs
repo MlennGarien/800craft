@@ -1,7 +1,7 @@
 ﻿/* Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
- * 
+ *
  * Based, in part, on SmartIrc4net code. Original license is reproduced below.
- * 
+ *
  *
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
@@ -26,18 +26,30 @@
  */
 
 namespace fCraft {
+
     // ReSharper disable FieldCanBeMadeReadOnly.Global
     public sealed class IRCMessage {
+
         public string From { get; private set; }
+
         public string Nick { get; private set; }
+
         public string Ident { get; private set; }
+
         public string Host { get; private set; }
+
         public string Channel { get; private set; }
+
         public string Message { get; private set; }
+
         public string[] MessageArray { get; private set; }
+
         public string RawMessage { get; private set; }
+
         public string[] RawMessageArray { get; private set; }
+
         public IRCMessageType Type { get; private set; }
+
         public IRCReplyCode ReplyCode { get; private set; }
 
         public IRCMessage( string from, string nick, string ident, string host, string channel, string message, string rawMessage, IRCMessageType type, IRCReplyCode replycode ) {
@@ -50,7 +62,7 @@ namespace fCraft {
             Ident = ident;
             Host = host;
             Channel = channel;
-            if( message != null ) {
+            if ( message != null ) {
                 // message is optional
                 Message = message;
                 MessageArray = message.Split( new[] { ' ' } );

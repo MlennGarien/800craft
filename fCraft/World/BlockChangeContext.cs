@@ -2,9 +2,11 @@
 using System;
 
 namespace fCraft {
+
     /// <summary> Context of the block change. Multiple flags can be combined. </summary>
     [Flags]
     public enum BlockChangeContext { // Backed by Int32.
+
         /// <summary> Default/unknown context. </summary>
         Unknown = 0,
 
@@ -46,7 +48,6 @@ namespace fCraft {
 
         /// <summary> A player-made door</summary>
         Door = 4096,
-
 
         /// <summary> Combination of Manual and Replaced (as used by /Paint). </summary>
         PaintedCombo = Manual | Replaced,

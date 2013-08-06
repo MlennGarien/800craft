@@ -28,22 +28,18 @@
 //Copyright (C) <2011 - 2013> Glenn Mariën (http://project-vanilla.com) and Jon Baker (http://au70.net)
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Threading;
 
 namespace fCraft.Utils {
-    class FlyHandler {
+
+    internal class FlyHandler {
         private static FlyHandler instance;
 
-        private FlyHandler () {
+        private FlyHandler() {
             // Empty, singleton
         }
 
-        public static FlyHandler GetInstance () {
+        public static FlyHandler GetInstance() {
             if ( instance == null ) {
                 instance = new FlyHandler();
                 Player.PlacingBlock += new EventHandler<Events.PlayerPlacingBlockEventArgs>( Player_Clicked );
@@ -51,7 +47,8 @@ namespace fCraft.Utils {
 
             return instance;
         }
-        private static void Player_Clicked ( object sender, Events.PlayerPlacingBlockEventArgs e ) //placing air
+
+        private static void Player_Clicked( object sender, Events.PlayerPlacingBlockEventArgs e ) //placing air
         {
             if ( e.Player.IsFlying ) {
                 if ( e.Context == BlockChangeContext.Manual )//ignore all other things {
@@ -61,12 +58,12 @@ namespace fCraft.Utils {
             }
         }
 
-        public void StartFlying ( Player player ) {
+        public void StartFlying( Player player ) {
             player.IsFlying = true;
             player.FlyCache = new ConcurrentDictionary<string, Vector3I>();
         }
 
-        public void StopFlying ( Player player ) {
+        public void StopFlying( Player player ) {
             try {
                 player.IsFlying = false;
 
@@ -80,7 +77,7 @@ namespace fCraft.Utils {
             }
         }
 
-        public static bool CanRemoveBlock ( Player player, Vector3I block, Vector3I newPos ) {
+        public static bool CanRemoveBlock( Player player, Vector3I block, Vector3I newPos ) {
             int x = block.X - newPos.X;
             int y = block.Y - newPos.Y;
             int z = block.Z - newPos.Z;

@@ -4,6 +4,7 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft {
+
     /// <summary> IP ban record. </summary>
     public sealed class IPBanInfo {
         public const int FieldCount = 8;
@@ -36,14 +37,15 @@ namespace fCraft {
         /// <summary> Date/time (UTC) of the most recent login attempt. </summary>
         public DateTime LastAttemptDate;
 
-
-        IPBanInfo() { }
-
+        private IPBanInfo() {
+        }
 
         internal IPBanInfo( [NotNull] IPAddress address, [CanBeNull] string playerName,
                           [NotNull] string bannedBy, [CanBeNull] string banReason ) {
-            if( address == null ) throw new ArgumentNullException( "address" );
-            if( bannedBy == null ) throw new ArgumentNullException( "bannedBy" );
+            if ( address == null )
+                throw new ArgumentNullException( "address" );
+            if ( bannedBy == null )
+                throw new ArgumentNullException( "bannedBy" );
             Address = address;
             BannedBy = bannedBy;
             BanDate = DateTime.UtcNow;
@@ -53,20 +55,21 @@ namespace fCraft {
             LastAttemptDate = DateTime.MinValue;
         }
 
-
         internal static IPBanInfo LoadFormat2( [NotNull] string[] fields ) {
-            if( fields == null ) throw new ArgumentNullException( "fields" );
-            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+            if ( fields == null )
+                throw new ArgumentNullException( "fields" );
+            if ( fields.Length != 8 )
+                throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
-                                               Address = IPAddress.Parse( fields[0] ),
-                                               BannedBy = PlayerInfo.Unescape( fields[1] )
-                                           };
+                Address = IPAddress.Parse( fields[0] ),
+                BannedBy = PlayerInfo.Unescape( fields[1] )
+            };
 
             fields[2].ToDateTime( ref info.BanDate );
-            if( fields[3].Length > 0 ) {
+            if ( fields[3].Length > 0 ) {
                 info.BanReason = PlayerInfo.Unescape( fields[3] );
             }
-            if( fields[4].Length > 0 ) {
+            if ( fields[4].Length > 0 ) {
                 info.PlayerName = PlayerInfo.Unescape( fields[4] );
             }
 
@@ -77,20 +80,21 @@ namespace fCraft {
             return info;
         }
 
-
         internal static IPBanInfo LoadFormat1( [NotNull] string[] fields ) {
-            if( fields == null ) throw new ArgumentNullException( "fields" );
-            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+            if ( fields == null )
+                throw new ArgumentNullException( "fields" );
+            if ( fields.Length != 8 )
+                throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
-                                               Address = IPAddress.Parse( fields[0] ),
-                                               BannedBy = PlayerInfo.Unescape( fields[1] )
-                                           };
+                Address = IPAddress.Parse( fields[0] ),
+                BannedBy = PlayerInfo.Unescape( fields[1] )
+            };
 
             fields[2].ToDateTimeLegacy( ref info.BanDate );
-            if( fields[3].Length > 0 ) {
+            if ( fields[3].Length > 0 ) {
                 info.BanReason = PlayerInfo.Unescape( fields[3] );
             }
-            if( fields[4].Length > 0 ) {
+            if ( fields[4].Length > 0 ) {
                 info.PlayerName = PlayerInfo.Unescape( fields[4] );
             }
 
@@ -101,18 +105,19 @@ namespace fCraft {
             return info;
         }
 
-
         internal static IPBanInfo LoadFormat0( [NotNull] string[] fields, bool convertDatesToUtc ) {
-            if( fields == null ) throw new ArgumentNullException( "fields" );
-            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
+            if ( fields == null )
+                throw new ArgumentNullException( "fields" );
+            if ( fields.Length != 8 )
+                throw new ArgumentException( "Unexpected field count", "fields" );
             IPBanInfo info = new IPBanInfo {
-                                               Address = IPAddress.Parse( fields[0] ),
-                                               BannedBy = PlayerInfo.UnescapeOldFormat( fields[1] )
-                                           };
+                Address = IPAddress.Parse( fields[0] ),
+                BannedBy = PlayerInfo.UnescapeOldFormat( fields[1] )
+            };
 
             DateTimeUtil.TryParseLocalDate( fields[2], out info.BanDate );
             info.BanReason = PlayerInfo.UnescapeOldFormat( fields[3] );
-            if( fields[4].Length > 1 ) {
+            if ( fields[4].Length > 1 ) {
                 info.PlayerName = PlayerInfo.UnescapeOldFormat( fields[4] );
             }
 
@@ -120,14 +125,15 @@ namespace fCraft {
             info.LastAttemptName = PlayerInfo.UnescapeOldFormat( fields[6] );
             DateTimeUtil.TryParseLocalDate( fields[7], out info.LastAttemptDate );
 
-            if( convertDatesToUtc ) {
-                if( info.BanDate != DateTime.MinValue ) info.BanDate = info.BanDate.ToUniversalTime();
-                if( info.LastAttemptDate != DateTime.MinValue ) info.LastAttemptDate = info.LastAttemptDate.ToUniversalTime();
+            if ( convertDatesToUtc ) {
+                if ( info.BanDate != DateTime.MinValue )
+                    info.BanDate = info.BanDate.ToUniversalTime();
+                if ( info.LastAttemptDate != DateTime.MinValue )
+                    info.LastAttemptDate = info.LastAttemptDate.ToUniversalTime();
             }
 
             return info;
         }
-
 
         internal string Serialize() {
             string[] fields = new string[FieldCount];
@@ -144,14 +150,13 @@ namespace fCraft {
             return String.Join( ",", fields );
         }
 
-
         internal void ProcessAttempt( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
             Attempts++;
             LastAttemptDate = DateTime.UtcNow;
             LastAttemptName = player.Name;
         }
-
 
         #region Shortcuts
 
@@ -178,6 +183,6 @@ namespace fCraft {
             get { return DateTime.UtcNow.Subtract( LastAttemptDate ); }
         }
 
-        #endregion
+        #endregion Shortcuts
     }
 }

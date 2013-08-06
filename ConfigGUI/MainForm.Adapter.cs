@@ -7,33 +7,34 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-
 namespace fCraft.ConfigGUI {
+
     // This section handles transfer of settings from Config to the specific UI controls, and vice versa.
     // Effectively, it's an adapter between Config's and ConfigUI's representations of the settings
     partial class MainForm {
+
         #region Loading & Applying Config
 
-        void LoadConfig() {
+        private void LoadConfig() {
             string missingFileMsg = null;
-            if( !File.Exists( Paths.WorldListFileName ) && !File.Exists( Paths.ConfigFileName ) ) {
+            if ( !File.Exists( Paths.WorldListFileName ) && !File.Exists( Paths.ConfigFileName ) ) {
                 missingFileMsg = String.Format( "Configuration ({0}) and world list ({1}) were not found. Using defaults.",
                                                 Paths.ConfigFileName,
                                                 Paths.WorldListFileName );
-            } else if( !File.Exists( Paths.ConfigFileName ) ) {
+            } else if ( !File.Exists( Paths.ConfigFileName ) ) {
                 missingFileMsg = String.Format( "Configuration ({0}) was not found. Using defaults.",
                                                  Paths.ConfigFileName );
-            } else if( !File.Exists( Paths.WorldListFileName ) ) {
+            } else if ( !File.Exists( Paths.WorldListFileName ) ) {
                 missingFileMsg = String.Format( "World list ({0}) was not found. Assuming 0 worlds.",
                                                 Paths.WorldListFileName );
             }
-            if( missingFileMsg != null ) {
+            if ( missingFileMsg != null ) {
                 MessageBox.Show( missingFileMsg );
             }
 
-            using( LogRecorder loadLogger = new LogRecorder() ) {
-                if( Config.Load( false, false ) ) {
-                    if( loadLogger.HasMessages ) {
+            using ( LogRecorder loadLogger = new LogRecorder() ) {
+                if ( Config.Load( false, false ) ) {
+                    if ( loadLogger.HasMessages ) {
                         MessageBox.Show( loadLogger.MessageString, "Config loading warnings" );
                     }
                 } else {
@@ -62,56 +63,55 @@ namespace fCraft.ConfigGUI {
             bApply.Enabled = false;
         }
 
-
-        void LoadWorldList() {
-            if( Worlds.Count > 0 ) Worlds.Clear();
-            if( !File.Exists( Paths.WorldListFileName ) ) return;
+        private void LoadWorldList() {
+            if ( Worlds.Count > 0 )
+                Worlds.Clear();
+            if ( !File.Exists( Paths.WorldListFileName ) )
+                return;
 
             try {
                 XDocument doc = XDocument.Load( Paths.WorldListFileName );
                 XElement root = doc.Root;
-                if( root == null ) {
+                if ( root == null ) {
                     MessageBox.Show( "Worlds.xml is empty or corrupted." );
                     return;
                 }
 
                 string errorLog = "";
-                using( LogRecorder logRecorder = new LogRecorder() ) {
-                    foreach( XElement el in root.Elements( "World" ) ) {
+                using ( LogRecorder logRecorder = new LogRecorder() ) {
+                    foreach ( XElement el in root.Elements( "World" ) ) {
                         try {
                             Worlds.Add( new WorldListEntry( el ) );
-                        } catch( Exception ex ) {
+                        } catch ( Exception ex ) {
                             errorLog += ex + Environment.NewLine;
                         }
                     }
-                    if( logRecorder.HasMessages ) {
+                    if ( logRecorder.HasMessages ) {
                         MessageBox.Show( logRecorder.MessageString, "World list loading warnings." );
                     }
                 }
-                if( errorLog.Length > 0 ) {
+                if ( errorLog.Length > 0 ) {
                     MessageBox.Show( "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
                 }
 
                 FillWorldList();
                 XAttribute mainWorldAttr = root.Attribute( "main" );
-                if( mainWorldAttr != null ) {
-                    foreach( WorldListEntry world in Worlds ) {
-                        if( world.Name.Equals(mainWorldAttr.Value, StringComparison.OrdinalIgnoreCase) ) {
+                if ( mainWorldAttr != null ) {
+                    foreach ( WorldListEntry world in Worlds ) {
+                        if ( world.Name.Equals( mainWorldAttr.Value, StringComparison.OrdinalIgnoreCase ) ) {
                             cMainWorld.SelectedItem = world.Name;
                             break;
                         }
                     }
                 }
-
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
             }
 
             Worlds.ListChanged += SomethingChanged;
         }
 
-
-        void ApplyTabGeneral() {
+        private void ApplyTabGeneral() {
             HbBox1.Checked = ConfigKey.HbSaverKey.Enabled();
             tServerName.Text = ConfigKey.ServerName.GetString();
             CustomName.Text = ConfigKey.CustomChatName.GetString();
@@ -124,7 +124,7 @@ namespace fCraft.ConfigGUI {
             nMaxPlayersPerWorld.Value = ConfigKey.MaxPlayersPerWorld.GetInt();
 
             FillRankList( cDefaultRank, "(lowest rank)" );
-            if( ConfigKey.DefaultRank.IsBlank() ) {
+            if ( ConfigKey.DefaultRank.IsBlank() ) {
                 cDefaultRank.SelectedIndex = 0;
             } else {
                 RankManager.DefaultRank = Rank.Parse( ConfigKey.DefaultRank.GetString() );
@@ -136,8 +136,8 @@ namespace fCraft.ConfigGUI {
             MaxCapsValue.Value = ConfigKey.MaxCaps.GetInt();
             nUploadBandwidth.Value = ConfigKey.UploadBandwidth.GetInt();
 
-            xAnnouncements.Checked = (ConfigKey.AnnouncementInterval.GetInt() > 0);
-            if( xAnnouncements.Checked ) {
+            xAnnouncements.Checked = ( ConfigKey.AnnouncementInterval.GetInt() > 0 );
+            if ( xAnnouncements.Checked ) {
                 nAnnouncements.Value = ConfigKey.AnnouncementInterval.GetInt();
             } else {
                 nAnnouncements.Value = 1;
@@ -150,8 +150,7 @@ namespace fCraft.ConfigGUI {
             updaterWindow.UpdaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
         }
 
-
-        void ApplyTabChat() {
+        private void ApplyTabChat() {
             xRankColorsInChat.Checked = ConfigKey.RankColorsInChat.Enabled();
             xRankPrefixesInChat.Checked = ConfigKey.RankPrefixesInChat.Enabled();
             xRankPrefixesInList.Checked = ConfigKey.RankPrefixesInList.Enabled();
@@ -163,9 +162,9 @@ namespace fCraft.ConfigGUI {
             ApplyColor( bColorSys, colorSys );
             Color.Sys = Color.Parse( colorSys );
 
-            colorCustom = Color.ParseToIndex(ConfigKey.CustomChatColor.GetString());
-            ApplyColor(CustomColor, colorCustom);
-            Color.Custom = Color.Parse(colorCustom);
+            colorCustom = Color.ParseToIndex( ConfigKey.CustomChatColor.GetString() );
+            ApplyColor( CustomColor, colorCustom );
+            Color.Custom = Color.Parse( colorCustom );
 
             colorHelp = Color.ParseToIndex( ConfigKey.HelpColor.GetString() );
             ApplyColor( bColorHelp, colorHelp );
@@ -194,14 +193,13 @@ namespace fCraft.ConfigGUI {
             UpdateChatPreview();
         }
 
-
-        void ApplyTabWorlds() {
-            if( rankNameList == null ) {
+        private void ApplyTabWorlds() {
+            if ( rankNameList == null ) {
                 rankNameList = new BindingList<string> {
                     WorldListEntry.DefaultRankOption
                 };
-                foreach( Rank rank in RankManager.Ranks ) {
-                    rankNameList.Add( MainForm.ToComboBoxOption(rank) );
+                foreach ( Rank rank in RankManager.Ranks ) {
+                    rankNameList.Add( MainForm.ToComboBoxOption( rank ) );
                 }
                 dgvcAccess.DataSource = rankNameList;
                 dgvcBuild.DataSource = rankNameList;
@@ -209,15 +207,14 @@ namespace fCraft.ConfigGUI {
 
                 LoadWorldList();
                 dgvWorlds.DataSource = Worlds;
-
             } else {
                 //dgvWorlds.DataSource = null;
                 rankNameList.Clear();
                 rankNameList.Add( WorldListEntry.DefaultRankOption );
-                foreach( Rank rank in RankManager.Ranks ) {
-                    rankNameList.Add( MainForm.ToComboBoxOption(rank) );
+                foreach ( Rank rank in RankManager.Ranks ) {
+                    rankNameList.Add( MainForm.ToComboBoxOption( rank ) );
                 }
-                foreach( WorldListEntry world in Worlds ) {
+                foreach ( WorldListEntry world in Worlds ) {
                     world.ReparseRanks();
                 }
                 Worlds.ResetBindings();
@@ -225,14 +222,14 @@ namespace fCraft.ConfigGUI {
             }
 
             FillRankList( cDefaultBuildRank, "(default rank)" );
-            if( ConfigKey.DefaultBuildRank.IsBlank() ) {
+            if ( ConfigKey.DefaultBuildRank.IsBlank() ) {
                 cDefaultBuildRank.SelectedIndex = 0;
             } else {
                 RankManager.DefaultBuildRank = Rank.Parse( ConfigKey.DefaultBuildRank.GetString() );
                 cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
             }
 
-            if( Paths.IsDefaultMapPath( ConfigKey.MapPath.GetString() ) ) {
+            if ( Paths.IsDefaultMapPath( ConfigKey.MapPath.GetString() ) ) {
                 tMapPath.Text = Paths.MapPathDefault;
                 xMapPath.Checked = false;
             } else {
@@ -243,28 +240,27 @@ namespace fCraft.ConfigGUI {
             xWoMEnableEnvExtensions.Checked = ConfigKey.WoMEnableEnvExtensions.Enabled();
         }
 
-
-        void ApplyTabRanks() {
+        private void ApplyTabRanks() {
             selectedRank = null;
             RebuildRankList();
             DisableRankOptions();
         }
 
-
-        void ApplyTabSecurity() {
+        private void ApplyTabSecurity() {
             ApplyEnum( cVerifyNames, ConfigKey.VerifyNames, NameVerificationMode.Balanced );
 
             nMaxConnectionsPerIP.Value = ConfigKey.MaxConnectionsPerIP.GetInt();
-            xMaxConnectionsPerIP.Checked = (nMaxConnectionsPerIP.Value > 0);
+            xMaxConnectionsPerIP.Checked = ( nMaxConnectionsPerIP.Value > 0 );
             xAllowUnverifiedLAN.Checked = ConfigKey.AllowUnverifiedLAN.Enabled();
 
             nAntispamMessageCount.Value = ConfigKey.AntispamMessageCount.GetInt();
             nAntispamInterval.Value = ConfigKey.AntispamInterval.GetInt();
             nSpamMute.Value = ConfigKey.AntispamMuteDuration.GetInt();
 
-            xAntispamKicks.Checked = (ConfigKey.AntispamMaxWarnings.GetInt() > 0);
+            xAntispamKicks.Checked = ( ConfigKey.AntispamMaxWarnings.GetInt() > 0 );
             nAntispamMaxWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
-            if( !xAntispamKicks.Checked ) nAntispamMaxWarnings.Enabled = false;
+            if ( !xAntispamKicks.Checked )
+                nAntispamMaxWarnings.Enabled = false;
 
             xRequireKickReason.Checked = ConfigKey.RequireKickReason.Enabled();
             xRequireBanReason.Checked = ConfigKey.RequireBanReason.Enabled();
@@ -275,19 +271,18 @@ namespace fCraft.ConfigGUI {
             xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
 
             FillRankList( cPatrolledRank, "(default rank)" );
-            if( ConfigKey.PatrolledRank.IsBlank() ) {
+            if ( ConfigKey.PatrolledRank.IsBlank() ) {
                 cPatrolledRank.SelectedIndex = 0;
             } else {
                 RankManager.PatrolledRank = Rank.Parse( ConfigKey.PatrolledRank.GetString() );
                 cPatrolledRank.SelectedIndex = RankManager.GetIndex( RankManager.PatrolledRank );
             }
 
-
             xBlockDBEnabled.Checked = ConfigKey.BlockDBEnabled.Enabled();
             xBlockDBAutoEnable.Checked = ConfigKey.BlockDBAutoEnable.Enabled();
 
             FillRankList( cBlockDBAutoEnableRank, "(default rank)" );
-            if( ConfigKey.BlockDBAutoEnableRank.IsBlank() ) {
+            if ( ConfigKey.BlockDBAutoEnableRank.IsBlank() ) {
                 cBlockDBAutoEnableRank.SelectedIndex = 0;
             } else {
                 RankManager.BlockDBAutoEnableRank = Rank.Parse( ConfigKey.BlockDBAutoEnableRank.GetString() );
@@ -295,49 +290,51 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-
-        void ApplyTabSavingAndBackup() {
-            xSaveInterval.Checked = (ConfigKey.SaveInterval.GetInt() > 0);
+        private void ApplyTabSavingAndBackup() {
+            xSaveInterval.Checked = ( ConfigKey.SaveInterval.GetInt() > 0 );
             nSaveInterval.Value = ConfigKey.SaveInterval.GetInt();
-            if( !xSaveInterval.Checked ) nSaveInterval.Enabled = false;
+            if ( !xSaveInterval.Checked )
+                nSaveInterval.Enabled = false;
 
             xBackupOnStartup.Checked = ConfigKey.BackupOnStartup.Enabled();
             xBackupOnJoin.Checked = ConfigKey.BackupOnJoin.Enabled();
             xBackupOnlyWhenChanged.Checked = ConfigKey.BackupOnlyWhenChanged.Enabled();
 
-            xBackupInterval.Checked = (ConfigKey.DefaultBackupInterval.GetInt() > 0);
+            xBackupInterval.Checked = ( ConfigKey.DefaultBackupInterval.GetInt() > 0 );
             nBackupInterval.Value = ConfigKey.DefaultBackupInterval.GetInt();
-            if( !xBackupInterval.Checked ) nBackupInterval.Enabled = false;
+            if ( !xBackupInterval.Checked )
+                nBackupInterval.Enabled = false;
 
-            xMaxBackups.Checked = (ConfigKey.MaxBackups.GetInt() > 0);
+            xMaxBackups.Checked = ( ConfigKey.MaxBackups.GetInt() > 0 );
             nMaxBackups.Value = ConfigKey.MaxBackups.GetInt();
-            if( !xMaxBackups.Checked ) nMaxBackups.Enabled = false;
+            if ( !xMaxBackups.Checked )
+                nMaxBackups.Enabled = false;
 
-            xMaxBackupSize.Checked = (ConfigKey.MaxBackupSize.GetInt() > 0);
+            xMaxBackupSize.Checked = ( ConfigKey.MaxBackupSize.GetInt() > 0 );
             nMaxBackupSize.Value = ConfigKey.MaxBackupSize.GetInt();
-            if( !xMaxBackupSize.Checked ) nMaxBackupSize.Enabled = false;
+            if ( !xMaxBackupSize.Checked )
+                nMaxBackupSize.Enabled = false;
 
             xBackupDataOnStartup.Checked = ConfigKey.BackupDataOnStartup.Enabled();
         }
 
-
-        void ApplyTabLogging() {
-            foreach( ListViewItem item in vConsoleOptions.Items ) {
+        private void ApplyTabLogging() {
+            foreach ( ListViewItem item in vConsoleOptions.Items ) {
                 item.Checked = Logger.ConsoleOptions[item.Index];
             }
-            foreach( ListViewItem item in vLogFileOptions.Items ) {
+            foreach ( ListViewItem item in vLogFileOptions.Items ) {
                 item.Checked = Logger.LogFileOptions[item.Index];
             }
 
             ApplyEnum( cLogMode, ConfigKey.LogMode, LogSplittingType.OneFile );
 
-            xLogLimit.Checked = (ConfigKey.MaxLogs.GetInt() > 0);
+            xLogLimit.Checked = ( ConfigKey.MaxLogs.GetInt() > 0 );
             nLogLimit.Value = ConfigKey.MaxLogs.GetInt();
-            if( !xLogLimit.Checked ) nLogLimit.Enabled = false;
+            if ( !xLogLimit.Checked )
+                nLogLimit.Enabled = false;
         }
 
-
-        void ApplyTabIRC() {
+        private void ApplyTabIRC() {
             xIRCBotEnabled.Checked = ConfigKey.IRCBotEnabled.Enabled();
             gIRCNetwork.Enabled = xIRCBotEnabled.Checked;
             gIRCOptions.Enabled = xIRCBotEnabled.Checked;
@@ -359,7 +356,6 @@ namespace fCraft.ConfigGUI {
             xIRCBotForwardFromIRC.Checked = ConfigKey.IRCBotForwardFromIRC.Enabled();
             xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.Enabled();
 
-
             colorIRC = Color.ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
             Color.IRC = Color.Parse( colorIRC );
@@ -368,26 +364,34 @@ namespace fCraft.ConfigGUI {
             xIRCBotAnnounceServerEvents.Checked = ConfigKey.IRCBotAnnounceServerEvents.Enabled();
         }
 
-
-        void ApplyTabAdvanced() {
+        private void ApplyTabAdvanced() {
             xRelayAllBlockUpdates.Checked = ConfigKey.RelayAllBlockUpdates.Enabled();
             xNoPartialPositionUpdates.Checked = ConfigKey.NoPartialPositionUpdates.Enabled();
             nTickInterval.Value = ConfigKey.TickInterval.GetInt();
 
-            if( ConfigKey.ProcessPriority.IsBlank() ) {
+            if ( ConfigKey.ProcessPriority.IsBlank() ) {
                 cProcessPriority.SelectedIndex = 0; // Default
             } else {
-                switch( ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>() ) {
+                switch ( ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>() ) {
                     case ProcessPriorityClass.High:
-                        cProcessPriority.SelectedIndex = 1; break;
+                        cProcessPriority.SelectedIndex = 1;
+                        break;
+
                     case ProcessPriorityClass.AboveNormal:
-                        cProcessPriority.SelectedIndex = 2; break;
+                        cProcessPriority.SelectedIndex = 2;
+                        break;
+
                     case ProcessPriorityClass.Normal:
-                        cProcessPriority.SelectedIndex = 3; break;
+                        cProcessPriority.SelectedIndex = 3;
+                        break;
+
                     case ProcessPriorityClass.BelowNormal:
-                        cProcessPriority.SelectedIndex = 4; break;
+                        cProcessPriority.SelectedIndex = 4;
+                        break;
+
                     case ProcessPriorityClass.Idle:
-                        cProcessPriority.SelectedIndex = 5; break;
+                        cProcessPriority.SelectedIndex = 5;
+                        break;
                 }
             }
 
@@ -397,19 +401,19 @@ namespace fCraft.ConfigGUI {
             xLowLatencyMode.Checked = ConfigKey.LowLatencyMode.Enabled();
             xSubmitCrashReports.Checked = ConfigKey.SubmitCrashReports.Enabled();
 
-            if( ConfigKey.MaxUndo.GetInt() > 0 ) {
+            if ( ConfigKey.MaxUndo.GetInt() > 0 ) {
                 xMaxUndo.Checked = true;
                 nMaxUndo.Value = ConfigKey.MaxUndo.GetInt();
             } else {
                 xMaxUndo.Checked = false;
-                nMaxUndo.Value = (int)ConfigKey.MaxUndo.GetDefault();
+                nMaxUndo.Value = ( int )ConfigKey.MaxUndo.GetDefault();
             }
             nMaxUndoStates.Value = ConfigKey.MaxUndoStates.GetInt();
 
             tConsoleName.Text = ConfigKey.ConsoleName.GetString();
 
             tIP.Text = ConfigKey.IP.GetString();
-            if( ConfigKey.IP.IsBlank() || ConfigKey.IP.IsDefault() ) {
+            if ( ConfigKey.IP.IsBlank() || ConfigKey.IP.IsDefault() ) {
                 tIP.Enabled = false;
                 xIP.Checked = false;
             } else {
@@ -418,45 +422,45 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-
-        static void ApplyEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key, TEnum def ) where TEnum : struct {
-            if( box == null ) throw new ArgumentNullException( "box" );
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
+        private static void ApplyEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key, TEnum def ) where TEnum : struct {
+            if ( box == null )
+                throw new ArgumentNullException( "box" );
+            if ( !typeof( TEnum ).IsEnum )
+                throw new ArgumentException( "Enum type required" );
             try {
-                if( key.IsBlank() ) {
-                    box.SelectedIndex = (int)(object)def;
+                if ( key.IsBlank() ) {
+                    box.SelectedIndex = ( int )( object )def;
                 } else {
-                    box.SelectedIndex = (int)Enum.Parse( typeof( TEnum ), key.GetString(), true );
+                    box.SelectedIndex = ( int )Enum.Parse( typeof( TEnum ), key.GetString(), true );
                 }
-            } catch( ArgumentException ) {
-                box.SelectedIndex = (int)(object)def;
+            } catch ( ArgumentException ) {
+                box.SelectedIndex = ( int )( object )def;
             }
         }
 
-        #endregion
-
+        #endregion Loading & Applying Config
 
         #region Saving Config
 
-        void SaveConfig() {
+        private void SaveConfig() {
             // General
-            ConfigKey.HbSaverKey.TrySetValue(HbBox1.Checked);
+            ConfigKey.HbSaverKey.TrySetValue( HbBox1.Checked );
             ConfigKey.ServerName.TrySetValue( tServerName.Text );
-            ConfigKey.CustomChatName.TrySetValue(CustomName.Text);
-            ConfigKey.SwearName.TrySetValue(SwearBox.Text);
-            ConfigKey.CustomAliasName.TrySetValue(CustomAliases.Text);
+            ConfigKey.CustomChatName.TrySetValue( CustomName.Text );
+            ConfigKey.SwearName.TrySetValue( SwearBox.Text );
+            ConfigKey.CustomAliasName.TrySetValue( CustomAliases.Text );
             ConfigKey.MOTD.TrySetValue( tMOTD.Text );
             ConfigKey.MaxPlayers.TrySetValue( nMaxPlayers.Value );
             ConfigKey.MaxPlayersPerWorld.TrySetValue( nMaxPlayersPerWorld.Value );
-            if( cDefaultRank.SelectedIndex == 0 ) {
+            if ( cDefaultRank.SelectedIndex == 0 ) {
                 ConfigKey.DefaultRank.TrySetValue( "" );
             } else {
                 ConfigKey.DefaultRank.TrySetValue( RankManager.DefaultRank.FullName );
             }
             ConfigKey.IsPublic.TrySetValue( cPublic.SelectedIndex == 0 );
             ConfigKey.Port.TrySetValue( nPort.Value );
-            ConfigKey.MaxCaps.TrySetValue(MaxCapsValue.Value);
-            if( xIP.Checked ) {
+            ConfigKey.MaxCaps.TrySetValue( MaxCapsValue.Value );
+            if ( xIP.Checked ) {
                 ConfigKey.IP.TrySetValue( tIP.Text );
             } else {
                 ConfigKey.IP.ResetValue();
@@ -464,8 +468,10 @@ namespace fCraft.ConfigGUI {
 
             ConfigKey.UploadBandwidth.TrySetValue( nUploadBandwidth.Value );
 
-            if( xAnnouncements.Checked ) ConfigKey.AnnouncementInterval.TrySetValue( nAnnouncements.Value );
-            else ConfigKey.AnnouncementInterval.TrySetValue( 0 );
+            if ( xAnnouncements.Checked )
+                ConfigKey.AnnouncementInterval.TrySetValue( nAnnouncements.Value );
+            else
+                ConfigKey.AnnouncementInterval.TrySetValue( 0 );
 
             // UpdaterSettingsWindow
             ConfigKey.UpdaterMode.TrySetValue( updaterWindow.UpdaterMode );
@@ -473,10 +479,9 @@ namespace fCraft.ConfigGUI {
             ConfigKey.RunBeforeUpdate.TrySetValue( updaterWindow.RunBeforeUpdate );
             ConfigKey.RunAfterUpdate.TrySetValue( updaterWindow.RunAfterUpdate );
 
-
             // Chat
             ConfigKey.SystemMessageColor.TrySetValue( Color.GetName( colorSys ) );
-            ConfigKey.CustomChatColor.TrySetValue(Color.GetName(colorCustom));
+            ConfigKey.CustomChatColor.TrySetValue( Color.GetName( colorCustom ) );
             ConfigKey.HelpColor.TrySetValue( Color.GetName( colorHelp ) );
             ConfigKey.SayColor.TrySetValue( Color.GetName( colorSay ) );
             ConfigKey.AnnouncementColor.TrySetValue( Color.GetName( colorAnnouncement ) );
@@ -490,24 +495,24 @@ namespace fCraft.ConfigGUI {
             ConfigKey.RankPrefixesInList.TrySetValue( xRankPrefixesInList.Checked );
             ConfigKey.ShowConnectionMessages.TrySetValue( xShowConnectionMessages.Checked );
 
-
             // Worlds
-            if( cDefaultBuildRank.SelectedIndex == 0 ) {
+            if ( cDefaultBuildRank.SelectedIndex == 0 ) {
                 ConfigKey.DefaultBuildRank.TrySetValue( "" );
             } else {
                 ConfigKey.DefaultBuildRank.TrySetValue( RankManager.DefaultBuildRank.FullName );
             }
 
-            if( xMapPath.Checked ) ConfigKey.MapPath.TrySetValue( tMapPath.Text );
-            else ConfigKey.MapPath.TrySetValue( ConfigKey.MapPath.GetDefault() );
+            if ( xMapPath.Checked )
+                ConfigKey.MapPath.TrySetValue( tMapPath.Text );
+            else
+                ConfigKey.MapPath.TrySetValue( ConfigKey.MapPath.GetDefault() );
 
             ConfigKey.WoMEnableEnvExtensions.TrySetValue( xWoMEnableEnvExtensions.Checked );
-
 
             // Security
             WriteEnum<NameVerificationMode>( cVerifyNames, ConfigKey.VerifyNames );
 
-            if( xMaxConnectionsPerIP.Checked ) {
+            if ( xMaxConnectionsPerIP.Checked ) {
                 ConfigKey.MaxConnectionsPerIP.TrySetValue( nMaxConnectionsPerIP.Value );
             } else {
                 ConfigKey.MaxConnectionsPerIP.TrySetValue( 0 );
@@ -518,8 +523,10 @@ namespace fCraft.ConfigGUI {
             ConfigKey.AntispamInterval.TrySetValue( nAntispamInterval.Value );
             ConfigKey.AntispamMuteDuration.TrySetValue( nSpamMute.Value );
 
-            if( xAntispamKicks.Checked ) ConfigKey.AntispamMaxWarnings.TrySetValue( nAntispamMaxWarnings.Value );
-            else ConfigKey.AntispamMaxWarnings.TrySetValue( 0 );
+            if ( xAntispamKicks.Checked )
+                ConfigKey.AntispamMaxWarnings.TrySetValue( nAntispamMaxWarnings.Value );
+            else
+                ConfigKey.AntispamMaxWarnings.TrySetValue( 0 );
 
             ConfigKey.RequireKickReason.TrySetValue( xRequireKickReason.Checked );
             ConfigKey.RequireBanReason.TrySetValue( xRequireBanReason.Checked );
@@ -528,7 +535,7 @@ namespace fCraft.ConfigGUI {
             ConfigKey.AnnounceRankChanges.TrySetValue( xAnnounceRankChanges.Checked );
             ConfigKey.AnnounceRankChangeReasons.TrySetValue( xAnnounceRankChangeReasons.Checked );
 
-            if( cPatrolledRank.SelectedIndex == 0 ) {
+            if ( cPatrolledRank.SelectedIndex == 0 ) {
                 ConfigKey.PatrolledRank.TrySetValue( "" );
             } else {
                 ConfigKey.PatrolledRank.TrySetValue( RankManager.PatrolledRank.FullName );
@@ -536,41 +543,48 @@ namespace fCraft.ConfigGUI {
 
             ConfigKey.BlockDBEnabled.TrySetValue( xBlockDBEnabled.Checked );
             ConfigKey.BlockDBAutoEnable.TrySetValue( xBlockDBAutoEnable.Checked );
-            if( cBlockDBAutoEnableRank.SelectedIndex == 0 ) {
+            if ( cBlockDBAutoEnableRank.SelectedIndex == 0 ) {
                 ConfigKey.BlockDBAutoEnableRank.TrySetValue( "" );
             } else {
                 ConfigKey.BlockDBAutoEnableRank.TrySetValue( RankManager.BlockDBAutoEnableRank.FullName );
             }
 
-
             // Saving & Backups
-            if( xSaveInterval.Checked ) ConfigKey.SaveInterval.TrySetValue( nSaveInterval.Value );
-            else ConfigKey.SaveInterval.TrySetValue( 0 );
+            if ( xSaveInterval.Checked )
+                ConfigKey.SaveInterval.TrySetValue( nSaveInterval.Value );
+            else
+                ConfigKey.SaveInterval.TrySetValue( 0 );
             ConfigKey.BackupOnStartup.TrySetValue( xBackupOnStartup.Checked );
             ConfigKey.BackupOnJoin.TrySetValue( xBackupOnJoin.Checked );
             ConfigKey.BackupOnlyWhenChanged.TrySetValue( xBackupOnlyWhenChanged.Checked );
 
-            if( xBackupInterval.Checked ) ConfigKey.DefaultBackupInterval.TrySetValue( nBackupInterval.Value );
-            else ConfigKey.DefaultBackupInterval.TrySetValue( 0 );
-            if( xMaxBackups.Checked ) ConfigKey.MaxBackups.TrySetValue( nMaxBackups.Value );
-            else ConfigKey.MaxBackups.TrySetValue( 0 );
-            if( xMaxBackupSize.Checked ) ConfigKey.MaxBackupSize.TrySetValue( nMaxBackupSize.Value );
-            else ConfigKey.MaxBackupSize.TrySetValue( 0 );
+            if ( xBackupInterval.Checked )
+                ConfigKey.DefaultBackupInterval.TrySetValue( nBackupInterval.Value );
+            else
+                ConfigKey.DefaultBackupInterval.TrySetValue( 0 );
+            if ( xMaxBackups.Checked )
+                ConfigKey.MaxBackups.TrySetValue( nMaxBackups.Value );
+            else
+                ConfigKey.MaxBackups.TrySetValue( 0 );
+            if ( xMaxBackupSize.Checked )
+                ConfigKey.MaxBackupSize.TrySetValue( nMaxBackupSize.Value );
+            else
+                ConfigKey.MaxBackupSize.TrySetValue( 0 );
 
             ConfigKey.BackupDataOnStartup.TrySetValue( xBackupDataOnStartup.Checked );
 
-
             // Logging
             WriteEnum<LogSplittingType>( cLogMode, ConfigKey.LogMode );
-            if( xLogLimit.Checked ) ConfigKey.MaxLogs.TrySetValue( nLogLimit.Value );
-            else ConfigKey.MaxLogs.TrySetValue( "0" );
-            foreach( ListViewItem item in vConsoleOptions.Items ) {
+            if ( xLogLimit.Checked )
+                ConfigKey.MaxLogs.TrySetValue( nLogLimit.Value );
+            else
+                ConfigKey.MaxLogs.TrySetValue( "0" );
+            foreach ( ListViewItem item in vConsoleOptions.Items ) {
                 Logger.ConsoleOptions[item.Index] = item.Checked;
             }
-            foreach( ListViewItem item in vLogFileOptions.Items ) {
+            foreach ( ListViewItem item in vLogFileOptions.Items ) {
                 Logger.LogFileOptions[item.Index] = item.Checked;
             }
-
 
             // IRC
             ConfigKey.IRCBotEnabled.TrySetValue( xIRCBotEnabled.Checked );
@@ -595,7 +609,6 @@ namespace fCraft.ConfigGUI {
             ConfigKey.IRCMessageColor.TrySetValue( Color.GetName( colorIRC ) );
             ConfigKey.IRCUseColor.TrySetValue( xIRCUseColor.Checked );
 
-
             // advanced
             ConfigKey.SubmitCrashReports.TrySetValue( xSubmitCrashReports.Checked );
 
@@ -603,27 +616,40 @@ namespace fCraft.ConfigGUI {
             ConfigKey.NoPartialPositionUpdates.TrySetValue( xNoPartialPositionUpdates.Checked );
             ConfigKey.TickInterval.TrySetValue( Convert.ToInt32( nTickInterval.Value ) );
 
-            switch( cProcessPriority.SelectedIndex ) {
+            switch ( cProcessPriority.SelectedIndex ) {
                 case 0:
-                    ConfigKey.ProcessPriority.ResetValue(); break;
+                    ConfigKey.ProcessPriority.ResetValue();
+                    break;
+
                 case 1:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.High ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.High );
+                    break;
+
                 case 2:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.AboveNormal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.AboveNormal );
+                    break;
+
                 case 3:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Normal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Normal );
+                    break;
+
                 case 4:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.BelowNormal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.BelowNormal );
+                    break;
+
                 case 5:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Idle ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Idle );
+                    break;
             }
 
             ConfigKey.BlockUpdateThrottling.TrySetValue( Convert.ToInt32( nThrottling.Value ) );
 
             ConfigKey.LowLatencyMode.TrySetValue( xLowLatencyMode.Checked );
 
-            if( xMaxUndo.Checked ) ConfigKey.MaxUndo.TrySetValue( Convert.ToInt32( nMaxUndo.Value ) );
-            else ConfigKey.MaxUndo.TrySetValue( 0 );
+            if ( xMaxUndo.Checked )
+                ConfigKey.MaxUndo.TrySetValue( Convert.ToInt32( nMaxUndo.Value ) );
+            else
+                ConfigKey.MaxUndo.TrySetValue( 0 );
             ConfigKey.MaxUndoStates.TrySetValue( Convert.ToInt32( nMaxUndoStates.Value ) );
 
             ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
@@ -631,22 +657,21 @@ namespace fCraft.ConfigGUI {
             SaveWorldList();
         }
 
-
-        void SaveWorldList() {
+        private void SaveWorldList() {
             const string worldListTempFileName = Paths.WorldListFileName + ".tmp";
             try {
                 XDocument doc = new XDocument();
                 XElement root = new XElement( "fCraftWorldList" );
-                foreach( WorldListEntry world in Worlds ) {
+                foreach ( WorldListEntry world in Worlds ) {
                     root.Add( world.Serialize() );
                 }
-                if( cMainWorld.SelectedItem != null ) {
+                if ( cMainWorld.SelectedItem != null ) {
                     root.Add( new XAttribute( "main", cMainWorld.SelectedItem ) );
                 }
                 doc.Add( root );
                 doc.Save( worldListTempFileName );
                 Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 MessageBox.Show( String.Format( "An error occured while trying to save world list ({0}): {1}{2}",
                                                 Paths.WorldListFileName,
                                                 Environment.NewLine,
@@ -654,20 +679,21 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-
-        static void WriteEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key ) where TEnum : struct {
-            if( box == null ) throw new ArgumentNullException( "box" );
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
+        private static void WriteEnum<TEnum>( [NotNull] ComboBox box, ConfigKey key ) where TEnum : struct {
+            if ( box == null )
+                throw new ArgumentNullException( "box" );
+            if ( !typeof( TEnum ).IsEnum )
+                throw new ArgumentException( "Enum type required" );
             try {
-                TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
+                TEnum val = ( TEnum )Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
                 key.TrySetValue( val );
-            } catch( ArgumentException ) {
+            } catch ( ArgumentException ) {
                 Logger.Log( LogType.Error,
                             "ConfigUI.WriteEnum<{0}>: Could not parse value for {1}. Using default ({2}).",
                             typeof( TEnum ).Name, key, key.GetString() );
             }
         }
 
-        #endregion
+        #endregion Saving Config
     }
 }

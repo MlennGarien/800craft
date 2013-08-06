@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Net;
 using System.IO;
+using System.Net;
 using System.Threading;
 
 namespace fCraft.Drawing {
+
     public class DrawImageOperation {
+
         public int blocks = 0, //drawn blocks
             blocksDenied = 0; //denied blocks (zones, ect)
-        fCraft.Drawing.UndoState undoState; //undostate
+
+        private fCraft.Drawing.UndoState undoState; //undostate
 
         #region Drawing
 
-        public DrawImageOperation () {
-
+        public DrawImageOperation() {
         }
 
-        public void DrawImage ( byte popType, Direction direct, Vector3I cpos, Player player, string url ) {
+        public void DrawImage( byte popType, Direction direct, Vector3I cpos, Player player, string url ) {
             undoState = player.DrawBegin( null );
             Bitmap myBitmap = null;
             HttpWebRequest request = ( HttpWebRequest )WebRequest.Create( url );
@@ -56,10 +58,14 @@ namespace fCraft.Drawing {
                 myBitmap = resizeImage( myBitmap, myBitmap.Width, player.World.Map.Height );
             }
             int direction = 0;
-            if ( direct == Direction.one ) direction = 0;
-            if ( direct == Direction.two ) direction = 1;
-            if ( direct == Direction.three ) direction = 2;
-            if ( direct == Direction.four ) direction = 3;
+            if ( direct == Direction.one )
+                direction = 0;
+            if ( direct == Direction.two )
+                direction = 1;
+            if ( direct == Direction.three )
+                direction = 2;
+            if ( direct == Direction.four )
+                direction = 3;
 
             List<ColorBlock> refCol = popRefCol( popType );
             ColorBlock colblock;
@@ -71,12 +77,16 @@ namespace fCraft.Drawing {
                         for ( int i = 0; i < myBitmap.Height; i++ ) {
                             colblock.z = ( ushort )( cpos.Z + i );
                             if ( direction <= 1 ) {
-                                if ( direction == 0 ) colblock.x = ( ushort )( cpos.X + k );
-                                else colblock.x = ( ushort )( cpos.X - k );
+                                if ( direction == 0 )
+                                    colblock.x = ( ushort )( cpos.X + k );
+                                else
+                                    colblock.x = ( ushort )( cpos.X - k );
                                 colblock.y = cpos.Y;
                             } else {
-                                if ( direction == 2 ) colblock.y = ( ushort )( cpos.Y + k );
-                                else colblock.y = ( ushort )( cpos.Y - k );
+                                if ( direction == 2 )
+                                    colblock.y = ( ushort )( cpos.Y + k );
+                                else
+                                    colblock.y = ( ushort )( cpos.Y - k );
                                 colblock.x = cpos.X;
                             }
 
@@ -139,23 +149,25 @@ namespace fCraft.Drawing {
                                     }
                                 }
                             }
-                            if ( colblock.a < 20 ) colblock.type = ( byte )Block.Air;
+                            if ( colblock.a < 20 )
+                                colblock.type = ( byte )Block.Air;
                             DrawOneBlock( player, player.World.Map, ( Block )colblock.type,
                                               new Vector3I( colblock.x, colblock.y, colblock.z ), BlockChangeContext.Drawn,
                                               ref blocks, ref blocksDenied, undoState );
                         }
                     }
-                } ) ); printThread.Start();
+                } ) );
+                printThread.Start();
             } catch ( Exception e ) {
                 player.Message( Color.Warning + "DrawImg: " + e.Message );
             }
         }
 
-        #endregion
+        #endregion Drawing
 
         #region Helpers
 
-        Bitmap resizeImage ( Bitmap imgPhoto, int Width, int Height ) {
+        private Bitmap resizeImage( Bitmap imgPhoto, int Width, int Height ) {
             int sourceWidth = imgPhoto.Width;
             int sourceHeight = imgPhoto.Height;
             int sourceX = 0;
@@ -196,7 +208,7 @@ namespace fCraft.Drawing {
             }
         }
 
-        static List<ColorBlock> popRefCol ( byte popType ) {
+        private static List<ColorBlock> popRefCol( byte popType ) {
             ColorBlock tempref = new ColorBlock();
             List<ColorBlock> refCol = new List<ColorBlock>();
             refCol.Clear();
@@ -591,18 +603,23 @@ namespace fCraft.Drawing {
             return refCol;
         }
 
-        struct ColorBlock {
-            public int x, y, z; public byte type, r, g, b, a;
+        private struct ColorBlock {
+            public int x, y, z;
+            public byte type, r, g, b, a;
         }
 
-        static void DrawOneBlock ( Player player, Map map, Block drawBlock, Vector3I coord,
+        private static void DrawOneBlock( Player player, Map map, Block drawBlock, Vector3I coord,
                                  BlockChangeContext context, ref int blocks, ref int blocksDenied, fCraft.Drawing.UndoState undoState ) {
-            if ( map == null ) return;
-            if ( player == null ) throw new ArgumentNullException( "player" );
+            if ( map == null )
+                return;
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
 
-            if ( !map.InBounds( coord ) ) return;
+            if ( !map.InBounds( coord ) )
+                return;
             Block block = map.GetBlock( coord );
-            if ( block == drawBlock ) return;
+            if ( block == drawBlock )
+                return;
 
             if ( player.CanPlace( map, coord, drawBlock, context ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
@@ -620,6 +637,7 @@ namespace fCraft.Drawing {
             }
             blocks++;
         }
-        #endregion
+
+        #endregion Helpers
     }
 }

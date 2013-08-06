@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+
     public sealed class TriangleWireframeDrawOperation : DrawOperation {
 
         public override int ExpectedMarks {
@@ -17,7 +18,6 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
-
         public override bool Prepare( Vector3I[] marks ) {
             Vector3I minVector = new Vector3I( Math.Min( marks[0].X, Math.Min( marks[1].X, marks[2].X ) ),
                                                Math.Min( marks[0].Y, Math.Min( marks[1].Y, marks[2].Y ) ),
@@ -27,7 +27,8 @@ namespace fCraft.Drawing {
                                                Math.Max( marks[0].Z, Math.Max( marks[1].Z, marks[2].Z ) ) );
             Bounds = new BoundingBox( minVector, maxVector );
 
-            if( !base.Prepare( marks ) ) return false;
+            if ( !base.Prepare( marks ) )
+                return false;
 
             BlocksTotalEstimate = Math.Max( Bounds.Width, Math.Max( Bounds.Height, Bounds.Length ) );
 
@@ -37,45 +38,49 @@ namespace fCraft.Drawing {
             return true;
         }
 
+        private IEnumerator<Vector3I> coordEnumerator1, coordEnumerator2, coordEnumerator3;
 
-        IEnumerator<Vector3I> coordEnumerator1, coordEnumerator2, coordEnumerator3;
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
-            while( coordEnumerator1.MoveNext() ) {
+            while ( coordEnumerator1.MoveNext() ) {
                 Coords = coordEnumerator1.Current;
-                if( DrawOneBlockIfNotDuplicate() ) {
+                if ( DrawOneBlockIfNotDuplicate() ) {
                     blocksDone++;
-                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                    if ( blocksDone >= maxBlocksToDraw )
+                        return blocksDone;
                 }
-                if( TimeToEndBatch ) return blocksDone;
+                if ( TimeToEndBatch )
+                    return blocksDone;
             }
-            while( coordEnumerator2.MoveNext() ) {
+            while ( coordEnumerator2.MoveNext() ) {
                 Coords = coordEnumerator2.Current;
-                if( DrawOneBlockIfNotDuplicate() ) {
+                if ( DrawOneBlockIfNotDuplicate() ) {
                     blocksDone++;
-                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                    if ( blocksDone >= maxBlocksToDraw )
+                        return blocksDone;
                 }
-                if( TimeToEndBatch ) return blocksDone;
+                if ( TimeToEndBatch )
+                    return blocksDone;
             }
-            while( coordEnumerator3.MoveNext() ) {
+            while ( coordEnumerator3.MoveNext() ) {
                 Coords = coordEnumerator3.Current;
-                if( DrawOneBlockIfNotDuplicate() ) {
+                if ( DrawOneBlockIfNotDuplicate() ) {
                     blocksDone++;
-                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                    if ( blocksDone >= maxBlocksToDraw )
+                        return blocksDone;
                 }
-                if( TimeToEndBatch ) return blocksDone;
+                if ( TimeToEndBatch )
+                    return blocksDone;
             }
             IsDone = true;
             return blocksDone;
         }
 
-        
+        private readonly HashSet<int> modifiedBlocks = new HashSet<int>();
 
-        readonly HashSet<int> modifiedBlocks = new HashSet<int>();
-
-        bool DrawOneBlockIfNotDuplicate() {
+        private bool DrawOneBlockIfNotDuplicate() {
             int index = Map.Index( Coords );
-            if( modifiedBlocks.Contains( index ) ) {
+            if ( modifiedBlocks.Contains( index ) ) {
                 return false;
             } else {
                 modifiedBlocks.Add( index );

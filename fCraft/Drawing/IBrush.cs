@@ -7,6 +7,7 @@ namespace fCraft.Drawing {
     /// <summary> Class that desribes a type of brush in general, and allows creating new brushes with /Brush.
     /// One instance of IBrushFactory for each type of brush is kept by the BrushManager. </summary>
     public interface IBrushFactory {
+
         [NotNull]
         string Name { get; }
 
@@ -25,10 +26,10 @@ namespace fCraft.Drawing {
         IBrush MakeBrush( [NotNull] Player player, [NotNull] Command cmd );
     }
 
-
     /// <summary> Class that describes a configured brush, and allows creating instances for specific DrawOperations.
     /// Configuration-free brush types may combine IBrushFactory and IBrushType into one class. </summary>
     public interface IBrush {
+
         /// <summary> IBrushFactory associated with this brush type. </summary>
         [NotNull]
         IBrushFactory Factory { get; }
@@ -47,11 +48,11 @@ namespace fCraft.Drawing {
         IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] Command cmd, [NotNull] DrawOperation op );
     }
 
-
     /// <summary> Class that describes an individual instance of a configured brush.
     /// Each brush instance will only be used for one DrawOperation, so it can store state.
     /// Stateless brush types may combine IBrush and IBrushInstance into one class. </summary>
     public interface IBrushInstance {
+
         /// <summary> Configured brush that created this instance. </summary>
         [NotNull]
         IBrush Brush { get; }

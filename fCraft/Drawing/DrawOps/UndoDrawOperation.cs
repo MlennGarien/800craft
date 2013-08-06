@@ -2,8 +2,9 @@
 using System;
 
 namespace fCraft.Drawing {
+
     public sealed class UndoDrawOperation : DrawOpWithBrush {
-        const BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
+        private const BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
 
         public UndoState State { get; private set; }
 
@@ -19,7 +20,7 @@ namespace fCraft.Drawing {
 
         public override string Name {
             get {
-                if( Redo ) {
+                if ( Redo ) {
                     return "Redo";
                 } else {
                     return "Undo";
@@ -27,17 +28,16 @@ namespace fCraft.Drawing {
             }
         }
 
-
         public UndoDrawOperation( Player player, UndoState state, bool redo )
             : base( player ) {
             State = state;
             Redo = redo;
         }
 
-
         public override bool Prepare( Vector3I[] marks ) {
             Brush = this;
-            if( !base.Prepare( marks ) ) return false;
+            if ( !base.Prepare( marks ) )
+                return false;
             BlocksTotalEstimate = State.Buffer.Count;
             Context = UndoContext;
             Bounds = State.GetBounds();
@@ -45,8 +45,9 @@ namespace fCraft.Drawing {
         }
 
         public override bool Begin() {
-            if( !RaiseBeginningEvent( this ) ) return false;
-            if( Redo ) {
+            if ( !RaiseBeginningEvent( this ) )
+                return false;
+            if ( Redo ) {
                 UndoState = Player.RedoBegin( this );
             } else {
                 UndoState = Player.UndoBegin( this );
@@ -58,18 +59,18 @@ namespace fCraft.Drawing {
             return true;
         }
 
-        int undoBufferIndex;
-        Block block;
+        private int undoBufferIndex;
+        private Block block;
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
-            for( ; undoBufferIndex < State.Buffer.Count; undoBufferIndex++ ) {
+            for ( ; undoBufferIndex < State.Buffer.Count; undoBufferIndex++ ) {
                 UndoBlock blockUpdate = State.Get( undoBufferIndex );
                 Coords = new Vector3I( blockUpdate.X, blockUpdate.Y, blockUpdate.Z );
                 block = blockUpdate.Block;
-                if( DrawOneBlock() ) {
+                if ( DrawOneBlock() ) {
                     blocksDone++;
-                    if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) {
+                    if ( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) {
                         undoBufferIndex++;
                         return blocksDone;
                     }
@@ -78,7 +79,6 @@ namespace fCraft.Drawing {
             IsDone = true;
             return blocksDone;
         }
-
 
         protected override Block NextBlock() {
             return block;

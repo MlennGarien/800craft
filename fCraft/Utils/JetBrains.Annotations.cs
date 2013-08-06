@@ -16,29 +16,27 @@
 
 using System;
 
-namespace JetBrains.Annotations
-{
+namespace JetBrains.Annotations {
+
     /// <summary>
     /// Indicates that marked element should be localized or not.
     /// </summary>
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
-    public sealed class LocalizationRequiredAttribute : Attribute
-    {
+    [AttributeUsage( AttributeTargets.All, AllowMultiple = false, Inherited = true )]
+    public sealed class LocalizationRequiredAttribute : Attribute {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalizationRequiredAttribute"/> class with
         /// <see cref="Required"/> set to <see langword="true"/>.
         /// </summary>
         public LocalizationRequiredAttribute()
-            : this(true)
-        {
+            : this( true ) {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalizationRequiredAttribute"/> class.
         /// </summary>
         /// <param name="required"><c>true</c> if a element should be localized; otherwise, <c>false</c>.</param>
-        public LocalizationRequiredAttribute(bool required)
-        {
+        public LocalizationRequiredAttribute( bool required ) {
             Required = required;
         }
 
@@ -56,8 +54,7 @@ namespace JetBrains.Annotations
         /// <returns>
         /// <c>true</c> if the value of the given object is equal to that of the current; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Equals(object obj)
-        {
+        public override bool Equals( object obj ) {
             var attribute = obj as LocalizationRequiredAttribute;
             return attribute != null && attribute.Required == Required;
         }
@@ -66,26 +63,24 @@ namespace JetBrains.Annotations
         /// Returns the hash code for this instance.
         /// </summary>
         /// <returns>A hash code for the current <see cref="LocalizationRequiredAttribute"/>.</returns>
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return base.GetHashCode();
         }
     }
 
     /// <summary>
-    /// Indicates that marked method builds string by format pattern and (optional) arguments. 
+    /// Indicates that marked method builds string by format pattern and (optional) arguments.
     /// Parameter, which contains format string, should be given in constructor.
     /// The format string should be in <see cref="string.Format(IFormatProvider,string,object[])"/> -like form
     /// </summary>
-    [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public sealed class StringFormatMethodAttribute : Attribute
-    {
+    [AttributeUsage( AttributeTargets.Constructor | AttributeTargets.Method, AllowMultiple = false, Inherited = true )]
+    public sealed class StringFormatMethodAttribute : Attribute {
+
         /// <summary>
         /// Initializes new instance of StringFormatMethodAttribute
         /// </summary>
         /// <param name="formatParameterName">Specifies which parameter of an annotated method should be treated as format-string</param>
-        public StringFormatMethodAttribute(string formatParameterName)
-        {
+        public StringFormatMethodAttribute( string formatParameterName ) {
             FormatParameterName = formatParameterName;
         }
 
@@ -100,18 +95,19 @@ namespace JetBrains.Annotations
     /// Indicates that the function argument should be string literal and match one of the parameters of the caller function.
     /// For example, <see cref="ArgumentNullException"/> has such parameter.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage( AttributeTargets.Parameter, AllowMultiple = false, Inherited = true )]
     public sealed class InvokerParameterNameAttribute : Attribute { }
 
     /// <summary>
     /// Indicates that the function is used to notify class type property value is changed.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-    public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
-    {
-        public NotifyPropertyChangedInvocatorAttribute() { }
-        public NotifyPropertyChangedInvocatorAttribute(string parameterName)
-        {
+    [AttributeUsage( AttributeTargets.Method, AllowMultiple = false, Inherited = true )]
+    public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute {
+
+        public NotifyPropertyChangedInvocatorAttribute() {
+        }
+
+        public NotifyPropertyChangedInvocatorAttribute( string parameterName ) {
             ParameterName = parameterName;
         }
 
@@ -122,13 +118,13 @@ namespace JetBrains.Annotations
     /// <summary>
     /// Indicates that the value of marked element could be <c>null</c> sometimes, so the check for <c>null</c> is necessary before its usage
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage( AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate | AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
     public sealed class CanBeNullAttribute : Attribute { }
 
     /// <summary>
     /// Indicates that the value of marked element could never be <c>null</c>
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate | AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage( AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate | AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
     public sealed class NotNullAttribute : Attribute { }
 
     /// <summary>
@@ -157,21 +153,20 @@ namespace JetBrains.Annotations
     /// <item>[ContractAnnotation("s:null=>false; =>true,result:notnull; =>false, result:null")] public bool TryParse(string s, out Person result)</item>
     /// </list>
     /// </examples>
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
-    public sealed class ContractAnnotationAttribute : Attribute
-    {
-        public ContractAnnotationAttribute([NotNull] string fdt)
-            : this(fdt, false)
-        {
+    [AttributeUsage( AttributeTargets.Method, AllowMultiple = true, Inherited = true )]
+    public sealed class ContractAnnotationAttribute : Attribute {
+
+        public ContractAnnotationAttribute( [NotNull] string fdt )
+            : this( fdt, false ) {
         }
 
-        public ContractAnnotationAttribute([NotNull] string fdt, bool forceFullStates)
-        {
+        public ContractAnnotationAttribute( [NotNull] string fdt, bool forceFullStates ) {
             FDT = fdt;
             ForceFullStates = forceFullStates;
         }
 
         public string FDT { get; private set; }
+
         public bool ForceFullStates { get; private set; }
     }
 
@@ -179,34 +174,33 @@ namespace JetBrains.Annotations
     /// Indicates that the value of marked type (or its derivatives) cannot be compared using '==' or '!=' operators.
     /// There is only exception to compare with <c>null</c>, it is permitted
     /// </summary>
-    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage( AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true )]
     public sealed class CannotApplyEqualityOperatorAttribute : Attribute { }
 
     /// <summary>
-    /// When applied to target attribute, specifies a requirement for any type which is marked with 
+    /// When applied to target attribute, specifies a requirement for any type which is marked with
     /// target attribute to implement or inherit specific type or types
     /// </summary>
     /// <example>
     /// <code>
     /// [BaseTypeRequired(typeof(IComponent)] // Specify requirement
-    /// public class ComponentAttribute : Attribute 
+    /// public class ComponentAttribute : Attribute
     /// {}
-    /// 
+    ///
     /// [Component] // ComponentAttribute requires implementing IComponent interface
     /// public class MyComponent : IComponent
     /// {}
     /// </code>
     /// </example>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    [BaseTypeRequired(typeof(Attribute))]
-    public sealed class BaseTypeRequiredAttribute : Attribute
-    {
+    [AttributeUsage( AttributeTargets.Class, AllowMultiple = true, Inherited = true )]
+    [BaseTypeRequired( typeof( Attribute ) )]
+    public sealed class BaseTypeRequiredAttribute : Attribute {
+
         /// <summary>
         /// Initializes new instance of BaseTypeRequiredAttribute
         /// </summary>
         /// <param name="baseType">Specifies which types are required</param>
-        public BaseTypeRequiredAttribute(Type baseType)
-        {
+        public BaseTypeRequiredAttribute( Type baseType ) {
             BaseTypes = new[] { baseType };
         }
 
@@ -220,27 +214,26 @@ namespace JetBrains.Annotations
     /// Indicates that the marked symbol is used implicitly (e.g. via reflection, in external library),
     /// so this symbol will not be marked as unused (as well as by other usage inspections)
     /// </summary>
-    [AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
-    public sealed class UsedImplicitlyAttribute : Attribute
-    {
-        [UsedImplicitly]
-        public UsedImplicitlyAttribute()
-            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
+    [AttributeUsage( AttributeTargets.All, AllowMultiple = false, Inherited = true )]
+    public sealed class UsedImplicitlyAttribute : Attribute {
 
         [UsedImplicitly]
-        public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
-        {
+        public UsedImplicitlyAttribute()
+            : this( ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default ) { }
+
+        [UsedImplicitly]
+        public UsedImplicitlyAttribute( ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags ) {
             UseKindFlags = useKindFlags;
             TargetFlags = targetFlags;
         }
 
         [UsedImplicitly]
-        public UsedImplicitlyAttribute(ImplicitUseKindFlags useKindFlags)
-            : this(useKindFlags, ImplicitUseTargetFlags.Default) { }
+        public UsedImplicitlyAttribute( ImplicitUseKindFlags useKindFlags )
+            : this( useKindFlags, ImplicitUseTargetFlags.Default ) { }
 
         [UsedImplicitly]
-        public UsedImplicitlyAttribute(ImplicitUseTargetFlags targetFlags)
-            : this(ImplicitUseKindFlags.Default, targetFlags) { }
+        public UsedImplicitlyAttribute( ImplicitUseTargetFlags targetFlags )
+            : this( ImplicitUseKindFlags.Default, targetFlags ) { }
 
         [UsedImplicitly]
         public ImplicitUseKindFlags UseKindFlags { get; private set; }
@@ -255,29 +248,27 @@ namespace JetBrains.Annotations
     /// <summary>
     /// Should be used on attributes and causes ReSharper to not mark symbols marked with such attributes as unused (as well as by other usage inspections)
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public sealed class MeansImplicitUseAttribute : Attribute
-    {
-        [UsedImplicitly]
-        public MeansImplicitUseAttribute()
-            : this(ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default) { }
+    [AttributeUsage( AttributeTargets.Class, AllowMultiple = false, Inherited = true )]
+    public sealed class MeansImplicitUseAttribute : Attribute {
 
         [UsedImplicitly]
-        public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
-        {
+        public MeansImplicitUseAttribute()
+            : this( ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default ) { }
+
+        [UsedImplicitly]
+        public MeansImplicitUseAttribute( ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags ) {
             UseKindFlags = useKindFlags;
             TargetFlags = targetFlags;
         }
 
         [UsedImplicitly]
-        public MeansImplicitUseAttribute(ImplicitUseKindFlags useKindFlags)
-            : this(useKindFlags, ImplicitUseTargetFlags.Default)
-        {
+        public MeansImplicitUseAttribute( ImplicitUseKindFlags useKindFlags )
+            : this( useKindFlags, ImplicitUseTargetFlags.Default ) {
         }
 
         [UsedImplicitly]
-        public MeansImplicitUseAttribute(ImplicitUseTargetFlags targetFlags)
-            : this(ImplicitUseKindFlags.Default, targetFlags) { }
+        public MeansImplicitUseAttribute( ImplicitUseTargetFlags targetFlags )
+            : this( ImplicitUseKindFlags.Default, targetFlags ) { }
 
         [UsedImplicitly]
         public ImplicitUseKindFlags UseKindFlags { get; private set; }
@@ -290,8 +281,7 @@ namespace JetBrains.Annotations
     }
 
     [Flags]
-    public enum ImplicitUseKindFlags
-    {
+    public enum ImplicitUseKindFlags {
         Default = Access | Assign | InstantiatedWithFixedConstructorSignature,
 
         /// <summary>
@@ -320,8 +310,7 @@ namespace JetBrains.Annotations
     /// Specify what is considered used implicitly when marked with <see cref="MeansImplicitUseAttribute"/> or <see cref="UsedImplicitlyAttribute"/>
     /// </summary>
     [Flags]
-    public enum ImplicitUseTargetFlags
-    {
+    public enum ImplicitUseTargetFlags {
         Default = Itself,
 
         Itself = 1,
@@ -341,23 +330,27 @@ namespace JetBrains.Annotations
     /// This attribute is intended to mark publicly available API which should not be removed and so is treated as used.
     /// </summary>
     [MeansImplicitUse]
-    public sealed class PublicAPIAttribute : Attribute
-    {
-        public PublicAPIAttribute() { }
+    public sealed class PublicAPIAttribute : Attribute {
+
+        public PublicAPIAttribute() {
+        }
+
         // ReSharper disable UnusedParameter.Local
-        public PublicAPIAttribute(string comment) { }
+        public PublicAPIAttribute( string comment ) {
+        }
+
         // ReSharper restore UnusedParameter.Local
     }
 
     /// <summary>
-    /// Tells code analysis engine if the parameter is completely handled when the invoked method is on stack. 
+    /// Tells code analysis engine if the parameter is completely handled when the invoked method is on stack.
     /// If the parameter is delegate, indicates that delegate is executed while the method is executed.
     /// If the parameter is enumerable, indicates that it is enumerated while the method is executed.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, Inherited = true)]
+    [AttributeUsage( AttributeTargets.Parameter, Inherited = true )]
     public sealed class InstantHandleAttribute : Attribute { }
 
     /// <summary> Indicates that method doesn't contain observable side effects. </summary>
-    [AttributeUsage(AttributeTargets.Method, Inherited = true)]
+    [AttributeUsage( AttributeTargets.Method, Inherited = true )]
     public sealed class PureAttribute : Attribute { }
 }

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 
 /*        ----
         Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com>
@@ -31,18 +27,24 @@ using System.Text;
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
 namespace fCraft {
+
     public class FontHandler {
+
         #region Instance and Drawing
+
         public Player player; //player using command
         public int blockCount; //blockcount for player message. ++ when drawing
-        int blocks = 0, //drawn blocks
+
+        private int blocks = 0, //drawn blocks
             blocksDenied = 0; //denied blocks (zones, ect)
-        fCraft.Drawing.UndoState undoState; //undostate
-        Direction direction; //direction of the blocks (x++-- ect)
+
+        private fCraft.Drawing.UndoState undoState; //undostate
+        private Direction direction; //direction of the blocks (x++-- ect)
 
         //instance
-        public FontHandler ( Block textColor, Vector3I[] Marks, Player p, Direction dir ) {
+        public FontHandler( Block textColor, Vector3I[] Marks, Player p, Direction dir ) {
             direction = dir;
             blockCount = 0;
             player = p;
@@ -53,7 +55,7 @@ namespace fCraft {
             undoState = player.DrawBegin( null );
         }
 
-        public void CreateGraphicsAndDraw ( string Sentence ) {
+        public void CreateGraphicsAndDraw( string Sentence ) {
             SizeF size = MeasureTextSize( Sentence, player.font ); //measure the text size to create a bmp)
             Bitmap img = new Bitmap( ( int )size.Width, ( int )size.Height ); //make an image based on string size
             using ( Graphics g = Graphics.FromImage( img ) ) { //IDisposable
@@ -66,7 +68,8 @@ namespace fCraft {
                 img.Dispose(); //gtfo homeslice
             }
         }
-        public void Draw ( Bitmap img ) {
+
+        public void Draw( Bitmap img ) {
             //guess how big the draw will be
             int Count = 0;
             for ( int x = 0; x < img.Width; x++ ) {
@@ -96,6 +99,7 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 case Direction.two:
                     for ( int x = 0; x < img.Width; x++ ) {
                         for ( int z = 0; z < img.Height; z++ ) {
@@ -108,6 +112,7 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 case Direction.three:
                     for ( int y = 0; y < img.Width; y++ ) {
                         for ( int z = 0; z < img.Height; z++ ) {
@@ -120,6 +125,7 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 case Direction.four:
                     for ( int y = 0; y < img.Width; y++ ) {
                         for ( int z = 0; z < img.Height; z++ ) {
@@ -132,14 +138,17 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 default:
                     break; //if blockcount = 0, message is shown and returned
             }
         }
-        #endregion
+
+        #endregion Instance and Drawing
 
         #region Helpers
-        public static Bitmap Crop ( Bitmap bmp ) {
+
+        public static Bitmap Crop( Bitmap bmp ) {
             int w = bmp.Width;
             int h = bmp.Height;
             Func<int, bool> allWhiteRow = row => {
@@ -158,13 +167,15 @@ namespace fCraft {
             for ( int row = 0; row < h; ++row ) {
                 if ( allWhiteRow( row ) )
                     topmost = row;
-                else break;
+                else
+                    break;
             }
             int bottommost = 0;
             for ( int row = h - 1; row >= 0; --row ) {
                 if ( allWhiteRow( row ) )
                     bottommost = row;
-                else break;
+                else
+                    break;
             }
             int leftmost = 0, rightmost = 0;
             for ( int col = 0; col < w; ++col ) {
@@ -179,8 +190,10 @@ namespace fCraft {
                 else
                     break;
             }
-            if ( rightmost == 0 ) rightmost = w; // As reached left
-            if ( bottommost == 0 ) bottommost = h; // As reached top.
+            if ( rightmost == 0 )
+                rightmost = w; // As reached left
+            if ( bottommost == 0 )
+                bottommost = h; // As reached top.
             int croppedWidth = rightmost - leftmost;
             int croppedHeight = bottommost - topmost;
             if ( croppedWidth == 0 ) {// No border on left or right
@@ -190,7 +203,8 @@ namespace fCraft {
             if ( croppedHeight == 0 ) {// No border on top or bottom
                 topmost = 0;
                 croppedHeight = h;
-            } try {
+            }
+            try {
                 var target = new Bitmap( croppedWidth, croppedHeight );
                 using ( Graphics g = Graphics.FromImage( target ) ) {
                     g.DrawImage( bmp,
@@ -203,14 +217,16 @@ namespace fCraft {
                 return bmp; //return original image, I guess
             }
         }
+
         //Measure the size of the string length using IDisposable. Backport from 800Craft Client
-        public static SizeF MeasureTextSize ( string text, Font font ) {
+        public static SizeF MeasureTextSize( string text, Font font ) {
             using ( Bitmap bmp = new Bitmap( 1, 1 ) ) {
                 using ( Graphics g = Graphics.FromImage( bmp ) ) {
                     return g.MeasureString( text, font );
                 }
             }
         }
+
         //stores information needed for each pixel
         public struct PixelData {
             public static int X;
@@ -220,15 +236,21 @@ namespace fCraft {
         }
 
         //stolen from BuildingCommands
-        #region DrawOneBlock
-        static void DrawOneBlock ( Player player, Map map, Block drawBlock, Vector3I coord,
-                                 BlockChangeContext context, ref int blocks, ref int blocksDenied, fCraft.Drawing.UndoState undoState ) {
-            if ( map == null ) return;
-            if ( player == null ) throw new ArgumentNullException( "player" );
 
-            if ( !map.InBounds( coord ) ) return;
+        #region DrawOneBlock
+
+        private static void DrawOneBlock( Player player, Map map, Block drawBlock, Vector3I coord,
+                                 BlockChangeContext context, ref int blocks, ref int blocksDenied, fCraft.Drawing.UndoState undoState ) {
+            if ( map == null )
+                return;
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
+
+            if ( !map.InBounds( coord ) )
+                return;
             Block block = map.GetBlock( coord );
-            if ( block == drawBlock ) return;
+            if ( block == drawBlock )
+                return;
 
             if ( player.CanPlace( map, coord, drawBlock, context ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
@@ -246,7 +268,9 @@ namespace fCraft {
             }
             blocks++;
         }
-        #endregion
-        #endregion
+
+        #endregion DrawOneBlock
+
+        #endregion Helpers
     }
 }

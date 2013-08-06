@@ -3,41 +3,56 @@ using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
+
     public sealed partial class UpdaterSettingsPopup : Form {
 
         public string RunBeforeUpdate {
             get {
-                if( xRunBeforeUpdate.Checked) return tRunBeforeUpdate.Text;
-                else return "";
+                if ( xRunBeforeUpdate.Checked )
+                    return tRunBeforeUpdate.Text;
+                else
+                    return "";
             }
             set { tRunBeforeUpdate.Text = value; }
         }
 
         public string RunAfterUpdate {
             get {
-                if( xRunAfterUpdate.Checked ) return tRunAfterUpdate.Text;
-                else return "";
+                if ( xRunAfterUpdate.Checked )
+                    return tRunAfterUpdate.Text;
+                else
+                    return "";
             }
             set { tRunAfterUpdate.Text = value; }
         }
 
         public UpdaterMode UpdaterMode {
             get {
-                if( rDisabled.Checked ) return UpdaterMode.Disabled;
-                if( rNotify.Checked ) return UpdaterMode.Notify;
-                if( rPrompt.Checked ) return UpdaterMode.Prompt;
+                if ( rDisabled.Checked )
+                    return UpdaterMode.Disabled;
+                if ( rNotify.Checked )
+                    return UpdaterMode.Notify;
+                if ( rPrompt.Checked )
+                    return UpdaterMode.Prompt;
                 return UpdaterMode.Auto;
             }
             set {
-                switch( value ) {
+                switch ( value ) {
                     case UpdaterMode.Disabled:
-                        rDisabled.Checked = true; break;
+                        rDisabled.Checked = true;
+                        break;
+
                     case UpdaterMode.Notify:
-                        rNotify.Checked = true; break;
+                        rNotify.Checked = true;
+                        break;
+
                     case UpdaterMode.Prompt:
-                        rPrompt.Checked = true; break;
+                        rPrompt.Checked = true;
+                        break;
+
                     case UpdaterMode.Auto:
-                        rAutomatic.Checked = true; break;
+                        rAutomatic.Checked = true;
+                        break;
                 }
             }
         }
@@ -47,9 +62,9 @@ namespace fCraft.ConfigGUI {
             set { xBackupBeforeUpdating.Checked = value; }
         }
 
-        string oldRunBeforeUpdate, oldRunAfterUpdate;
-        UpdaterMode oldUpdaterMode;
-        bool oldBackupBeforeUpdate;
+        private string oldRunBeforeUpdate, oldRunAfterUpdate;
+        private UpdaterMode oldUpdaterMode;
+        private bool oldBackupBeforeUpdate;
 
         public UpdaterSettingsPopup() {
             InitializeComponent();
@@ -60,7 +75,7 @@ namespace fCraft.ConfigGUI {
                 oldBackupBeforeUpdate = BackupBeforeUpdate;
             };
             FormClosed += delegate {
-                if( DialogResult != DialogResult.OK ) {
+                if ( DialogResult != DialogResult.OK ) {
                     RunBeforeUpdate = oldRunBeforeUpdate;
                     RunAfterUpdate = oldRunAfterUpdate;
                     UpdaterMode = oldUpdaterMode;
@@ -81,15 +96,14 @@ namespace fCraft.ConfigGUI {
             gOptions.Enabled = !rDisabled.Checked;
         }
 
-
         private void tRunBeforeUpdate_TextChanged( object sender, EventArgs e ) {
-            if( tRunBeforeUpdate.Text.Length > 0 ) {
+            if ( tRunBeforeUpdate.Text.Length > 0 ) {
                 xRunBeforeUpdate.Checked = true;
             }
         }
 
         private void tRunAfterUpdate_TextChanged( object sender, EventArgs e ) {
-            if( tRunAfterUpdate.Text.Length > 0 ) {
+            if ( tRunAfterUpdate.Text.Length > 0 ) {
                 xRunAfterUpdate.Checked = true;
             }
         }

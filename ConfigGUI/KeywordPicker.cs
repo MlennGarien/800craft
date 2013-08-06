@@ -1,11 +1,13 @@
 ﻿using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
+
     public sealed partial class KeywordPicker : Form {
         public string Result;
 
-        readonly ToolTip tips;
-        static readonly KeywordInfo[] Keywords = new[]{
+        private readonly ToolTip tips;
+
+        private static readonly KeywordInfo[] Keywords = new[]{
             new KeywordInfo("{SERVER_NAME}", "Server name", "Name of your server, as specified in config." ),
             new KeywordInfo("{RANK}", "Player's rank", "Player's rank, including prefix and colors (if applicable)." ),
             new KeywordInfo("{PLAYER_NAME}", "Player's name", "Name of the player, including prefix and colors (if applicable)." ),
@@ -17,13 +19,13 @@ namespace fCraft.ConfigGUI {
             new KeywordInfo("{VERSION}", "800Craft version", "Version of 800Craft that this server is running." )
         };
 
-        const int ButtonWidth = 150,
+        private const int ButtonWidth = 150,
                   ButtonHeight = 28;
 
         public KeywordPicker() {
             InitializeComponent();
             tips = new ToolTip();
-            foreach( KeywordInfo keyword in Keywords ) {
+            foreach ( KeywordInfo keyword in Keywords ) {
                 Button newButton = new Button {
                     Text = keyword.LongName,
                     Tag = keyword.Keyword,
@@ -32,7 +34,7 @@ namespace fCraft.ConfigGUI {
                 };
                 pFlow.Controls.Add( newButton );
                 newButton.Click += delegate {
-                    Result = (string)newButton.Tag;
+                    Result = ( string )newButton.Tag;
                     DialogResult = DialogResult.OK;
                     Close();
                 };
@@ -40,18 +42,18 @@ namespace fCraft.ConfigGUI {
             }
         }
 
+        private struct KeywordInfo {
 
-        struct KeywordInfo {
             public KeywordInfo( string keyword, string name, string description ) {
                 Keyword = keyword;
                 LongName = name;
                 Description = description;
             }
+
             public readonly string Keyword, LongName, Description;
         }
 
-        private void pFlow_Paint ( object sender, PaintEventArgs e ) {
-
+        private void pFlow_Paint( object sender, PaintEventArgs e ) {
         }
     }
 }

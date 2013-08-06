@@ -1,15 +1,13 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using fCraft.MapConversion;
-using System.Collections.Generic;
-using fCraft.Events;
-using fCraft.Doors;
 
 namespace fCraft {
-    /// <summary> Contains commands related to zone management. </summary>
-    static class ZoneCommands {
 
-        internal static void Init () {
+    /// <summary> Contains commands related to zone management. </summary>
+    internal static class ZoneCommands {
+
+        internal static void Init() {
             CommandManager.RegisterCommand( CdZoneAdd );
             CommandManager.RegisterCommand( CdZoneEdit );
             CommandManager.RegisterCommand( CdZoneInfo );
@@ -19,9 +17,10 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdZoneRename );
             CommandManager.RegisterCommand( CdZoneTest );
         }
+
         #region ZoneAdd
 
-        static readonly CommandDescriptor CdZoneAdd = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneAdd = new CommandDescriptor {
             Name = "ZAdd",
             Category = CommandCategory.Zone,
             Aliases = new[] { "zone" },
@@ -33,9 +32,10 @@ namespace fCraft {
             Handler = ZoneAddHandler
         };
 
-        static void ZoneAddHandler ( Player player, Command cmd ) {
+        private static void ZoneAddHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             string givenZoneName = cmd.Next();
             if ( givenZoneName == null ) {
@@ -50,6 +50,7 @@ namespace fCraft {
                         player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
                                         playerWorld.ClassyName );
                         return;
+
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
                                         playerWorld.ClassyName );
@@ -67,7 +68,8 @@ namespace fCraft {
 
                 // Find the target player
                 PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, givenZoneName );
-                if ( info == null ) return;
+                if ( info == null )
+                    return;
 
                 // Make sure that the name is not taken already.
                 // If a zone named after the player already exists, try adding a number after the name (e.g. "Notch2")
@@ -104,8 +106,8 @@ namespace fCraft {
                 if ( minRank != null ) {
                     string name;
                     while ( ( name = cmd.Next() ) != null ) {
-
-                        if ( name.Length == 0 ) continue;
+                        if ( name.Length == 0 )
+                            continue;
 
                         if ( name.ToLower().StartsWith( "msg=" ) ) {
                             newZone.Message = name.Substring( 4 ) + " " + ( cmd.NextAll() ?? "" );
@@ -114,7 +116,8 @@ namespace fCraft {
                         }
 
                         PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                        if ( info == null ) return;
+                        if ( info == null )
+                            return;
 
                         if ( name.StartsWith( "+" ) ) {
                             newZone.Controller.Include( info );
@@ -133,9 +136,10 @@ namespace fCraft {
             player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
         }
 
-        static void ZoneAddCallback ( Player player, Vector3I[] marks, object tag ) {
+        private static void ZoneAddCallback( Player player, Vector3I[] marks, object tag ) {
             World playerWorld = player.World;
-            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             if ( !player.Info.Rank.AllowSecurityCircumvention ) {
                 SecurityCheckResult buildCheck = playerWorld.BuildSecurity.CheckDetailed( player.Info );
@@ -144,6 +148,7 @@ namespace fCraft {
                         player.Message( "Cannot add zones to world {0}&S: You are barred from building here.",
                                         playerWorld.ClassyName );
                         return;
+
                     case SecurityCheckResult.RankTooLow:
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
                                         playerWorld.ClassyName );
@@ -176,12 +181,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion ZoneAdd
 
         #region ZoneEdit
 
-        static readonly CommandDescriptor CdZoneEdit = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneEdit = new CommandDescriptor {
             Name = "ZEdit",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
@@ -192,7 +196,7 @@ namespace fCraft {
             Handler = ZoneEditHandler
         };
 
-        static void ZoneEditHandler ( Player player, Command cmd ) {
+        private static void ZoneEditHandler( Player player, Command cmd ) {
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if ( zoneName == null ) {
@@ -214,7 +218,8 @@ namespace fCraft {
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if ( info == null ) return;
+                    if ( info == null )
+                        return;
 
                     // prevent players from whitelisting themselves to bypass protection
                     if ( !player.Info.Rank.AllowSecurityCircumvention && player.Info == info ) {
@@ -231,42 +236,45 @@ namespace fCraft {
                                             info.ClassyName, zone.ClassyName );
                             changesWereMade = true;
                             break;
+
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now included in zone {1}",
                                             info.ClassyName, zone.ClassyName );
                             changesWereMade = true;
                             break;
+
                         case PermissionOverride.Allow:
                             player.Message( "{0}&S is already included in zone {1}",
                                             info.ClassyName, zone.ClassyName );
                             break;
                     }
-
                 } else if ( name.StartsWith( "-" ) ) {
                     if ( name.Length == 1 ) {
                         CdZoneEdit.PrintUsage( player );
                         break;
                     }
                     PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                    if ( info == null ) return;
+                    if ( info == null )
+                        return;
 
                     switch ( zone.Controller.Exclude( info ) ) {
                         case PermissionOverride.Deny:
                             player.Message( "{0}&S is already excluded from zone {1}",
                                             info.ClassyName, zone.ClassyName );
                             break;
+
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now excluded from zone {1}",
                                             info.ClassyName, zone.ClassyName );
                             changesWereMade = true;
                             break;
+
                         case PermissionOverride.Allow:
                             player.Message( "{0}&S is no longer included in zone {1}",
                                             info.ClassyName, zone.ClassyName );
                             changesWereMade = true;
                             break;
                     }
-
                 } else if ( name.ToLower().StartsWith( "msg=" ) ) {
                     zone.Message = name.Substring( 4 ) + " " + ( cmd.NextAll() ?? "" );
                     changesWereMade = true;
@@ -303,10 +311,9 @@ namespace fCraft {
 
         #endregion ZoneEdit
 
-
         #region ZoneInfo
 
-        static readonly CommandDescriptor CdZoneInfo = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneInfo = new CommandDescriptor {
             Name = "ZInfo",
             Aliases = new[] { "ZoneInfo" },
             Category = CommandCategory.Zone | CommandCategory.Info,
@@ -316,7 +323,7 @@ namespace fCraft {
             Handler = ZoneInfoHandler
         };
 
-        static void ZoneInfoHandler ( Player player, Command cmd ) {
+        private static void ZoneInfoHandler( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if ( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/Help ZInfo" );
@@ -373,12 +380,11 @@ namespace fCraft {
                 player.Message( "  Zone has no custom deny build message" );
         }
 
-        #endregion
-
+        #endregion ZoneInfo
 
         #region ZoneList
 
-        static readonly CommandDescriptor CdZoneList = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneList = new CommandDescriptor {
             Name = "Zones",
             Category = CommandCategory.Zone | CommandCategory.Info,
             IsConsoleSafe = true,
@@ -388,18 +394,17 @@ namespace fCraft {
             Handler = ZoneListHandler
         };
 
-        static void ZoneListHandler ( Player player, Command cmd ) {
+        private static void ZoneListHandler( Player player, Command cmd ) {
             World world = player.World;
             string worldName = cmd.Next();
             if ( worldName != null ) {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if ( world == null ) return;
+                if ( world == null )
+                    return;
                 player.Message( "List of zones on {0}&S:",
                                 world.ClassyName );
-
             } else if ( world != null ) {
                 player.Message( "List of zones on this world:" );
-
             } else {
                 player.Message( "When used from console, &H/Zones&S command requires a world name." );
                 return;
@@ -430,12 +435,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion ZoneList
 
         #region ZoneMark
 
-        static readonly CommandDescriptor CdZoneMark = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneMark = new CommandDescriptor {
             Name = "ZMark",
             Category = CommandCategory.Zone | CommandCategory.Building,
             Usage = "/ZMark ZoneName",
@@ -443,7 +447,7 @@ namespace fCraft {
             Handler = ZoneMarkHandler
         };
 
-        static void ZoneMarkHandler ( Player player, Command cmd ) {
+        private static void ZoneMarkHandler( Player player, Command cmd ) {
             if ( player.SelectionMarksExpected == 0 ) {
                 player.MessageNow( "Cannot use ZMark - no selection in progress." );
             } else if ( player.SelectionMarksExpected == 2 ) {
@@ -467,12 +471,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion ZoneMark
 
         #region ZoneRemove
 
-        static readonly CommandDescriptor CdZoneRemove = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneRemove = new CommandDescriptor {
             Name = "ZRemove",
             Aliases = new[] { "zdelete" },
             Category = CommandCategory.Zone,
@@ -482,7 +485,7 @@ namespace fCraft {
             Handler = ZoneRemoveHandler
         };
 
-        static void ZoneRemoveHandler ( Player player, Command cmd ) {
+        private static void ZoneRemoveHandler( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if ( zoneName == null ) {
                 CdZoneRemove.PrintUsage( player );
@@ -497,6 +500,7 @@ namespace fCraft {
                         case SecurityCheckResult.BlackListed:
                             player.Message( "You are not allowed to remove zone {0}: you are blacklisted.", zone.ClassyName );
                             return;
+
                         case SecurityCheckResult.RankTooLow:
                             player.Message( "You are not allowed to remove zone {0}.", zone.ClassyName );
                             return;
@@ -510,18 +514,16 @@ namespace fCraft {
                 if ( zones.Remove( zone.Name ) ) {
                     player.Message( "Zone \"{0}\" removed.", zone.Name );
                 }
-
             } else {
                 player.MessageNoZone( zoneName );
             }
         }
 
-        #endregion
-
+        #endregion ZoneRemove
 
         #region ZoneRename
 
-        static readonly CommandDescriptor CdZoneRename = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneRename = new CommandDescriptor {
             Name = "ZRename",
             Category = CommandCategory.Zone,
             Permissions = new[] { Permission.ManageZones },
@@ -530,9 +532,10 @@ namespace fCraft {
             Handler = ZoneRenameHandler
         };
 
-        static void ZoneRenameHandler ( Player player, Command cmd ) {
+        private static void ZoneRenameHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             // make sure that both parameters are given
             string oldName = cmd.Next();
@@ -581,12 +584,11 @@ namespace fCraft {
                         player.Name, fullOldName, newName, playerWorld.Name );
         }
 
-        #endregion
-
+        #endregion ZoneRename
 
         #region ZoneTest
 
-        static readonly CommandDescriptor CdZoneTest = new CommandDescriptor {
+        private static readonly CommandDescriptor CdZoneTest = new CommandDescriptor {
             Name = "ZTest",
             Category = CommandCategory.Zone | CommandCategory.Info,
             RepeatableSelection = true,
@@ -594,12 +596,12 @@ namespace fCraft {
             Handler = ZoneTestHandler
         };
 
-        static void ZoneTestHandler ( Player player, Command cmd ) {
+        private static void ZoneTestHandler( Player player, Command cmd ) {
             player.SelectionStart( 1, ZoneTestCallback, null );
             player.Message( "Click the block that you would like to test." );
         }
 
-        static void ZoneTestCallback ( Player player, Vector3I[] marks, object tag ) {
+        private static void ZoneTestCallback( Player player, Vector3I[] marks, object tag ) {
             Zone[] allowed, denied;
             if ( player.WorldMap.Zones.CheckDetailed( marks[0], player, out allowed, out denied ) ) {
                 foreach ( Zone zone in allowed ) {
@@ -615,6 +617,6 @@ namespace fCraft {
             }
         }
 
-        #endregion
+        #endregion ZoneTest
     }
 }

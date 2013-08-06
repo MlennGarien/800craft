@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Drawing;
+
 /*using LibNbt;
 using LibNbt.Exceptions;
 using LibNbt.Queries;
 using LibNbt.Tags;*/
-using System.IO.Compression;
 /*        ----
         Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com>
         All rights reserved.
@@ -35,13 +30,15 @@ using System.IO.Compression;
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
-namespace fCraft {
-    static class DevCommands {
 
-        public static void Init () {
+namespace fCraft {
+
+    internal static class DevCommands {
+
+        public static void Init() {
             /*
              * NOTE: These commands are unfinished, under development and non-supported.
-             * If you are using a dev build of 800Craft, please comment these the below out to ensure 
+             * If you are using a dev build of 800Craft, please comment these the below out to ensure
              * stability.
              * */
 
@@ -51,7 +48,7 @@ namespace fCraft {
             //CommandManager.RegisterCommand(CdGame);
         }
 
-        static readonly CommandDescriptor CdGame = new CommandDescriptor {
+        private static readonly CommandDescriptor CdGame = new CommandDescriptor {
             Name = "Game",
             Category = CommandCategory.World,
             Permissions = new Permission[] { Permission.Games },
@@ -59,12 +56,13 @@ namespace fCraft {
             Usage = "/Unfinished command.",
             Handler = GameHandler
         };
-        private static void GameHandler ( Player player, Command cmd ) {
+
+        private static void GameHandler( Player player, Command cmd ) {
             string GameMode = cmd.Next();
             string Option = cmd.Next();
             World world = player.World;
             /*if (world == WorldManager.MainWorld){
-                player.Message("/Game cannot be used on the main world"); 
+                player.Message("/Game cannot be used on the main world");
                 return;
             }*/
 
@@ -126,7 +124,7 @@ namespace fCraft {
             }
         }*/
 
-        static readonly CommandDescriptor CdSpell = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSpell = new CommandDescriptor {
             Name = "Spell",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Chat },
@@ -137,8 +135,10 @@ namespace fCraft {
             UsableByFrozenPlayers = false,
             Handler = SpellHandler,
         };
+
         public static SpellStartBehavior particleBehavior = new SpellStartBehavior();
-        internal static void SpellHandler ( Player player, Command cmd ) {
+
+        internal static void SpellHandler( Player player, Command cmd ) {
             World world = player.World;
             Vector3I pos1 = player.Position.ToBlockCoords();
             Random _r = new Random();

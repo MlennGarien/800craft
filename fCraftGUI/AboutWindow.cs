@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace fCraft.GUI {
+
     public sealed partial class AboutWindow : Form {
+
         public AboutWindow() {
             InitializeComponent();
             lSubheader.Text = String.Format( lSubheader.Text, Updater.CurrentRelease.VersionString );
@@ -22,14 +24,10 @@ namespace fCraft.GUI {
             } catch { }
         }
 
-        private void linkLabel2_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            try
-            {
-                Process.Start("http://www.800craft.net");
-            }
-            catch { }
+        private void linkLabel2_LinkClicked_1( object sender, LinkLabelLinkClickedEventArgs e ) {
+            try {
+                Process.Start( "http://www.800craft.net" );
+            } catch { }
         }
-
     }
 }

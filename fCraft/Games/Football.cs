@@ -27,24 +27,20 @@
 
 //Copyright (C) <2011 - 2013> Jon Baker(http://au70.net)
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using fCraft;
 using fCraft.Events;
-using System.Collections.Concurrent;
-using System.Threading;
 
 namespace fCraft {
+
     public class Football {
         private World _world;
         private Vector3I _startPos;
-        public Football ( Player player, World world, Vector3I FootballPos ) {
+
+        public Football( Player player, World world, Vector3I FootballPos ) {
             _world = world;
             Player.Clicked += ClickedFootball;
         }
 
-        public void ResetFootball () {
+        public void ResetFootball() {
             if ( _startPos == null ) {
                 _startPos.X = _world.Map.Bounds.XMax - _world.Map.Bounds.XMin;
                 _startPos.Y = _world.Map.Bounds.YMax - _world.Map.Bounds.YMin;
@@ -59,7 +55,8 @@ namespace fCraft {
         }
 
         private FootballBehavior _footballBehavior = new FootballBehavior();
-        public void ClickedFootball ( object sender, PlayerClickedEventArgs e ) {
+
+        public void ClickedFootball( object sender, PlayerClickedEventArgs e ) {
             //replace e.coords with player.Pos.toblock() (moving event)
             if ( e.Coords == _world.footballPos ) {
                 double ksi = 2.0 * Math.PI * ( -e.Player.Position.L ) / 256.0;

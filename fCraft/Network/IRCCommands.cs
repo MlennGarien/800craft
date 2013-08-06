@@ -1,7 +1,7 @@
 ﻿/* Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
- * 
+ *
  * Based, in part, on SmartIrc4net code. Original license is reproduced below.
- * 
+ *
  *
  *
  * SmartIrc4net - the IRC library for .NET/C# <http://smartirc4net.sf.net>
@@ -28,8 +28,10 @@
 using System;
 
 namespace fCraft {
+
     // ReSharper disable UnusedMember.Global
     public static class IRCCommands {
+
         public static string Pass( string password ) {
             return "PASS " + password;
         }
@@ -316,7 +318,7 @@ namespace fCraft {
         }
 
         public static string Who( string mask, bool ircop ) {
-            if( ircop ) {
+            if ( ircop ) {
                 return "WHO " + mask + " o";
             } else {
                 return "WHO " + mask;

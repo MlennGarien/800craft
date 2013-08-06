@@ -3,6 +3,7 @@ using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
+
     public sealed partial class PermissionLimitBox : UserControl {
 
         public Permission Permission { get; private set; }
@@ -15,7 +16,7 @@ namespace fCraft.ConfigGUI {
             InitializeComponent();
 
             label.Text = labelText;
-            label.Left = (comboBox.Left - comboBox.Margin.Left) - (label.Width + label.Margin.Right);
+            label.Left = ( comboBox.Left - comboBox.Margin.Left ) - ( label.Width + label.Margin.Right );
 
             Permission = permission;
             FirstItem = firstItem;
@@ -24,35 +25,32 @@ namespace fCraft.ConfigGUI {
             comboBox.SelectedIndexChanged += OnPermissionLimitChanged;
         }
 
-
-        void OnPermissionLimitChanged( object sender, EventArgs args ) {
-            if( Rank == null ) return;
+        private void OnPermissionLimitChanged( object sender, EventArgs args ) {
+            if ( Rank == null )
+                return;
             Rank rankLimit = RankManager.FindRank( comboBox.SelectedIndex - 1 );
-            if( rankLimit == null ) {
+            if ( rankLimit == null ) {
                 Rank.ResetLimit( Permission );
             } else {
                 Rank.SetLimit( Permission, rankLimit );
             }
         }
 
-
         public void Reset() {
             comboBox.SelectedIndex = 0;
         }
 
-
         public void RebuildList() {
             comboBox.Items.Clear();
             comboBox.Items.Add( FirstItem );
-            foreach( Rank rank in RankManager.Ranks ) {
+            foreach ( Rank rank in RankManager.Ranks ) {
                 comboBox.Items.Add( MainForm.ToComboBoxOption( rank ) );
             }
         }
 
-
         public void SelectRank( Rank rank ) {
             Rank = rank;
-            if( rank == null ) {
+            if ( rank == null ) {
                 comboBox.SelectedIndex = -1;
                 Visible = false;
             } else {
@@ -60,7 +58,6 @@ namespace fCraft.ConfigGUI {
                 Visible = rank.Can( Permission );
             }
         }
-
 
         public void PermissionToggled( bool isOn ) {
             Visible = isOn;

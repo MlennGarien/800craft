@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
-    public static class BrushManager {
-        static readonly Dictionary<string, IBrushFactory> BrushFactories = new Dictionary<string, IBrushFactory>();
-        static readonly Dictionary<string, IBrushFactory> BrushAliases = new Dictionary<string, IBrushFactory>();
 
-        static readonly CommandDescriptor CdBrush = new CommandDescriptor {
+    public static class BrushManager {
+        private static readonly Dictionary<string, IBrushFactory> BrushFactories = new Dictionary<string, IBrushFactory>();
+        private static readonly Dictionary<string, IBrushFactory> BrushAliases = new Dictionary<string, IBrushFactory>();
+
+        private static readonly CommandDescriptor CdBrush = new CommandDescriptor {
             Name = "Brush",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
@@ -17,25 +18,23 @@ namespace fCraft.Drawing {
             Handler = BrushHandler
         };
 
-
-        static void BrushHandler( Player player, Command cmd ) {
+        private static void BrushHandler( Player player, Command cmd ) {
             string brushName = cmd.Next();
-            if( brushName == null ) {
+            if ( brushName == null ) {
                 player.Message( player.Brush.Description );
             } else {
                 IBrushFactory brushFactory = GetBrushFactory( brushName );
-                if( brushFactory == null ) {
+                if ( brushFactory == null ) {
                     player.Message( "Unrecognized brush \"{0}\"", brushName );
                 } else {
                     IBrush newBrush = brushFactory.MakeBrush( player, cmd );
-                    if( newBrush != null ) {
+                    if ( newBrush != null ) {
                         player.Brush = newBrush;
                         player.Message( "Brush set to {0}", player.Brush.Description );
                     }
                 }
             }
         }
-
 
         internal static void Init() {
             CommandManager.RegisterCommand( CdBrush );
@@ -48,19 +47,19 @@ namespace fCraft.Drawing {
             RegisterBrush( ReplaceBrushFactory.Instance );
             RegisterBrush( ReplaceNotBrushFactory.Instance );
             RegisterBrush( ReplaceBrushBrushFactory.Instance );
-            RegisterBrush(DiagonalBrushFactory.Instance);
+            RegisterBrush( DiagonalBrushFactory.Instance );
         }
 
-
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
-            if( factory == null ) throw new ArgumentNullException( "factory" );
+            if ( factory == null )
+                throw new ArgumentNullException( "factory" );
             string helpString = String.Format( "{0} brush: {1}",
                                                factory.Name, factory.Help );
             string lowerName = factory.Name.ToLower();
             BrushFactories.Add( lowerName, factory );
-            if( factory.Aliases != null ) {
+            if ( factory.Aliases != null ) {
                 helpString += "Aliases: " + factory.Aliases.JoinToString();
-                foreach( string alias in factory.Aliases ) {
+                foreach ( string alias in factory.Aliases ) {
                     BrushAliases.Add( alias.ToLower(), factory );
                 }
             }
@@ -68,13 +67,13 @@ namespace fCraft.Drawing {
             CdBrush.Help += factory.Name + " ";
         }
 
-
         [CanBeNull]
         public static IBrushFactory GetBrushFactory( [NotNull] string brushName ) {
-            if( brushName == null ) throw new ArgumentNullException( "brushName" );
+            if ( brushName == null )
+                throw new ArgumentNullException( "brushName" );
             IBrushFactory factory;
             string lowerName = brushName.ToLower();
-            if( BrushFactories.TryGetValue( lowerName, out factory ) ||
+            if ( BrushFactories.TryGetValue( lowerName, out factory ) ||
                 BrushAliases.TryGetValue( lowerName, out factory ) ) {
                 return factory;
             } else {

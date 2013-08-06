@@ -20,13 +20,16 @@
  *  THE SOFTWARE.
  *
  */
+
 using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    static class Program {
+
+    internal static class Program {
+
         [STAThread]
-        static void Main() {
+        private static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
 #if DEBUG
@@ -34,9 +37,9 @@ namespace fCraft.ConfigGUI {
 #else
             try {
                 Application.Run( new MainForm() );
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 Logger.LogAndReportCrash( "Error in ConfigGUI", "ConfigGUI", ex, true );
-                if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
+                if ( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                     MessageBox.Show( ex.ToString(), "fCraft ConfigGUI has crashed" );
                 }
             }

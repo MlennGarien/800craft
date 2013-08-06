@@ -20,7 +20,6 @@ namespace fCraft.ConfigGUI {
             ApplySortCore( sort, dir );
         }
 
-
         public void Sort( string property ) {
             /* Get the PD */
             sort = FindPropertyDescriptor( property );
@@ -28,7 +27,6 @@ namespace fCraft.ConfigGUI {
             /* Sort */
             ApplySortCore( sort, dir );
         }
-
 
         public void Sort( string property, ListSortDirection direction ) {
             /* Get the sort property */
@@ -39,8 +37,7 @@ namespace fCraft.ConfigGUI {
             ApplySortCore( sort, dir );
         }
 
-        #endregion
-
+        #endregion BindingList<T> Public Sorting API
 
         #region BindingList<T> Sorting Overrides
 
@@ -48,11 +45,10 @@ namespace fCraft.ConfigGUI {
             get { return true; }
         }
 
-
         protected override void ApplySortCore( PropertyDescriptor prop, ListSortDirection direction ) {
             List<T> items = Items as List<T>;
 
-            if( null != items ) {
+            if ( null != items ) {
                 PropertyComparer<T> pc = new PropertyComparer<T>( prop, direction );
                 items.Sort( pc );
 
@@ -64,31 +60,28 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-
         protected override bool IsSortedCore {
             get { return isSorted; }
         }
-
 
         protected override void RemoveSortCore() {
             isSorted = false;
         }
 
-        #endregion
-
+        #endregion BindingList<T> Sorting Overrides
 
         #region BindingList<T> Private Sorting API
 
-        static PropertyDescriptor FindPropertyDescriptor( string property ) {
+        private static PropertyDescriptor FindPropertyDescriptor( string property ) {
             PropertyDescriptorCollection pdc = TypeDescriptor.GetProperties( typeof( T ) );
             PropertyDescriptor prop = pdc.Find( property, true );
             return prop;
         }
 
-        #endregion
-
+        #endregion BindingList<T> Private Sorting API
 
         #region PropertyComparer<TKey>
+
         internal sealed class PropertyComparer<TKey> : IComparer<TKey> {
             /*
             * The following code contains code implemented by Rockford Lhotka:
@@ -108,11 +101,11 @@ namespace fCraft.ConfigGUI {
                 object xValue = GetPropertyValue( xVal, property.Name );
                 object yValue = GetPropertyValue( yVal, property.Name );
 
-                foreach( Attribute att in property.Attributes ) {
+                foreach ( Attribute att in property.Attributes ) {
                     var sortableAtt = att as SortablePropertyAttribute;
-                    if( sortableAtt != null ) {
+                    if ( sortableAtt != null ) {
                         int comparisonResult = sortableAtt.Compare( property.Name, xVal, yVal );
-                        if( direction == ListSortDirection.Ascending ) {
+                        if ( direction == ListSortDirection.Ascending ) {
                             return comparisonResult;
                         } else {
                             return -comparisonResult;
@@ -121,7 +114,7 @@ namespace fCraft.ConfigGUI {
                 }
 
                 /* Determine sort order */
-                if( direction == ListSortDirection.Ascending ) {
+                if ( direction == ListSortDirection.Ascending ) {
                     return CompareAscending( xValue, yValue );
                 } else {
                     return CompareDescending( xValue, yValue );
@@ -137,31 +130,33 @@ namespace fCraft.ConfigGUI {
             }
 
             /* Compare two property values of any type */
-            static int CompareAscending( object xValue, object yValue ) {
+
+            private static int CompareAscending( object xValue, object yValue ) {
                 int result;
 
                 /* If values implement IComparer */
-                if( xValue is IComparable ) {
-                    result = ((IComparable)xValue).CompareTo( yValue );
+                if ( xValue is IComparable ) {
+                    result = ( ( IComparable )xValue ).CompareTo( yValue );
                 }
-                /* If values don't implement IComparer but are equivalent */
-                else if( xValue.Equals( yValue ) ) {
+                    /* If values don't implement IComparer but are equivalent */
+                else if ( xValue.Equals( yValue ) ) {
                     result = 0;
                 }
                     /* Values don't implement IComparer and are not equivalent, so compare as string values */
-                else result = xValue.ToString().CompareTo( yValue.ToString() );
+                else
+                    result = xValue.ToString().CompareTo( yValue.ToString() );
 
                 /* Return result */
                 return result;
             }
 
-            static int CompareDescending( object xValue, object yValue ) {
+            private static int CompareDescending( object xValue, object yValue ) {
                 /* Return result adjusted for ascending or descending sort order ie
                    multiplied by 1 for ascending or -1 for descending */
                 return CompareAscending( xValue, yValue ) * -1;
             }
 
-            static object GetPropertyValue( TKey value, string property ) {
+            private static object GetPropertyValue( TKey value, string property ) {
                 /* Get property */
                 PropertyInfo propertyInfo = value.GetType().GetProperty( property );
 
@@ -169,24 +164,28 @@ namespace fCraft.ConfigGUI {
                 return propertyInfo.GetValue( value, null );
             }
         }
-        #endregion
-    }
 
+        #endregion PropertyComparer<TKey>
+    }
 
     [AttributeUsage( AttributeTargets.Property )]
     public sealed class SortablePropertyAttribute : Attribute {
+
         public SortablePropertyAttribute( Type type, string comparerMethodName ) {
-            if( type == null ) throw new ArgumentNullException( "type" );
-            if( comparerMethodName == null ) throw new ArgumentNullException( "comparerMethodName" );
+            if ( type == null )
+                throw new ArgumentNullException( "type" );
+            if ( comparerMethodName == null )
+                throw new ArgumentNullException( "comparerMethodName" );
             method = type.GetMethod( comparerMethodName );
-            if( method == null ) throw new ArgumentException( "No such method", "comparerMethodName" );
+            if ( method == null )
+                throw new ArgumentException( "No such method", "comparerMethodName" );
         }
 
+        private readonly MethodInfo method;
 
-        readonly MethodInfo method;
         public int Compare( string propertyName, object a, object b ) {
             object[] methodArgs = new[] { propertyName, a, b };
-            return (int)method.Invoke( null, methodArgs );
+            return ( int )method.Invoke( null, methodArgs );
         }
     }
 }

@@ -30,8 +30,9 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+
     public sealed class WallsDrawOperation : DrawOperation {
-        bool fillInner;
+        private bool fillInner;
 
         public override string Name {
             get { return "Walls"; }
@@ -41,14 +42,13 @@ namespace fCraft.Drawing {
             get { return Name; }
         }
 
-        public WallsDrawOperation ( Player player )
+        public WallsDrawOperation( Player player )
             : base( player ) {
         }
 
-
-        public override bool Prepare ( Vector3I[] marks ) {
-            if ( !base.Prepare( marks ) ) return false;
-
+        public override bool Prepare( Vector3I[] marks ) {
+            if ( !base.Prepare( marks ) )
+                return false;
 
             fillInner = Brush.HasAlternateBlock && Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2;
 
@@ -61,15 +61,16 @@ namespace fCraft.Drawing {
             return true;
         }
 
+        private IEnumerator<Vector3I> coordEnumerator;
 
-        IEnumerator<Vector3I> coordEnumerator;
-        public override int DrawBatch ( int maxBlocksToDraw ) {
+        public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             while ( coordEnumerator.MoveNext() ) {
                 Coords = coordEnumerator.Current;
                 if ( DrawOneBlock() ) {
                     blocksDone++;
-                    if ( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                    if ( blocksDone >= maxBlocksToDraw )
+                        return blocksDone;
                 }
             }
             IsDone = true;
@@ -77,7 +78,7 @@ namespace fCraft.Drawing {
         }
 
         //all works. Maybe look at Block estimation.
-        IEnumerable<Vector3I> BlockEnumerator () {
+        private IEnumerable<Vector3I> BlockEnumerator() {
             for ( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for ( int z = Bounds.ZMin - 1; z < Bounds.ZMax; z++ ) {
                     yield return new Vector3I( x, Bounds.YMin, z + 1 );

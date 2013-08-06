@@ -2,6 +2,7 @@
 using System;
 
 namespace fCraft.Drawing {
+
     /// <summary> A self-contained DrawOperation that prodivides its own brush.
     /// Purpose of this class is mostly to take care of the boilerplate code. </summary>
     public abstract class DrawOpWithBrush : DrawOperation, IBrushFactory, IBrush, IBrushInstance {
@@ -16,9 +17,7 @@ namespace fCraft.Drawing {
 
         public abstract bool ReadParams( Command cmd );
 
-
         protected abstract Block NextBlock();
-
 
         #region IBrushFactory Members
 
@@ -38,8 +37,7 @@ namespace fCraft.Drawing {
             return this;
         }
 
-        #endregion
-
+        #endregion IBrushFactory Members
 
         #region IBrush Members
 
@@ -52,15 +50,14 @@ namespace fCraft.Drawing {
         }
 
         IBrushInstance IBrush.MakeInstance( Player player, Command cmd, DrawOperation op ) {
-            if( ReadParams( cmd ) ) {
+            if ( ReadParams( cmd ) ) {
                 return this;
             } else {
                 return null;
             }
         }
 
-        #endregion
-
+        #endregion IBrush Members
 
         #region IBrushInstance Members
 
@@ -84,8 +81,9 @@ namespace fCraft.Drawing {
             return NextBlock();
         }
 
-        void IBrushInstance.End() { }
+        void IBrushInstance.End() {
+        }
 
-        #endregion
+        #endregion IBrushInstance Members
     }
 }

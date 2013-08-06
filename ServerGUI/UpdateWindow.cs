@@ -1,54 +1,51 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.Net;
 using System.Windows.Forms;
-using System.Text;
-using System.IO;
 
 namespace fCraft.ServerGUI {
+
     public sealed partial class UpdateWindow : Form {
-        readonly string updaterFullPath;
-        readonly WebClient downloader = new WebClient();
-        readonly bool autoUpdate;
-        bool closeFormWhenDownloaded;
+        private readonly string updaterFullPath;
+        private readonly WebClient downloader = new WebClient();
+        private readonly bool autoUpdate;
+        private bool closeFormWhenDownloaded;
 
         public UpdateWindow() {
             InitializeComponent();
             updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdaterFileName );
-            autoUpdate = (ConfigKey.UpdaterMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto);
+            autoUpdate = ( ConfigKey.UpdaterMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto );
             lVersion.Text = String.Format( lVersion.Text,
                                            Updater.CurrentRelease.VersionString,
-                                           Updater.WebVersionFullString);
+                                           Updater.WebVersionFullString );
             tChangeLog.Text = Updater.Changelog;
             Shown += Download;
         }
 
-
-        void Download( object caller, EventArgs args ) {
+        private void Download( object caller, EventArgs args ) {
             xShowDetails.Focus();
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
-            downloader.DownloadFileAsync( new Uri(Updater.UpdaterLocation), updaterFullPath );
+            downloader.DownloadFileAsync( new Uri( Updater.UpdaterLocation ), updaterFullPath );
         }
 
-
-        void DownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
-            Invoke( (Action)delegate {
+        private void DownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
+            Invoke( ( Action )delegate {
                 progress.Value = e.ProgressPercentage;
                 lProgress.Text = "Downloading (" + e.ProgressPercentage + "%)";
             } );
         }
 
-
-        void DownloadComplete( object sender, AsyncCompletedEventArgs e ) {
-            if( closeFormWhenDownloaded ) {
+        private void DownloadComplete( object sender, AsyncCompletedEventArgs e ) {
+            if ( closeFormWhenDownloaded ) {
                 Close();
             } else {
                 progress.Value = 100;
-                if( e.Cancelled || e.Error != null ) {
+                if ( e.Cancelled || e.Error != null ) {
                     MessageBox.Show( e.Error.ToString(), "Error occured while trying to download " + Paths.UpdaterFileName );
-                } else if( autoUpdate ) {
+                } else if ( autoUpdate ) {
                     bUpdateNow_Click( null, null );
                 } else {
                     bUpdateNow.Enabled = true;
@@ -56,7 +53,6 @@ namespace fCraft.ServerGUI {
                 }
             }
         }
-
 
         private void bCancel_Click( object sender, EventArgs e ) {
             Close();
@@ -80,7 +76,8 @@ namespace fCraft.ServerGUI {
         }
 
         private void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
-            if( !downloader.IsBusy ) return;
+            if ( !downloader.IsBusy )
+                return;
             downloader.CancelAsync();
             closeFormWhenDownloaded = true;
             e.Cancel = true;

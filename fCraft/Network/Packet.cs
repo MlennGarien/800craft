@@ -9,31 +9,29 @@ namespace fCraft {
         public readonly byte[] Data;
 
         public OpCode OpCode {
-            get { return (OpCode)Data[0]; }
+            get { return ( OpCode )Data[0]; }
         }
 
         public Packet( [NotNull] byte[] data ) {
-            if( data == null ) throw new ArgumentNullException( "data" );
+            if ( data == null )
+                throw new ArgumentNullException( "data" );
             Data = data;
         }
-
 
         /// <summary> Creates a packet of correct size for a given opcode,
         /// and sets the first (opcode) byte. </summary>
         public Packet( OpCode opcode ) {
-            Data = new byte[PacketSizes[(int)opcode]];
-            Data[0] = (byte)opcode;
+            Data = new byte[PacketSizes[( int )opcode]];
+            Data[0] = ( byte )opcode;
         }
-
 
         /// <summary> Returns packet size (in bytes) for a given opcode.
         /// Size includes the opcode byte itself. </summary>
         public static int GetSize( OpCode opcode ) {
-            return PacketSizes[(int)opcode];
+            return PacketSizes[( int )opcode];
         }
 
-
-        static readonly int[] PacketSizes = {
+        private static readonly int[] PacketSizes = {
             131,    // Handshake
             1,      // Ping
             1,      // MapBegin

@@ -1,12 +1,12 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft {
-
     // See comment at the top of Config.cs for a history of changes.
 
     /// <summary> Enumeration of permission types/categories.
     /// Every rank definition contains a combination of these. </summary>
     public enum Permission {
+
         /// <summary> Ability to chat and to PM players.
         /// Note that players without this permission can still
         /// type in commands, receive PMs, and read chat. </summary>
@@ -149,6 +149,7 @@ namespace fCraft {
 
         /// <summary> Ability to enable/disable, clear, and configure BlockDB. </summary>
         ManageBlockDB,
+
         /// <summary> Ability to create/remove or view info on Message Blocks. </summary>
         ManageMessageBlocks,
 
@@ -164,6 +165,7 @@ namespace fCraft {
         ShutdownServer,
 
         UsePortal,
+
         /// <summary> Ability to create or delete a portal. </summary>
         ManagePortal,
 
@@ -244,6 +246,5 @@ namespace fCraft {
 
         /// <summary> Allows a player to become immortal, immune to all damage </summary>
         Immortal
-
     }
 }

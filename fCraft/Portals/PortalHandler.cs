@@ -24,22 +24,21 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
+using System.Linq;
 
 namespace fCraft.Portals {
-    class PortalHandler {
 
+    internal class PortalHandler {
         private static PortalHandler instance;
 
-        private PortalHandler () {
+        private PortalHandler() {
             // Empty, singleton
         }
 
-        public static PortalHandler GetInstance () {
+        public static PortalHandler GetInstance() {
             if ( instance == null ) {
                 instance = new PortalHandler();
                 Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>( Player_Moved );
@@ -50,11 +49,10 @@ namespace fCraft.Portals {
             return instance;
         }
 
-        static void Player_PlacingBlock ( object sender, Events.PlayerPlacingBlockEventArgs e ) {
+        private static void Player_PlacingBlock( object sender, Events.PlayerPlacingBlockEventArgs e ) {
             try {
                 if ( e.Player.World.Map.Portals != null && e.Player.World.Map.Portals.Count > 0 && e.Context != BlockChangeContext.Portal ) {
                     lock ( e.Player.World.Map.Portals.SyncRoot ) {
-
                         foreach ( Portal portal in e.Player.World.Map.Portals ) {
                             if ( portal.IsInRange( e.Coords ) ) {
                                 e.Result = CanPlaceResult.Revert;
@@ -77,8 +75,8 @@ namespace fCraft.Portals {
                                 e.Player.PortalCache.DesiredOutputX = e.Coords.ToPlayerCoords().X;
                                 e.Player.PortalCache.DesiredOutputY = e.Coords.ToPlayerCoords().Y;
                                 e.Player.PortalCache.DesiredOutputZ = ( e.Coords.Z + 2 ) * 32;
-                                    e.Player.PortalCache.DesiredOutputR = e.Player.Position.R;
-                                    e.Player.PortalCache.DesiredOutputL = e.Player.Position.L;
+                                e.Player.PortalCache.DesiredOutputR = e.Player.Position.R;
+                                e.Player.PortalCache.DesiredOutputL = e.Player.Position.L;
 
                                 e.Player.PortalCache.Name = Portal.GenerateName( e.Player.PortalCache.World, true );
                                 string oldWorld = e.Player.PortalCache.World;
@@ -96,7 +94,7 @@ namespace fCraft.Portals {
             }
         }
 
-        static void Player_JoinedWorld ( object sender, Events.PlayerJoinedWorldEventArgs e ) {
+        private static void Player_JoinedWorld( object sender, Events.PlayerJoinedWorldEventArgs e ) {
             try {
                 // Player can use portals again
                 e.Player.CanUsePortal = true;
@@ -106,7 +104,7 @@ namespace fCraft.Portals {
             }
         }
 
-        static void Player_Moved ( object sender, Events.PlayerMovedEventArgs e ) {
+        private static void Player_Moved( object sender, Events.PlayerMovedEventArgs e ) {
             try {
                 if ( e.Player.PortalsEnabled ) {
                     lock ( e.Player.PortalLock ) {
@@ -130,7 +128,8 @@ namespace fCraft.Portals {
                                         Portal portal = PortalHandler.GetInstance().GetPortal( e.Player );
 
                                         World world = WorldManager.FindWorldExact( portal.World );
-                                        if ( world == null ) return;
+                                        if ( world == null )
+                                            return;
                                         // Teleport player, portal protection
                                         switch ( world.AccessSecurity.CheckDetailed( e.Player.Info ) ) {
                                             case SecurityCheckResult.Allowed:
@@ -144,7 +143,7 @@ namespace fCraft.Portals {
                                                     if ( !portal.HasDesiredOutput ) {
                                                         e.Player.TeleportTo( e.Player.World.Map.Spawn );
                                                     } else {
-                                                        e.Player.TeleportTo( new Position((short)portal.DesiredOutputX, (short)portal.DesiredOutputY, (short)portal.DesiredOutputZ, portal.DesiredOutputR, portal.DesiredOutputL) );
+                                                        e.Player.TeleportTo( new Position( ( short )portal.DesiredOutputX, ( short )portal.DesiredOutputY, ( short )portal.DesiredOutputZ, portal.DesiredOutputR, portal.DesiredOutputL ) );
                                                     }
                                                     e.Player.LastWarnedPortal = DateTime.UtcNow;
                                                     e.Player.StandingInPortal = false;
@@ -164,6 +163,7 @@ namespace fCraft.Portals {
                                                 e.Player.Message( "Cannot join world {0}&S: you are blacklisted.",
                                                     world.ClassyName );
                                                 break;
+
                                             case SecurityCheckResult.RankTooLow:
                                                 e.Player.Message( "Cannot join world {0}&S: must be {1}+",
                                                              world.ClassyName, world.AccessSecurity.MinRank.ClassyName );
@@ -182,7 +182,7 @@ namespace fCraft.Portals {
             }
         }
 
-        public Portal GetPortal ( Player player ) {
+        public Portal GetPortal( Player player ) {
             Portal portal = null;
 
             try {
@@ -202,7 +202,7 @@ namespace fCraft.Portals {
             return portal;
         }
 
-        public Portal GetPortal ( World world, Vector3I block ) {
+        public Portal GetPortal( World world, Vector3I block ) {
             Portal portal = null;
 
             try {
@@ -222,7 +222,7 @@ namespace fCraft.Portals {
             return portal;
         }
 
-        public static void CreatePortal ( Portal portal, World source, bool Custom ) {
+        public static void CreatePortal( Portal portal, World source, bool Custom ) {
             try {
                 if ( Custom ) {
                     if ( !source.IsLoaded ) {
@@ -246,7 +246,7 @@ namespace fCraft.Portals {
             }
         }
 
-        public static bool IsInRangeOfSpawnpoint ( World world, Vector3I block ) {
+        public static bool IsInRangeOfSpawnpoint( World world, Vector3I block ) {
             try {
                 int Xdistance = ( world.Map.Spawn.X / 32 ) - block.X;
                 int Ydistance = ( world.Map.Spawn.Y / 32 ) - block.Y;

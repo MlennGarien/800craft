@@ -6,74 +6,70 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+
     public sealed class MapMyne : IMapConverter {
-
-        const string BlockStoreFileName = "blocks.gz";
-        const string MetaDataFileName = "world.meta";
-
+        private const string BlockStoreFileName = "blocks.gz";
+        private const string MetaDataFileName = "world.meta";
 
         public string ServerName {
             get { return "Myne/MyneCraft/HyveBuild/iCraft"; }
         }
 
-
         public MapStorageType StorageType {
             get { return MapStorageType.Directory; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.Myne; }
         }
 
-
         public bool ClaimsName( [NotNull] string path ) {
-            if( path == null ) throw new ArgumentNullException( "path" );
+            if ( path == null )
+                throw new ArgumentNullException( "path" );
             return Directory.Exists( path ) &&
                    File.Exists( Path.Combine( path, BlockStoreFileName ) ) &&
                    File.Exists( Path.Combine( path, MetaDataFileName ) );
         }
 
-
         public bool Claims( [NotNull] string path ) {
-            if( path == null ) throw new ArgumentNullException( "path" );
+            if ( path == null )
+                throw new ArgumentNullException( "path" );
             return ClaimsName( path );
         }
 
-
         public Map LoadHeader( [NotNull] string path ) {
-            if( path == null ) throw new ArgumentNullException( "path" );
+            if ( path == null )
+                throw new ArgumentNullException( "path" );
             string fullMetaDataFileName = Path.Combine( path, MetaDataFileName );
             Map map;
-            using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
+            using ( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
                 map = LoadMeta( metaStream );
             }
             return map;
         }
 
-
         public Map Load( [NotNull] string path ) {
-            if( path == null ) throw new ArgumentNullException( "path" );
+            if ( path == null )
+                throw new ArgumentNullException( "path" );
             string fullBlockStoreFileName = Path.Combine( path, BlockStoreFileName );
             string fullMetaDataFileName = Path.Combine( path, MetaDataFileName );
 
-            if( !File.Exists( fullBlockStoreFileName ) || !File.Exists( fullMetaDataFileName ) ) {
+            if ( !File.Exists( fullBlockStoreFileName ) || !File.Exists( fullMetaDataFileName ) ) {
                 throw new FileNotFoundException( "When loading myne maps, both .gz and .meta files are required." );
             }
 
             Map map;
-            using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
+            using ( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
                 map = LoadMeta( metaStream );
             }
-            using( Stream dataStream = File.OpenRead( fullBlockStoreFileName ) ) {
+            using ( Stream dataStream = File.OpenRead( fullBlockStoreFileName ) ) {
                 LoadBlocks( map, dataStream );
             }
 
             return map;
         }
 
-
-        static void LoadBlocks( [NotNull] Map map, [NotNull] Stream mapStream ) {
+        private static void LoadBlocks( [NotNull] Map map, [NotNull] Stream mapStream ) {
             mapStream.Seek( 0, SeekOrigin.Begin );
 
             // Setup a GZipStream to decompress and read the map file
@@ -81,7 +77,7 @@ namespace fCraft.MapConversion {
             BinaryReader bs = new BinaryReader( gs );
 
             int blockCount = IPAddress.HostToNetworkOrder( bs.ReadInt32() );
-            if( blockCount != map.Volume ) {
+            if ( blockCount != map.Volume ) {
                 throw new Exception( "Map dimensions in the metadata do not match dimensions of the block array." );
             }
 
@@ -90,14 +86,14 @@ namespace fCraft.MapConversion {
             map.RemoveUnknownBlocktypes();
         }
 
-
-        static Map LoadMeta( [NotNull] Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
+        private static Map LoadMeta( [NotNull] Stream stream ) {
+            if ( stream == null )
+                throw new ArgumentNullException( "stream" );
             INIFile metaFile = new INIFile( stream );
-            if( metaFile.IsEmpty ) {
+            if ( metaFile.IsEmpty ) {
                 throw new Exception( "Metadata file is empty or incorrectly formatted." );
             }
-            if( !metaFile.Contains( "size", "x", "y", "z" ) ) {
+            if ( !metaFile.Contains( "size", "x", "y", "z" ) ) {
                 throw new Exception( "Metadata file is missing map dimensions." );
             }
 
@@ -107,15 +103,15 @@ namespace fCraft.MapConversion {
 
             Map map = new Map( null, width, length, height, false );
 
-            if( !map.ValidateHeader() ) {
+            if ( !map.ValidateHeader() ) {
                 throw new MapFormatException( "One or more of the map dimensions are invalid." );
             }
 
-            if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
+            if ( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
                 map.Spawn = new Position {
-                    X = (short)(Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16),
-                    Y = (short)(Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16),
-                    Z = (short)(Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16),
+                    X = ( short )( Int16.Parse( metaFile["spawn", "x"] ) * 32 + 16 ),
+                    Y = ( short )( Int16.Parse( metaFile["spawn", "z"] ) * 32 + 16 ),
+                    Z = ( short )( Int16.Parse( metaFile["spawn", "y"] ) * 32 + 16 ),
                     R = Byte.Parse( metaFile["spawn", "h"] ),
                     L = 0
                 };
@@ -123,10 +119,11 @@ namespace fCraft.MapConversion {
             return map;
         }
 
-
         public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( mapToSave == null )
+                throw new ArgumentNullException( "mapToSave" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
         }
     }

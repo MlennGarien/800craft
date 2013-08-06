@@ -26,24 +26,27 @@
         ----*/
 
 //Copyright (C) <2011 - 2013> Glenn Mariën (http://project-vanilla.com)
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace fCraft {
+
     /// <summary>
     /// Class used for rapid check if user is in range of MessageBlock
     /// </summary>
     public class MessageBlockRange {
+
         public int Xmin { get; set; }
+
         public int Xmax { get; set; }
+
         public int Ymin { get; set; }
+
         public int Ymax { get; set; }
+
         public int Zmin { get; set; }
+
         public int Zmax { get; set; }
 
-        public MessageBlockRange ( int Xmin, int Xmax, int Ymin, int Ymax, int Zmin, int Zmax ) {
+        public MessageBlockRange( int Xmin, int Xmax, int Ymin, int Ymax, int Zmin, int Zmax ) {
             this.Xmin = Xmin;
             this.Xmax = Xmax;
             this.Ymin = Ymin;

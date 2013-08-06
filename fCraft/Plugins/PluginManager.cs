@@ -24,25 +24,23 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Reflection;
-using System.Collections;
-using System.Security.Policy;
 
 namespace fCraft {
-    class PluginManager {
+
+    internal class PluginManager {
         private static PluginManager instance;
         public List<Plugin> Plugins = new List<Plugin>();
 
-        private PluginManager () {
+        private PluginManager() {
             // Empty bitch
         }
 
-        public static PluginManager GetInstance () {
+        public static PluginManager GetInstance() {
             if ( instance == null ) {
                 instance = new PluginManager();
                 instance.Initialize();
@@ -51,7 +49,7 @@ namespace fCraft {
             return instance;
         }
 
-        private void Initialize () {
+        private void Initialize() {
             try {
                 if ( !Directory.Exists( "plugins" ) ) {
                     Directory.CreateDirectory( "plugins" );
@@ -92,7 +90,7 @@ namespace fCraft {
             LoadPlugins();
         }
 
-        private void LoadPlugins () {
+        private void LoadPlugins() {
             if ( Plugins.Count > 0 ) {
                 foreach ( Plugin plugin in Plugins ) {
                     Logger.Log( LogType.ConsoleOutput, "PluginManager: Loading plugin " + plugin.Name );

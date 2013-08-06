@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 
 /*        ----
         Copyright (c) 2011-2013 Jon Baker, Glenn Marien and Lao Tszy <Jonty800@gmail.com>
@@ -32,22 +29,25 @@ using System.Text;
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
 
-
 namespace fCraft {
+
     public class ShapesLib {
+
         #region Instancing
 
         public Player player; //player using command
         public int blockCount; //blockcount for player message. ++ when drawing
-        int blocks = 0, //drawn blocks
+
+        private int blocks = 0, //drawn blocks
             blocksDenied = 0; //denied blocks (zones, ect)
-        fCraft.Drawing.UndoState undoState; //undostate
-        Direction direction; //direction of the blocks (x++-- ect)
-        Vector3I[] marks;
-        int Radius = 0;
+
+        private fCraft.Drawing.UndoState undoState; //undostate
+        private Direction direction; //direction of the blocks (x++-- ect)
+        private Vector3I[] marks;
+        private int Radius = 0;
 
         //instance
-        public ShapesLib ( Block BlockColor, Vector3I[] Marks, Player p, int radius, Direction dir ) {
+        public ShapesLib( Block BlockColor, Vector3I[] Marks, Player p, int radius, Direction dir ) {
             marks = Marks;
             direction = dir;
             blockCount = 0;
@@ -60,14 +60,15 @@ namespace fCraft {
             Radius = radius;
         }
 
-        #endregion
+        #endregion Instancing
 
         #region GoldenSpiral
-        public void DrawSpiral () {
+
+        public void DrawSpiral() {
             DrawBitmap( Radius, Radius );
         }
 
-        private void DrawBitmap ( int Width, int Height ) {
+        private void DrawBitmap( int Width, int Height ) {
             // Determine the first rectangle's orientation and dimensions.
             double phi = ( 1 + Math.Sqrt( 5 ) ) / 2;
             RectOrientations orientation;
@@ -107,7 +108,6 @@ namespace fCraft {
             // Make the Bitmap.
             Bitmap bm = new Bitmap( client_wid, client_hgt );
             {
-
                 // Draw the rectangles.
                 using ( Graphics gr = Graphics.FromImage( bm ) ) {
                     gr.FillRectangle( Brushes.White, 0, 0, bm.Width, bm.Height );
@@ -147,29 +147,32 @@ namespace fCraft {
             }
         }
 
-        private void DrawPhiRectanglesOnGraphics ( Graphics gr, List<PointF> points, double x, double y, double wid, double hgt, RectOrientations orientation ) {
-            if ( ( wid < 1 ) || ( hgt < 1 ) ) return;
+        private void DrawPhiRectanglesOnGraphics( Graphics gr, List<PointF> points, double x, double y, double wid, double hgt, RectOrientations orientation ) {
+            if ( ( wid < 1 ) || ( hgt < 1 ) )
+                return;
             RectangleF rect;
             switch ( orientation ) {
                 case RectOrientations.RemoveLeft:
                     rect = new RectangleF(
                         ( float )x, ( float )y, ( float )( 2 * hgt ), ( float )( 2 * hgt ) );
                     break;
+
                 case RectOrientations.RemoveTop:
                     rect = new RectangleF(
                         ( float )( x - wid ), ( float )y, ( float )( 2 * wid ), ( float )( 2 * wid ) );
                     break;
+
                 case RectOrientations.RemoveRight:
                     rect = new RectangleF(
                         ( float )( x + wid - 2 * hgt ),
                         ( float )( y - hgt ), ( float )( 2 * hgt ), ( float )( 2 * hgt ) );
                     break;
+
                 case RectOrientations.RemoveBottom:
                     rect = new RectangleF( ( float )x, ( float )( y + hgt - 2 * wid ),
                         ( float )( 2 * wid ), ( float )( 2 * wid ) );
                     break;
             }
-
 
             // Recursively draw the next rectangle.
             switch ( orientation ) {
@@ -179,17 +182,20 @@ namespace fCraft {
                     wid -= hgt;
                     orientation = RectOrientations.RemoveTop;
                     break;
+
                 case RectOrientations.RemoveTop:
                     points.Add( new PointF( ( float )x, ( float )y ) );
                     y += wid;
                     hgt -= wid;
                     orientation = RectOrientations.RemoveRight;
                     break;
+
                 case RectOrientations.RemoveRight:
                     points.Add( new PointF( ( float )( x + wid ), ( float )y ) );
                     wid -= hgt;
                     orientation = RectOrientations.RemoveBottom;
                     break;
+
                 case RectOrientations.RemoveBottom:
                     points.Add( new PointF( ( float )( x + wid ), ( float )( y + hgt ) ) );
                     hgt -= wid;
@@ -198,6 +204,7 @@ namespace fCraft {
             }
             DrawPhiRectanglesOnGraphics( gr, points, x, y, wid, hgt, orientation );
         }
+
         private enum RectOrientations {
             RemoveLeft,
             RemoveTop,
@@ -205,10 +212,11 @@ namespace fCraft {
             RemoveBottom
         }
 
-        #endregion
+        #endregion GoldenSpiral
 
         #region Polygon
-        public void DrawRegularPolygon ( int sides, int startingAngle, bool FillPoly ) {
+
+        public void DrawRegularPolygon( int sides, int startingAngle, bool FillPoly ) {
             //Get the location for each vertex of the polygon
             Point center = new Point( Radius / 2, Radius / 2 );
             Point[] verticies = CalculateVertices( sides, Radius / 2, startingAngle, center );
@@ -230,7 +238,7 @@ namespace fCraft {
             polygon.Dispose();
         }
 
-        private Point[] CalculateVertices ( int sides, int radius, int startingAngle, Point center ) {
+        private Point[] CalculateVertices( int sides, int radius, int startingAngle, Point center ) {
             if ( sides < 3 )
                 throw new ArgumentException( "Polygon must have 3 sides or more." );
 
@@ -245,12 +253,13 @@ namespace fCraft {
 
             return points.ToArray();
         }
-        #endregion
+
+        #endregion Polygon
 
         #region Multi-point star
 
         // Draw the indicated star in the rectangle.
-        public void DrawStar ( int num_points, int Radius, bool Fill ) {
+        public void DrawStar( int num_points, int Radius, bool Fill ) {
             Bitmap bmp = new Bitmap( Radius, Radius );
             using ( Graphics g = Graphics.FromImage( bmp ) ) {
                 g.FillRectangle( Brushes.White, 0, 0, bmp.Width, bmp.Height );
@@ -271,7 +280,7 @@ namespace fCraft {
         }
 
         // Generate the points for a star.
-        private PointF[] MakeStarPoints ( double start_theta, int num_points, int Radius ) {
+        private PointF[] MakeStarPoints( double start_theta, int num_points, int Radius ) {
             double theta, dtheta;
             PointF[] result;
             float cx = Radius;
@@ -313,9 +322,10 @@ namespace fCraft {
         }
 
         // Calculate the inner star radius.
-        private double CalculateConcaveRadius ( int num_points, int skip ) {
+        private double CalculateConcaveRadius( int num_points, int skip ) {
             // For really small numbers of points.
-            if ( num_points < 5 ) return 0.33f;
+            if ( num_points < 5 )
+                return 0.33f;
 
             // Calculate angles to key points.
             double dtheta = 2 * Math.PI / num_points;
@@ -354,7 +364,7 @@ namespace fCraft {
 
         // Find the point of intersection between
         // the lines p1 --> p2 and p3 --> p4.
-        private void FindIntersection ( PointF p1, PointF p2, PointF p3, PointF p4,
+        private void FindIntersection( PointF p1, PointF p2, PointF p3, PointF p4,
             out bool lines_intersect, out bool segments_intersect,
             out PointF intersection, out PointF close_p1, out PointF close_p2 ) {
             // Get the segments' parameters.
@@ -405,10 +415,11 @@ namespace fCraft {
             close_p2 = new PointF( p3.X + dx34 * t2, p3.Y + dy34 * t2 );
         }
 
-        #endregion
+        #endregion Multi-point star
 
         #region Draw
-        public void Draw ( Bitmap img ) {
+
+        public void Draw( Bitmap img ) {
             //guess how big the draw will be
             int Count = 0;
             for ( int x = 0; x < img.Width; x++ ) {
@@ -438,6 +449,7 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 case Direction.two:
                     for ( int x = 0; x < img.Width; x++ ) {
                         for ( int z = 0; z < img.Height; z++ ) {
@@ -450,6 +462,7 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 case Direction.three:
                     for ( int y = 0; y < img.Width; y++ ) {
                         for ( int z = 0; z < img.Height; z++ ) {
@@ -462,6 +475,7 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 case Direction.four:
                     for ( int y = 0; y < img.Width; y++ ) {
                         for ( int z = 0; z < img.Height; z++ ) {
@@ -474,15 +488,17 @@ namespace fCraft {
                         }
                     }
                     break;
+
                 default:
                     break; //if blockcount = 0, message is shown and returned
             }
         }
-        #endregion
+
+        #endregion Draw
 
         #region Helpers
 
-        private Point DegreesToXY ( float degrees, float radius, Point origin ) {
+        private Point DegreesToXY( float degrees, float radius, Point origin ) {
             Point xy = new Point();
             double radians = degrees * Math.PI / 180.0;
 
@@ -492,7 +508,7 @@ namespace fCraft {
             return xy;
         }
 
-        public static Bitmap Crop ( Bitmap bmp ) {
+        public static Bitmap Crop( Bitmap bmp ) {
             int w = bmp.Width;
             int h = bmp.Height;
             Func<int, bool> allWhiteRow = row => {
@@ -511,13 +527,15 @@ namespace fCraft {
             for ( int row = 0; row < h; ++row ) {
                 if ( allWhiteRow( row ) )
                     topmost = row;
-                else break;
+                else
+                    break;
             }
             int bottommost = 0;
             for ( int row = h - 1; row >= 0; --row ) {
                 if ( allWhiteRow( row ) )
                     bottommost = row;
-                else break;
+                else
+                    break;
             }
             int leftmost = 0, rightmost = 0;
             for ( int col = 0; col < w; ++col ) {
@@ -532,8 +550,10 @@ namespace fCraft {
                 else
                     break;
             }
-            if ( rightmost == 0 ) rightmost = w; // As reached left
-            if ( bottommost == 0 ) bottommost = h; // As reached top.
+            if ( rightmost == 0 )
+                rightmost = w; // As reached left
+            if ( bottommost == 0 )
+                bottommost = h; // As reached top.
             int croppedWidth = rightmost - leftmost;
             int croppedHeight = bottommost - topmost;
             if ( croppedWidth == 0 ) {// No border on left or right
@@ -543,7 +563,8 @@ namespace fCraft {
             if ( croppedHeight == 0 ) {// No border on top or bottom
                 topmost = 0;
                 croppedHeight = h;
-            } try {
+            }
+            try {
                 var target = new Bitmap( croppedWidth, croppedHeight );
                 using ( Graphics g = Graphics.FromImage( target ) ) {
                     g.DrawImage( bmp,
@@ -556,6 +577,7 @@ namespace fCraft {
                 return bmp; //return original image, I guess
             }
         }
+
         //stores information needed for each pixel
         public struct PixelData {
             public static int X;
@@ -565,15 +587,21 @@ namespace fCraft {
         }
 
         //stolen from BuildingCommands
-        #region DrawOneBlock
-        static void DrawOneBlock ( Player player, Map map, Block drawBlock, Vector3I coord,
-                                 BlockChangeContext context, ref int blocks, ref int blocksDenied, fCraft.Drawing.UndoState undoState ) {
-            if ( map == null ) return;
-            if ( player == null ) throw new ArgumentNullException( "player" );
 
-            if ( !map.InBounds( coord ) ) return;
+        #region DrawOneBlock
+
+        private static void DrawOneBlock( Player player, Map map, Block drawBlock, Vector3I coord,
+                                 BlockChangeContext context, ref int blocks, ref int blocksDenied, fCraft.Drawing.UndoState undoState ) {
+            if ( map == null )
+                return;
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
+
+            if ( !map.InBounds( coord ) )
+                return;
             Block block = map.GetBlock( coord );
-            if ( block == drawBlock ) return;
+            if ( block == drawBlock )
+                return;
 
             if ( player.CanPlace( map, coord, drawBlock, context ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
@@ -591,7 +619,9 @@ namespace fCraft {
             }
             blocks++;
         }
-        #endregion
-        #endregion
+
+        #endregion DrawOneBlock
+
+        #endregion Helpers
     }
 }

@@ -2,9 +2,11 @@
 using System.Diagnostics;
 
 namespace fCraft {
+
     /// <summary> Enumeration of available configuration keys. See comments
     /// at the top of Config.cs for a history of changes. </summary>
     public enum ConfigKey {
+
         #region General
 
         [StringKey( ConfigSection.General, "Custom Minecraft Server (800Craft)",
@@ -13,28 +15,27 @@ official server list (if server is public).",
             MinLength = 1, MaxLength = 64 )]
         ServerName,
 
-        [StringKey(ConfigSection.General, "EngineerChat",
+        [StringKey( ConfigSection.General, "EngineerChat",
 @"The name of the custom chat channel",
-            MinLength = 1, MaxLength = 12)]
+            MinLength = 1, MaxLength = 12 )]
         CustomChatName,
-        [StringKey(ConfigSection.General, "En",
+
+        [StringKey( ConfigSection.General, "En",
 @"The name of the custom chat alias",
-            MinLength = 1, MaxLength = 12)]
+            MinLength = 1, MaxLength = 12 )]
         CustomAliasName,
 
-        [StringKey(ConfigSection.General, "%CBlock",
+        [StringKey( ConfigSection.General, "%CBlock",
 @"The word which swears will be replaced with",
-            MinLength = 1, MaxLength = 12)]
+            MinLength = 1, MaxLength = 12 )]
         SwearName,
 
-
         [StringKey( ConfigSection.General, "Welcome to the server!",
-@"MOTD (Message Of The Day) is a message shown to connecting players 
+@"MOTD (Message Of The Day) is a message shown to connecting players
 right under the server name. May be left blank.
 Note: If WoM extensions are enabled, non-WoM users will not see this.",
             MinLength = 0, MaxLength = 64 )]
         MOTD,
-
 
         [IntKey( ConfigSection.General, 20,
 @"Maximum number of players on the server. Having more players
@@ -43,11 +44,10 @@ uses more RAM and more bandwidth. If a player's rank is given a
             MinValue = 1, MaxValue = 1000 )]
         MaxPlayers,
 
-        [IntKey(ConfigSection.General, 8,
+        [IntKey( ConfigSection.General, 8,
 @"Maximum number Caps a player is allowed to chat with.",
-            MinValue = 1, MaxValue = 12)]
+            MinValue = 1, MaxValue = 12 )]
         MaxCaps,
-
 
         [IntKey( ConfigSection.General, 20,
 @"Maximum number of players allowed to be on the same world at the same time.
@@ -56,13 +56,11 @@ Note that having more people on a world increases everyone's bandwidth use.",
             MinValue = 1, MaxValue = 128 )]
         MaxPlayersPerWorld,
 
-
         [RankKey( ConfigSection.General, RankKeyAttribute.BlankValueMeaning.LowestRank,
 @"New players will be assigned this rank by default.
 It's generally a good idea not to give new players
 many powers until they prove themselves trustworthy." )]
         DefaultRank,
-
 
         [BoolKey( ConfigSection.General, false,
             @"Public servers are listed on minecraft.net server list, so expect
@@ -70,7 +68,6 @@ random players to join. Private servers can only be joined by players
 who already know the server port/address or URL. Note that the URL
 changes if your computer's IP or server's port change." )]
         IsPublic,
-
 
         [IntKey( ConfigSection.General, 25565,
 @"Port number on your local machine that 800Craft uses to listen for
@@ -88,8 +85,7 @@ overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
-        #endregion
-
+        #endregion General
 
         #region Chat
 
@@ -122,8 +118,9 @@ will not show custom skins for players with prefixed names." )]
         [ColorKey( ConfigSection.Chat, Color.SysDefault,
 @"Color of normal system messages." )]
         SystemMessageColor,
-        [ColorKey(ConfigSection.Chat, Color.CustomDefault,
-@"Color of custom chat channel.")]
+
+        [ColorKey( ConfigSection.Chat, Color.CustomDefault,
+@"Color of custom chat channel." )]
         CustomChatColor,
 
         [ColorKey( ConfigSection.Chat, Color.HelpDefault,
@@ -158,8 +155,7 @@ Announcements are shown to all players, one line at a time, in random order.",
             MinValue = 0 )]
         AnnouncementInterval,
 
-        #endregion
-
+        #endregion Chat
 
         #region Worlds
 
@@ -173,8 +169,7 @@ the build permission for new worlds will default to this rank." )]
 make sure to move the map files before starting the server again." )]
         MapPath,
 
-        #endregion
-
+        #endregion Worlds
 
         #region Security
 
@@ -230,13 +225,11 @@ before the player is kicked. Set this to 0 to disable automatic kicks.",
             AlwaysAllowZero = true, MinValue = 0, MaxValue = 64 )]
         AntispamMaxWarnings,
 
-
         [BoolKey( ConfigSection.Security, false,
 @"Only allow players who have a paid Minecraft account (not recommended).
 This will help filter out griefers with throwaway accounts,
 but will also prevent many legitimate players from joining." )]
         PaidPlayersOnly,
-
 
         [BoolKey( ConfigSection.Security, false,
 @"Require players to specify a reason/memo when banning or unbanning someone." )]
@@ -249,7 +242,6 @@ but will also prevent many legitimate players from joining." )]
         [BoolKey( ConfigSection.Security, false,
 @"Require players to specify a reason/memo when promoting or demoting someone." )]
         RequireRankChangeReason,
-
 
         [BoolKey( ConfigSection.Security, true,
 @"Announce the reason/memo in chat when someone gets kicked/banned/unbanned." )]
@@ -276,8 +268,7 @@ but will also prevent many legitimate players from joining." )]
 Has no effect until BlockDBAutoEnable key is set." )]
         BlockDBAutoEnableRank,
 
-        #endregion
-
+        #endregion Security
 
         #region Saving and Backup
 
@@ -324,16 +315,16 @@ If exceeded, oldest backups will be deleted first.",
         [BoolKey( ConfigSection.SavingAndBackup, true,
 @"Create backups of server data (PlayerDB and IPBanList) on startup." )]
         BackupDataOnStartup,
-        [BoolKey(ConfigSection.SavingAndBackup, true,
-@"Starts the heartbeatsaver on shutdown")]
+
+        [BoolKey( ConfigSection.SavingAndBackup, true,
+@"Starts the heartbeatsaver on shutdown" )]
         HbSaverKey,
 
-        [BoolKey(ConfigSection.Chat, true,
-@"Enables Global Chat (/Global) for IRC channel #800Craft esper.net")]
+        [BoolKey( ConfigSection.Chat, true,
+@"Enables Global Chat (/Global) for IRC channel #800Craft esper.net" )]
         GCKey,
 
-        #endregion
-
+        #endregion Saving and Backup
 
         #region Logging
 
@@ -347,8 +338,7 @@ If exceeded, oldest logs will be erased first. Set this to 0 to keep all logs.",
             MinValue = 0 )]
         MaxLogs,
 
-        #endregion
-
+        #endregion Logging
 
         #region IRC
 
@@ -435,11 +425,10 @@ Using multiple bots helps bypass message rate limits on some servers.
 Note that some networks frown upon having multiple connections from one IP.
 It is recommended to leave this at 1 unless you are having specific issues
 with IRC bots falling behind on messages.",
-            MinValue = 1, MaxValue=3 )]
+            MinValue = 1, MaxValue = 3 )]
         IRCThreads,
 
-        #endregion
-
+        #endregion IRC
 
         #region Advanced
 
@@ -557,6 +546,6 @@ but will reduce bandwidth use." )]
 @"Automatically restarts the server after a given number of seconds." )]
         RestartInterval
 
-        #endregion
+        #endregion Advanced
     }
 }

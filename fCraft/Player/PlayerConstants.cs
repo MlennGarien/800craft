@@ -3,8 +3,10 @@ using System;
 
 // This file condenses some of the player-related enumerations
 namespace fCraft {
+
     /// <summary> List of possible reasons for players leaving the server. </summary>
     public enum LeaveReason : byte {
+
         /// <summary> Unknown leave reason (default) </summary>
         Unknown = 0x00,
 
@@ -45,7 +47,6 @@ namespace fCraft {
         /// <summary> Banned indirectly by /BanAll </summary>
         BanAll = 0x22,
 
-
         /// <summary> Server-side error (uncaught exception in session's thread) </summary>
         ServerError = 0x30,
 
@@ -57,7 +58,6 @@ namespace fCraft {
 
         /// <summary> World was full (forced join failed) </summary>
         WorldFull = 0x33,
-
 
         /// <summary> Login failed due to protocol violation/mismatch (e.g. SMP client) </summary>
         ProtocolViolation = 0x41,
@@ -72,9 +72,9 @@ namespace fCraft {
         RageQuit = 0x44,
     }
 
-
     /// <summary> Mode of player name verification. </summary>
     public enum NameVerificationMode {
+
         /// <summary> Player names are not checked.
         /// Any connecting player can assume any identity. </summary>
         Never,
@@ -90,9 +90,9 @@ namespace fCraft {
         Always
     }
 
-
     /// <summary> Describes the way player's rank was set. </summary>
     public enum RankChangeType : byte {
+
         /// <summary> Default rank (never been promoted or demoted). </summary>
         Default = 0,
 
@@ -109,10 +109,10 @@ namespace fCraft {
         AutoDemoted = 4
     }
 
-
     /// <summary> Bandwidth use mode.
     /// This setting affects the way player receive movement updates. </summary>
     public enum BandwidthUseMode : byte {
+
         /// <summary> Use server default. </summary>
         Default = 0,
 
@@ -131,7 +131,6 @@ namespace fCraft {
         /// <summary> Very high bandwidth use (no choppiness at all, no pop-in). </summary>
         VeryHigh = 5
     }
-
 
     /// <summary> A list of possible results of Player.CanPlace() permission test. </summary>
     public enum CanPlaceResult {
@@ -162,12 +161,12 @@ namespace fCraft {
         /// <summary> A plugin callback cancelled block placement/deletion.
         /// A copy of the old block will not be sent to the player (he may go out of sync). </summary>
         PluginDeniedNoUpdate,
-        
+
         Revert
     }
 
-
     public enum WorldChangeReason {
+
         /// <summary> First world that the player joins upon entering the server (main). </summary>
         FirstWorld,
 
@@ -196,8 +195,8 @@ namespace fCraft {
         Portal
     }
 
-
     public enum BanStatus : byte {
+
         /// <summary> Player is not banned. </summary>
         NotBanned,
 
@@ -208,8 +207,8 @@ namespace fCraft {
         Banned
     }
 
-
     public enum ClickAction : byte {
+
         /// <summary> Deleting a block (left-click in Minecraft). </summary>
         Delete = 0,
 
@@ -217,8 +216,8 @@ namespace fCraft {
         Build = 1
     }
 
-
     public enum SessionState {
+
         /// <summary> There is no session associated with this player (e.g. Console). </summary>
         Offline,
 

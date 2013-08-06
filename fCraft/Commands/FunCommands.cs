@@ -26,15 +26,13 @@
         ----*/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using RandomMaze;
-using System.Threading;
 
 namespace fCraft {
+
     internal static class FunCommands {
-        internal static void Init () {
+
+        internal static void Init() {
             CommandManager.RegisterCommand( CdRandomMaze );
             CommandManager.RegisterCommand( CdMazeCuboid );
             CommandManager.RegisterCommand( CdFirework );
@@ -45,7 +43,7 @@ namespace fCraft {
 
         #region Possess / UnPossess
 
-        static readonly CommandDescriptor CdPossess = new CommandDescriptor {
+        private static readonly CommandDescriptor CdPossess = new CommandDescriptor {
             Name = "Possess",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Possess },
@@ -53,14 +51,15 @@ namespace fCraft {
             Handler = PossessHandler
         };
 
-        static void PossessHandler ( Player player, Command cmd ) {
+        private static void PossessHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( targetName == null ) {
                 CdPossess.PrintUsage( player );
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
             if ( target.Immortal ) {
                 player.Message( "You cannot possess {0}&S, they are immortal", target.ClassyName );
                 return;
@@ -83,8 +82,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdUnpossess = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnpossess = new CommandDescriptor {
             Name = "unpossess",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Possess },
@@ -93,23 +91,24 @@ namespace fCraft {
             Handler = UnpossessHandler
         };
 
-        static void UnpossessHandler ( Player player, Command cmd ) {
+        private static void UnpossessHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( targetName == null ) {
                 CdUnpossess.PrintUsage( player );
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, true, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             if ( !player.StopPossessing( target ) ) {
                 player.Message( "You are not currently possessing anyone." );
             }
         }
 
-        #endregion
+        #endregion Possess / UnPossess
 
-        static readonly CommandDescriptor CdLife = new CommandDescriptor {
+        private static readonly CommandDescriptor CdLife = new CommandDescriptor {
             Name = "Life",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.DrawAdvanced },
@@ -121,7 +120,7 @@ namespace fCraft {
             Handler = LifeHandlerFunc,
         };
 
-        static readonly CommandDescriptor CdFirework = new CommandDescriptor {
+        private static readonly CommandDescriptor CdFirework = new CommandDescriptor {
             Name = "Firework",
             Category = CommandCategory.Fun,
             Permissions = new[] { Permission.Fireworks },
@@ -135,7 +134,7 @@ namespace fCraft {
             Handler = FireworkHandler
         };
 
-        static void FireworkHandler ( Player player, Command cmd ) {
+        private static void FireworkHandler( Player player, Command cmd ) {
             if ( player.fireworkMode ) {
                 player.fireworkMode = false;
                 player.Message( "Firework Mode has been turned off." );
@@ -147,8 +146,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdRandomMaze = new CommandDescriptor {
+        private static readonly CommandDescriptor CdRandomMaze = new CommandDescriptor {
             Name = "RandomMaze",
             Aliases = new string[] { "3dmaze" },
             Category = CommandCategory.Fun,
@@ -160,7 +158,8 @@ namespace fCraft {
             Usage = "/randommaze <width> <length> <height> [nolifts] [hints]",
             Handler = MazeHandler
         };
-        static readonly CommandDescriptor CdMazeCuboid = new CommandDescriptor {
+
+        private static readonly CommandDescriptor CdMazeCuboid = new CommandDescriptor {
             Name = "MazeCuboid",
             Aliases = new string[] { "Mc", "Mz", "Maze" },
             Category = CommandCategory.Fun,
@@ -172,7 +171,7 @@ namespace fCraft {
             Handler = MazeCuboidHandler,
         };
 
-        private static void MazeHandler ( Player p, Command cmd ) {
+        private static void MazeHandler( Player p, Command cmd ) {
             try {
                 RandomMazeDrawOperation op = new RandomMazeDrawOperation( p, cmd );
                 BuildingCommands.DrawOperationBegin( p, cmd, op );
@@ -180,7 +179,8 @@ namespace fCraft {
                 Logger.Log( LogType.Error, "Error: " + e.Message );
             }
         }
-        private static void MazeCuboidHandler ( Player p, Command cmd ) {
+
+        private static void MazeCuboidHandler( Player p, Command cmd ) {
             try {
                 MazeCuboidDrawOperation op = new MazeCuboidDrawOperation( p );
                 BuildingCommands.DrawOperationBegin( p, cmd, op );
@@ -188,7 +188,8 @@ namespace fCraft {
                 Logger.Log( LogType.Error, "Error: " + e.Message );
             }
         }
-        private static void LifeHandlerFunc ( Player p, Command cmd ) {
+
+        private static void LifeHandlerFunc( Player p, Command cmd ) {
             try {
                 if ( !cmd.HasNext ) {
                     p.Message( "&H/Life <command> <params>. Commands are Help, Create, Delete, Start, Stop, Set, List, Print" );
@@ -200,7 +201,5 @@ namespace fCraft {
                 p.Message( "Error: " + e.Message );
             }
         }
-
-
     }
 }

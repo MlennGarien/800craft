@@ -29,30 +29,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace fCraft.Utils
-{
-    class BroMode
-    {
+namespace fCraft.Utils {
+
+    internal class BroMode {
         private static BroMode instance;
         private static List<String> broNames;
         private static Dictionary<int, Player> registeredBroNames;
         private static int namesRegistered = 0;
         public static bool Active = false;
 
-        private BroMode()
-        {
+        private BroMode() {
             // Empty, singleton
             // single
             // single like glennmr?
         }
 
-        public static BroMode GetInstance()
-        {
-            if (instance == null)
-            {
+        public static BroMode GetInstance() {
+            if ( instance == null ) {
                 instance = new BroMode();
                 broNames = new List<string>()
                 {
@@ -171,131 +165,100 @@ namespace fCraft.Utils
                     "Magnetbro"
                 };
                 registeredBroNames = new Dictionary<int, Player>();
-                Player.Disconnected += new EventHandler<Events.PlayerDisconnectedEventArgs>(Player_Disconnected);
-                Player.Connected += new EventHandler<Events.PlayerConnectedEventArgs>(Player_Connected);
+                Player.Disconnected += new EventHandler<Events.PlayerDisconnectedEventArgs>( Player_Disconnected );
+                Player.Connected += new EventHandler<Events.PlayerConnectedEventArgs>( Player_Connected );
             }
 
             return instance;
         }
 
-        static void Player_Connected(object sender, Events.PlayerConnectedEventArgs e)
-        {
-            if (Active)
-            {
-                BroMode.GetInstance().RegisterPlayer(e.Player);
+        private static void Player_Connected( object sender, Events.PlayerConnectedEventArgs e ) {
+            if ( Active ) {
+                BroMode.GetInstance().RegisterPlayer( e.Player );
             }
         }
 
-        static void Player_Disconnected(object sender, Events.PlayerDisconnectedEventArgs e)
-        {
-            if (Active)
-            {
-                BroMode.GetInstance().UnregisterPlayer(e.Player);
+        private static void Player_Disconnected( object sender, Events.PlayerDisconnectedEventArgs e ) {
+            if ( Active ) {
+                BroMode.GetInstance().UnregisterPlayer( e.Player );
             }
         }
 
-        public void RegisterPlayer(Player player)
-        {
-            if (!player.Info.IsWarned)
-            {
-                if (!player.Info.IsMuted)
-                {
-                    if (!player.Info.IsFrozen)
-                    {
-                        try
-                        {
-                            if (namesRegistered < broNames.Count)
-                            {
+        public void RegisterPlayer( Player player ) {
+            if ( !player.Info.IsWarned ) {
+                if ( !player.Info.IsMuted ) {
+                    if ( !player.Info.IsFrozen ) {
+                        try {
+                            if ( namesRegistered < broNames.Count ) {
                                 Random randomizer = new Random();
-                                int index = randomizer.Next(0, broNames.Count);
+                                int index = randomizer.Next( 0, broNames.Count );
                                 int attempts = 0;
                                 Player output = null;
                                 bool found = false;
 
-                                if (player.Info.DisplayedName == null)
-                                {
+                                if ( player.Info.DisplayedName == null ) {
                                     player.Info.changedName = false; //fix for rank problems during
-                                }
-
-                                else
+                                } else
                                     player.Info.oldname = player.Info.DisplayedName;
                                 player.Info.changedName = true; //if name is changed, true
 
-                                while (!found)
-                                {
-                                    registeredBroNames.TryGetValue(index, out output);
+                                while ( !found ) {
+                                    registeredBroNames.TryGetValue( index, out output );
 
-                                    if (output == null)
-                                    {
+                                    if ( output == null ) {
                                         found = true;
                                         break;
                                     }
 
                                     attempts++;
-                                    index = randomizer.Next(0, broNames.Count);
+                                    index = randomizer.Next( 0, broNames.Count );
                                     output = null;
 
-                                    if (attempts > 2000)
-                                    {
+                                    if ( attempts > 2000 ) {
                                         // Not good :D
                                         break;
                                     }
                                 }
 
-                                if (found)
-                                {
-                                    player.Message("Giving you name: " + broNames[index]);
-                                    player.Info.DisplayedName = Color.ReplacePercentCodes(player.Info.Rank.Color + player.Info.Rank.Prefix + broNames[index]);
+                                if ( found ) {
+                                    player.Message( "Giving you name: " + broNames[index] );
+                                    player.Info.DisplayedName = Color.ReplacePercentCodes( player.Info.Rank.Color + player.Info.Rank.Prefix + broNames[index] );
                                     namesRegistered++;
                                     registeredBroNames[index] = player;
+                                } else {
+                                    player.Message( "Could not find a name for you." );
                                 }
-                                else
-                                {
-                                    player.Message("Could not find a name for you.");
-                                }
+                            } else {
+                                player.Message( "All bro names have been assigned." );
                             }
-                            else
-                            {
-                                player.Message("All bro names have been assigned.");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Log(LogType.Error, "BroMode.RegisterPlayer: " + ex);
+                        } catch ( Exception ex ) {
+                            Logger.Log( LogType.Error, "BroMode.RegisterPlayer: " + ex );
                         }
                     }
                 }
             }
         }
 
-        public void UnregisterPlayer(Player p)
-        {
-            try
-            {
-                for (int i = 0; i < broNames.Count; i++)
-                {
-                    if (registeredBroNames.ContainsKey(i) && registeredBroNames[i].Name.Equals(p.Name))
-                    {
-                        Logger.Log(LogType.SystemActivity, "Unregistering bro name '" + broNames[i] + "' for player '" + p.Name + "'");
-                        registeredBroNames.Remove(i);
+        public void UnregisterPlayer( Player p ) {
+            try {
+                for ( int i = 0; i < broNames.Count; i++ ) {
+                    if ( registeredBroNames.ContainsKey( i ) && registeredBroNames[i].Name.Equals( p.Name ) ) {
+                        Logger.Log( LogType.SystemActivity, "Unregistering bro name '" + broNames[i] + "' for player '" + p.Name + "'" );
+                        registeredBroNames.Remove( i );
                         namesRegistered--;
-                        if (!p.Info.changedName)
-                        {
+                        if ( !p.Info.changedName ) {
                             p.Info.DisplayedName = null;
                         }
 
-                        if (p.Info.changedName)
-                        {
+                        if ( p.Info.changedName ) {
                             p.Info.DisplayedName = p.Info.oldname;
                             p.Info.oldname = null; //clears oldname if its ever removed in setinfo
                             p.Info.changedName = false;
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.Error, "BroMode.UnregisterPlayer: " + ex);
+            } catch ( Exception ex ) {
+                Logger.Log( LogType.Error, "BroMode.UnregisterPlayer: " + ex );
             }
         }
     }

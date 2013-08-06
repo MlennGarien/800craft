@@ -1,15 +1,15 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.ConfigGUI {
+
     partial class MainForm {
 
-        void FillToolTipsGeneral() {
-
+        private void FillToolTipsGeneral() {
             toolTip.SetToolTip( lServerName, ConfigKey.ServerName.GetDescription() );
             toolTip.SetToolTip( tServerName, ConfigKey.ServerName.GetDescription() );
-            toolTip.SetToolTip(CustomName, ConfigKey.CustomChatName.GetDescription());
-            toolTip.SetToolTip(CustomAliases, ConfigKey.CustomAliasName.GetDescription());
-            toolTip.SetToolTip(SwearBox, ConfigKey.SwearName.GetDescription());
+            toolTip.SetToolTip( CustomName, ConfigKey.CustomChatName.GetDescription() );
+            toolTip.SetToolTip( CustomAliases, ConfigKey.CustomAliasName.GetDescription() );
+            toolTip.SetToolTip( SwearBox, ConfigKey.SwearName.GetDescription() );
 
             toolTip.SetToolTip( lMOTD, ConfigKey.MOTD.GetDescription() );
             toolTip.SetToolTip( tMOTD, ConfigKey.MOTD.GetDescription() );
@@ -68,19 +68,16 @@ You can use any color codes, and these special variables:
     {SERVER_NAME} = server name (as defined in config)
     {RANK} = connecting player's rank" );
 
-            toolTip.SetToolTip(SwearEditor,
+            toolTip.SetToolTip( SwearEditor,
 @"Edit the list of Swearwords (swearwords.txt).
-Each swearword should be on a seperate line.");
+Each swearword should be on a seperate line." );
 
-            toolTip.SetToolTip(ReqsEditor,
+            toolTip.SetToolTip( ReqsEditor,
 @"Edit the list of requirements for the ranks
-on your server.");
-
+on your server." );
         }
 
-
-        void FillToolTipsChat() {
-
+        private void FillToolTipsChat() {
             toolTip.SetToolTip( xRankColorsInChat, ConfigKey.RankColorsInChat.GetDescription() );
 
             toolTip.SetToolTip( xRankColorsInWorldNames, ConfigKey.RankColorsInWorldNames.GetDescription() );
@@ -115,8 +112,7 @@ on your server.");
             toolTip.SetToolTip( lColorWarning, ConfigKey.WarningColor.GetDescription() );
         }
 
-
-        void FillToolTipsWorlds() {
+        private void FillToolTipsWorlds() {
             toolTip.SetToolTip( bAddWorld, "Add a new world to the list." );
             toolTip.SetToolTip( bWorldEdit, "Edit or replace an existing world." );
             toolTip.SetToolTip( cMainWorld, "Main world is the first world that players see when they join the server." );
@@ -131,9 +127,7 @@ on your server.");
             toolTip.SetToolTip( xWoMEnableEnvExtensions, ConfigKey.WoMEnableEnvExtensions.GetDescription() );
         }
 
-
-        void FillToolTipsRanks() {
-
+        private void FillToolTipsRanks() {
             toolTip.SetToolTip( xAllowSecurityCircumvention,
 @"Allows players to manupulate whitelists/blacklists or rank requirements
 in order to join restricted worlds, or to build in worlds/zones. Normally
@@ -171,8 +165,6 @@ Rank colors may be applied to player and world names.";
 The option to show prefixes in chat is on ""General"" tab.";
             toolTip.SetToolTip( lPrefix, tipPrefix );
             toolTip.SetToolTip( tPrefix, tipPrefix );
-
-
 
             toolTip.SetToolTip( permissionLimitBoxes[Permission.Kick],
 @"Limit on who can be kicked by players of this rank.
@@ -214,8 +206,6 @@ By default, players can only bring players of same or lower rank." );
 @"Limit on whose actions players of this rank can undo.
 By default, players can only undo actions of players of same or lower rank." );
 
-
-
             toolTip.SetToolTip( xReserveSlot,
 @"Allows players of this rank to join the server
 even if it reached the maximum number of players." );
@@ -251,17 +241,14 @@ at one time. If unchecked, there is no limit.";
             toolTip.SetToolTip( nDrawLimit, tipDrawLimit );
             toolTip.SetToolTip( lDrawLimitUnits, tipDrawLimit );
 
-
-
-
-            vPermissions.Items[(int)Permission.Ban].ToolTipText =
+            vPermissions.Items[( int )Permission.Ban].ToolTipText =
 @"Ability to ban/unban other players from the server.
 Affected commands:
     /Ban
     /Banx
     /Unban";
 
-            vPermissions.Items[(int)Permission.BanAll].ToolTipText =
+            vPermissions.Items[( int )Permission.BanAll].ToolTipText =
 @"Ability to ban/unban a player account, his IP, and all other accounts that used the IP.
 BanAll/UnbanAll commands can be used on players who keep evading bans.
 Required permissions: Ban & BanIP
@@ -269,51 +256,51 @@ Affected commands:
     /BanAll
     /UnbanAll";
 
-            vPermissions.Items[(int)Permission.BanIP].ToolTipText =
+            vPermissions.Items[( int )Permission.BanIP].ToolTipText =
 @"Ability to ban/unban players by IP.
 Required permission: Ban
 Affected commands:
     /BanIP
     /UnbanIP";
-    
-                vPermissions.Items[(int)Permission.Basscannon].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Basscannon].ToolTipText =
 @"Ability to kick a player with stlye.
 Affected command:
     /Basscannon";
 
-            vPermissions.Items[(int)Permission.Bring].ToolTipText =
+            vPermissions.Items[( int )Permission.Bring].ToolTipText =
 @"Ability to bring/summon other players to your location.
 This works a bit like reverse-teleport - other player is sent to you.
 Affected commands:
     /Bring
     /BringAll";
 
-            vPermissions.Items[(int)Permission.BringAll].ToolTipText =
+            vPermissions.Items[( int )Permission.BringAll].ToolTipText =
 @"Ability to bring/summon many players at a time to your location.
 Affected command:
     /BringAll";
-    
-                vPermissions.Items[(int)Permission.BroMode].ToolTipText =
+
+            vPermissions.Items[( int )Permission.BroMode].ToolTipText =
 @"Ability to activate BroMode.
 Affected command:
     /BroMode";
 
-            vPermissions.Items[(int)Permission.Build].ToolTipText =
+            vPermissions.Items[( int )Permission.Build].ToolTipText =
 @"Ability to place blocks on maps. This is a baseline permission
 that can be overridden by world-specific and zone-specific permissions.";
 
-            vPermissions.Items[(int)Permission.Chat].ToolTipText =
+            vPermissions.Items[( int )Permission.Chat].ToolTipText =
 @"Ability to chat and PM players. Note that players without this
 permission can still type in commands, receive PMs, and read chat.
 Affected commands:
     /Say
     @ (pm)
     @@ (rank chat)";
-                
-                vPermissions.Items[(int)Permission.ChatWithCaps].ToolTipText =
+
+            vPermissions.Items[( int )Permission.ChatWithCaps].ToolTipText =
 @"Ability to chat with caps without restrictions.";
 
-            vPermissions.Items[(int)Permission.CopyAndPaste].ToolTipText =
+            vPermissions.Items[( int )Permission.CopyAndPaste].ToolTipText =
 @"Ability to copy (or cut) and paste blocks. The total number of
 blocks that can be copied or pasted at a time is affected by
 the draw limit.
@@ -324,23 +311,23 @@ Affected commands:
     /Paste, /PasteNot
     /Rotate";
 
-            vPermissions.Items[(int)Permission.Delete].ToolTipText =
+            vPermissions.Items[( int )Permission.Delete].ToolTipText =
 @"Ability to delete or replace blocks on maps. This is a baseline permission
 that can be overridden by world-specific and zone-specific permissions.";
 
-            vPermissions.Items[(int)Permission.DeleteAdmincrete].ToolTipText =
+            vPermissions.Items[( int )Permission.DeleteAdmincrete].ToolTipText =
 @"Ability to delete admincrete (aka adminium) blocks. Even if someone
 has this permission, it can be overridden by world-specific and
 zone-specific permissions.
 Required permission: Delete";
 
-            vPermissions.Items[(int)Permission.Demote].ToolTipText =
+            vPermissions.Items[( int )Permission.Demote].ToolTipText =
 @"Ability to demote other players to a lower rank.
 Affected commands:
     /Rank
     /MassRank";
 
-            vPermissions.Items[(int)Permission.Draw].ToolTipText =
+            vPermissions.Items[( int )Permission.Draw].ToolTipText =
 @"Ability to use drawing tools (commands capable of affecting many blocks
 at once). This permission can be overridden by world-specific and
 zone-specific permissions.
@@ -352,7 +339,7 @@ Affected commands:
     /Replace and /ReplaceNot
     /Undo and /Redo";
 
-            vPermissions.Items[(int)Permission.DrawAdvanced].ToolTipText =
+            vPermissions.Items[( int )Permission.DrawAdvanced].ToolTipText =
 @"Ability to use advanced drawing tools, such as brushes.
 Required permission: Build, Delete, Draw
 Affected commands:
@@ -362,7 +349,7 @@ Affected commands:
     /Sphere and /SphereH
     /Torus";
 
-            vPermissions.Items[(int)Permission.EditPlayerDB].ToolTipText =
+            vPermissions.Items[( int )Permission.EditPlayerDB].ToolTipText =
 @"Ability to edit the player database directly. This also adds the ability to
 promote/demote players by name, even if they have not visited the server yet.
 Also allows to manipulate players' records, and to promote/demote players in batches.
@@ -374,85 +361,85 @@ Affected commands:
     /Nick
     /InfoSwap
     /DumpStats";
-    
-                vPermissions.Items[(int)Permission.Fireworks].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Fireworks].ToolTipText =
 @"Ability to create fireworks.
 Affected command:
     /Firework";
 
-            vPermissions.Items[(int)Permission.Freeze].ToolTipText =
+            vPermissions.Items[( int )Permission.Freeze].ToolTipText =
 @"Ability to freeze/unfreeze players. Frozen players cannot
 move or build/delete.
 Affected commands:
     /Freeze
     /Unfreeze";
-    
-                vPermissions.Items[(int)Permission.Gtfo].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Gtfo].ToolTipText =
 @"Ability to kick a player without saving it to the DB.
 Affected command:
     /Gtfo";
-    
-                vPermissions.Items[(int)Permission.Gun].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Gun].ToolTipText =
 @"Ability to use a gun.
 Affected command:
     /Gun";
 
-            vPermissions.Items[(int)Permission.Hide].ToolTipText =
+            vPermissions.Items[( int )Permission.Hide].ToolTipText =
 @"Ability to appear hidden from other players. You can still chat,
 build/delete blocks, use all commands, and join worlds while hidden.
 Hidden players are completely invisible to other players.
 Affected commands:
     /Hide
     /Unhide";
-    
-                vPermissions.Items[(int)Permission.HideRanks].ToolTipText =
+
+            vPermissions.Items[( int )Permission.HideRanks].ToolTipText =
 @"Ability to hide ranks from the /ranks list.
 Affected command:
     /RankHide";
-    
-                vPermissions.Items[(int)Permission.HighFive].ToolTipText =
+
+            vPermissions.Items[( int )Permission.HighFive].ToolTipText =
 @"Ability to give a player a HighFive.
 Affected command:
     /High5";
 
-            vPermissions.Items[(int)Permission.Import].ToolTipText =
+            vPermissions.Items[( int )Permission.Import].ToolTipText =
 @"Ability to import rank and ban lists from files. Useful if you
 are switching from another server software.
 Affected commands:
     /Import";
-    
-                vPermissions.Items[(int)Permission.Immortal].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Immortal].ToolTipText =
 @"Ability to become immortal.
 Affected command:
     /Immortal";
 
-            vPermissions.Items[(int)Permission.Kick].ToolTipText =
+            vPermissions.Items[( int )Permission.Kick].ToolTipText =
 @"Ability to kick players from the server.
 Affected commands:
     /Kick";
-    
-                vPermissions.Items[(int)Permission.Kill].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Kill].ToolTipText =
 @"Ability to kill players.
 Affected command:
     /Kill";
-    
-                vPermissions.Items[(int)Permission.Lock].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Lock].ToolTipText =
 @"Ability to lock/unlock maps (locking puts a world into read-only state.)
 Affected commands:
     /WLock
     /WUnlock";
 
-                vPermissions.Items[(int)Permission.MakeVoteKicks].ToolTipText =
+            vPermissions.Items[( int )Permission.MakeVoteKicks].ToolTipText =
 @"Ability to vote to kick a player.
 Affected command:
     /Vote";
-    
-                vPermissions.Items[(int)Permission.MakeVotes].ToolTipText =
+
+            vPermissions.Items[( int )Permission.MakeVotes].ToolTipText =
 @"Ability to create votes.
 Affected command:
     /Vote";
 
-            vPermissions.Items[(int)Permission.ManageWorlds].ToolTipText =
+            vPermissions.Items[( int )Permission.ManageWorlds].ToolTipText =
 @"Ability to manipulate the world list: adding, renaming, and deleting worlds,
 loading/saving maps, change per-world permissions, and using the map generator.
 Affected commands:
@@ -464,194 +451,193 @@ Affected commands:
     /WFlush
     /Gen";
 
-
-            vPermissions.Items[(int)Permission.ManageBlockDB].ToolTipText =
+            vPermissions.Items[( int )Permission.ManageBlockDB].ToolTipText =
 @"Ability to enable/disable, clear, and configure BlockDB.
 Affected command:
     /BlockDB";
-    
-                vPermissions.Items[(int)Permission.ManagePortal].ToolTipText =
+
+            vPermissions.Items[( int )Permission.ManagePortal].ToolTipText =
 @"Ability to create, edit, and delete portals.
 Affected command:
     /Portal";
 
-            vPermissions.Items[(int)Permission.ManageZones].ToolTipText =
+            vPermissions.Items[( int )Permission.ManageZones].ToolTipText =
 @"Ability to manipulate zones: adding, editing, renaming, and removing zones.
 Affected commands:
     /ZAdd
     /ZEdit
     /ZRemove
     /ZRename";
-    
-                vPermissions.Items[(int)Permission.Moderation].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Moderation].ToolTipText =
 @"Ability to mute everyone in the server, useful for announcements.
 Affected command:
     /Moderate";
 
-            vPermissions.Items[(int)Permission.Mute].ToolTipText =
-@"Ability to temporarily mute players. Muted players cannot write chat or 
+            vPermissions.Items[( int )Permission.Mute].ToolTipText =
+@"Ability to temporarily mute players. Muted players cannot write chat or
 send PMs, but they can still type in commands, receive PMs, and read chat.
 Affected commands:
     /Mute
     /Unmute";
 
-            vPermissions.Items[(int)Permission.Patrol].ToolTipText =
+            vPermissions.Items[( int )Permission.Patrol].ToolTipText =
 @"Ability to patrol lower-ranked players. ""Patrolling"" means teleporting
 to other players to check on them, usually while hidden.
 Required permission: Teleport
 Affected commands:
     /Patrol
     /SpecPatrol";
-    
-                vPermissions.Items[(int)Permission.Physics].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Physics].ToolTipText =
 @"Ability to activate Physics on a world.
 Affected command:
     /Physics";
 
-            vPermissions.Items[(int)Permission.PlaceAdmincrete].ToolTipText =
+            vPermissions.Items[( int )Permission.PlaceAdmincrete].ToolTipText =
 @"Ability to place admincrete/adminium. This also affects draw commands.
 Required permission: Build
 Affected commands:
     /Solid
     /Bind";
 
-            vPermissions.Items[(int)Permission.PlaceGrass].ToolTipText =
+            vPermissions.Items[( int )Permission.PlaceGrass].ToolTipText =
 @"Ability to place grass blocks. This also affects draw commands.
 Required permission: Build
 Affected commands:
     /Grass
     /Bind";
 
-            vPermissions.Items[(int)Permission.PlaceLava].ToolTipText =
+            vPermissions.Items[( int )Permission.PlaceLava].ToolTipText =
 @"Ability to place lava blocks. This also affects draw commands.
 Required permission: Build
 Affected commands:
     /Lava
     /Bind";
 
-            vPermissions.Items[(int)Permission.PlaceWater].ToolTipText =
+            vPermissions.Items[( int )Permission.PlaceWater].ToolTipText =
 @"Ability to place water blocks. This also affects draw commands.
 Required permission: Build
 Affected commands:
     /Water
     /Bind";
-    
-    vPermissions.Items[(int)Permission.Possess].ToolTipText =
-@"Ability to possess a player.
+
+            vPermissions.Items[( int )Permission.Possess].ToolTipText =
+        @"Ability to possess a player.
 Affected commands:
     /Possess
     /unpossess";
 
-            vPermissions.Items[(int)Permission.Promote].ToolTipText =
+            vPermissions.Items[( int )Permission.Promote].ToolTipText =
 @"Ability to promote players to a higher rank.
 Affected commands:
     /Rank";
-    
-                vPermissions.Items[(int)Permission.RageQuit].ToolTipText =
+
+            vPermissions.Items[( int )Permission.RageQuit].ToolTipText =
 @"Ability to ragequit from the server.
 Affected command:
     /Ragequit";
-    
-                vPermissions.Items[(int)Permission.ReadAdminChat].ToolTipText =
+
+            vPermissions.Items[( int )Permission.ReadAdminChat].ToolTipText =
 @"Ability to read Admin chat.";
 
-            vPermissions.Items[(int)Permission.ReadCustomChat].ToolTipText =
+            vPermissions.Items[( int )Permission.ReadCustomChat].ToolTipText =
 @"Ability to read Custom chat.";
 
-            vPermissions.Items[(int)Permission.ReadStaffChat].ToolTipText =
+            vPermissions.Items[( int )Permission.ReadStaffChat].ToolTipText =
 @"Ability to read staff chat.";
 
-            vPermissions.Items[(int)Permission.Realm].ToolTipText =
+            vPermissions.Items[( int )Permission.Realm].ToolTipText =
 @"Ability to create realms.
 Affected command:
     /Realm";
 
-            vPermissions.Items[(int)Permission.ReloadConfig].ToolTipText =
+            vPermissions.Items[( int )Permission.ReloadConfig].ToolTipText =
 @"Ability to reload the configuration file without restarting.
 Affected commands:
     /Reload";
 
-            vPermissions.Items[(int)Permission.Say].ToolTipText =
+            vPermissions.Items[( int )Permission.Say].ToolTipText =
 @"Ability to use /Say command.
 Required permission: Chat
 Affected commands:
     /Say";
 
-            vPermissions.Items[(int)Permission.SetSpawn].ToolTipText =
+            vPermissions.Items[( int )Permission.SetSpawn].ToolTipText =
 @"Ability to change the spawn point of a world or a player.
 Affected commands:
     /SetSpawn";
 
-            vPermissions.Items[(int)Permission.ShutdownServer].ToolTipText =
+            vPermissions.Items[( int )Permission.ShutdownServer].ToolTipText =
 @"Ability to shut down or restart the server remotely.
 Useful for servers that run on dedicated machines.
 Affected commands:
     /Shutdown
     /Restart";
-    
-                vPermissions.Items[(int)Permission.Slap].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Slap].ToolTipText =
 @"Ability to slap players.
 Affected command:
     /Slap";
 
-            vPermissions.Items[(int)Permission.Spectate].ToolTipText =
+            vPermissions.Items[( int )Permission.Spectate].ToolTipText =
 @"Ability to spectate/follow other players in first-person view.
 Affected commands:
     /Spectate";
-    
-                vPermissions.Items[(int)Permission.Swear].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Swear].ToolTipText =
 @"Ability to use swear words without restrictions";
 
-            vPermissions.Items[(int)Permission.Teleport].ToolTipText =
+            vPermissions.Items[( int )Permission.Teleport].ToolTipText =
 @"Ability to teleport to other players.
 Affected commands:
     /TP";
-    
-                vPermissions.Items[(int)Permission.TempBan].ToolTipText =
+
+            vPermissions.Items[( int )Permission.TempBan].ToolTipText =
 @"Ability to temporarily ban a player.
 Affected command:
     /Tempban";
-    
-                vPermissions.Items[(int)Permission.Tower].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Tower].ToolTipText =
 @"Ability to create a Tower.
 Affected command:
     /Tower";
-               
-               vPermissions.Items[(int)Permission.Troll].ToolTipText =
+
+            vPermissions.Items[( int )Permission.Troll].ToolTipText =
 @"Ability to troll players.
 Affected command:
     /Troll";
 
-            vPermissions.Items[(int)Permission.UndoOthersActions].ToolTipText =
+            vPermissions.Items[( int )Permission.UndoOthersActions].ToolTipText =
 @"Ability to undo actions of other players, using the BlockDB.
 Affected commands:
     /UndoArea
     /UndoPlayer";
 
-            vPermissions.Items[(int)Permission.UseColorCodes].ToolTipText =
+            vPermissions.Items[( int )Permission.UseColorCodes].ToolTipText =
 @"Ability to use color codes in chat messages.";
-            
-            vPermissions.Items[(int)Permission.UsePortal].ToolTipText =
+
+            vPermissions.Items[( int )Permission.UsePortal].ToolTipText =
 @"Ability to use portals (not be confused with ManagePortal).";
 
-            vPermissions.Items[(int)Permission.UseSpeedHack].ToolTipText =
+            vPermissions.Items[( int )Permission.UseSpeedHack].ToolTipText =
 @"Ability to move at a faster-than-normal rate (using hacks).
 WARNING: Speedhack detection is often inaccurate, and may produce many
 false positives - especially on laggy servers.";
 
-            vPermissions.Items[(int)Permission.Warn].ToolTipText =
+            vPermissions.Items[( int )Permission.Warn].ToolTipText =
 @"Ability to warn a player.
 Affected command:
     /Warn";
 
-            vPermissions.Items[(int)Permission.ViewOthersInfo].ToolTipText =
+            vPermissions.Items[( int )Permission.ViewOthersInfo].ToolTipText =
 @"Ability to view extended information about other players.
 Affected commands:
     /Info
     /BanInfo
     /Where";
 
-            vPermissions.Items[(int)Permission.ViewPlayerIPs].ToolTipText =
+            vPermissions.Items[( int )Permission.ViewPlayerIPs].ToolTipText =
 @"Ability to view players' IP addresses.
 Affected commands:
     /Info
@@ -659,8 +645,7 @@ Affected commands:
     /BanIP, /BanAll, /UnbanIP, /UnbanAll";
         }
 
-
-        void FillToolTipsSecurity() {
+        private void FillToolTipsSecurity() {
             toolTip.SetToolTip( lVerifyNames, ConfigKey.VerifyNames.GetDescription() );
             toolTip.SetToolTip( cVerifyNames, ConfigKey.VerifyNames.GetDescription() );
 
@@ -676,7 +661,6 @@ Affected commands:
             toolTip.SetToolTip( xAnnounceKickAndBanReasons, ConfigKey.AnnounceKickAndBanReasons.GetDescription() );
             toolTip.SetToolTip( xAnnounceRankChanges, ConfigKey.AnnounceRankChanges.GetDescription() );
             toolTip.SetToolTip( xAnnounceRankChangeReasons, ConfigKey.AnnounceRankChanges.GetDescription() );
-
 
             toolTip.SetToolTip( lPatrolledRank, ConfigKey.PatrolledRank.GetDescription() );
             toolTip.SetToolTip( cPatrolledRank, ConfigKey.PatrolledRank.GetDescription() );
@@ -696,9 +680,7 @@ Affected commands:
             toolTip.SetToolTip( cBlockDBAutoEnableRank, ConfigKey.BlockDBAutoEnableRank.GetDescription() );
         }
 
-
-        void FillToolTipsSavingAndBackup() {
-
+        private void FillToolTipsSavingAndBackup() {
             toolTip.SetToolTip( xSaveInterval, ConfigKey.SaveInterval.GetDescription() );
             toolTip.SetToolTip( nSaveInterval, ConfigKey.SaveInterval.GetDescription() );
             toolTip.SetToolTip( lSaveIntervalUnits, ConfigKey.SaveInterval.GetDescription() );
@@ -722,8 +704,7 @@ Affected commands:
             toolTip.SetToolTip( lMaxBackupSize, ConfigKey.MaxBackupSize.GetDescription() );
         }
 
-
-        void FillToolTipsLogging() {
+        private void FillToolTipsLogging() {
             toolTip.SetToolTip( lLogMode, ConfigKey.LogMode.GetDescription() );
             toolTip.SetToolTip( cLogMode, ConfigKey.LogMode.GetDescription() );
 
@@ -731,33 +712,32 @@ Affected commands:
             toolTip.SetToolTip( nLogLimit, ConfigKey.MaxLogs.GetDescription() );
             toolTip.SetToolTip( lLogLimitUnits, ConfigKey.MaxLogs.GetDescription() );
 
-            vLogFileOptions.Items[(int)LogType.ConsoleInput].ToolTipText = "Commands typed in from the server console.";
-            vLogFileOptions.Items[(int)LogType.ConsoleOutput].ToolTipText =
+            vLogFileOptions.Items[( int )LogType.ConsoleInput].ToolTipText = "Commands typed in from the server console.";
+            vLogFileOptions.Items[( int )LogType.ConsoleOutput].ToolTipText =
 @"Things sent directly in response to console input,
 e.g. output of commands called from console.";
-            vLogFileOptions.Items[(int)LogType.Debug].ToolTipText = "Technical information that may be useful to find bugs.";
-            vLogFileOptions.Items[(int)LogType.Error].ToolTipText = "Major errors and problems.";
-            vLogFileOptions.Items[(int)LogType.SeriousError].ToolTipText = "Errors that prevent server from starting or result in crashes.";
-            vLogFileOptions.Items[(int)LogType.GlobalChat].ToolTipText = "Normal chat messages written by players.";
-            vLogFileOptions.Items[(int)LogType.IRC].ToolTipText =
+            vLogFileOptions.Items[( int )LogType.Debug].ToolTipText = "Technical information that may be useful to find bugs.";
+            vLogFileOptions.Items[( int )LogType.Error].ToolTipText = "Major errors and problems.";
+            vLogFileOptions.Items[( int )LogType.SeriousError].ToolTipText = "Errors that prevent server from starting or result in crashes.";
+            vLogFileOptions.Items[( int )LogType.GlobalChat].ToolTipText = "Normal chat messages written by players.";
+            vLogFileOptions.Items[( int )LogType.IRC].ToolTipText =
 @"IRC-related status and error messages.
 Does not include IRC chatter (see IRCChat).";
-            vLogFileOptions.Items[(int)LogType.PrivateChat].ToolTipText = "PMs (Private Messages) exchanged between players (@player message).";
-            vLogFileOptions.Items[(int)LogType.RankChat].ToolTipText = "Rank-wide messages (@@rank message).";
-            vLogFileOptions.Items[(int)LogType.SuspiciousActivity].ToolTipText = "Suspicious activity - hack attempts, failed logins, unverified names.";
-            vLogFileOptions.Items[(int)LogType.SystemActivity].ToolTipText = "Status messages regarding normal system activity.";
-            vLogFileOptions.Items[(int)LogType.UserActivity].ToolTipText = "Status messages regarding players' actions.";
-            vLogFileOptions.Items[(int)LogType.UserCommand].ToolTipText = "Commands types in by players.";
-            vLogFileOptions.Items[(int)LogType.Warning].ToolTipText = "Minor, recoverable errors and problems.";
-            vLogFileOptions.Items[(int)LogType.ChangedWorld].ToolTipText = "Logs when a player changes world.";
+            vLogFileOptions.Items[( int )LogType.PrivateChat].ToolTipText = "PMs (Private Messages) exchanged between players (@player message).";
+            vLogFileOptions.Items[( int )LogType.RankChat].ToolTipText = "Rank-wide messages (@@rank message).";
+            vLogFileOptions.Items[( int )LogType.SuspiciousActivity].ToolTipText = "Suspicious activity - hack attempts, failed logins, unverified names.";
+            vLogFileOptions.Items[( int )LogType.SystemActivity].ToolTipText = "Status messages regarding normal system activity.";
+            vLogFileOptions.Items[( int )LogType.UserActivity].ToolTipText = "Status messages regarding players' actions.";
+            vLogFileOptions.Items[( int )LogType.UserCommand].ToolTipText = "Commands types in by players.";
+            vLogFileOptions.Items[( int )LogType.Warning].ToolTipText = "Minor, recoverable errors and problems.";
+            vLogFileOptions.Items[( int )LogType.ChangedWorld].ToolTipText = "Logs when a player changes world.";
 
-            for( int i = 0; i < vConsoleOptions.Items.Count; i++ ) {
+            for ( int i = 0; i < vConsoleOptions.Items.Count; i++ ) {
                 vConsoleOptions.Items[i].ToolTipText = vLogFileOptions.Items[i].ToolTipText;
             }
         }
 
-
-        void FillToolTipsIRC() {
+        private void FillToolTipsIRC() {
             toolTip.SetToolTip( xIRCBotEnabled, ConfigKey.IRCBotEnabled.GetDescription() );
 
             const string tipIRCList =
@@ -804,8 +784,7 @@ or type in address/port manually below.";
             toolTip.SetToolTip( xIRCUseColor, ConfigKey.IRCUseColor.GetDescription() );
         }
 
-
-        void FillToolTipsAdvanced() {
+        private void FillToolTipsAdvanced() {
             toolTip.SetToolTip( xRelayAllBlockUpdates, ConfigKey.RelayAllBlockUpdates.GetDescription() );
 
             toolTip.SetToolTip( xNoPartialPositionUpdates, ConfigKey.NoPartialPositionUpdates.GetDescription() );

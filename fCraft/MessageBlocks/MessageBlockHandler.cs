@@ -24,22 +24,20 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
 
 namespace fCraft {
-    class MessageBlockHandler {
 
+    internal class MessageBlockHandler {
         private static MessageBlockHandler instance;
 
-        private MessageBlockHandler () {
+        private MessageBlockHandler() {
             // Empty, singleton
         }
 
-        public static MessageBlockHandler GetInstance () {
+        public static MessageBlockHandler GetInstance() {
             if ( instance == null ) {
                 instance = new MessageBlockHandler();
                 Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>( Player_Moved );
@@ -48,7 +46,7 @@ namespace fCraft {
             return instance;
         }
 
-        static void Player_PlacingBlock ( object sender, Events.PlayerPlacingBlockEventArgs e ) {
+        private static void Player_PlacingBlock( object sender, Events.PlayerPlacingBlockEventArgs e ) {
             Map map = e.Map;
             if ( e.Map.MessageBlocks != null ) {
                 if ( e.Map.MessageBlocks.Count > 0 ) {
@@ -59,7 +57,8 @@ namespace fCraft {
                                 if ( e.Context == BlockChangeContext.Manual ) {
                                     if ( mb.IsInRange( e.Coords ) ) {
                                         string M = mb.GetMessage();
-                                        if ( M == "" ) return;
+                                        if ( M == "" )
+                                            return;
                                         if ( e.Player.LastUsedMessageBlock == null ) {
                                             e.Player.LastUsedMessageBlock = DateTime.UtcNow;
                                             e.Player.Message( M );
@@ -78,18 +77,21 @@ namespace fCraft {
             }
         }
 
-        static void Player_Moved ( object sender, Events.PlayerMovedEventArgs e ) {
+        private static void Player_Moved( object sender, Events.PlayerMovedEventArgs e ) {
             try {
                 if ( ( e.OldPosition.X != e.NewPosition.X ) || ( e.OldPosition.Y != e.NewPosition.Y ) || ( e.OldPosition.Z != ( e.NewPosition.Z ) ) ) {
                     lock ( e.Player.MessageBlockLock ) {
-                        if ( e.Player.WorldMap == null ) return;
+                        if ( e.Player.WorldMap == null )
+                            return;
                         if ( e.Player.WorldMap.MessageBlocks != null ) {
                             lock ( e.Player.WorldMap.MessageBlocks ) {
                                 foreach ( MessageBlock mb in e.Player.WorldMap.MessageBlocks ) {
-                                    if ( e.Player.WorldMap == null ) return;
+                                    if ( e.Player.WorldMap == null )
+                                        return;
                                     if ( mb.IsInRange( e.Player ) ) {
                                         string M = mb.GetMessage();
-                                        if ( M == "" ) return;
+                                        if ( M == "" )
+                                            return;
                                         if ( e.Player.LastUsedMessageBlock == null ) {
                                             e.Player.LastUsedMessageBlock = DateTime.UtcNow;
                                             e.Player.Message( M );
@@ -108,7 +110,7 @@ namespace fCraft {
             } catch ( Exception ex ) { Logger.Log( LogType.Error, "MessageBlock_Moving: " + ex ); };
         }
 
-        public static MessageBlock GetMessageBlock ( World world, Vector3I block ) {
+        public static MessageBlock GetMessageBlock( World world, Vector3I block ) {
             MessageBlock MessageBlock = null;
             try {
                 if ( world.Map.MessageBlocks != null && world.Map.MessageBlocks.Count > 0 ) {
@@ -127,7 +129,7 @@ namespace fCraft {
             return MessageBlock;
         }
 
-        public static void CreateMessageBlock ( MessageBlock MessageBlock, World source ) {
+        public static void CreateMessageBlock( MessageBlock MessageBlock, World source ) {
             World world = WorldManager.FindWorldExact( MessageBlock.World );
 
             if ( source.Map.MessageBlocks == null ) {
@@ -139,7 +141,7 @@ namespace fCraft {
             }
         }
 
-        public static bool IsInRangeOfSpawnpoint ( World world, Vector3I block ) {
+        public static bool IsInRangeOfSpawnpoint( World world, Vector3I block ) {
             try {
                 int Xdistance = ( world.Map.Spawn.X / 32 ) - block.X;
                 int Ydistance = ( world.Map.Spawn.Y / 32 ) - block.Y;

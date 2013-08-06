@@ -7,13 +7,14 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
+
     /// <summary>
     /// Most commands for server moderation - kick, ban, rank change, etc - are here.
     /// </summary>
-    static class ModerationCommands {
-        const string BanCommonHelp = "Ban information can be viewed with &H/BanInfo";
+    internal static class ModerationCommands {
+        private const string BanCommonHelp = "Ban information can be viewed with &H/BanInfo";
 
-        internal static void Init () {
+        internal static void Init() {
             CdBan.Help += BanCommonHelp;
             CdBanIP.Help += BanCommonHelp;
             CdBanAll.Help += BanCommonHelp;
@@ -69,6 +70,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdImmortal );
             CommandManager.RegisterCommand( CdTitle );
         }
+
         #region 800Craft
 
         /*        ----
@@ -99,7 +101,7 @@ namespace fCraft {
         ----*/
         public static List<string> BassText = new List<string>();
 
-        static readonly CommandDescriptor CdTitle = new CommandDescriptor {
+        private static readonly CommandDescriptor CdTitle = new CommandDescriptor {
             Name = "Title",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -109,7 +111,7 @@ namespace fCraft {
             Handler = TitleHandler
         };
 
-        static void TitleHandler ( Player player, Command cmd ) {
+        private static void TitleHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             string titleName = cmd.NextAll();
 
@@ -119,9 +121,11 @@ namespace fCraft {
             }
 
             PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
-            if ( info == null ) return;
+            if ( info == null )
+                return;
             string oldTitle = info.TitleName;
-            if ( titleName.Length == 0 ) titleName = null;
+            if ( titleName.Length == 0 )
+                titleName = null;
             if ( titleName == info.TitleName ) {
                 if ( titleName == null ) {
                     player.Message( "Title: Title for {0} is not set.",
@@ -159,7 +163,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdImmortal = new CommandDescriptor {
+        private static readonly CommandDescriptor CdImmortal = new CommandDescriptor {
             Name = "Immortal",
             Aliases = new[] { "Invincible", "God" },
             Category = CommandCategory.Moderation,
@@ -171,7 +175,7 @@ namespace fCraft {
             Handler = ImmortalHandler
         };
 
-        internal static void ImmortalHandler ( Player player, Command cmd ) {
+        internal static void ImmortalHandler( Player player, Command cmd ) {
             if ( player.Immortal ) {
                 player.Immortal = false;
                 Server.Players.Message( "{0}&S is no longer Immortal", player.ClassyName );
@@ -180,7 +184,8 @@ namespace fCraft {
             player.Immortal = true;
             Server.Players.Message( "{0}&S is now Immortal", player.ClassyName );
         }
-        static readonly CommandDescriptor CdModerate = new CommandDescriptor {
+
+        private static readonly CommandDescriptor CdModerate = new CommandDescriptor {
             Name = "Moderate",
             Aliases = new[] { "MuteAll", "Moderation" },
             Category = CommandCategory.Moderation,
@@ -192,7 +197,7 @@ namespace fCraft {
             Handler = ModerateHandler
         };
 
-        internal static void ModerateHandler ( Player player, Command cmd ) {
+        internal static void ModerateHandler( Player player, Command cmd ) {
             string Option = cmd.Next();
             if ( Option == null ) {
                 if ( Server.Moderation ) {
@@ -216,7 +221,8 @@ namespace fCraft {
                         return;
                     }
                     Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-                    if ( target == null ) return;
+                    if ( target == null )
+                        return;
                     if ( Server.VoicedPlayers.Contains( target ) ) {
                         player.Message( "{0}&S is already voiced", target.ClassyName );
                         return;
@@ -230,7 +236,8 @@ namespace fCraft {
                         return;
                     }
                     Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-                    if ( target == null ) return;
+                    if ( target == null )
+                        return;
                     if ( !Server.VoicedPlayers.Contains( target ) ) {
                         player.Message( "&WError: {0}&S does not have voiced status", target.ClassyName );
                         return;
@@ -245,7 +252,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdKill = new CommandDescriptor {
+        private static readonly CommandDescriptor CdKill = new CommandDescriptor {
             Name = "Kill",
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             Aliases = new[] { "Slay" },
@@ -257,7 +264,7 @@ namespace fCraft {
             Handler = KillHandler
         };
 
-        internal static void KillHandler ( Player player, Command cmd ) {
+        internal static void KillHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             string OReason = cmd.NextAll();
             if ( name == null ) {
@@ -266,7 +273,8 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
             if ( target.Immortal ) {
                 player.Message( "&SYou failed to kill {0}&S, they are immortal", target.ClassyName );
                 return;
@@ -302,7 +310,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdSlap = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSlap = new CommandDescriptor {
             Name = "Slap",
             IsConsoleSafe = true,
             NotRepeatable = true,
@@ -315,7 +323,7 @@ namespace fCraft {
             Handler = Slap
         };
 
-        static void Slap ( Player player, Command cmd ) {
+        private static void Slap( Player player, Command cmd ) {
             string name = cmd.Next();
             string item = cmd.Next();
             if ( name == null ) {
@@ -323,7 +331,8 @@ namespace fCraft {
                 return;
             }
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
             if ( target.Immortal ) {
                 player.Message( "&SYou failed to slap {0}&S, they are immortal", target.ClassyName );
                 return;
@@ -371,7 +380,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdTPZone = new CommandDescriptor {
+        private static readonly CommandDescriptor CdTPZone = new CommandDescriptor {
             Name = "Tpzone",
             IsConsoleSafe = false,
             Aliases = new[] { "tpz", "zonetp" },
@@ -382,7 +391,7 @@ namespace fCraft {
             Handler = TPZone
         };
 
-        static void TPZone ( Player player, Command cmd ) {
+        private static void TPZone( Player player, Command cmd ) {
             string zoneName = cmd.Next();
             if ( zoneName == null ) {
                 player.Message( "No zone name specified. See &W/Help tpzone" );
@@ -401,7 +410,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdImpersonate = new CommandDescriptor {
+        private static readonly CommandDescriptor CdImpersonate = new CommandDescriptor {
             Name = "Impersonate",
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
@@ -413,7 +422,7 @@ namespace fCraft {
             Handler = ImpersonateHandler
         };
 
-        static void ImpersonateHandler ( Player player, Command cmd ) {
+        private static void ImpersonateHandler( Player player, Command cmd ) {
             //entityChanged should be set to true for the skin update to happen in real time
             string iName = cmd.Next();
             if ( iName == null && player.iName == null ) {
@@ -437,7 +446,7 @@ namespace fCraft {
             player.entityChanged = true;
         }
 
-        static readonly CommandDescriptor CdTempBan = new CommandDescriptor {
+        private static readonly CommandDescriptor CdTempBan = new CommandDescriptor {
             Name = "Tempban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -448,7 +457,7 @@ namespace fCraft {
             Handler = Tempban
         };
 
-        static void Tempban ( Player player, Command cmd ) {
+        private static void Tempban( Player player, Command cmd ) {
             string targetName = cmd.Next();
             string timeString = cmd.Next();
             TimeSpan duration;
@@ -498,7 +507,8 @@ namespace fCraft {
                     Server.Message( "&SPlayer {0}&S was Banned by {1}&S for {2}",
                                 target.ClassyName, player.ClassyName, duration.ToMiniString() );
 
-                    if ( reason.Length > 0 ) Server.Message( "&Wreason: {0}", reason );
+                    if ( reason.Length > 0 )
+                        Server.Message( "&Wreason: {0}", reason );
                     Logger.Log( LogType.UserActivity, "Player {0} was Banned by {1} for {2}",
                                 target.Name, player.Name, duration.ToMiniString() );
                 } catch ( PlayerOpException ex ) {
@@ -512,7 +522,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdBasscannon = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBasscannon = new CommandDescriptor {
             Name = "Basscannon",
             Category = CommandCategory.Moderation | CommandCategory.Fun,
             IsConsoleSafe = true,
@@ -524,7 +534,7 @@ namespace fCraft {
             Handler = Basscannon
         };
 
-        internal static void Basscannon ( Player player, Command cmd ) {
+        internal static void Basscannon( Player player, Command cmd ) {
             string name = cmd.Next();
             string reason = cmd.NextAll();
 
@@ -534,7 +544,8 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             if ( ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
                 player.Message( "&WPlease specify a reason: &W/Basscannon PlayerName Reason" );
@@ -555,7 +566,8 @@ namespace fCraft {
                         BassText.Add( "Pow pow POW!!!" );
                     }
                     string line = BassText[new Random().Next( 0, BassText.Count )].Trim();
-                    if ( line.Length == 0 ) return;
+                    if ( line.Length == 0 )
+                        return;
                     Server.Message( "&9{0}", line );
                 } catch ( PlayerOpException ex ) {
                     player.Message( ex.MessageColored );
@@ -569,7 +581,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdWarn = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWarn = new CommandDescriptor {
             Name = "Warn",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -580,7 +592,7 @@ namespace fCraft {
             Handler = Warn
         };
 
-        internal static void Warn ( Player player, Command cmd ) {
+        internal static void Warn( Player player, Command cmd ) {
             string name = cmd.Next();
 
             if ( name == null ) {
@@ -615,7 +627,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdUnWarn = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnWarn = new CommandDescriptor {
             Name = "Unwarn",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -625,7 +637,7 @@ namespace fCraft {
             Handler = UnWarn
         };
 
-        internal static void UnWarn ( Player player, Command cmd ) {
+        internal static void UnWarn( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name == null ) {
                 player.Message( "No player specified." );
@@ -650,8 +662,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdDisconnect = new CommandDescriptor {
+        private static readonly CommandDescriptor CdDisconnect = new CommandDescriptor {
             Name = "Disconnect",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -663,7 +674,7 @@ namespace fCraft {
             Handler = dc
         };
 
-        internal static void dc ( Player player, Command cmd ) {
+        internal static void dc( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name == null ) {
                 player.Message( "Please enter a name" );
@@ -671,7 +682,8 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             if ( player.Can( Permission.Gtfo, target.Info.Rank ) ) {
                 try {
@@ -689,11 +701,12 @@ namespace fCraft {
                 player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
             }
         }
-        #endregion
+
+        #endregion 800Craft
 
         #region Ban / Unban
 
-        static readonly CommandDescriptor CdBan = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBan = new CommandDescriptor {
             Name = "Ban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -704,14 +717,15 @@ namespace fCraft {
             Handler = BanHandler
         };
 
-        static void BanHandler ( Player player, Command cmd ) {
+        private static void BanHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( targetName == null ) {
                 CdBan.PrintUsage( player );
                 return;
             }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
             string reason = cmd.NextAll();
             try {
                 Player targetPlayer = target.PlayerObject;
@@ -725,9 +739,7 @@ namespace fCraft {
             }
         }
 
-
-
-        static readonly CommandDescriptor CdBanIP = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBanIP = new CommandDescriptor {
             Name = "BanIP",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -739,7 +751,7 @@ namespace fCraft {
             Handler = BanIPHandler
         };
 
-        static void BanIPHandler ( Player player, Command cmd ) {
+        private static void BanIPHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
             if ( targetNameOrIP == null ) {
                 CdBanIP.PrintUsage( player );
@@ -756,7 +768,8 @@ namespace fCraft {
                 }
             } else {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                if ( target == null ) return;
+                if ( target == null )
+                    return;
                 try {
                     if ( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Ban( player, reason, true, true );
@@ -772,9 +785,7 @@ namespace fCraft {
             }
         }
 
-
-
-        static readonly CommandDescriptor CdBanAll = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBanAll = new CommandDescriptor {
             Name = "BanAll",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -787,7 +798,7 @@ namespace fCraft {
             Handler = BanAllHandler
         };
 
-        static void BanAllHandler ( Player player, Command cmd ) {
+        private static void BanAllHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
             if ( targetNameOrIP == null ) {
                 CdBanAll.PrintUsage( player );
@@ -804,7 +815,8 @@ namespace fCraft {
                 }
             } else {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                if ( target == null ) return;
+                if ( target == null )
+                    return;
                 try {
                     if ( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Ban( player, reason, true, true );
@@ -820,9 +832,7 @@ namespace fCraft {
             }
         }
 
-
-
-        static readonly CommandDescriptor CdUnban = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnban = new CommandDescriptor {
             Name = "Unban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -833,14 +843,15 @@ namespace fCraft {
             Handler = UnbanHandler
         };
 
-        static void UnbanHandler ( Player player, Command cmd ) {
+        private static void UnbanHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( targetName == null ) {
                 CdUnban.PrintUsage( player );
                 return;
             }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
             string reason = cmd.NextAll();
             try {
                 target.Unban( player, reason, true, true );
@@ -849,9 +860,7 @@ namespace fCraft {
             }
         }
 
-
-
-        static readonly CommandDescriptor CdUnbanIP = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnbanIP = new CommandDescriptor {
             Name = "UnbanIP",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -863,7 +872,7 @@ namespace fCraft {
             Handler = UnbanIPHandler
         };
 
-        static void UnbanIPHandler ( Player player, Command cmd ) {
+        private static void UnbanIPHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
             if ( targetNameOrIP == null ) {
                 CdUnbanIP.PrintUsage( player );
@@ -877,7 +886,8 @@ namespace fCraft {
                     targetAddress.UnbanIP( player, reason, true, true );
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                    if ( target == null ) return;
+                    if ( target == null )
+                        return;
                     if ( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
                     } else {
@@ -889,9 +899,7 @@ namespace fCraft {
             }
         }
 
-
-
-        static readonly CommandDescriptor CdUnbanAll = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnbanAll = new CommandDescriptor {
             Name = "UnbanAll",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -903,7 +911,7 @@ namespace fCraft {
             Handler = UnbanAllHandler
         };
 
-        static void UnbanAllHandler ( Player player, Command cmd ) {
+        private static void UnbanAllHandler( Player player, Command cmd ) {
             string targetNameOrIP = cmd.Next();
             if ( targetNameOrIP == null ) {
                 CdUnbanAll.PrintUsage( player );
@@ -917,7 +925,8 @@ namespace fCraft {
                     targetAddress.UnbanAll( player, reason, true, true );
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
-                    if ( target == null ) return;
+                    if ( target == null )
+                        return;
                     if ( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
                     } else {
@@ -929,8 +938,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdBanEx = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBanEx = new CommandDescriptor {
             Name = "BanEx",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -941,7 +949,7 @@ namespace fCraft {
             Handler = BanExHandler
         };
 
-        static void BanExHandler ( Player player, Command cmd ) {
+        private static void BanExHandler( Player player, Command cmd ) {
             string playerName = cmd.Next();
             if ( playerName == null || playerName.Length < 2 || ( playerName[0] != '-' && playerName[0] != '+' ) ) {
                 CdBanEx.PrintUsage( player );
@@ -950,7 +958,8 @@ namespace fCraft {
             bool addExemption = ( playerName[0] == '+' );
             string targetName = playerName.Substring( 1 );
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             switch ( target.BanStatus ) {
                 case BanStatus.Banned:
@@ -962,6 +971,7 @@ namespace fCraft {
                                         target.ClassyName );
                     }
                     break;
+
                 case BanStatus.IPBanExempt:
                     if ( addExemption ) {
                         player.Message( "IP-Ban exemption already exists for player {0}", target.ClassyName );
@@ -971,6 +981,7 @@ namespace fCraft {
                         target.BanStatus = BanStatus.NotBanned;
                     }
                     break;
+
                 case BanStatus.NotBanned:
                     if ( addExemption ) {
                         player.Message( "IP-Ban exemption added for player {0}",
@@ -984,12 +995,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Ban / Unban
 
         #region Kick
 
-        static readonly CommandDescriptor CdKick = new CommandDescriptor {
+        private static readonly CommandDescriptor CdKick = new CommandDescriptor {
             Name = "Kick",
             Aliases = new[] { "k" },
             Category = CommandCategory.Moderation,
@@ -1001,7 +1011,7 @@ namespace fCraft {
             Handler = KickHandler
         };
 
-        static void KickHandler ( Player player, Command cmd ) {
+        private static void KickHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name == null ) {
                 player.Message( "Usage: &H/Kick PlayerName [Message]" );
@@ -1010,7 +1020,8 @@ namespace fCraft {
 
             // find the target
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             string reason = cmd.NextAll();
             DateTime previousKickDate = target.Info.LastKickDate;
@@ -1022,7 +1033,6 @@ namespace fCraft {
                 Player targetPlayer = target;
                 target.Kick( player, reason, LeaveReason.Kick, true, true, true );
                 WarnIfOtherPlayersOnIP( player, target.Info, targetPlayer );
-
             } catch ( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
                 if ( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
@@ -1047,12 +1057,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Kick
 
         #region Changing Rank (Promotion / Demotion)
 
-        static readonly CommandDescriptor CdRank = new CommandDescriptor {
+        private static readonly CommandDescriptor CdRank = new CommandDescriptor {
             Name = "Rank",
             Aliases = new[] { "user", "promote", "demote" },
             Category = CommandCategory.Moderation,
@@ -1065,7 +1074,7 @@ namespace fCraft {
             Handler = RankHandler
         };
 
-        public static void RankHandler ( Player player, Command cmd ) {
+        public static void RankHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             string newRankName = cmd.Next();
 
@@ -1126,13 +1135,11 @@ namespace fCraft {
             }
         }
 
-
-        #endregion
-
+        #endregion Changing Rank (Promotion / Demotion)
 
         #region Hide
 
-        static readonly CommandDescriptor CdHide = new CommandDescriptor {
+        private static readonly CommandDescriptor CdHide = new CommandDescriptor {
             Name = "Hide",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
@@ -1144,7 +1151,7 @@ namespace fCraft {
             Handler = HideHandler
         };
 
-        static void HideHandler ( Player player, Command cmd ) {
+        private static void HideHandler( Player player, Command cmd ) {
             if ( player.Info.IsHidden ) {
                 player.Message( "You are already hidden." );
                 return;
@@ -1177,9 +1184,7 @@ namespace fCraft {
             Player.RaisePlayerHideChangedEvent( player );
         }
 
-
-
-        static readonly CommandDescriptor CdUnhide = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnhide = new CommandDescriptor {
             Name = "Unhide",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Hide },
@@ -1189,8 +1194,9 @@ namespace fCraft {
             Handler = UnhideHandler
         };
 
-        static void UnhideHandler ( Player player, Command cmd ) {
-            if ( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+        private static void UnhideHandler( Player player, Command cmd ) {
+            if ( player.World == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             if ( !player.Info.IsHidden ) {
                 player.Message( "You are not currently hidden." );
@@ -1219,12 +1225,11 @@ namespace fCraft {
             Player.RaisePlayerHideChangedEvent( player );
         }
 
-        #endregion
-
+        #endregion Hide
 
         #region Set Spawn
 
-        static readonly CommandDescriptor CdSetSpawn = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSetSpawn = new CommandDescriptor {
             Name = "SetSpawn",
             Category = CommandCategory.Moderation | CommandCategory.World,
             Permissions = new[] { Permission.SetSpawn },
@@ -1234,10 +1239,10 @@ namespace fCraft {
             Handler = SetSpawnHandler
         };
 
-        public static void SetSpawnHandler ( Player player, Command cmd ) {
+        public static void SetSpawnHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
-
+            if ( playerWorld == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             string playerName = cmd.Next();
             if ( playerName == null ) {
@@ -1249,7 +1254,6 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "{0} changed the spawned point.",
                             player.Name );
-
             } else if ( player.Can( Permission.Bring ) ) {
                 Player[] infos = playerWorld.FindPlayers( player, playerName );
                 if ( infos.Length == 1 ) {
@@ -1262,10 +1266,8 @@ namespace fCraft {
                                         player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                         player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
                     }
-
                 } else if ( infos.Length > 0 ) {
                     player.MessageManyMatches( "player", infos );
-
                 } else {
                     infos = Server.FindPlayers( player, playerName, true );
                     if ( infos.Length > 0 ) {
@@ -1279,12 +1281,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Set Spawn
 
         #region Freeze
 
-        static readonly CommandDescriptor CdFreeze = new CommandDescriptor {
+        private static readonly CommandDescriptor CdFreeze = new CommandDescriptor {
             Name = "Freeze",
             Aliases = new[] { "f" },
             Category = CommandCategory.Moderation,
@@ -1297,7 +1298,7 @@ namespace fCraft {
             Handler = FreezeHandler
         };
 
-        static void FreezeHandler ( Player player, Command cmd ) {
+        private static void FreezeHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name == null ) {
                 CdFreeze.PrintUsage( player );
@@ -1305,7 +1306,8 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             try {
                 target.Info.Freeze( player, true, true );
@@ -1314,8 +1316,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdUnfreeze = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnfreeze = new CommandDescriptor {
             Name = "Unfreeze",
             Aliases = new[] { "uf" },
             Category = CommandCategory.Moderation,
@@ -1326,7 +1327,7 @@ namespace fCraft {
             Handler = UnfreezeHandler
         };
 
-        static void UnfreezeHandler ( Player player, Command cmd ) {
+        private static void UnfreezeHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name == null ) {
                 CdFreeze.PrintUsage( player );
@@ -1334,7 +1335,8 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             try {
                 target.Info.Unfreeze( player, true, true );
@@ -1343,12 +1345,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Freeze
 
         #region TP
 
-        static readonly CommandDescriptor CdTP = new CommandDescriptor {
+        private static readonly CommandDescriptor CdTP = new CommandDescriptor {
             Name = "TP",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Teleport },
@@ -1358,7 +1359,7 @@ namespace fCraft {
             Handler = TPHandler
         };
 
-        static void TPHandler ( Player player, Command cmd ) {
+        private static void TPHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name == null ) {
                 CdTP.PrintUsage( player );
@@ -1369,10 +1370,8 @@ namespace fCraft {
                 cmd.Rewind();
                 int x, y, z;
                 if ( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out z ) ) {
-
                     if ( x <= -1024 || x >= 1024 || y <= -1024 || y >= 1024 || z <= -1024 || z >= 1024 ) {
                         player.Message( "Coordinates are outside the valid range!" );
-
                     } else {
                         player.TeleportTo( new Position {
                             X = ( short )( x * 32 + 16 ),
@@ -1385,7 +1384,6 @@ namespace fCraft {
                 } else {
                     CdTP.PrintUsage( player );
                 }
-
             } else {
                 if ( name == "-" ) {
                     if ( player.LastUsedPlayerName != null ) {
@@ -1399,11 +1397,11 @@ namespace fCraft {
                 if ( matches.Length == 1 ) {
                     Player target = matches[0];
                     World targetWorld = target.World;
-                    if ( targetWorld == null ) PlayerOpException.ThrowNoWorld( target );
+                    if ( targetWorld == null )
+                        PlayerOpException.ThrowNoWorld( target );
 
                     if ( targetWorld == player.World ) {
                         player.TeleportTo( target.Position );
-
                     } else {
                         switch ( targetWorld.AccessSecurity.CheckDetailed( player.Info ) ) {
                             case SecurityCheckResult.Allowed:
@@ -1417,11 +1415,13 @@ namespace fCraft {
                                 player.StopSpectating();
                                 player.JoinWorld( targetWorld, WorldChangeReason.Tp, target.Position );
                                 break;
+
                             case SecurityCheckResult.BlackListed:
                                 player.Message( "Cannot teleport to {0}&S because you are blacklisted on world {1}",
                                                 target.ClassyName,
                                                 targetWorld.ClassyName );
                                 break;
+
                             case SecurityCheckResult.RankTooLow:
                                 player.Message( "Cannot teleport to {0}&S because world {1}&S requires {2}+&S to join.",
                                                 target.ClassyName,
@@ -1431,10 +1431,8 @@ namespace fCraft {
                             // TODO: case PermissionType.RankTooHigh:
                         }
                     }
-
                 } else if ( matches.Length > 1 ) {
                     player.MessageManyMatches( "player", matches );
-
                 } else {
                     // Try to guess if player typed "/TP" instead of "/Join"
                     World[] worlds = WorldManager.FindWorlds( player, name );
@@ -1450,12 +1448,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion TP
 
         #region Bring / WorldBring / BringAll
 
-        static readonly CommandDescriptor CdBring = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBring = new CommandDescriptor {
             Name = "Bring",
             IsConsoleSafe = true,
             Aliases = new[] { "summon", "fetch" },
@@ -1467,7 +1464,7 @@ namespace fCraft {
             Handler = BringHandler
         };
 
-        static void BringHandler ( Player player, Command cmd ) {
+        private static void BringHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name == null ) {
                 CdBring.PrintUsage( player );
@@ -1479,17 +1476,20 @@ namespace fCraft {
             Player toPlayer = player;
             if ( toName != null ) {
                 toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false, true );
-                if ( toPlayer == null ) return;
+                if ( toPlayer == null )
+                    return;
             } else if ( toPlayer.World == null ) {
                 player.Message( "When used from console, /Bring requires both names to be given." );
                 return;
             }
 
             World world = toPlayer.World;
-            if ( world == null ) PlayerOpException.ThrowNoWorld( toPlayer );
+            if ( world == null )
+                PlayerOpException.ThrowNoWorld( toPlayer );
 
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             if ( !player.Can( Permission.Bring, target.Info.Rank ) ) {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
@@ -1503,7 +1503,6 @@ namespace fCraft {
                 // teleport within the same world
                 target.TeleportTo( toPlayer.Position );
                 target.Message( "&8You were summoned by {0}", player.ClassyName );
-
             } else {
                 // teleport to a different world
                 SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
@@ -1528,8 +1527,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdWorldBring = new CommandDescriptor {
+        private static readonly CommandDescriptor CdWorldBring = new CommandDescriptor {
             Name = "WBring",
             IsConsoleSafe = true,
             Category = CommandCategory.Moderation,
@@ -1539,7 +1537,7 @@ namespace fCraft {
             Handler = WorldBringHandler
         };
 
-        static void WorldBringHandler ( Player player, Command cmd ) {
+        private static void WorldBringHandler( Player player, Command cmd ) {
             string playerName = cmd.Next();
             string worldName = cmd.Next();
             if ( playerName == null || worldName == null ) {
@@ -1550,7 +1548,8 @@ namespace fCraft {
             Player target = Server.FindPlayerOrPrintMatches( player, playerName, false, true );
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
 
-            if ( target == null || world == null ) return;
+            if ( target == null || world == null )
+                return;
 
             if ( target == player ) {
                 player.Message( "&WYou cannot &H/WBring&W yourself." );
@@ -1592,8 +1591,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdBringAll = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBringAll = new CommandDescriptor {
             Name = "BringAll",
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Bring, Permission.BringAll },
@@ -1604,8 +1602,9 @@ namespace fCraft {
             Handler = BringAllHandler
         };
 
-        static void BringAllHandler ( Player player, Command cmd ) {
-            if ( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+        private static void BringAllHandler( Player player, Command cmd ) {
+            if ( player.World == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             List<World> targetWorlds = new List<World>();
             List<Rank> targetRanks = new List<Rank>();
@@ -1633,7 +1632,8 @@ namespace fCraft {
                     allWorlds = true;
                 } else {
                     World world = WorldManager.FindWorldOrPrintMatches( player, arg );
-                    if ( world == null ) return;
+                    if ( world == null )
+                        return;
                     targetWorlds.Add( world );
                 }
             }
@@ -1679,7 +1679,6 @@ namespace fCraft {
 
             int count = 0;
 
-
             // Actually bring all the players
             foreach ( Player targetPlayer in targetPlayers.CanBeSeen( player )
                                                          .RankedAtMost( bringLimit ) ) {
@@ -1690,7 +1689,6 @@ namespace fCraft {
                     if ( targetPlayer.Info.IsFrozen ) {
                         targetPlayer.Position = player.Position;
                     }
-
                 } else {
                     // teleport to a different world
                     BringPlayerToWorld( player, targetPlayer, player.World, false, true );
@@ -1706,13 +1704,14 @@ namespace fCraft {
             }
         }
 
-
-
-        static void BringPlayerToWorld ( [NotNull] Player player, [NotNull] Player target, [NotNull] World world,
-                                         bool overridePermissions, bool usePlayerPosition ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
-            if ( target == null ) throw new ArgumentNullException( "target" );
-            if ( world == null ) throw new ArgumentNullException( "world" );
+        private static void BringPlayerToWorld( [NotNull] Player player, [NotNull] Player target, [NotNull] World world,
+                                        bool overridePermissions, bool usePlayerPosition ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
+            if ( target == null )
+                throw new ArgumentNullException( "target" );
+            if ( world == null )
+                throw new ArgumentNullException( "world" );
             switch ( world.AccessSecurity.CheckDetailed( target.Info ) ) {
                 case SecurityCheckResult.Allowed:
                 case SecurityCheckResult.WhiteListed:
@@ -1755,12 +1754,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Bring / WorldBring / BringAll
 
         #region Patrol & SpecPatrol
 
-        static readonly CommandDescriptor CdPatrol = new CommandDescriptor {
+        private static readonly CommandDescriptor CdPatrol = new CommandDescriptor {
             Name = "Patrol",
             Aliases = new[] { "pat" },
             Category = CommandCategory.Moderation,
@@ -1769,9 +1767,10 @@ namespace fCraft {
             Handler = PatrolHandler
         };
 
-        static void PatrolHandler ( Player player, Command cmd ) {
+        private static void PatrolHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             Player target = playerWorld.GetNextPatrolTarget( player );
             if ( target == null ) {
@@ -1783,8 +1782,7 @@ namespace fCraft {
             player.Message( "Patrol: Teleporting to {0}", target.ClassyName );
         }
 
-
-        static readonly CommandDescriptor CdSpecPatrol = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSpecPatrol = new CommandDescriptor {
             Name = "SpecPatrol",
             Aliases = new[] { "spat" },
             Category = CommandCategory.Moderation,
@@ -1793,9 +1791,10 @@ namespace fCraft {
             Handler = SpecPatrolHandler
         };
 
-        static void SpecPatrolHandler ( Player player, Command cmd ) {
+        private static void SpecPatrolHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
-            if ( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
+            if ( playerWorld == null )
+                PlayerOpException.ThrowNoWorld( player );
 
             Player target = playerWorld.GetNextPatrolTarget( player,
                                                              p => player.Can( Permission.Spectate, p.Info.Rank ),
@@ -1809,14 +1808,13 @@ namespace fCraft {
             player.Spectate( target );
         }
 
-        #endregion
-
+        #endregion Patrol & SpecPatrol
 
         #region Mute / Unmute
 
-        static readonly TimeSpan MaxMuteDuration = TimeSpan.FromDays( 700 ); // 100w0d
+        private static readonly TimeSpan MaxMuteDuration = TimeSpan.FromDays( 700 ); // 100w0d
 
-        static readonly CommandDescriptor CdMute = new CommandDescriptor {
+        private static readonly CommandDescriptor CdMute = new CommandDescriptor {
             Name = "Mute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -1826,7 +1824,7 @@ namespace fCraft {
             Handler = MuteHandler
         };
 
-        static void MuteHandler ( Player player, Command cmd ) {
+        private static void MuteHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             string timeString = cmd.Next();
             TimeSpan duration;
@@ -1846,7 +1844,8 @@ namespace fCraft {
 
             // find the target
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             // actually mute
             try {
@@ -1856,8 +1855,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdUnmute = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnmute = new CommandDescriptor {
             Name = "Unmute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -1867,7 +1865,7 @@ namespace fCraft {
             Handler = UnmuteHandler
         };
 
-        static void UnmuteHandler ( Player player, Command cmd ) {
+        private static void UnmuteHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( String.IsNullOrEmpty( targetName ) ) {
                 CdUnmute.PrintUsage( player );
@@ -1876,7 +1874,8 @@ namespace fCraft {
 
             // find target
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             try {
                 target.Info.Unmute( player, true, true );
@@ -1885,12 +1884,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Mute / Unmute
 
         #region Spectate / Unspectate
 
-        static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
             Name = "Spectate",
             Aliases = new[] { "follow", "spec" },
             Category = CommandCategory.Moderation,
@@ -1899,7 +1897,7 @@ namespace fCraft {
             Handler = SpectateHandler
         };
 
-        static void SpectateHandler ( Player player, Command cmd ) {
+        private static void SpectateHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( targetName == null ) {
                 PlayerInfo lastSpec = player.LastSpectatedPlayer;
@@ -1917,7 +1915,8 @@ namespace fCraft {
             }
 
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
-            if ( target == null ) return;
+            if ( target == null )
+                return;
 
             if ( target == player ) {
                 player.Message( "You cannot spectate yourself." );
@@ -1937,8 +1936,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
             Name = "Unspectate",
             Aliases = new[] { "unfollow", "unspec" },
             Category = CommandCategory.Moderation,
@@ -1947,17 +1945,16 @@ namespace fCraft {
             Handler = UnspectateHandler
         };
 
-        static void UnspectateHandler ( Player player, Command cmd ) {
+        private static void UnspectateHandler( Player player, Command cmd ) {
             if ( !player.StopSpectating() ) {
                 player.Message( "You are not currently spectating anyone." );
             }
         }
 
-        #endregion
-
+        #endregion Spectate / Unspectate
 
         // freeze target if player is allowed to do so
-        static void FreezeIfAllowed ( Player player, PlayerInfo targetInfo ) {
+        private static void FreezeIfAllowed( Player player, PlayerInfo targetInfo ) {
             if ( targetInfo.IsOnline && !targetInfo.IsFrozen && player.Can( Permission.Freeze, targetInfo.Rank ) ) {
                 try {
                     targetInfo.Freeze( player, true, true );
@@ -1966,9 +1963,8 @@ namespace fCraft {
             }
         }
 
-
         // warn player if others are still online from target's IP
-        static void WarnIfOtherPlayersOnIP ( Player player, PlayerInfo targetInfo, Player except ) {
+        private static void WarnIfOtherPlayersOnIP( Player player, PlayerInfo targetInfo, Player except ) {
             Player[] otherPlayers = Server.Players.FromIP( targetInfo.LastIP )
                                                   .Except( except )
                                                   .ToArray();

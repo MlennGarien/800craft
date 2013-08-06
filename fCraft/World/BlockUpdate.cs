@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft {
+
     /// <summary> Structure representing a pending update to the map's block array.
     /// Contains information about the block coordinates, type, and change's origin. </summary>
     public struct BlockUpdate {
@@ -18,9 +19,9 @@ namespace fCraft {
 
         public BlockUpdate( Player origin, Vector3I coord, Block blockType ) {
             Origin = origin;
-            X = (short)coord.X;
-            Y = (short)coord.Y;
-            Z = (short)coord.Z;
+            X = ( short )coord.X;
+            Y = ( short )coord.Y;
+            Z = ( short )coord.Z;
             BlockType = blockType;
         }
     }

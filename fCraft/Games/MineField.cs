@@ -27,15 +27,13 @@
 
 //Copyright (C) <2011 - 2013> Jon Baker(http://au70.net)
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
-using fCraft.MapConversion;
+using System.Collections.Generic;
 using fCraft.Events;
 
 namespace fCraft {
-    class MineField {
+
+    internal class MineField {
         private static World _world;
         private const int _ground = 1;
         private static Map _map;
@@ -45,11 +43,11 @@ namespace fCraft {
         private static bool _stopped;
         private static MineField instance;
 
-        private MineField () {
+        private MineField() {
             // Empty, singleton
         }
 
-        public static MineField GetInstance () {
+        public static MineField GetInstance() {
             if ( instance == null ) {
                 instance = new MineField();
                 Failed = new List<Player>();
@@ -61,7 +59,8 @@ namespace fCraft {
             }
             return instance;
         }
-        public static void Start ( Player player ) {
+
+        public static void Start( Player player ) {
             Map map = MapGenerator.GenerateEmpty( 64, 128, 16 );
             map.Save( "maps/minefield.fcm" );
             if ( _world != null ) {
@@ -83,7 +82,7 @@ namespace fCraft {
             Server.RequestGC();
         }
 
-        public static void Stop ( Player player, bool Won ) {
+        public static void Stop( Player player, bool Won ) {
             if ( Failed != null && Mines != null ) {
                 Failed.Clear();
 
@@ -104,7 +103,7 @@ namespace fCraft {
             }
         }
 
-        private static void SetUpRed () {
+        private static void SetUpRed() {
             for ( int x = 0; x <= _map.Width; x++ ) {
                 for ( int y = 0; y <= 10; y++ ) {
                     _map.SetBlock( x, y, _ground, Block.Red );
@@ -113,7 +112,7 @@ namespace fCraft {
             }
         }
 
-        private static void SetUpMiddleWater () {
+        private static void SetUpMiddleWater() {
             for ( int x = _map.Width; x >= 0; x-- ) {
                 for ( int y = _map.Length - 50; y >= _map.Length - 56; y-- ) {
                     _map.SetBlock( x, y, _ground, Block.Water );
@@ -122,7 +121,7 @@ namespace fCraft {
             }
         }
 
-        private static void SetUpGreen () {
+        private static void SetUpGreen() {
             for ( int x = _map.Width; x >= 0; x-- ) {
                 for ( int y = _map.Length; y >= _map.Length - 10; y-- ) {
                     _map.SetBlock( x, y, _ground, Block.Green );
@@ -131,7 +130,7 @@ namespace fCraft {
             }
         }
 
-        private static void SetUpMines () {
+        private static void SetUpMines() {
             for ( short i = 0; i <= _map.Width; ++i ) {
                 for ( short j = 0; j <= _map.Length; ++j ) {
                     if ( _map.GetBlock( i, j, _ground ) != Block.Red &&
@@ -149,7 +148,7 @@ namespace fCraft {
             }
         }
 
-        public static bool PlayerBlowUpCheck ( Player player ) {
+        public static bool PlayerBlowUpCheck( Player player ) {
             if ( !Failed.Contains( player ) ) {
                 Failed.Add( player );
                 return true;
@@ -157,14 +156,14 @@ namespace fCraft {
             return false;
         }
 
-        private static void PlayerPlacing ( object sender, PlayerPlacingBlockEventArgs e ) {
+        private static void PlayerPlacing( object sender, PlayerPlacingBlockEventArgs e ) {
             World world = e.Player.World;
             if ( world.gameMode == GameMode.MineField ) {
                 e.Result = CanPlaceResult.Revert;
             }
         }
 
-        private static void PlayerMoving ( object sender, PlayerMovingEventArgs e ) {
+        private static void PlayerMoving( object sender, PlayerMovingEventArgs e ) {
             if ( _world != null && e.Player.World == _world ) {
                 if ( _world.gameMode == GameMode.MineField && !Failed.Contains( e.Player ) ) {
                     if ( e.NewPosition != null ) {

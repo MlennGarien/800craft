@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace fCraft.ServerGUI {
+
     public partial class SkinViewer : Form {
-        PlayerInfo player;
-        Image webSkin;
-        public SkinViewer ( fCraft.PlayerInfo player_ ) {
+        private PlayerInfo player;
+        private Image webSkin;
+
+        public SkinViewer( fCraft.PlayerInfo player_ ) {
             InitializeComponent();
             player = player_;
             PlayerInfo info = player;
@@ -19,13 +17,12 @@ namespace fCraft.ServerGUI {
             SetPlayerInfoText( info );
         }
 
-        void SetPlayerInfoText ( PlayerInfo info ) {
+        private void SetPlayerInfoText( PlayerInfo info ) {
             textBox1.Text = "";
             PlayerLabel.Text = player.Name;
             SetTextRankColor( Color.GetName( player.Rank.Color ) );
             if ( info.LastIP.Equals( System.Net.IPAddress.None ) ) {
                 textBox1.Text += String.Format( "About {0}&S: Never seen before.\r\n", info.ClassyName );
-
             } else {
                 if ( info != null ) {
                     TimeSpan idle = info.PlayerObject.IdleTime;
@@ -132,6 +129,7 @@ namespace fCraft.ServerGUI {
                         textBox1.Text += String.Format( "  Account is &CBANNED&S. See &H/BanInfo\r\n" );
                     }
                     break;
+
                 case BanStatus.IPBanExempt:
                     if ( ipBan != null ) {
                         textBox1.Text += String.Format( "  IP is &CBANNED&S, but account is exempt. See &H/BanInfo\r\n" );
@@ -139,27 +137,26 @@ namespace fCraft.ServerGUI {
                         textBox1.Text += String.Format( "  IP is not banned, and account is exempt. See &H/BanInfo\r\n" );
                     }
                     break;
+
                 case BanStatus.NotBanned:
                     if ( ipBan != null ) {
                         textBox1.Text += String.Format( "  IP is &CBANNED&S. See &H/BanInfo\r\n" );
-
                     }
                     break;
             }
-
 
             if ( !info.LastIP.Equals( System.Net.IPAddress.None ) ) {
                 // Show alts
                 List<PlayerInfo> altNames = new List<PlayerInfo>();
                 int bannedAltCount = 0;
                 foreach ( PlayerInfo playerFromSameIP in PlayerDB.FindPlayers( info.LastIP ) ) {
-                    if ( playerFromSameIP == info ) continue;
+                    if ( playerFromSameIP == info )
+                        continue;
                     altNames.Add( playerFromSameIP );
                     if ( playerFromSameIP.IsBanned ) {
                         bannedAltCount++;
                     }
                 }
-
 
                 // Stats
                 if ( info.BlocksDrawn > 500000000 ) {
@@ -187,7 +184,6 @@ namespace fCraft.ServerGUI {
                                     info.MessagesWritten );
                 }
 
-
                 // More stats
                 if ( info.TimesBannedOthers > 0 || info.TimesKickedOthers > 0 || info.PromoCount > 0 ) {
                     textBox1.Text += String.Format( "  Kicked {0}, Promoted {1} and banned {2} players.\r\n", info.TimesKickedOthers, info.PromoCount, info.TimesBannedOthers );
@@ -206,7 +202,6 @@ namespace fCraft.ServerGUI {
                         textBox1.Text += String.Format( "  Kick reason: {0}\r\n", info.LastKickReason );
                     }
                 }
-
 
                 // Promotion/demotion
                 if ( info.PreviousRank == null ) {
@@ -255,8 +250,8 @@ namespace fCraft.ServerGUI {
                 textBox1.Text = Color.StripColors( textBox1.Text );
             }
         }
-        
-        void GetSetSkin () {
+
+        private void GetSetSkin() {
             GetSkin(); //get the skin (returns EmptySkin() if null or Exception)
             Bitmap temp = new Bitmap( 16, 32 ); //finished skin size
             Rectangle head = new Rectangle( 8, 8, 8, 8 );
@@ -277,69 +272,84 @@ namespace fCraft.ServerGUI {
             pictureBox1.Image = MakeGrayscale( pictureBox1.Image as Bitmap ); //make it black and white
             pictureBox1.Image = ResizeBitmap( pictureBox1.Image as Bitmap, 148, 148 ); //resize to picturebox max size
             temp = ResizeBitmap( temp, 64, 128 ); //resize the stitched skin and then copy it onto the giant b/w head
-            CopyRegionIntoImage( temp, 
-                new Rectangle( 0, 0, temp.Width, temp.Height ), 
-                pictureBox1.Image as Bitmap, 
-                new Rectangle( pictureBox1.Image.Width - temp.Width, 
-                    pictureBox1.Height - ( temp.Height - 8 ), 
-                    temp.Width, 
+            CopyRegionIntoImage( temp,
+                new Rectangle( 0, 0, temp.Width, temp.Height ),
+                pictureBox1.Image as Bitmap,
+                new Rectangle( pictureBox1.Image.Width - temp.Width,
+                    pictureBox1.Height - ( temp.Height - 8 ),
+                    temp.Width,
                     temp.Height ) );
         }
 
-        void SetTextRankColor ( string c ) {
+        private void SetTextRankColor( string c ) {
             switch ( c.ToLower() ) {
                 case "black":
                     PlayerLabel.ForeColor = System.Drawing.Color.Black;
                     break;
+
                 case "navy":
                     PlayerLabel.ForeColor = System.Drawing.Color.Navy;
                     break;
+
                 case "green":
                     PlayerLabel.ForeColor = System.Drawing.Color.Green;
                     break;
+
                 case "teal":
                     PlayerLabel.ForeColor = System.Drawing.Color.Teal;
                     break;
+
                 case "maroon":
                     PlayerLabel.ForeColor = System.Drawing.Color.Maroon;
                     break;
+
                 case "purple":
                     PlayerLabel.ForeColor = System.Drawing.Color.Purple;
                     break;
+
                 case "olive":
                     PlayerLabel.ForeColor = System.Drawing.Color.Olive;
                     break;
+
                 case "silver":
                     PlayerLabel.ForeColor = System.Drawing.Color.Silver;
                     break;
+
                 case "gray":
                     PlayerLabel.ForeColor = System.Drawing.Color.Gray;
                     break;
+
                 case "blue":
                     PlayerLabel.ForeColor = System.Drawing.Color.Blue;
                     break;
+
                 case "lime":
                     PlayerLabel.ForeColor = System.Drawing.Color.Lime;
                     break;
+
                 case "aqua":
                     PlayerLabel.ForeColor = System.Drawing.Color.Aqua;
                     break;
+
                 case "red":
                     PlayerLabel.ForeColor = System.Drawing.Color.Red;
                     break;
+
                 case "magenta":
                     PlayerLabel.ForeColor = System.Drawing.Color.Magenta;
                     break;
+
                 case "yellow":
                     PlayerLabel.ForeColor = System.Drawing.Color.Yellow;
                     break;
+
                 case "white":
                     PlayerLabel.ForeColor = System.Drawing.Color.White;
                     break;
             }
         }
 
-        private static Bitmap ResizeBitmap ( Bitmap sourceBMP, int width, int height ) {
+        private static Bitmap ResizeBitmap( Bitmap sourceBMP, int width, int height ) {
             Bitmap result = new Bitmap( width, height );
             using ( Graphics g = Graphics.FromImage( result ) ) {
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
@@ -348,6 +358,7 @@ namespace fCraft.ServerGUI {
             }
             return result;
         }
+
         private static Image EmptySkin {
             get {
                 Image image = ( Image )new Bitmap( 64, 32, System.Drawing.Imaging.PixelFormat.Format32bppArgb );
@@ -388,12 +399,13 @@ namespace fCraft.ServerGUI {
             }
         }
 
-        private static void CopyRegionIntoImage ( Bitmap srcBitmap, Rectangle srcRegion, Bitmap destBitmap, Rectangle destRegion ) {
+        private static void CopyRegionIntoImage( Bitmap srcBitmap, Rectangle srcRegion, Bitmap destBitmap, Rectangle destRegion ) {
             using ( Graphics grD = Graphics.FromImage( destBitmap ) ) {
                 grD.DrawImage( srcBitmap, destRegion, srcRegion, GraphicsUnit.Pixel );
             }
         }
-        private void GetSkin () {
+
+        private void GetSkin() {
             System.Net.WebClient webClient = new System.Net.WebClient();
             try {
                 byte[] buffer;
@@ -405,7 +417,8 @@ namespace fCraft.ServerGUI {
                 this.webSkin = ( Image )null;
             }
         }
-        public static Bitmap MakeGrayscale ( Bitmap original ) {
+
+        public static Bitmap MakeGrayscale( Bitmap original ) {
             unsafe {
                 //create an empty bitmap the same size as original
                 Bitmap newBitmap = new Bitmap( original.Width, original.Height );

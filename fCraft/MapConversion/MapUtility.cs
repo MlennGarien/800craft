@@ -7,11 +7,9 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
 
     public static class MapUtility {
+        private static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
 
-        static readonly Dictionary<MapFormat, IMapConverter> AvailableConverters = new Dictionary<MapFormat, IMapConverter>();
-
-
-        static MapUtility () {
+        static MapUtility() {
             AvailableConverters.Add( MapFormat.FCMv4, new MapFCMv4() );
             AvailableConverters.Add( MapFormat.FCMv3, new MapFCMv3()
                 .AddExtension( new ZoneConverterExtension() )
@@ -30,10 +28,10 @@ namespace fCraft.MapConversion {
             AvailableConverters.Add( MapFormat.Opticraft, new MapOpticraft() );
         }
 
-
         // ReSharper disable EmptyGeneralCatchClause
-        public static MapFormat Identify ( [NotNull] string fileName, bool tryFallbackConverters ) {
-            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static MapFormat Identify( [NotNull] string fileName, bool tryFallbackConverters ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
             if ( !File.Exists( fileName ) ) {
                 if ( Directory.Exists( fileName ) ) {
@@ -68,11 +66,12 @@ namespace fCraft.MapConversion {
 
             return MapFormat.Unknown;
         }
+
         // ReSharper restore EmptyGeneralCatchClause
 
-
-        public static bool TryLoadHeader ( [NotNull] string fileName, out Map map ) {
-            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static bool TryLoadHeader( [NotNull] string fileName, out Map map ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             try {
                 map = LoadHeader( fileName );
                 return true;
@@ -85,10 +84,10 @@ namespace fCraft.MapConversion {
             }
         }
 
-
-        public static Map LoadHeader ( [NotNull] string fileName ) {
+        public static Map LoadHeader( [NotNull] string fileName ) {
             // ReSharper disable EmptyGeneralCatchClause
-            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
 
             MapStorageType targetType = MapStorageType.SingleFile;
             if ( !File.Exists( fileName ) ) {
@@ -132,9 +131,9 @@ namespace fCraft.MapConversion {
             // ReSharper restore EmptyGeneralCatchClause
         }
 
-
-        public static bool TryLoad ( [NotNull] string fileName, out Map map ) {
-            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static bool TryLoad( [NotNull] string fileName, out Map map ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             try {
                 map = Load( fileName );
                 return true;
@@ -146,10 +145,10 @@ namespace fCraft.MapConversion {
             }
         }
 
-
         // ReSharper disable EmptyGeneralCatchClause
-        public static Map Load ( [NotNull] string fileName ) {
-            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public static Map Load( [NotNull] string fileName ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
             if ( !File.Exists( fileName ) ) {
                 if ( Directory.Exists( fileName ) ) {
@@ -188,13 +187,16 @@ namespace fCraft.MapConversion {
 
             throw new MapFormatException( "Unknown map format." );
         }
+
         // ReSharper restore EmptyGeneralCatchClause
 
-
-        public static bool TrySave ( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {
-            if ( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if ( fileName == null ) throw new ArgumentNullException( "fileName" );
-            if ( format == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "format" );
+        public static bool TrySave( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {
+            if ( mapToSave == null )
+                throw new ArgumentNullException( "mapToSave" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
+            if ( format == MapFormat.Unknown )
+                throw new ArgumentException( "Format may not be \"Unknown\"", "format" );
 
             if ( AvailableConverters.ContainsKey( format ) ) {
                 IMapConverter converter = AvailableConverters[format];
@@ -209,15 +211,17 @@ namespace fCraft.MapConversion {
             throw new MapFormatException( "Unknown map format for saving." );
         }
 
-
-        internal static void ReadAll ( [NotNull] Stream source, [NotNull] byte[] destination ) {
-            if ( source == null ) throw new ArgumentNullException( "source" );
-            if ( destination == null ) throw new ArgumentNullException( "destination" );
+        internal static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
+            if ( source == null )
+                throw new ArgumentNullException( "source" );
+            if ( destination == null )
+                throw new ArgumentNullException( "destination" );
             int bytesRead = 0;
             int bytesLeft = destination.Length;
             while ( bytesLeft > 0 ) {
                 int readPass = source.Read( destination, bytesRead, bytesLeft );
-                if ( readPass == 0 ) throw new EndOfStreamException();
+                if ( readPass == 0 )
+                    throw new EndOfStreamException();
                 bytesRead += readPass;
                 bytesLeft -= readPass;
             }

@@ -27,57 +27,44 @@
 
 using System;
 using System.Linq;
-using System.Text;
-using fCraft.Events;
-using System.Threading;
-using Util = RandomMaze.MazeUtil;
 
-namespace fCraft
-{
-    public class BlockSink : PhysicsTask
-    {
+namespace fCraft {
+
+    public class BlockSink : PhysicsTask {
         private const int Delay = 200;
         private Vector3I _pos; //tnt position
         private int _nextPos;
         private bool _firstMove = true;
         private Block type;
-        public BlockSink(World world, Vector3I position, Block Type)
-            : base(world)
-        {
+
+        public BlockSink( World world, Vector3I position, Block Type )
+            : base( world ) {
             _pos = position;
             _nextPos = position.Z - 1;
             type = Type;
         }
 
-        protected override int PerformInternal()
-        {
-            lock (_world.SyncRoot)
-            {
-                if (_world.waterPhysics)
-                {
-                    if (_firstMove)
-                    {
-                        if (_world.Map.GetBlock(_pos) != type)
-                        {
+        protected override int PerformInternal() {
+            lock ( _world.SyncRoot ) {
+                if ( _world.waterPhysics ) {
+                    if ( _firstMove ) {
+                        if ( _world.Map.GetBlock( _pos ) != type ) {
                             return 0;
                         }
-                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
-                        {
-                            _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
-                            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                        if ( _world.Map.GetBlock( _pos.X, _pos.Y, _nextPos ) == Block.Water ) {
+                            _world.Map.QueueUpdate( new BlockUpdate( null, _pos, Block.Water ) );
+                            _world.Map.QueueUpdate( new BlockUpdate( null, ( short )_pos.X, ( short )_pos.Y, ( short )_nextPos, type ) );
                             _nextPos--;
                             _firstMove = false;
                             return Delay;
                         }
                     }
-                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos + 1) != type)
-                    {
+                    if ( _world.Map.GetBlock( _pos.X, _pos.Y, _nextPos + 1 ) != type ) {
                         return 0;
                     }
-                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
-                    {
-                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos + 1), Block.Water));
-                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                    if ( _world.Map.GetBlock( _pos.X, _pos.Y, _nextPos ) == Block.Water ) {
+                        _world.Map.QueueUpdate( new BlockUpdate( null, ( short )_pos.X, ( short )_pos.Y, ( short )( _nextPos + 1 ), Block.Water ) );
+                        _world.Map.QueueUpdate( new BlockUpdate( null, ( short )_pos.X, ( short )_pos.Y, ( short )_nextPos, type ) );
                         _nextPos--;
                     }
                 }
@@ -85,51 +72,42 @@ namespace fCraft
             }
         }
     }
-    public class BlockFloat : PhysicsTask
-    {
+
+    public class BlockFloat : PhysicsTask {
         private const int Delay = 200;
         private Vector3I _pos;
         private int _nextPos;
         private bool _firstMove = true;
         private Block type;
 
-        public BlockFloat(World world, Vector3I position, Block Type)
-            : base(world)
-        {
+        public BlockFloat( World world, Vector3I position, Block Type )
+            : base( world ) {
             _pos = position;
             _nextPos = position.Z + 1;
             type = Type;
         }
 
-        protected override int PerformInternal()
-        {
-            lock (_world.SyncRoot)
-            {
-                if (_world.waterPhysics)
-                {
-                    if (_firstMove)
-                    {
-                        if (_world.Map.GetBlock(_pos) != type)
-                        {
+        protected override int PerformInternal() {
+            lock ( _world.SyncRoot ) {
+                if ( _world.waterPhysics ) {
+                    if ( _firstMove ) {
+                        if ( _world.Map.GetBlock( _pos ) != type ) {
                             return 0;
                         }
-                        if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
-                        {
-                            _world.Map.QueueUpdate(new BlockUpdate(null, _pos, Block.Water));
-                            _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                        if ( _world.Map.GetBlock( _pos.X, _pos.Y, _nextPos ) == Block.Water ) {
+                            _world.Map.QueueUpdate( new BlockUpdate( null, _pos, Block.Water ) );
+                            _world.Map.QueueUpdate( new BlockUpdate( null, ( short )_pos.X, ( short )_pos.Y, ( short )_nextPos, type ) );
                             _nextPos++;
                             _firstMove = false;
                             return Delay;
                         }
                     }
-                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos - 1) != type)
-                    {
+                    if ( _world.Map.GetBlock( _pos.X, _pos.Y, _nextPos - 1 ) != type ) {
                         return 0;
                     }
-                    if (_world.Map.GetBlock(_pos.X, _pos.Y, _nextPos) == Block.Water)
-                    {
-                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)(_nextPos - 1), Block.Water));
-                        _world.Map.QueueUpdate(new BlockUpdate(null, (short)_pos.X, (short)_pos.Y, (short)_nextPos, type));
+                    if ( _world.Map.GetBlock( _pos.X, _pos.Y, _nextPos ) == Block.Water ) {
+                        _world.Map.QueueUpdate( new BlockUpdate( null, ( short )_pos.X, ( short )_pos.Y, ( short )( _nextPos - 1 ), Block.Water ) );
+                        _world.Map.QueueUpdate( new BlockUpdate( null, ( short )_pos.X, ( short )_pos.Y, ( short )_nextPos, type ) );
                         _nextPos++;
                     }
                 }
@@ -137,46 +115,36 @@ namespace fCraft
             }
         }
     }
-    class WaterPhysics
-    {
-        public static void drownCheck(SchedulerTask task)
-        {
-            try
-            {
-                foreach (Player p in Server.Players.Where(p=> !p.Immortal))
-                {
-                    if (p.World != null) //ignore console
+
+    internal class WaterPhysics {
+
+        public static void drownCheck( SchedulerTask task ) {
+            try {
+                foreach ( Player p in Server.Players.Where( p => !p.Immortal ) ) {
+                    if ( p.World != null ) //ignore console
                     {
-                        if (p.World.waterPhysics)
-                        {
+                        if ( p.World.waterPhysics ) {
                             Position pos = new Position(
-                                (short)(p.Position.X / 32),
-                                (short)(p.Position.Y / 32),
-                                (short)((p.Position.Z + 1) / 32)
+                                ( short )( p.Position.X / 32 ),
+                                ( short )( p.Position.Y / 32 ),
+                                ( short )( ( p.Position.Z + 1 ) / 32 )
                             );
-                            if (p.WorldMap.GetBlock(pos.X, pos.Y, pos.Z) == Block.Water)
-                            {
-                                if (p.DrownTime == null || (DateTime.UtcNow - p.DrownTime).TotalSeconds > 33)
-                                {
+                            if ( p.WorldMap.GetBlock( pos.X, pos.Y, pos.Z ) == Block.Water ) {
+                                if ( p.DrownTime == null || ( DateTime.UtcNow - p.DrownTime ).TotalSeconds > 33 ) {
                                     p.DrownTime = DateTime.UtcNow;
                                 }
-                                if ((DateTime.UtcNow - p.DrownTime).TotalSeconds > 30)
-                                {
-                                    p.TeleportTo(p.WorldMap.Spawn);
-                                    p.World.Players.Message("{0}&S drowned and died", p.ClassyName);
+                                if ( ( DateTime.UtcNow - p.DrownTime ).TotalSeconds > 30 ) {
+                                    p.TeleportTo( p.WorldMap.Spawn );
+                                    p.World.Players.Message( "{0}&S drowned and died", p.ClassyName );
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 p.DrownTime = DateTime.UtcNow;
                             }
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(LogType.SeriousError, "" + ex);
+            } catch ( Exception ex ) {
+                Logger.Log( LogType.SeriousError, "" + ex );
             }
         }
     }

@@ -24,18 +24,15 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace fCraft.Doors
-{
-    class DoorException : Exception
-    {
-        public DoorException(String message)
-            : base(message)
-        {
+using System;
+
+namespace fCraft.Doors {
+
+    internal class DoorException : Exception {
+
+        public DoorException( String message )
+            : base( message ) {
             // Do nothing
         }
     }

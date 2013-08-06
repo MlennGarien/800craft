@@ -6,6 +6,7 @@ using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+
     /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
     public sealed class MapFCMv2 : IMapConverter {
         public const uint Identifier = 0xfc000002;
@@ -14,51 +15,48 @@ namespace fCraft.MapConversion {
             get { return "fCraft"; }
         }
 
-
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.FCMv2; }
         }
 
-
         public bool ClaimsName( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
 
-
         public bool Claims( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             try {
-                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                using ( FileStream mapStream = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( mapStream );
-                    return (reader.ReadUInt32() == Identifier);
+                    return ( reader.ReadUInt32() == Identifier );
                 }
-            } catch( Exception ) {
+            } catch ( Exception ) {
                 return false;
             }
-
         }
 
-
         public Map LoadHeader( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
+            using ( FileStream mapStream = File.OpenRead( fileName ) ) {
                 return LoadHeaderInternal( mapStream );
             }
         }
 
-
-        static Map LoadHeaderInternal( [NotNull] Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
+        private static Map LoadHeaderInternal( [NotNull] Stream stream ) {
+            if ( stream == null )
+                throw new ArgumentNullException( "stream" );
             BinaryReader reader = new BinaryReader( stream );
 
             // Read in the magic number
-            if( reader.ReadUInt32() != Identifier ) {
+            if ( reader.ReadUInt32() != Identifier ) {
                 throw new MapFormatException();
             }
 
@@ -83,14 +81,13 @@ namespace fCraft.MapConversion {
             return map;
         }
 
-
         public Map Load( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
-
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
+            using ( FileStream mapStream = File.OpenRead( fileName ) ) {
                 Map map = LoadHeaderInternal( mapStream );
 
-                if( !map.ValidateHeader() ) {
+                if ( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
@@ -99,13 +96,13 @@ namespace fCraft.MapConversion {
                 // Read the metadata
                 int metaSize = reader.ReadUInt16();
 
-                for( int i = 0; i < metaSize; i++ ) {
+                for ( int i = 0; i < metaSize; i++ ) {
                     string key = ReadLengthPrefixedString( reader );
                     string value = ReadLengthPrefixedString( reader );
-                    if( key.StartsWith( "@zone", StringComparison.OrdinalIgnoreCase ) ) {
+                    if ( key.StartsWith( "@zone", StringComparison.OrdinalIgnoreCase ) ) {
                         try {
                             map.Zones.Add( new Zone( value, map.World ) );
-                        } catch( Exception ex ) {
+                        } catch ( Exception ex ) {
                             Logger.Log( LogType.Error,
                                         "MapFCMv2.Load: Error importing zone definition: {0}", ex );
                         }
@@ -118,7 +115,7 @@ namespace fCraft.MapConversion {
 
                 // Read in the map data
                 map.Blocks = new Byte[map.Volume];
-                using( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
+                using ( GZipStream decompressor = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                     decompressor.Read( map.Blocks, 0, map.Blocks.Length );
                 }
 
@@ -128,16 +125,17 @@ namespace fCraft.MapConversion {
             }
         }
 
-
         public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( mapToSave == null )
+                throw new ArgumentNullException( "mapToSave" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
         }
 
-
-        static string ReadLengthPrefixedString( [NotNull] BinaryReader reader ) {
-            if( reader == null ) throw new ArgumentNullException( "reader" );
+        private static string ReadLengthPrefixedString( [NotNull] BinaryReader reader ) {
+            if ( reader == null )
+                throw new ArgumentNullException( "reader" );
             int length = reader.ReadInt32();
             byte[] stringData = reader.ReadBytes( length );
             return Encoding.ASCII.GetString( stringData );

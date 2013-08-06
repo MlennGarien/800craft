@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace fCraft {
-    static class ChatCommands {
 
-        public static void Init () {
+    internal static class ChatCommands {
+
+        public static void Init() {
             CommandManager.RegisterCommand( CdSay );
             CommandManager.RegisterCommand( CdStaff );
 
@@ -37,6 +38,7 @@ namespace fCraft {
 
             Player.Moved += new EventHandler<Events.PlayerMovedEventArgs>( Player_IsBack );
         }
+
         #region 800Craft
 
         /*        ----
@@ -65,7 +67,8 @@ namespace fCraft {
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
-        static readonly CommandDescriptor CdQuit = new CommandDescriptor {
+
+        private static readonly CommandDescriptor CdQuit = new CommandDescriptor {
             Name = "Quitmsg",
             Aliases = new[] { "quit", "quitmessage" },
             Category = CommandCategory.Chat,
@@ -76,7 +79,7 @@ namespace fCraft {
             Handler = QuitHandler
         };
 
-        static void QuitHandler ( Player player, Command cmd ) {
+        private static void QuitHandler( Player player, Command cmd ) {
             string Msg = cmd.NextAll();
 
             if ( Msg.Length < 1 ) {
@@ -88,7 +91,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdRageQuit = new CommandDescriptor {
+        private static readonly CommandDescriptor CdRageQuit = new CommandDescriptor {
             Name = "Ragequit",
             Aliases = new[] { "rq" },
             Category = CommandCategory.Chat | CommandCategory.Fun,
@@ -99,7 +102,7 @@ namespace fCraft {
             Handler = RageHandler
         };
 
-        static void RageHandler ( Player player, Command cmd ) {
+        private static void RageHandler( Player player, Command cmd ) {
             string reason = cmd.NextAll();
             if ( reason.Length < 1 ) {
                 Server.Players.Message( "{0} &4Ragequit from the server", player.ClassyName );
@@ -114,7 +117,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdBroMode = new CommandDescriptor {
+        private static readonly CommandDescriptor CdBroMode = new CommandDescriptor {
             Name = "Bromode",
             Aliases = new string[] { "bm" },
             Category = CommandCategory.Chat | CommandCategory.Fun,
@@ -125,7 +128,7 @@ namespace fCraft {
             Handler = BroMode
         };
 
-        static void BroMode ( Player player, Command command ) {
+        private static void BroMode( Player player, Command command ) {
             if ( !fCraft.Utils.BroMode.Active ) {
                 foreach ( Player p in Server.Players ) {
                     fCraft.Utils.BroMode.GetInstance().RegisterPlayer( p );
@@ -145,7 +148,7 @@ namespace fCraft {
             }
         }
 
-        public static void Player_IsBack ( object sender, Events.PlayerMovedEventArgs e ) {
+        public static void Player_IsBack( object sender, Events.PlayerMovedEventArgs e ) {
             if ( e.Player.IsAway ) {
                 // We need to have block positions, so we divide by 32
                 Vector3I oldPos = new Vector3I( e.OldPosition.X / 32, e.OldPosition.Y / 32, e.OldPosition.Z / 32 );
@@ -159,7 +162,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor CdVote = new CommandDescriptor {
+        private static readonly CommandDescriptor CdVote = new CommandDescriptor {
             Name = "Vote",
             Category = CommandCategory.Chat | CommandCategory.Fun,
             Permissions = new[] { Permission.Chat },
@@ -170,11 +173,11 @@ namespace fCraft {
             Handler = VoteHandler
         };
 
-        public static void VoteHandler ( Player player, Command cmd ) {
+        public static void VoteHandler( Player player, Command cmd ) {
             fCraft.VoteHandler.VoteParams( player, cmd );
         }
 
-        static readonly CommandDescriptor CdCustomChat = new CommandDescriptor {
+        private static readonly CommandDescriptor CdCustomChat = new CommandDescriptor {
             Name = ConfigKey.CustomChatName.GetString(),
             Category = CommandCategory.Chat,
             Aliases = new[] { ConfigKey.CustomAliasName.GetString() },
@@ -186,13 +189,14 @@ namespace fCraft {
             Handler = CustomChatHandler
         };
 
-        static void CustomChatHandler ( Player player, Command cmd ) {
+        private static void CustomChatHandler( Player player, Command cmd ) {
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
 
-            if ( player.DetectChatSpam() ) return;
+            if ( player.DetectChatSpam() )
+                return;
 
             string message = cmd.NextAll().Trim();
             if ( message.Length > 0 ) {
@@ -203,7 +207,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor cdAway = new CommandDescriptor {
+        private static readonly CommandDescriptor cdAway = new CommandDescriptor {
             Name = "Away",
             Category = CommandCategory.Chat,
             Aliases = new[] { "afk" },
@@ -214,7 +218,7 @@ namespace fCraft {
             Handler = Away
         };
 
-        internal static void Away ( Player player, Command cmd ) {
+        internal static void Away( Player player, Command cmd ) {
             string msg = cmd.NextAll().Trim();
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
@@ -231,8 +235,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdHigh5 = new CommandDescriptor {
+        private static readonly CommandDescriptor CdHigh5 = new CommandDescriptor {
             Name = "High5",
             Aliases = new string[] { "H5" },
             Category = CommandCategory.Chat | CommandCategory.Fun,
@@ -244,7 +247,7 @@ namespace fCraft {
             Handler = High5Handler,
         };
 
-        internal static void High5Handler ( Player player, Command cmd ) {
+        internal static void High5Handler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( targetName == null ) {
                 CdHigh5.PrintUsage( player );
@@ -262,7 +265,7 @@ namespace fCraft {
             target.Message( "{0}&S high fived you.", player.ClassyName );
         }
 
-        static readonly CommandDescriptor CdPoke = new CommandDescriptor {
+        private static readonly CommandDescriptor CdPoke = new CommandDescriptor {
             Name = "Poke",
             Category = CommandCategory.Chat | CommandCategory.Fun,
             IsConsoleSafe = true,
@@ -272,7 +275,7 @@ namespace fCraft {
             Handler = PokeHandler
         };
 
-        internal static void PokeHandler ( Player player, Command cmd ) {
+        internal static void PokeHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             if ( targetName == null ) {
                 CdPoke.PrintUsage( player );
@@ -299,7 +302,7 @@ namespace fCraft {
             }
         }
 
-        static readonly CommandDescriptor cdReview = new CommandDescriptor {
+        private static readonly CommandDescriptor cdReview = new CommandDescriptor {
             Name = "Review",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -309,7 +312,7 @@ namespace fCraft {
             Handler = Review
         };
 
-        internal static void Review ( Player player, Command cmd ) {
+        internal static void Review( Player player, Command cmd ) {
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -329,7 +332,7 @@ namespace fCraft {
                 player.Message( "&WThere are no players online who can review you. A member of staff needs to be online." );
         }
 
-        static readonly CommandDescriptor CdAdminChat = new CommandDescriptor {
+        private static readonly CommandDescriptor CdAdminChat = new CommandDescriptor {
             Name = "Adminchat",
             Aliases = new[] { "ac" },
             Category = CommandCategory.Chat | CommandCategory.Moderation,
@@ -341,7 +344,7 @@ namespace fCraft {
             Handler = AdminChat
         };
 
-        internal static void AdminChat ( Player player, Command cmd ) {
+        internal static void AdminChat( Player player, Command cmd ) {
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -359,11 +362,12 @@ namespace fCraft {
                 Chat.SendAdmin( player, message );
             }
         }
-        #endregion
+
+        #endregion 800Craft
 
         #region Say
 
-        static readonly CommandDescriptor CdSay = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSay = new CommandDescriptor {
             Name = "Say",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -376,13 +380,14 @@ namespace fCraft {
             Handler = SayHandler
         };
 
-        static void SayHandler ( Player player, Command cmd ) {
+        private static void SayHandler( Player player, Command cmd ) {
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
 
-            if ( player.DetectChatSpam() ) return;
+            if ( player.DetectChatSpam() )
+                return;
 
             if ( player.Can( Permission.Say ) ) {
                 string msg = cmd.NextAll().Trim();
@@ -396,12 +401,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Say
 
         #region Staff
 
-        static readonly CommandDescriptor CdStaff = new CommandDescriptor {
+        private static readonly CommandDescriptor CdStaff = new CommandDescriptor {
             Name = "Staff",
             Aliases = new[] { "st" },
             Category = CommandCategory.Chat | CommandCategory.Moderation,
@@ -414,13 +418,14 @@ namespace fCraft {
             Handler = StaffHandler
         };
 
-        static void StaffHandler ( Player player, Command cmd ) {
+        private static void StaffHandler( Player player, Command cmd ) {
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
 
-            if ( player.DetectChatSpam() ) return;
+            if ( player.DetectChatSpam() )
+                return;
 
             string message = cmd.NextAll().Trim();
             if ( message.Length > 0 ) {
@@ -428,12 +433,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Staff
 
         #region Ignore / Unignore
 
-        static readonly CommandDescriptor CdIgnore = new CommandDescriptor {
+        private static readonly CommandDescriptor CdIgnore = new CommandDescriptor {
             Name = "Ignore",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -443,7 +447,7 @@ namespace fCraft {
             Handler = IgnoreHandler
         };
 
-        static void IgnoreHandler ( Player player, Command cmd ) {
+        private static void IgnoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name != null ) {
                 if ( cmd.HasNext ) {
@@ -451,14 +455,14 @@ namespace fCraft {
                     return;
                 }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
-                if ( targetInfo == null ) return;
+                if ( targetInfo == null )
+                    return;
 
                 if ( player.Ignore( targetInfo ) ) {
                     player.MessageNow( "You are now ignoring {0}", targetInfo.ClassyName );
                 } else {
                     player.MessageNow( "You are already ignoring {0}", targetInfo.ClassyName );
                 }
-
             } else {
                 PlayerInfo[] ignoreList = player.IgnoreList;
                 if ( ignoreList.Length > 0 ) {
@@ -470,8 +474,7 @@ namespace fCraft {
             }
         }
 
-
-        static readonly CommandDescriptor CdUnignore = new CommandDescriptor {
+        private static readonly CommandDescriptor CdUnignore = new CommandDescriptor {
             Name = "Unignore",
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
@@ -480,7 +483,7 @@ namespace fCraft {
             Handler = UnignoreHandler
         };
 
-        static void UnignoreHandler ( Player player, Command cmd ) {
+        private static void UnignoreHandler( Player player, Command cmd ) {
             string name = cmd.Next();
             if ( name != null ) {
                 if ( cmd.HasNext ) {
@@ -488,7 +491,8 @@ namespace fCraft {
                     return;
                 }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
-                if ( targetInfo == null ) return;
+                if ( targetInfo == null )
+                    return;
 
                 if ( player.Unignore( targetInfo ) ) {
                     player.MessageNow( "You are no longer ignoring {0}", targetInfo.ClassyName );
@@ -506,12 +510,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Ignore / Unignore
 
         #region Me
 
-        static readonly CommandDescriptor CdMe = new CommandDescriptor {
+        private static readonly CommandDescriptor CdMe = new CommandDescriptor {
             Name = "Me",
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
@@ -523,13 +526,14 @@ namespace fCraft {
             Handler = MeHandler
         };
 
-        static void MeHandler ( Player player, Command cmd ) {
+        private static void MeHandler( Player player, Command cmd ) {
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
 
-            if ( player.DetectChatSpam() ) return;
+            if ( player.DetectChatSpam() )
+                return;
 
             string msg = cmd.NextAll().Trim();
             if ( msg.Length > 0 ) {
@@ -539,12 +543,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Me
 
         #region Roll
 
-        static readonly CommandDescriptor CdRoll = new CommandDescriptor {
+        private static readonly CommandDescriptor CdRoll = new CommandDescriptor {
             Name = "Roll",
             Category = CommandCategory.Chat,
             Permissions = new[] { Permission.Chat },
@@ -557,13 +560,14 @@ namespace fCraft {
             Handler = RollHandler
         };
 
-        static void RollHandler ( Player player, Command cmd ) {
+        private static void RollHandler( Player player, Command cmd ) {
             if ( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
             }
 
-            if ( player.DetectChatSpam() ) return;
+            if ( player.DetectChatSpam() )
+                return;
 
             Random rand = new Random();
             int n1;
@@ -588,12 +592,11 @@ namespace fCraft {
                             Color.Silver, num, min, max );
         }
 
-        #endregion
-
+        #endregion Roll
 
         #region Deafen
 
-        static readonly CommandDescriptor CdDeafen = new CommandDescriptor {
+        private static readonly CommandDescriptor CdDeafen = new CommandDescriptor {
             Name = "Deafen",
             Aliases = new[] { "deaf" },
             Category = CommandCategory.Chat,
@@ -602,7 +605,7 @@ namespace fCraft {
             Handler = DeafenHandler
         };
 
-        static void DeafenHandler ( Player player, Command cmd ) {
+        private static void DeafenHandler( Player player, Command cmd ) {
             if ( cmd.HasNext ) {
                 CdDeafen.PrintUsage( player );
                 return;
@@ -620,13 +623,13 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Deafen
 
         #region Clear
 
-        const int LinesToClear = 30;
-        static readonly CommandDescriptor CdClear = new CommandDescriptor {
+        private const int LinesToClear = 30;
+
+        private static readonly CommandDescriptor CdClear = new CommandDescriptor {
             Name = "Clear",
             UsableByFrozenPlayers = true,
             Category = CommandCategory.Chat,
@@ -634,7 +637,7 @@ namespace fCraft {
             Handler = ClearHandler
         };
 
-        static void ClearHandler ( Player player, Command cmd ) {
+        private static void ClearHandler( Player player, Command cmd ) {
             if ( cmd.HasNext ) {
                 CdClear.PrintUsage( player );
                 return;
@@ -644,12 +647,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Clear
 
         #region Timer
 
-        static readonly CommandDescriptor CdTimer = new CommandDescriptor {
+        private static readonly CommandDescriptor CdTimer = new CommandDescriptor {
             Name = "Timer",
             Permissions = new[] { Permission.Say },
             IsConsoleSafe = true,
@@ -665,7 +667,7 @@ namespace fCraft {
             Handler = TimerHandler
         };
 
-        static void TimerHandler ( Player player, Command cmd ) {
+        private static void TimerHandler( Player player, Command cmd ) {
             string param = cmd.Next();
 
             // List timers
@@ -707,7 +709,8 @@ namespace fCraft {
                 player.MessageMuted();
                 return;
             }
-            if ( player.DetectChatSpam() ) return;
+            if ( player.DetectChatSpam() )
+                return;
             TimeSpan duration;
             if ( !param.TryParseMiniTimespan( out duration ) ) {
                 CdTimer.PrintUsage( player );
@@ -738,6 +741,6 @@ namespace fCraft {
             ChatTimer.Start( duration, message, player.Name );
         }
 
-        #endregion
+        #endregion Timer
     }
 }

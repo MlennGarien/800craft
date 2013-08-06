@@ -20,15 +20,17 @@
  *  THE SOFTWARE.
  *
  */
+
 using System;
-using System.Windows.Forms;
 using System.Net;
+using System.Windows.Forms;
 
 namespace fCraft.ServerGUI {
-    static class Program {
+
+    internal static class Program {
 
         [STAThread]
-        static void Main() {
+        private static void Main() {
             ServicePointManager.ServerCertificateValidationCallback = ( a, b, c, d ) => { return true; };
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
@@ -37,7 +39,7 @@ namespace fCraft.ServerGUI {
 #else
             try {
                 Application.Run( new MainForm() );
-            } catch( Exception ex ) {
+            } catch ( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerGUI", "ServerGUI", ex, true );
             }
 #endif

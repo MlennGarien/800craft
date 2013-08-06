@@ -5,57 +5,55 @@ using System.IO.Compression;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
+
     public sealed class MapNBT : IMapConverter {
 
         public string ServerName {
             get { return "InDev"; }
         }
 
-
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.NBT; }
         }
 
-
         public bool ClaimsName( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".mclevel", StringComparison.OrdinalIgnoreCase );
         }
 
-
         public bool Claims( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             try {
-                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                using ( FileStream mapStream = File.OpenRead( fileName ) ) {
                     GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                     BinaryReader bs = new BinaryReader( gs );
-                    return (bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel");
+                    return ( bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel" );
                 }
-            } catch( Exception ) {
+            } catch ( Exception ) {
                 return false;
             }
         }
 
-
         public Map LoadHeader( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             Map map = Load( fileName );
             map.Blocks = null;
             return map;
         }
 
-
         public Map Load( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
+            using ( FileStream mapStream = File.OpenRead( fileName ) ) {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                 NBTag tag = NBTag.ReadStream( gs );
-
 
                 NBTag mapTag = tag["Map"];
                 // ReSharper disable UseObjectOrCollectionInitializer
@@ -73,7 +71,7 @@ namespace fCraft.MapConversion {
                 };
                 // ReSharper restore UseObjectOrCollectionInitializer
 
-                if( !map.ValidateHeader() ) {
+                if ( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );
                 }
 
@@ -84,10 +82,11 @@ namespace fCraft.MapConversion {
             }
         }
 
-
         public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            if ( mapToSave == null )
+                throw new ArgumentNullException( "mapToSave" );
+            if ( fileName == null )
+                throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();
         }
     }

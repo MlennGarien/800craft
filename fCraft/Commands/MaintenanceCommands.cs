@@ -9,10 +9,11 @@ using fCraft.AutoRank;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Several yet-undocumented commands, mostly related to AutoRank. </summary>
-    static class MaintenanceCommands {
 
-        internal static void Init () {
+    /// <summary> Several yet-undocumented commands, mostly related to AutoRank. </summary>
+    internal static class MaintenanceCommands {
+
+        internal static void Init() {
             CommandManager.RegisterCommand( CdDumpStats );
 
             CommandManager.RegisterCommand( CdMassRank );
@@ -73,6 +74,7 @@ namespace fCraft {
             } );
 #endif
         }
+
         #region 800Craft
 
         /*        ----
@@ -101,7 +103,8 @@ namespace fCraft {
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
-        static readonly CommandDescriptor CdFixRealms = new CommandDescriptor {
+
+        private static readonly CommandDescriptor CdFixRealms = new CommandDescriptor {
             Name = "Fixrealms",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = false,
@@ -111,13 +114,14 @@ namespace fCraft {
             Handler = FixRealms
         };
 
-        static void FixRealms ( Player player, Command cmd ) {
+        private static void FixRealms( Player player, Command cmd ) {
             int Count = 0;
             player.Message( "Managing worlds..." );
             new System.Threading.Thread( new System.Threading.ThreadStart( delegate {
                 foreach ( World w in WorldManager.Worlds ) {
                     foreach ( PlayerInfo p in PlayerDB.PlayerInfoList ) {
-                        if ( p == null || w == null ) return;
+                        if ( p == null || w == null )
+                            return;
                         if ( p.Name == w.Name ) {
                             w.IsHidden = false;
                             w.IsRealm = true;
@@ -129,7 +133,7 @@ namespace fCraft {
             player.Message( "Converted {0} worlds to Realms", Count.ToString() );
         }
 
-        static readonly CommandDescriptor CdNick = new CommandDescriptor {
+        private static readonly CommandDescriptor CdNick = new CommandDescriptor {
             Name = "Nick",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -139,7 +143,7 @@ namespace fCraft {
             Handler = NickHandler
         };
 
-        static void NickHandler ( Player player, Command cmd ) {
+        private static void NickHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             string valName = cmd.NextAll();
 
@@ -149,9 +153,11 @@ namespace fCraft {
             }
 
             PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
-            if ( info == null ) return;
+            if ( info == null )
+                return;
             string oldDisplayedName = info.DisplayedName;
-            if ( valName.Length == 0 ) valName = null;
+            if ( valName.Length == 0 )
+                valName = null;
             if ( valName == info.DisplayedName ) {
                 if ( valName == null ) {
                     player.Message( "Nick: DisplayedName for {0} is not set.",
@@ -180,11 +186,12 @@ namespace fCraft {
                                 valName );
             }
         }
-        #endregion
+
+        #endregion 800Craft
 
         #region DumpStats
 
-        static readonly CommandDescriptor CdDumpStats = new CommandDescriptor {
+        private static readonly CommandDescriptor CdDumpStats = new CommandDescriptor {
             Name = "DumpStats",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -196,9 +203,9 @@ namespace fCraft {
             Handler = DumpStatsHandler
         };
 
-        const int TopPlayersToList = 5;
+        private const int TopPlayersToList = 5;
 
-        static void DumpStatsHandler ( Player player, Command cmd ) {
+        private static void DumpStatsHandler( Player player, Command cmd ) {
             string fileName = cmd.Next();
             if ( fileName == null ) {
                 CdDumpStats.PrintUsage( player );
@@ -249,7 +256,8 @@ namespace fCraft {
                         // ReSharper disable LoopCanBeConvertedToQuery
                         for ( int i = 0; i < infos.Length; i++ ) {
                             // ReSharper restore LoopCanBeConvertedToQuery
-                            if ( infos[i].Rank == rank ) rankPlayers.Add( infos[i] );
+                            if ( infos[i].Rank == rank )
+                                rankPlayers.Add( infos[i] );
                         }
                         if ( rankPlayers.Count == 0 ) {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
@@ -265,7 +273,7 @@ namespace fCraft {
             player.Message( "Stats saved to \"{0}\"", fileName );
         }
 
-        static void DumpPlayerGroupStats ( TextWriter writer, IList<PlayerInfo> infos, string groupName ) {
+        private static void DumpPlayerGroupStats( TextWriter writer, IList<PlayerInfo> infos, string groupName ) {
             RankStats stat = new RankStats();
             foreach ( Rank rank2 in RankManager.Ranks ) {
                 stat.PreviousRank.Add( rank2, 0 );
@@ -295,12 +303,12 @@ namespace fCraft {
                 stat.TimesKicked += infos[i].TimesKicked;
                 stat.TimesKickedOthers += infos[i].TimesKickedOthers;
                 stat.TimesBannedOthers += infos[i].TimesBannedOthers;
-                if ( infos[i].PreviousRank != null ) stat.PreviousRank[infos[i].PreviousRank]++;
+                if ( infos[i].PreviousRank != null )
+                    stat.PreviousRank[infos[i].PreviousRank]++;
             }
 
             stat.BlockRatio = stat.BlocksBuilt / ( double )Math.Max( stat.BlocksDeleted, 1 );
             stat.BlocksChanged = stat.BlocksDeleted + stat.BlocksBuilt;
-
 
             stat.TimeSinceFirstLoginMedian = DateTime.UtcNow.Subtract( infos.OrderByDescending( info => info.FirstLoginDate )
                                                                             .ElementAt( infos.Count / 2 ).FirstLoginDate );
@@ -321,7 +329,6 @@ namespace fCraft {
             stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.TimesKickedOthers ).ElementAt( infos.Count / 2 ).TimesKickedOthers;
             stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.TimesBannedOthers ).ElementAt( infos.Count / 2 ).TimesBannedOthers;
 
-
             stat.TopTimeSinceFirstLogin = infos.OrderBy( info => info.FirstLoginDate ).ToArray();
             stat.TopTimeSinceLastLogin = infos.OrderBy( info => info.LastLoginDate ).ToArray();
             stat.TopTotalTime = infos.OrderByDescending( info => info.TotalTime ).ToArray();
@@ -335,7 +342,6 @@ namespace fCraft {
             stat.TopTimesKicked = infos.OrderByDescending( info => info.TimesKicked ).ToArray();
             stat.TopTimesKickedOthers = infos.OrderByDescending( info => info.TimesKickedOthers ).ToArray();
             stat.TopTimesBannedOthers = infos.OrderByDescending( info => info.TimesBannedOthers ).ToArray();
-
 
             writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
                               groupName, totalCount, bannedCount, inactiveCount );
@@ -358,7 +364,6 @@ namespace fCraft {
             }
             writer.WriteLine();
 
-
             writer.WriteLine( "    TimeSinceLastLogin: {0} mean,  {1} median,  {2} total",
                               TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Count ).ToCompactString(),
                               stat.TimeSinceLastLoginMedian.ToCompactString(),
@@ -377,7 +382,6 @@ namespace fCraft {
                 }
             }
             writer.WriteLine();
-
 
             writer.WriteLine( "    TotalTime: {0} mean,  {1} median,  {2} total",
                               TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Count ).ToCompactString(),
@@ -398,8 +402,6 @@ namespace fCraft {
             }
             writer.WriteLine();
 
-
-
             writer.WriteLine( "    BlocksBuilt: {0} mean,  {1} median,  {2} total",
                               stat.BlocksBuilt / infos.Count,
                               stat.BlocksBuiltMedian,
@@ -418,7 +420,6 @@ namespace fCraft {
                 }
             }
             writer.WriteLine();
-
 
             writer.WriteLine( "    BlocksDeleted: {0} mean,  {1} median,  {2} total",
                               stat.BlocksDeleted / infos.Count,
@@ -439,8 +440,6 @@ namespace fCraft {
             }
             writer.WriteLine();
 
-
-
             writer.WriteLine( "    BlocksChanged: {0} mean,  {1} median,  {2} total",
                               stat.BlocksChanged / infos.Count,
                               stat.BlocksChangedMedian,
@@ -460,7 +459,6 @@ namespace fCraft {
             }
             writer.WriteLine();
 
-
             writer.WriteLine( "    BlocksDrawn: {0} mean,  {1} median,  {2} total",
                               stat.BlocksDrawn / infos.Count,
                               stat.BlocksDrawnMedian,
@@ -479,7 +477,6 @@ namespace fCraft {
                 }
             }
 
-
             writer.WriteLine( "    BlockRatio: {0:0.000} mean,  {1:0.000} median",
                               stat.BlockRatio,
                               stat.BlockRatioMedian );
@@ -497,7 +494,6 @@ namespace fCraft {
                 }
             }
             writer.WriteLine();
-
 
             writer.WriteLine( "    TimesVisited: {0} mean,  {1} median,  {2} total",
                               stat.TimesVisited / infos.Count,
@@ -518,7 +514,6 @@ namespace fCraft {
             }
             writer.WriteLine();
 
-
             writer.WriteLine( "    MessagesWritten: {0} mean,  {1} median,  {2} total",
                               stat.MessagesWritten / infos.Count,
                               stat.MessagesWrittenMedian,
@@ -537,7 +532,6 @@ namespace fCraft {
                 }
             }
             writer.WriteLine();
-
 
             writer.WriteLine( "    TimesKicked: {0:0.0} mean,  {1} median,  {2} total",
                               stat.TimesKicked / ( double )infos.Count,
@@ -558,7 +552,6 @@ namespace fCraft {
             }
             writer.WriteLine();
 
-
             writer.WriteLine( "    TimesKickedOthers: {0:0.0} mean,  {1} median,  {2} total",
                               stat.TimesKickedOthers / ( double )infos.Count,
                               stat.TimesKickedOthersMedian,
@@ -577,7 +570,6 @@ namespace fCraft {
                 }
             }
             writer.WriteLine();
-
 
             writer.WriteLine( "    TimesBannedOthers: {0:0.0} mean,  {1} median,  {2} total",
                               stat.TimesBannedOthers / ( double )infos.Count,
@@ -599,8 +591,7 @@ namespace fCraft {
             writer.WriteLine();
         }
 
-
-        sealed class RankStats {
+        private sealed class RankStats {
             public TimeSpan TimeSinceFirstLogin;
             public TimeSpan TimeSinceLastLogin;
             public TimeSpan TotalTime;
@@ -645,12 +636,11 @@ namespace fCraft {
             public PlayerInfo[] TopTimesBannedOthers;
         }
 
-        #endregion
-
+        #endregion DumpStats
 
         #region AutoRank
 
-        static readonly CommandDescriptor CdAutoRankAll = new CommandDescriptor {
+        private static readonly CommandDescriptor CdAutoRankAll = new CommandDescriptor {
             Name = "AutoRankAll",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -661,7 +651,7 @@ namespace fCraft {
             Handler = AutoRankAllHandler
         };
 
-        static void AutoRankAllHandler ( Player player, Command cmd ) {
+        private static void AutoRankAllHandler( Player player, Command cmd ) {
             string rankName = cmd.Next();
             Rank rank = null;
             if ( rankName != null ) {
@@ -681,9 +671,11 @@ namespace fCraft {
             DoAutoRankAll( player, list, false, "~AutoRankAll" );
         }
 
-        internal static void DoAutoRankAll ( [NotNull] Player player, [NotNull] PlayerInfo[] list, bool silent, string message ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
-            if ( list == null ) throw new ArgumentNullException( "list" );
+        internal static void DoAutoRankAll( [NotNull] Player player, [NotNull] PlayerInfo[] list, bool silent, string message ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
+            if ( list == null )
+                throw new ArgumentNullException( "list" );
 
             if ( !AutoRankManager.HasCriteria ) {
                 player.Message( "AutoRankAll: No criteria found." );
@@ -713,12 +705,11 @@ namespace fCraft {
             player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
         }
 
-        #endregion
-
+        #endregion AutoRank
 
         #region MassRank
 
-        static readonly CommandDescriptor CdMassRank = new CommandDescriptor {
+        private static readonly CommandDescriptor CdMassRank = new CommandDescriptor {
             Name = "MassRank",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsHidden = true,
@@ -729,7 +720,7 @@ namespace fCraft {
             Handler = MassRankHandler
         };
 
-        static void MassRankHandler ( Player player, Command cmd ) {
+        private static void MassRankHandler( Player player, Command cmd ) {
             string fromRankName = cmd.Next();
             string toRankName = cmd.Next();
             string reason = cmd.NextAll();
@@ -770,12 +761,11 @@ namespace fCraft {
             player.Message( "MassRank: done, {0} records affected.", affected );
         }
 
-        #endregion
-
+        #endregion MassRank
 
         #region SetInfo
 
-        static readonly CommandDescriptor CdSetInfo = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSetInfo = new CommandDescriptor {
             Name = "SetInfo",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
@@ -817,7 +807,7 @@ namespace fCraft {
             Handler = SetInfoHandler
         };
 
-        static void SetInfoHandler ( Player player, Command cmd ) {
+        private static void SetInfoHandler( Player player, Command cmd ) {
             string targetName = cmd.Next();
             string propertyName = cmd.Next();
             string valName = cmd.NextAll();
@@ -828,7 +818,8 @@ namespace fCraft {
             }
 
             PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
-            if ( info == null ) return;
+            if ( info == null )
+                return;
 
             switch ( propertyName.ToLower() ) {
                 case "timeskicked":
@@ -925,7 +916,8 @@ namespace fCraft {
                     break;
 
                 case "banreason":
-                    if ( valName.Length == 0 ) valName = null;
+                    if ( valName.Length == 0 )
+                        valName = null;
                     if ( SetPlayerInfoField( player, "BanReason", info, info.BanReason, valName ) ) {
                         info.BanReason = valName;
                         break;
@@ -934,7 +926,8 @@ namespace fCraft {
                     }
 
                 case "unbanreason":
-                    if ( valName.Length == 0 ) valName = null;
+                    if ( valName.Length == 0 )
+                        valName = null;
                     if ( SetPlayerInfoField( player, "UnbanReason", info, info.UnbanReason, valName ) ) {
                         info.UnbanReason = valName;
                         break;
@@ -943,7 +936,8 @@ namespace fCraft {
                     }
 
                 case "rankreason":
-                    if ( valName.Length == 0 ) valName = null;
+                    if ( valName.Length == 0 )
+                        valName = null;
                     if ( SetPlayerInfoField( player, "RankReason", info, info.RankChangeReason, valName ) ) {
                         info.RankChangeReason = valName;
                         break;
@@ -952,7 +946,8 @@ namespace fCraft {
                     }
 
                 case "kickreason":
-                    if ( valName.Length == 0 ) valName = null;
+                    if ( valName.Length == 0 )
+                        valName = null;
                     if ( SetPlayerInfoField( player, "KickReason", info, info.LastKickReason, valName ) ) {
                         info.LastKickReason = valName;
                         break;
@@ -963,7 +958,8 @@ namespace fCraft {
                 case "displayedname":
                 case "dn":
                     string oldDisplayedName = info.DisplayedName;
-                    if ( valName.Length == 0 ) valName = null;
+                    if ( valName.Length == 0 )
+                        valName = null;
                     if ( valName == info.DisplayedName ) {
                         if ( valName == null ) {
                             player.Message( "SetInfo: DisplayedName for {0} is not set.",
@@ -1002,11 +998,14 @@ namespace fCraft {
             info.LastModified = DateTime.UtcNow;
         }
 
-        static bool SetPlayerInfoField ( [NotNull] Player player, [NotNull] string fieldName, [NotNull] IClassy info,
-                                         [CanBeNull] string oldValue, [CanBeNull] string newValue ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
-            if ( fieldName == null ) throw new ArgumentNullException( "fieldName" );
-            if ( info == null ) throw new ArgumentNullException( "info" );
+        private static bool SetPlayerInfoField( [NotNull] Player player, [NotNull] string fieldName, [NotNull] IClassy info,
+                                        [CanBeNull] string oldValue, [CanBeNull] string newValue ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
+            if ( fieldName == null )
+                throw new ArgumentNullException( "fieldName" );
+            if ( info == null )
+                throw new ArgumentNullException( "info" );
             if ( newValue == oldValue ) {
                 if ( newValue == null ) {
                     player.Message( "SetInfo: {0} for {1}&S is not set.",
@@ -1032,7 +1031,7 @@ namespace fCraft {
             return true;
         }
 
-        static bool ValidateInt ( string stringVal, int min, int max ) {
+        private static bool ValidateInt( string stringVal, int min, int max ) {
             int val;
             if ( Int32.TryParse( stringVal, out val ) ) {
                 return ( val >= min && val <= max );
@@ -1041,12 +1040,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion SetInfo
 
         #region Reload
 
-        static readonly CommandDescriptor CdReload = new CommandDescriptor {
+        private static readonly CommandDescriptor CdReload = new CommandDescriptor {
             Name = "Reload",
             Aliases = new[] { "configreload", "reloadconfig", "autorankreload", "reloadautorank" },
             Category = CommandCategory.Maintenance,
@@ -1060,7 +1058,7 @@ namespace fCraft {
             Handler = ReloadHandler
         };
 
-        static void ReloadHandler ( Player player, Command cmd ) {
+        private static void ReloadHandler( Player player, Command cmd ) {
             string whatToReload = cmd.Next();
             if ( whatToReload == null ) {
                 CdReload.PrintUsage( player );
@@ -1113,12 +1111,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Reload
 
         #region Shutdown, Restart
 
-        static readonly CommandDescriptor CdShutdown = new CommandDescriptor {
+        private static readonly CommandDescriptor CdShutdown = new CommandDescriptor {
             Name = "Shutdown",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
@@ -1130,9 +1127,9 @@ namespace fCraft {
             Handler = ShutdownHandler
         };
 
-        static readonly TimeSpan DefaultShutdownTime = TimeSpan.FromSeconds( 5 );
+        private static readonly TimeSpan DefaultShutdownTime = TimeSpan.FromSeconds( 5 );
 
-        static void ShutdownHandler ( Player player, Command cmd ) {
+        private static void ShutdownHandler( Player player, Command cmd ) {
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
@@ -1182,9 +1179,7 @@ namespace fCraft {
             }
         }
 
-
-
-        static readonly CommandDescriptor CdRestart = new CommandDescriptor {
+        private static readonly CommandDescriptor CdRestart = new CommandDescriptor {
             Name = "Restart",
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ShutdownServer },
@@ -1196,7 +1191,7 @@ namespace fCraft {
             Handler = RestartHandler
         };
 
-        static void RestartHandler ( Player player, Command cmd ) {
+        private static void RestartHandler( Player player, Command cmd ) {
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
@@ -1247,12 +1242,11 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Shutdown, Restart
 
         #region PruneDB
 
-        static readonly CommandDescriptor CdPruneDB = new CommandDescriptor {
+        private static readonly CommandDescriptor CdPruneDB = new CommandDescriptor {
             Name = "PruneDB",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -1262,7 +1256,7 @@ namespace fCraft {
             Handler = PruneDBHandler
         };
 
-        static void PruneDBHandler ( Player player, Command cmd ) {
+        private static void PruneDBHandler( Player player, Command cmd ) {
             if ( !cmd.IsConfirmed ) {
                 player.MessageNow( "PruneDB: Finding inactive players..." );
                 int inactivePlayers = PlayerDB.CountInactivePlayers();
@@ -1277,19 +1271,17 @@ namespace fCraft {
             }
         }
 
-
-        static void PruneDBTask ( SchedulerTask task ) {
+        private static void PruneDBTask( SchedulerTask task ) {
             int removedCount = PlayerDB.RemoveInactivePlayers();
             Player player = ( Player )task.UserState;
             player.Message( "PruneDB: Removed {0} inactive players!", removedCount );
         }
 
-        #endregion
-
+        #endregion PruneDB
 
         #region Importing
 
-        static readonly CommandDescriptor CdImport = new CommandDescriptor {
+        private static readonly CommandDescriptor CdImport = new CommandDescriptor {
             Name = "Import",
             Aliases = new[] { "importbans", "importranks" },
             Category = CommandCategory.Maintenance,
@@ -1301,7 +1293,7 @@ namespace fCraft {
             Handler = ImportHandler
         };
 
-        static void ImportHandler ( Player player, Command cmd ) {
+        private static void ImportHandler( Player player, Command cmd ) {
             string action = cmd.Next();
             if ( action == null ) {
                 CdImport.PrintUsage( player );
@@ -1331,8 +1323,7 @@ namespace fCraft {
             }
         }
 
-
-        static void ImportBans ( Player player, Command cmd ) {
+        private static void ImportBans( Player player, Command cmd ) {
             string serverName = cmd.Next();
             string file = cmd.Next();
 
@@ -1364,6 +1355,7 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 default:
                     player.Message( "800Craft does not support importing from {0}", serverName );
                     return;
@@ -1384,7 +1376,6 @@ namespace fCraft {
                         PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                           PlayerDB.AddFakeEntry( name, RankChangeType.Default );
                         info.Ban( player, reason, true, true );
-
                     } else {
                         player.Message( "Could not parse \"{0}\" as either name or IP. Skipping.", name );
                     }
@@ -1398,13 +1389,11 @@ namespace fCraft {
             IPBanList.Save();
         }
 
-
-        static void ImportRanks ( Player player, Command cmd ) {
+        private static void ImportRanks( Player player, Command cmd ) {
             string serverName = cmd.Next();
             string fileName = cmd.Next();
             string rankName = cmd.Next();
             bool silent = ( cmd.Next() != null );
-
 
             // Make sure all parameters are specified
             if ( serverName == null || fileName == null || rankName == null ) {
@@ -1440,6 +1429,7 @@ namespace fCraft {
                         return;
                     }
                     break;
+
                 default:
                     player.Message( "800Craft does not support importing from {0}", serverName );
                     return;
@@ -1469,10 +1459,9 @@ namespace fCraft {
             PlayerDB.Save();
         }
 
-        #endregion
+        #endregion Importing
 
-
-        static readonly CommandDescriptor CdInfoSwap = new CommandDescriptor {
+        private static readonly CommandDescriptor CdInfoSwap = new CommandDescriptor {
             Name = "InfoSwap",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
@@ -1483,7 +1472,7 @@ namespace fCraft {
             Handler = DoPlayerDB
         };
 
-        static void DoPlayerDB ( Player player, Command cmd ) {
+        private static void DoPlayerDB( Player player, Command cmd ) {
             string p1Name = cmd.Next();
             string p2Name = cmd.Next();
             if ( p1Name == null || p2Name == null ) {
@@ -1492,9 +1481,11 @@ namespace fCraft {
             }
 
             PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p1Name );
-            if ( p1 == null ) return;
+            if ( p1 == null )
+                return;
             PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p2Name );
-            if ( p2 == null ) return;
+            if ( p2 == null )
+                return;
 
             if ( p1 == p2 ) {
                 player.Message( "InfoSwap: Please specify 2 different players." );

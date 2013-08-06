@@ -29,18 +29,20 @@
 using System;
 
 namespace fCraft.Drawing {
+
     public class CylinderDrawOperation : DrawOperation {
 
         public override string Name {
             get { return "Cylinder"; }
         }
 
-        public CylinderDrawOperation ( Player player )
+        public CylinderDrawOperation( Player player )
             : base( player ) {
         }
 
-        public override bool Prepare ( Vector3I[] marks ) {
-            if ( !base.Prepare( marks ) ) return false;
+        public override bool Prepare( Vector3I[] marks ) {
+            if ( !base.Prepare( marks ) )
+                return false;
 
             double r = Math.Sqrt( ( marks[0].X - marks[1].X ) * ( marks[0].X - marks[1].X ) +
                                  ( marks[0].Y - marks[1].Y ) * ( marks[0].Y - marks[1].Y ) +
@@ -74,12 +76,12 @@ namespace fCraft.Drawing {
             return true;
         }
 
-        State state;
-        Vector3F radius, center, delta;
-        bool fillInner;
-        int firstZ;
+        private State state;
+        private Vector3F radius, center, delta;
+        private bool fillInner;
+        private int firstZ;
 
-        public override int DrawBatch ( int maxBlocksToDraw ) {
+        public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             for ( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for ( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
@@ -90,9 +92,9 @@ namespace fCraft.Drawing {
                                 delta.X = ( Coords.X - center.X );
                                 delta.Y = ( Coords.Y - center.Y );
                                 delta.Z = ( Coords.Z - center.Z );
-                                if ( delta.X2 * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ) continue;
+                                if ( delta.X2 * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 )
+                                    continue;
                                 goto case State.OuterBlock1;
-
 
                             case State.OuterBlock1:
                                 state = State.OuterBlock1;
@@ -102,10 +104,10 @@ namespace fCraft.Drawing {
                                 }
                                 goto case State.OuterBlock2;
 
-
                             case State.OuterBlock2:
                                 state = State.OuterBlock2;
-                                if ( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                                if ( blocksDone >= maxBlocksToDraw )
+                                    return blocksDone;
                                 int secondZ = ( int )( center.Z - delta.Z );
                                 if ( secondZ != firstZ ) {
                                     int oldZ = Coords.Z;
@@ -117,10 +119,10 @@ namespace fCraft.Drawing {
                                 }
                                 goto case State.AfterOuterBlock;
 
-
                             case State.AfterOuterBlock:
                                 state = State.AfterOuterBlock;
-                                if ( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) return blocksDone;
+                                if ( blocksDone >= maxBlocksToDraw || TimeToEndBatch )
+                                    return blocksDone;
                                 delta.Z = ( ++Coords.Z - center.Z );
                                 if ( Coords.Z <= ( int )center.Z &&
                                     ( ( delta.X + 1 ) * ( delta.X + 1 ) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
@@ -137,7 +139,6 @@ namespace fCraft.Drawing {
 
                                 UseAlternateBlock = true;
                                 goto case State.InnerBlock;
-
 
                             case State.InnerBlock:
                                 state = State.InnerBlock;
@@ -167,8 +168,7 @@ namespace fCraft.Drawing {
             return blocksDone;
         }
 
-
-        enum State {
+        private enum State {
             BeforeBlock = 0,
             OuterBlock1 = 1,
             OuterBlock2 = 2,

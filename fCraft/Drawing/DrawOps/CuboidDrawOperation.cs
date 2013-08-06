@@ -1,7 +1,9 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.Drawing {
+
     public sealed class CuboidDrawOperation : DrawOperation {
+
         public override string Name {
             get { return "Cuboid"; }
         }
@@ -10,23 +12,23 @@ namespace fCraft.Drawing {
             : base( player ) {
         }
 
-
         public override bool Prepare( Vector3I[] marks ) {
-            if( !base.Prepare( marks ) ) return false;
+            if ( !base.Prepare( marks ) )
+                return false;
             BlocksTotalEstimate = Bounds.Volume;
             Coords = Bounds.MinVertex;
             return true;
         }
 
-
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
-            for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
-                for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
-                    for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
-                        if( !DrawOneBlock() ) continue;
+            for ( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
+                for ( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
+                    for ( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
+                        if ( !DrawOneBlock() )
+                            continue;
                         blocksDone++;
-                        if( blocksDone >= maxBlocksToDraw ) {
+                        if ( blocksDone >= maxBlocksToDraw ) {
                             Coords.Z++;
                             return blocksDone;
                         }
@@ -34,7 +36,7 @@ namespace fCraft.Drawing {
                     Coords.Z = Bounds.ZMin;
                 }
                 Coords.Y = Bounds.YMin;
-                if( TimeToEndBatch ) {
+                if ( TimeToEndBatch ) {
                     Coords.X++;
                     return blocksDone;
                 }

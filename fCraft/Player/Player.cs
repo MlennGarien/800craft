@@ -1,18 +1,17 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
+using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Net.Cache;
 using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
-using System.Collections.Concurrent;
-using System.Drawing;
 
 namespace fCraft {
+
     /// <summary> Callback for a player-made selection of one or more blocks on a map.
     /// A command may request a number of marks/blocks to select, and a specify callback
     /// to be executed when the desired number of marks/blocks is reached. </summary>
@@ -20,10 +19,9 @@ namespace fCraft {
     /// <param name="marks"> An array of 3D marks/blocks, in terms of block coordinates. </param>
     /// <param name="tag"> An optional argument to pass to the callback,
     /// the value of player.selectionArgs </param>
-    public delegate void SelectionCallback ( Player player, Vector3I[] marks, object tag );
+    public delegate void SelectionCallback( Player player, Vector3I[] marks, object tag );
 
-    public delegate void ConfirmationCallback ( Player player, object tag, bool fromConsole );
-
+    public delegate void ConfirmationCallback( Player player, object tag, bool fromConsole );
 
     /// <summary> Object representing volatile state ("session") of a connected player.
     /// For persistent state of a known player account, see PlayerInfo. </summary>
@@ -34,12 +32,12 @@ namespace fCraft {
         /// Note that Player.Console.World is always null,
         /// and that prevents console from calling certain commands (like /TP). </summary>
         public static Player Console, AutoRank;
+
         public bool IsAway;
 
         #region Properties
 
         public readonly bool IsSuper;
-
 
         /// <summary> Whether the player has completed the login sequence. </summary>
         public SessionState State { get; private set; }
@@ -70,7 +68,6 @@ namespace fCraft {
         /// Deaf players can't hear anything. </summary>
         public bool IsDeaf { get; set; }
 
-
         /// <summary> The world that the player is currently on. May be null.
         /// Use .JoinWorld() to make players teleport to another world. </summary>
         [CanBeNull]
@@ -83,14 +80,14 @@ namespace fCraft {
         public Map WorldMap {
             get {
                 World world = World;
-                if ( world == null ) PlayerOpException.ThrowNoWorld( this );
+                if ( world == null )
+                    PlayerOpException.ThrowNoWorld( this );
                 return world.LoadMap();
             }
         }
 
         /// <summary> Player's position in the current world. </summary>
         public Position Position;
-
 
         /// <summary> Time when the session connected. </summary>
         public DateTime LoginTime { get; private set; }
@@ -101,10 +98,10 @@ namespace fCraft {
         /// <summary> Last time when this player was patrolled by someone. </summary>
         public DateTime LastPatrolTime { get; set; }
 
-
         public Font font = new Font( "Times New Roman", 14, FontStyle.Regular, GraphicsUnit.Pixel );
-        System.Drawing.Text.PrivateFontCollection FontC;
-        public FontFamily LoadFontFamily ( string fileName ) {
+        private System.Drawing.Text.PrivateFontCollection FontC;
+
+        public FontFamily LoadFontFamily( string fileName ) {
             FontC = new System.Drawing.Text.PrivateFontCollection();//assing memory space to FontC
             FontC.AddFontFile( fileName );//we add the full path of the ttf file
             return FontC.Families[0];//returns the family object as usual.
@@ -113,7 +110,6 @@ namespace fCraft {
         /// <summary> Last command called by the player. </summary>
         [CanBeNull]
         public Command LastCommand { get; private set; }
-
 
         /// <summary> Plain version of the name (no formatting). </summary>
         [NotNull]
@@ -126,7 +122,8 @@ namespace fCraft {
         public string ListName {
             get {
                 string displayedName = Name;
-                if ( iName != null ) displayedName = Color.ReplacePercentCodes( iName ); //impersonate
+                if ( iName != null )
+                    displayedName = Color.ReplacePercentCodes( iName ); //impersonate
                 if ( ConfigKey.RankPrefixesInList.Enabled() ) {
                     displayedName = Info.Rank.Prefix + displayedName;
                 }
@@ -146,20 +143,22 @@ namespace fCraft {
         /// <summary> Whether the client supports advanced WoM client functionality. </summary>
         public bool IsUsingWoM { get; private set; }
 
-
         /// <summary> Metadata associated with the session/player. </summary>
         [NotNull]
         public MetadataCollection<object> Metadata { get; private set; }
 
-        #endregion
+        #endregion Properties
 
         #region Flying
+
         public bool IsFlying = false;
         public ConcurrentDictionary<String, Vector3I> FlyCache;
         public readonly object FlyLock = new object();
-        #endregion
+
+        #endregion Flying
 
         #region PhysicsHelpers
+
         public ConcurrentDictionary<String, Vector3I> TowerCache = new ConcurrentDictionary<String, Vector3I>();
         public bool towerMode = false;
         public Vector3I towerOrigin;
@@ -174,43 +173,54 @@ namespace fCraft {
         public byte orangeOut;
         public bool GunMode = false;
 
-
         public bool fireworkMode = false;
 
         //Physics
         public DateTime DrownTime;
+
         public DateTime LastTimeTNTFired = DateTime.MinValue;
+
         //note that this method updates the fired time, assuming that following this check the TNT will be fired
         //this is a bad design generally, but sometimes its tempting to dont give a fuck
-        public bool CanFireTNT () {
+        public bool CanFireTNT() {
             bool ret = ( DateTime.UtcNow - LastTimeTNTFired ) > TimeSpan.FromSeconds( 1 );
             if ( ret )
                 LastTimeTNTFired = DateTime.UtcNow;
             return ret;
         }
-        #endregion
+
+        #endregion PhysicsHelpers
 
         #region Killing
+
         public DateTime LastTimeKilled;
         public bool Immortal = false;
+
         //Kill protection
-        public bool CanBeKilled () {
-            if ( Immortal ) return false;
+        public bool CanBeKilled() {
+            if ( Immortal )
+                return false;
             if ( ( DateTime.UtcNow - LastTimeKilled ).TotalSeconds < 15 ) {
                 return false;
             }
             return true;
         }
-        #endregion
+
+        #endregion Killing
 
         #region General purpose state storage for plugins
+
         private readonly ConcurrentDictionary<string, object> _publicAuxStateObjects = new ConcurrentDictionary<string, object>();
+
         public IDictionary<string, object> PublicAuxStateObjects { get { return _publicAuxStateObjects; } }
-        #endregion
+
+        #endregion General purpose state storage for plugins
 
         #region Portals
+
         //Portals
         public bool StandingInPortal = false;
+
         public bool CanUsePortal = true;
         public String PortalWorld;
         public String PortalName;
@@ -220,11 +230,14 @@ namespace fCraft {
         public bool PortalsEnabled = true;
         public readonly object PortalLock = new object();
         public Portals.Portal PortalCache = new Portals.Portal();
-        #endregion
+
+        #endregion Portals
 
         public readonly object MessageBlockLock = new object();
         public DateTime LastUsedMessageBlock;
+
         #region Game
+
         //List of weapons usable in game modes
         //byte ID will be used for gungame
         public enum GameWeapon : byte {
@@ -242,14 +255,17 @@ namespace fCraft {
         //used for impersonation (skin changing)
         //if null, default skin is used
         public string iName = null;
+
         public bool entityChanged = false;
-        #endregion
+
+        #endregion Game
 
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.
-        internal Player ( [NotNull] string name ) {
-            if ( name == null ) throw new ArgumentNullException( "name" );
+        internal Player( [NotNull] string name ) {
+            if ( name == null )
+                throw new ArgumentNullException( "name" );
             Info = new PlayerInfo( name, RankManager.HighestRank, true, RankChangeType.AutoPromoted );
             spamBlockLog = new Queue<DateTime>( Info.Rank.AntiGriefBlocks );
             IP = IPAddress.Loopback;
@@ -257,10 +273,13 @@ namespace fCraft {
             State = SessionState.Offline;
             IsSuper = true;
         }
-        public void BassKick ( [NotNull] Player player, [NotNull] string reason, LeaveReason context,
-                          bool announce, bool raiseEvents, bool recordToPlayerDB ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
-            if ( reason == null ) throw new ArgumentNullException( "reason" );
+
+        public void BassKick( [NotNull] Player player, [NotNull] string reason, LeaveReason context,
+                         bool announce, bool raiseEvents, bool recordToPlayerDB ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
+            if ( reason == null )
+                throw new ArgumentNullException( "reason" );
             if ( !Enum.IsDefined( typeof( LeaveReason ), context ) ) {
                 throw new ArgumentOutOfRangeException( "context" );
             }
@@ -287,7 +306,8 @@ namespace fCraft {
             if ( raiseEvents ) {
                 var e = new PlayerBeingKickedEventArgs( this, player, reason, announce, recordToPlayerDB, context );
                 RaisePlayerBeingKickedEvent( e );
-                if ( e.Cancel ) PlayerOpException.ThrowCancelled( player, Info );
+                if ( e.Cancel )
+                    PlayerOpException.ThrowCancelled( player, Info );
                 recordToPlayerDB = e.RecordToPlayerDB;
             }
 
@@ -327,15 +347,17 @@ namespace fCraft {
 
         #region Chat and Messaging
 
-        static readonly TimeSpan ConfirmationTimeout = TimeSpan.FromSeconds( 60 );
+        private static readonly TimeSpan ConfirmationTimeout = TimeSpan.FromSeconds( 60 );
 
-        int muteWarnings;
+        private int muteWarnings;
+
         [CanBeNull]
-        string partialMessage;
+        private string partialMessage;
 
         // Parses message incoming from the player
-        public void ParseMessage ( [NotNull] string rawMessage, bool fromConsole ) {
-            if ( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+        public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
+            if ( rawMessage == null )
+                throw new ArgumentNullException( "rawMessage" );
             if ( rawMessage.Equals( "/nvm", StringComparison.OrdinalIgnoreCase ) ) {
                 if ( partialMessage != null ) {
                     MessageNow( "Partial message cancelled." );
@@ -361,14 +383,16 @@ namespace fCraft {
 
             switch ( Chat.GetRawMessageType( rawMessage ) ) {
                 case RawMessageType.Chat: {
-                        if ( !Can( Permission.Chat ) ) return;
+                        if ( !Can( Permission.Chat ) )
+                            return;
 
                         if ( Info.IsMuted ) {
                             MessageMuted();
                             return;
                         }
 
-                        if ( DetectChatSpam() ) return;
+                        if ( DetectChatSpam() )
+                            return;
 
                         // Escaped slash removed AFTER logging, to avoid confusion with real commands
                         if ( rawMessage.StartsWith( "//" ) ) {
@@ -380,8 +404,8 @@ namespace fCraft {
                         }
 
                         Chat.SendGlobal( this, rawMessage );
-                    } break;
-
+                    }
+                    break;
 
                 case RawMessageType.Command: {
                         if ( rawMessage.EndsWith( "//" ) ) {
@@ -408,8 +432,8 @@ namespace fCraft {
                                 LastCommand = cmd;
                             }
                         }
-                    } break;
-
+                    }
+                    break;
 
                 case RawMessageType.RepeatCommand: {
                         if ( LastCommand == null ) {
@@ -427,18 +451,20 @@ namespace fCraft {
                             SendToSpectators( LastCommand.RawMessage );
                             CommandManager.ParseCommand( this, LastCommand, fromConsole );
                         }
-                    } break;
-
+                    }
+                    break;
 
                 case RawMessageType.PrivateChat: {
-                        if ( !Can( Permission.Chat ) ) return;
+                        if ( !Can( Permission.Chat ) )
+                            return;
 
                         if ( Info.IsMuted ) {
                             MessageMuted();
                             return;
                         }
 
-                        if ( DetectChatSpam() ) return;
+                        if ( DetectChatSpam() )
+                            return;
 
                         if ( rawMessage.EndsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
@@ -484,7 +510,6 @@ namespace fCraft {
                             if ( !CanSee( target ) ) {
                                 // message was sent to a hidden player
                                 MessageNoPlayer( otherPlayerName );
-
                             } else {
                                 // message was sent normally
                                 LastUsedPlayerName = target.Name;
@@ -499,25 +524,25 @@ namespace fCraft {
                                                 target.Name, messageText );
                                 }
                             }
-
                         } else if ( allPlayers.Length == 0 ) {
                             MessageNoPlayer( otherPlayerName );
-
                         } else {
                             MessageManyMatches( "player", allPlayers );
                         }
-                    } break;
-
+                    }
+                    break;
 
                 case RawMessageType.RankChat: {
-                        if ( !Can( Permission.Chat ) ) return;
+                        if ( !Can( Permission.Chat ) )
+                            return;
 
                         if ( Info.IsMuted ) {
                             MessageMuted();
                             return;
                         }
 
-                        if ( DetectChatSpam() ) return;
+                        if ( DetectChatSpam() )
+                            return;
 
                         if ( rawMessage.EndsWith( "//" ) ) {
                             rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
@@ -545,8 +570,8 @@ namespace fCraft {
                         }
 
                         Chat.SendRank( this, rank, messageText );
-                    } break;
-
+                    }
+                    break;
 
                 case RawMessageType.Confirmation: {
                         if ( Info.IsFrozen ) {
@@ -565,8 +590,8 @@ namespace fCraft {
                         } else {
                             MessageNow( "There is no command to confirm." );
                         }
-                    } break;
-
+                    }
+                    break;
 
                 case RawMessageType.PartialMessage:
                     partialMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
@@ -579,20 +604,22 @@ namespace fCraft {
             }
         }
 
-
-        public void SendToSpectators ( [NotNull] string message, [NotNull] params object[] args ) {
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( args == null ) throw new ArgumentNullException( "args" );
+        public void SendToSpectators( [NotNull] string message, [NotNull] params object[] args ) {
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( args == null )
+                throw new ArgumentNullException( "args" );
             Player[] spectators = Server.Players.Where( p => p.spectatedPlayer == this ).ToArray();
             if ( spectators.Length > 0 ) {
                 spectators.Message( "[Spectate]: &F" + message, args );
             }
         }
 
+        private const string WoMAlertPrefix = "^detail.user.alert=";
 
-        const string WoMAlertPrefix = "^detail.user.alert=";
-        public void MessageAlt ( [NotNull] string message ) {
-            if ( message == null ) throw new ArgumentNullException( "message" );
+        public void MessageAlt( [NotNull] string message ) {
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
             if ( this == Console ) {
                 Logger.LogToConsole( message );
             } else if ( IsUsingWoM ) {
@@ -607,15 +634,17 @@ namespace fCraft {
         }
 
         [StringFormatMethod( "message" )]
-        public void MessageAlt ( [NotNull] string message, [NotNull] params object[] args ) {
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( args == null ) throw new ArgumentNullException( "args" );
+        public void MessageAlt( [NotNull] string message, [NotNull] params object[] args ) {
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( args == null )
+                throw new ArgumentNullException( "args" );
             MessageAlt( String.Format( message, args ) );
         }
 
-
-        public void Message ( [NotNull] string message ) {
-            if ( message == null ) throw new ArgumentNullException( "message" );
+        public void Message( [NotNull] string message ) {
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
             if ( IsSuper ) {
                 Logger.LogToConsole( message );
             } else {
@@ -625,27 +654,32 @@ namespace fCraft {
             }
         }
 
-
         [StringFormatMethod( "message" )]
-        public void Message ( [NotNull] string message, [NotNull] object arg ) {
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( arg == null ) throw new ArgumentNullException( "arg" );
+        public void Message( [NotNull] string message, [NotNull] object arg ) {
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( arg == null )
+                throw new ArgumentNullException( "arg" );
             Message( String.Format( message, arg ) );
         }
 
         [StringFormatMethod( "message" )]
-        public void Message ( [NotNull] string message, [NotNull] params object[] args ) {
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( args == null ) throw new ArgumentNullException( "args" );
+        public void Message( [NotNull] string message, [NotNull] params object[] args ) {
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( args == null )
+                throw new ArgumentNullException( "args" );
             Message( String.Format( message, args ) );
         }
 
-
         [StringFormatMethod( "message" )]
-        public void MessagePrefixed ( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
-            if ( prefix == null ) throw new ArgumentNullException( "prefix" );
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( args == null ) throw new ArgumentNullException( "args" );
+        public void MessagePrefixed( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
+            if ( prefix == null )
+                throw new ArgumentNullException( "prefix" );
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( args == null )
+                throw new ArgumentNullException( "args" );
             if ( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
@@ -658,12 +692,14 @@ namespace fCraft {
             }
         }
 
-
         [StringFormatMethod( "message" )]
-        internal void MessageNow ( [NotNull] string message, [NotNull] params object[] args ) {
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( args == null ) throw new ArgumentNullException( "args" );
-            if ( IsDeaf ) return;
+        internal void MessageNow( [NotNull] string message, [NotNull] params object[] args ) {
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( args == null )
+                throw new ArgumentNullException( "args" );
+            if ( IsDeaf )
+                return;
             if ( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
@@ -679,13 +715,16 @@ namespace fCraft {
             }
         }
 
-
         [StringFormatMethod( "message" )]
-        internal void MessageNowPrefixed ( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
-            if ( prefix == null ) throw new ArgumentNullException( "prefix" );
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( args == null ) throw new ArgumentNullException( "args" );
-            if ( IsDeaf ) return;
+        internal void MessageNowPrefixed( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
+            if ( prefix == null )
+                throw new ArgumentNullException( "prefix" );
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( args == null )
+                throw new ArgumentNullException( "args" );
+            if ( IsDeaf )
+                return;
             if ( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
@@ -701,42 +740,45 @@ namespace fCraft {
             }
         }
 
-
         #region Macros
 
-        public void MessageNoPlayer ( [NotNull] string playerName ) {
-            if ( playerName == null ) throw new ArgumentNullException( "playerName" );
+        public void MessageNoPlayer( [NotNull] string playerName ) {
+            if ( playerName == null )
+                throw new ArgumentNullException( "playerName" );
             Message( "No players found matching \"{0}\"", playerName );
         }
 
-
-        public void MessageNoWorld ( [NotNull] string worldName ) {
-            if ( worldName == null ) throw new ArgumentNullException( "worldName" );
+        public void MessageNoWorld( [NotNull] string worldName ) {
+            if ( worldName == null )
+                throw new ArgumentNullException( "worldName" );
             Message( "No worlds found matching \"{0}\". See &H/Worlds", worldName );
         }
 
-
-        public void MessageManyMatches ( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> names ) {
-            if ( itemType == null ) throw new ArgumentNullException( "itemType" );
-            if ( names == null ) throw new ArgumentNullException( "names" );
+        public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> names ) {
+            if ( itemType == null )
+                throw new ArgumentNullException( "itemType" );
+            if ( names == null )
+                throw new ArgumentNullException( "names" );
 
             string nameList = names.JoinToString( ", ", p => p.ClassyName );
             Message( "More than one {0} matched: {1}",
                      itemType, nameList );
         }
 
-        public void MessageManyDisplayedNamesMatches ( [NotNull] string itemType, [NotNull] PlayerInfo[] names ) {
-            if ( itemType == null ) throw new ArgumentNullException( "itemType" );
-            if ( names == null ) throw new ArgumentNullException( "names" );
+        public void MessageManyDisplayedNamesMatches( [NotNull] string itemType, [NotNull] PlayerInfo[] names ) {
+            if ( itemType == null )
+                throw new ArgumentNullException( "itemType" );
+            if ( names == null )
+                throw new ArgumentNullException( "names" );
 
             string nameList = names.JoinToString( ", ", p => p.Name + "&S(" + p.DisplayedName + "&S)" );
             Message( "More than one {0} matched: {1}",
                      itemType, nameList );
         }
 
-
-        public void MessageNoAccess ( [NotNull] params Permission[] permissions ) {
-            if ( permissions == null ) throw new ArgumentNullException( "permissions" );
+        public void MessageNoAccess( [NotNull] params Permission[] permissions ) {
+            if ( permissions == null )
+                throw new ArgumentNullException( "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
             if ( reqRank == null ) {
                 Message( "None of the ranks have permissions for this command." );
@@ -746,9 +788,9 @@ namespace fCraft {
             }
         }
 
-
-        public void MessageNoAccess ( [NotNull] CommandDescriptor cmd ) {
-            if ( cmd == null ) throw new ArgumentNullException( "cmd" );
+        public void MessageNoAccess( [NotNull] CommandDescriptor cmd ) {
+            if ( cmd == null )
+                throw new ArgumentNullException( "cmd" );
             Rank reqRank = cmd.MinRank;
             if ( reqRank == null ) {
                 Message( "This command is disabled on the server." );
@@ -758,70 +800,64 @@ namespace fCraft {
             }
         }
 
-
-        public void MessageNoRank ( [NotNull] string rankName ) {
-            if ( rankName == null ) throw new ArgumentNullException( "rankName" );
+        public void MessageNoRank( [NotNull] string rankName ) {
+            if ( rankName == null )
+                throw new ArgumentNullException( "rankName" );
             Message( "Unrecognized rank \"{0}\". See &H/Ranks", rankName );
         }
 
-
-        public void MessageUnsafePath () {
+        public void MessageUnsafePath() {
             Message( "&WYou cannot access files outside the map folder." );
         }
 
-
-        public void MessageNoZone ( [NotNull] string zoneName ) {
-            if ( zoneName == null ) throw new ArgumentNullException( "zoneName" );
+        public void MessageNoZone( [NotNull] string zoneName ) {
+            if ( zoneName == null )
+                throw new ArgumentNullException( "zoneName" );
             Message( "No zones found matching \"{0}\". See &H/Zones", zoneName );
         }
 
-
-        public void MessageInvalidWorldName ( [NotNull] string worldName ) {
+        public void MessageInvalidWorldName( [NotNull] string worldName ) {
             Message( "Unacceptable world name: \"{0}\"", worldName );
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
         }
 
-
-        public void MessageInvalidPlayerName ( [NotNull] string playerName ) {
+        public void MessageInvalidPlayerName( [NotNull] string playerName ) {
             Message( "\"{0}\" is not a valid player name.", playerName );
         }
 
-
-        public void MessageMuted () {
+        public void MessageMuted() {
             Message( "You are muted for {0} longer.",
                      Info.TimeMutedLeft.ToMiniString() );
         }
 
-
-        public void MessageMaxTimeSpan () {
+        public void MessageMaxTimeSpan() {
             Message( "Specify a time range up to {0:0}d.", DateTimeUtil.MaxTimeSpan.TotalDays );
         }
 
-        #endregion
-
+        #endregion Macros
 
         #region Ignore
 
-        readonly HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
-        readonly object ignoreLock = new object();
-
+        private readonly HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
+        private readonly object ignoreLock = new object();
 
         /// <summary> Checks whether this player is currently ignoring a given PlayerInfo.</summary>
-        public bool IsIgnoring ( [NotNull] PlayerInfo other ) {
-            if ( other == null ) throw new ArgumentNullException( "other" );
+        public bool IsIgnoring( [NotNull] PlayerInfo other ) {
+            if ( other == null )
+                throw new ArgumentNullException( "other" );
             lock ( ignoreLock ) {
                 return ignoreList.Contains( other );
             }
         }
-
 
         /// <summary> Adds a given PlayerInfo to the ignore list.
         /// Not that ignores are not persistent, and are reset when a player disconnects. </summary>
         /// <param name="other"> Player to ignore. </param>
         /// <returns> True if the player is now ignored,
         /// false is the player has already been ignored previously. </returns>
-        public bool Ignore ( [NotNull] PlayerInfo other ) {
-            if ( other == null ) throw new ArgumentNullException( "other" );
+        public bool Ignore( [NotNull] PlayerInfo other ) {
+            if ( other == null )
+                throw new ArgumentNullException( "other" );
             lock ( ignoreLock ) {
                 if ( !ignoreList.Contains( other ) ) {
                     ignoreList.Add( other );
@@ -832,18 +868,17 @@ namespace fCraft {
             }
         }
 
-
         /// <summary> Removes a given PlayerInfo from the ignore list. </summary>
         /// <param name="other"> PlayerInfo to unignore. </param>
         /// <returns> True if the player is no longer ignored,
         /// false if the player was already not ignored. </returns>
-        public bool Unignore ( [NotNull] PlayerInfo other ) {
-            if ( other == null ) throw new ArgumentNullException( "other" );
+        public bool Unignore( [NotNull] PlayerInfo other ) {
+            if ( other == null )
+                throw new ArgumentNullException( "other" );
             lock ( ignoreLock ) {
                 return ignoreList.Remove( other );
             }
         }
-
 
         /// <summary> Returns a list of all currently-ignored players. </summary>
         [NotNull]
@@ -855,8 +890,7 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Ignore
 
         #region Confirmation
 
@@ -866,8 +900,9 @@ namespace fCraft {
         [CanBeNull]
         public object ConfirmArgument { get; private set; }
 
-        static void ConfirmCommandCallback ( [NotNull] Player player, object tag, bool fromConsole ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
+        private static void ConfirmCommandCallback( [NotNull] Player player, object tag, bool fromConsole ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
             Command cmd = ( Command )tag;
             cmd.Rewind();
             cmd.IsConfirmed = true;
@@ -884,32 +919,35 @@ namespace fCraft {
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
         [StringFormatMethod( "message" )]
-        public void Confirm ( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ) {
+        public void Confirm( [NotNull] Command cmd, [NotNull] string message, [NotNull] params object[] args ) {
             Confirm( ConfirmCommandCallback, cmd, message, args );
         }
 
         [StringFormatMethod( "message" )]
-        public void Confirm ( [NotNull] ConfirmationCallback callback, [CanBeNull] object arg, [NotNull] string message, [NotNull] params object[] args ) {
-            if ( callback == null ) throw new ArgumentNullException( "callback" );
-            if ( message == null ) throw new ArgumentNullException( "message" );
-            if ( args == null ) throw new ArgumentNullException( "args" );
+        public void Confirm( [NotNull] ConfirmationCallback callback, [CanBeNull] object arg, [NotNull] string message, [NotNull] params object[] args ) {
+            if ( callback == null )
+                throw new ArgumentNullException( "callback" );
+            if ( message == null )
+                throw new ArgumentNullException( "message" );
+            if ( args == null )
+                throw new ArgumentNullException( "args" );
             ConfirmCallback = callback;
             ConfirmArgument = arg;
             ConfirmRequestTime = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
         }
 
-        #endregion
-
+        #endregion Confirmation
 
         #region AntiSpam
 
         public static int AntispamMessageCount = 3;
         public static int AntispamInterval = 4;
-        readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
+        private readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
 
-        internal bool DetectChatSpam () {
-            if ( IsSuper ) return false;
+        internal bool DetectChatSpam() {
+            if ( IsSuper )
+                return false;
             if ( spamChatLog.Count >= AntispamMessageCount ) {
                 DateTime oldestTime = spamChatLog.Dequeue();
                 if ( DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds < AntispamInterval ) {
@@ -919,7 +957,8 @@ namespace fCraft {
                         Server.Message( "&W{0}&S was kicked for repeated spamming.", ClassyName );
                     } else {
                         TimeSpan autoMuteDuration = TimeSpan.FromSeconds( ConfigKey.AntispamMuteDuration.GetInt() );
-                        if ( autoMuteDuration == TimeSpan.FromSeconds(0) ) return false;
+                        if ( autoMuteDuration == TimeSpan.FromSeconds( 0 ) )
+                            return false;
                         Info.Mute( Console, autoMuteDuration, false, true );
                         Message( "You have been muted for {0} seconds. Slow down.", autoMuteDuration );
                     }
@@ -930,15 +969,14 @@ namespace fCraft {
             return false;
         }
 
-        #endregion
+        #endregion AntiSpam
 
-        #endregion
-
+        #endregion Chat and Messaging
 
         #region Placing Blocks
 
         // for grief/spam detection
-        readonly Queue<DateTime> spamBlockLog = new Queue<DateTime>();
+        private readonly Queue<DateTime> spamBlockLog = new Queue<DateTime>();
 
         /// <summary> Last blocktype used by the player.
         /// Make sure to use in conjunction with Player.GetBind() to ensure that bindings are properly applied. </summary>
@@ -947,11 +985,11 @@ namespace fCraft {
         /// <summary> Max distance that player may be from a block to reach it (hack detection). </summary>
         public static int MaxBlockPlacementRange { get; set; }
 
-
         /// <summary> Handles manually-placed/deleted blocks.
         /// Returns true if player's action should result in a kick. </summary>
-        public bool PlaceBlock ( Vector3I coord, ClickAction action, Block type ) {
-            if ( World == null ) PlayerOpException.ThrowNoWorld( this );
+        public bool PlaceBlock( Vector3I coord, ClickAction action, Block type ) {
+            if ( World == null )
+                PlayerOpException.ThrowNoWorld( this );
             Map map = WorldMap;
             LastUsedBlockType = type;
 
@@ -978,7 +1016,8 @@ namespace fCraft {
                 return false;
             }
 
-            if ( CheckBlockSpam() ) return true;
+            if ( CheckBlockSpam() )
+                return true;
 
             BlockChangeContext context = BlockChangeContext.Manual;
             if ( IsPainting && action == ClickAction.Delete ) {
@@ -1021,7 +1060,6 @@ namespace fCraft {
                         SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleStair ) );
                         RevertBlockNow( coord );
                         break;
-
                     } else {
                         // handle normal blocks
                         blockUpdate = new BlockUpdate( this, coord, type );
@@ -1055,6 +1093,7 @@ namespace fCraft {
                         case SecurityCheckResult.RankTooHigh:
                             Message( "&WYour rank is not allowed to build in this world." );
                             break;
+
                         case SecurityCheckResult.BlackListed:
                             Message( "&WYou are not allowed to build in this world." );
                             break;
@@ -1082,15 +1121,14 @@ namespace fCraft {
             return false;
         }
 
-
         /// <summary>  Gets the block from given location in player's world,
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
-        public void RevertBlock ( Vector3I coords ) {
+        public void RevertBlock( Vector3I coords ) {
             SendLowPriority( PacketWriter.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
         }
 
-        public void Kill ( World inWorld, string message ) {
+        public void Kill( World inWorld, string message ) {
             LastTimeKilled = DateTime.UtcNow;
             inWorld.Players.Message( message );
             TeleportTo( inWorld.Map.Spawn );
@@ -1099,14 +1137,14 @@ namespace fCraft {
         /// <summary>  Gets the block from given location in player's world, and sends it (sync) to the player.
         /// Used to undo player's attempted block placement/deletion.
         /// To avoid threading issues, only use this from this player's IoThread. </summary>
-        void RevertBlockNow ( Vector3I coords ) {
+        private void RevertBlockNow( Vector3I coords ) {
             SendNow( PacketWriter.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
         }
 
-
         // returns true if the player is spamming and should be kicked.
-        bool CheckBlockSpam () {
-            if ( Info.Rank.AntiGriefBlocks == 0 || Info.Rank.AntiGriefSeconds == 0 ) return false;
+        private bool CheckBlockSpam() {
+            if ( Info.Rank.AntiGriefBlocks == 0 || Info.Rank.AntiGriefSeconds == 0 )
+                return false;
             if ( spamBlockLog.Count >= Info.Rank.AntiGriefBlocks ) {
                 DateTime oldestTime = spamBlockLog.Dequeue();
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
@@ -1123,33 +1161,33 @@ namespace fCraft {
             return false;
         }
 
-        #endregion
-
+        #endregion Placing Blocks
 
         #region Binding
 
-        readonly Block[] bindings = new Block[50];
+        private readonly Block[] bindings = new Block[50];
 
-        public void Bind ( Block type, Block replacement ) {
+        public void Bind( Block type, Block replacement ) {
             bindings[( byte )type] = replacement;
         }
 
-        public void ResetBind ( Block type ) {
+        public void ResetBind( Block type ) {
             bindings[( byte )type] = type;
         }
 
-        public void ResetBind ( [NotNull] params Block[] types ) {
-            if ( types == null ) throw new ArgumentNullException( "types" );
+        public void ResetBind( [NotNull] params Block[] types ) {
+            if ( types == null )
+                throw new ArgumentNullException( "types" );
             foreach ( Block type in types ) {
                 ResetBind( type );
             }
         }
 
-        public Block GetBind ( Block type ) {
+        public Block GetBind( Block type ) {
             return bindings[( byte )type];
         }
 
-        public void ResetAllBinds () {
+        public void ResetAllBinds() {
             foreach ( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 if ( block != Block.Undefined ) {
                     ResetBind( block );
@@ -1157,58 +1195,57 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Binding
 
         #region Permission Checks
 
         /// <summary> Returns true if player has ALL of the given permissions. </summary>
-        public bool Can ( [NotNull] params Permission[] permissions ) {
-            if ( permissions == null ) throw new ArgumentNullException( "permissions" );
+        public bool Can( [NotNull] params Permission[] permissions ) {
+            if ( permissions == null )
+                throw new ArgumentNullException( "permissions" );
             return IsSuper || permissions.All( Info.Rank.Can );
         }
 
-
         /// <summary> Returns true if player has ANY of the given permissions. </summary>
-        public bool CanAny ( [NotNull] params Permission[] permissions ) {
-            if ( permissions == null ) throw new ArgumentNullException( "permissions" );
+        public bool CanAny( [NotNull] params Permission[] permissions ) {
+            if ( permissions == null )
+                throw new ArgumentNullException( "permissions" );
             return IsSuper || permissions.Any( Info.Rank.Can );
         }
 
-
         /// <summary> Returns true if player has the given permission. </summary>
-        public bool Can ( Permission permission ) {
+        public bool Can( Permission permission ) {
             return IsSuper || Info.Rank.Can( permission );
         }
 
-
         /// <summary> Returns true if player has the given permission,
         /// and is allowed to affect players of the given rank. </summary>
-        public bool Can ( Permission permission, [NotNull] Rank other ) {
-            if ( other == null ) throw new ArgumentNullException( "other" );
+        public bool Can( Permission permission, [NotNull] Rank other ) {
+            if ( other == null )
+                throw new ArgumentNullException( "other" );
             return IsSuper || Info.Rank.Can( permission, other );
         }
 
-
         /// <summary> Returns true if player is allowed to run
         /// draw commands that affect a given number of blocks. </summary>
-        public bool CanDraw ( int volume ) {
-            if ( volume < 0 ) throw new ArgumentOutOfRangeException( "volume" );
+        public bool CanDraw( int volume ) {
+            if ( volume < 0 )
+                throw new ArgumentOutOfRangeException( "volume" );
             return IsSuper || ( Info.Rank.DrawLimit == 0 ) || ( volume <= Info.Rank.DrawLimit );
         }
 
-
         /// <summary> Returns true if player is allowed to join a given world. </summary>
-        public bool CanJoin ( [NotNull] World worldToJoin ) {
-            if ( worldToJoin == null ) throw new ArgumentNullException( "worldToJoin" );
+        public bool CanJoin( [NotNull] World worldToJoin ) {
+            if ( worldToJoin == null )
+                throw new ArgumentNullException( "worldToJoin" );
             return IsSuper || worldToJoin.AccessSecurity.Check( Info );
         }
 
-
         /// <summary> Checks whether player is allowed to place a block on the current world at given coordinates.
         /// Raises the PlayerPlacingBlock event. </summary>
-        public CanPlaceResult CanPlace ( [NotNull] Map map, Vector3I coords, Block newBlock, BlockChangeContext context ) {
-            if ( map == null ) throw new ArgumentNullException( "map" );
+        public CanPlaceResult CanPlace( [NotNull] Map map, Vector3I coords, Block newBlock, BlockChangeContext context ) {
+            if ( map == null )
+                throw new ArgumentNullException( "map" );
             CanPlaceResult result;
 
             // check whether coordinate is in bounds
@@ -1274,55 +1311,55 @@ namespace fCraft {
 
         eventCheck:
             var handler = PlacingBlock;
-            if ( handler == null ) return result;
+            if ( handler == null )
+                return result;
 
             var e = new PlayerPlacingBlockEventArgs( this, map, coords, oldBlock, newBlock, context, result );
             handler( null, e );
             return e.Result;
         }
 
-
         /// <summary> Whether this player can currently see another player as being online.
         /// Visibility is determined by whether the other player is hiding or spectating.
         /// Players can always see themselves. Super players (e.g. Console) can see all.
         /// Hidden players can only be seen by those of sufficient rank. </summary>
-        public bool CanSee ( [NotNull] Player other ) {
-            if ( other == null ) throw new ArgumentNullException( "other" );
+        public bool CanSee( [NotNull] Player other ) {
+            if ( other == null )
+                throw new ArgumentNullException( "other" );
             return other == this ||
                    IsSuper ||
                    !other.Info.IsHidden ||
                    Info.Rank.CanSee( other.Info.Rank );
         }
 
-
         /// <summary> Whether this player can currently see another player moving.
         /// Behaves very similarly to CanSee method, except when spectating:
         /// Players can never see someone who's spectating them. If other player is spectating
         /// someone else, they are treated as hidden and can only be seen by those of sufficient rank. </summary>
-        public bool CanSeeMoving ( [NotNull] Player other ) {
-            if ( other == null ) throw new ArgumentNullException( "other" );
+        public bool CanSeeMoving( [NotNull] Player other ) {
+            if ( other == null )
+                throw new ArgumentNullException( "other" );
             return other == this ||
                    IsSuper ||
                    other.spectatedPlayer == null && !other.Info.IsHidden ||
                    ( other.spectatedPlayer != this && Info.Rank.CanSee( other.Info.Rank ) );
         }
 
-
         /// <summary> Whether this player should see a given world on the /Worlds list by default. </summary>
-        public bool CanSee ( [NotNull] World world ) {
-            if ( world == null ) throw new ArgumentNullException( "world" );
+        public bool CanSee( [NotNull] World world ) {
+            if ( world == null )
+                throw new ArgumentNullException( "world" );
             return CanJoin( world ) && !world.IsHidden;
         }
 
-        #endregion
-
+        #endregion Permission Checks
 
         #region Undo / Redo
 
-        readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
-        readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
+        private readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
+        private readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
 
-        internal UndoState RedoPop () {
+        internal UndoState RedoPop() {
             if ( redoStack.Count > 0 ) {
                 var lastNode = redoStack.Last;
                 redoStack.RemoveLast();
@@ -1332,21 +1369,21 @@ namespace fCraft {
             }
         }
 
-        internal UndoState RedoBegin ( DrawOperation op ) {
+        internal UndoState RedoBegin( DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             undoStack.AddLast( newState );
             return newState;
         }
 
-        internal UndoState UndoBegin ( DrawOperation op ) {
+        internal UndoState UndoBegin( DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             redoStack.AddLast( newState );
             return newState;
         }
 
-        public UndoState UndoPop () {
+        public UndoState UndoPop() {
             if ( undoStack.Count > 0 ) {
                 var lastNode = undoStack.Last;
                 undoStack.RemoveLast();
@@ -1356,7 +1393,7 @@ namespace fCraft {
             }
         }
 
-        public UndoState DrawBegin ( DrawOperation op ) {
+        public UndoState DrawBegin( DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             undoStack.AddLast( newState );
@@ -1367,16 +1404,15 @@ namespace fCraft {
             return newState;
         }
 
-        public void UndoClear () {
+        public void UndoClear() {
             undoStack.Clear();
         }
 
-        public void RedoClear () {
+        public void RedoClear() {
             redoStack.Clear();
         }
 
-        #endregion
-
+        #endregion Undo / Redo
 
         #region Drawing, Selection
 
@@ -1385,7 +1421,6 @@ namespace fCraft {
 
         [CanBeNull]
         public DrawOperation LastDrawOp { get; set; }
-
 
         /// <summary> Whether player is currently making a selection. </summary>
         public bool IsMakingSelection {
@@ -1404,22 +1439,22 @@ namespace fCraft {
         public bool IsRepeatingSelection { get; set; }
 
         [CanBeNull]
-        Command selectionRepeatCommand;
+        private Command selectionRepeatCommand;
 
         [CanBeNull]
-        SelectionCallback selectionCallback;
+        private SelectionCallback selectionCallback;
 
-        readonly Queue<Vector3I> selectionMarks = new Queue<Vector3I>();
-
-        [CanBeNull]
-        object selectionArgs;
+        private readonly Queue<Vector3I> selectionMarks = new Queue<Vector3I>();
 
         [CanBeNull]
-        Permission[] selectionPermissions;
+        private object selectionArgs;
 
+        [CanBeNull]
+        private Permission[] selectionPermissions;
 
-        public void SelectionAddMark ( Vector3I pos, bool executeCallbackIfNeeded ) {
-            if ( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
+        public void SelectionAddMark( Vector3I pos, bool executeCallbackIfNeeded ) {
+            if ( !IsMakingSelection )
+                throw new InvalidOperationException( "No selection in progress." );
             selectionMarks.Enqueue( pos );
             if ( SelectionMarkCount >= SelectionMarksExpected ) {
                 if ( executeCallbackIfNeeded ) {
@@ -1433,8 +1468,7 @@ namespace fCraft {
             }
         }
 
-
-        public void SelectionExecute () {
+        public void SelectionExecute() {
             if ( !IsMakingSelection || selectionCallback == null ) {
                 throw new InvalidOperationException( "No selection in progress." );
             }
@@ -1454,12 +1488,12 @@ namespace fCraft {
             }
         }
 
-
-        public void SelectionStart ( int marksExpected,
+        public void SelectionStart( int marksExpected,
                                     [NotNull] SelectionCallback callback,
                                     [CanBeNull] object args,
                                     [CanBeNull] params Permission[] requiredPermissions ) {
-            if ( callback == null ) throw new ArgumentNullException( "callback" );
+            if ( callback == null )
+                throw new ArgumentNullException( "callback" );
             selectionArgs = args;
             SelectionMarksExpected = marksExpected;
             selectionMarks.Clear();
@@ -1467,13 +1501,11 @@ namespace fCraft {
             selectionPermissions = requiredPermissions;
         }
 
-
-        public void SelectionResetMarks () {
+        public void SelectionResetMarks() {
             selectionMarks.Clear();
         }
 
-
-        public void SelectionCancel () {
+        public void SelectionCancel() {
             selectionMarks.Clear();
             SelectionMarksExpected = 0;
             selectionCallback = null;
@@ -1481,17 +1513,18 @@ namespace fCraft {
             selectionPermissions = null;
         }
 
-        #endregion
-
+        #endregion Drawing, Selection
 
         #region Copy/Paste
 
-        CopyState[] copyInformation;
+        private CopyState[] copyInformation;
+
         public CopyState[] CopyInformation {
             get { return copyInformation; }
         }
 
-        int copySlot;
+        private int copySlot;
+
         public int CopySlot {
             get { return copySlot; }
             set {
@@ -1502,29 +1535,31 @@ namespace fCraft {
             }
         }
 
-        internal void InitCopySlots () {
+        internal void InitCopySlots() {
             Array.Resize( ref copyInformation, Info.Rank.CopySlots );
             CopySlot = Math.Min( CopySlot, Info.Rank.CopySlots - 1 );
         }
 
         [CanBeNull]
-        public CopyState GetCopyInformation () {
+        public CopyState GetCopyInformation() {
             return CopyInformation[copySlot];
         }
 
-        public void SetCopyInformation ( [CanBeNull] CopyState info ) {
-            if ( info != null ) info.Slot = copySlot;
+        public void SetCopyInformation( [CanBeNull] CopyState info ) {
+            if ( info != null )
+                info.Slot = copySlot;
             CopyInformation[copySlot] = info;
         }
 
-        #endregion
+        #endregion Copy/Paste
+
         [CanBeNull]
-        Player possessionPlayer;
+        private Player possessionPlayer;
 
         #region Spectating
 
         [CanBeNull]
-        Player spectatedPlayer;
+        private Player spectatedPlayer;
 
         /// <summary> Player currently being spectated. Use Spectate/StopSpectate methods to set. </summary>
         [CanBeNull]
@@ -1535,15 +1570,15 @@ namespace fCraft {
         [CanBeNull]
         public PlayerInfo LastSpectatedPlayer { get; private set; }
 
-        readonly object spectateLock = new object();
+        private readonly object spectateLock = new object();
 
         public bool IsSpectating {
             get { return ( spectatedPlayer != null ); }
         }
 
-
-        public bool Spectate ( [NotNull] Player target ) {
-            if ( target == null ) throw new ArgumentNullException( "target" );
+        public bool Spectate( [NotNull] Player target ) {
+            if ( target == null )
+                throw new ArgumentNullException( "target" );
             lock ( spectateLock ) {
                 if ( target == this ) {
                     PlayerOpException.ThrowCannotTargetSelf( this, Info, "spectate" );
@@ -1553,7 +1588,8 @@ namespace fCraft {
                     PlayerOpException.ThrowPermissionLimit( this, target.Info, "spectate", Permission.Spectate );
                 }
 
-                if ( spectatedPlayer == target ) return false;
+                if ( spectatedPlayer == target )
+                    return false;
 
                 spectatedPlayer = target;
                 LastSpectatedPlayer = target.Info;
@@ -1562,17 +1598,19 @@ namespace fCraft {
             }
         }
 
-        public bool StopSpectating () {
+        public bool StopSpectating() {
             lock ( spectateLock ) {
-                if ( spectatedPlayer == null ) return false;
+                if ( spectatedPlayer == null )
+                    return false;
                 Message( "Stopped spectating {0}", spectatedPlayer.ClassyName );
                 spectatedPlayer = null;
                 return true;
             }
         }
 
-        public bool Possess ( [NotNull] Player target ) {
-            if ( target == null ) throw new ArgumentNullException( "target" );
+        public bool Possess( [NotNull] Player target ) {
+            if ( target == null )
+                throw new ArgumentNullException( "target" );
             lock ( spectateLock ) {
                 if ( target == this ) {
                     PlayerOpException.ThrowCannotTargetSelf( this, Info, "possess" );
@@ -1582,38 +1620,42 @@ namespace fCraft {
                     PlayerOpException.ThrowPermissionLimit( this, target.Info, "possess", Permission.Possess );
                 }
 
-                if ( target.possessionPlayer == this ) return false;
+                if ( target.possessionPlayer == this )
+                    return false;
 
                 target.possessionPlayer = this;
                 Message( "Now Possessing {0}&S. Type &H/unpossess&S to stop.", target.ClassyName );
                 return true;
             }
         }
-        public bool StopPossessing ( [NotNull]Player target ) {
+
+        public bool StopPossessing( [NotNull]Player target ) {
             lock ( spectateLock ) {
-                if ( target.possessionPlayer == null ) return false;
+                if ( target.possessionPlayer == null )
+                    return false;
                 Message( "Stopped possessing {0}", target.ClassyName );
                 target.possessionPlayer = null;
                 return true;
             }
         }
 
-        #endregion
-
+        #endregion Spectating
 
         #region Static Utilities
 
-
         /// <summary> Ensures that a player name has the correct length and character set. </summary>
-        public static bool IsValidName ( [NotNull] string name ) {
-            if ( name == null ) throw new ArgumentNullException( "name" );
-            if ( name.Length < 2 || name.Length > 16 ) return false;
+        public static bool IsValidName( [NotNull] string name ) {
+            if ( name == null )
+                throw new ArgumentNullException( "name" );
+            if ( name.Length < 2 || name.Length > 16 )
+                return false;
             return ContainsValidCharacters( name );
         }
 
         /// <summary> Ensures that a player name has the correct length and character set. </summary>
-        public static bool ContainsValidCharacters ( [NotNull] string name ) {
-            if ( name == null ) throw new ArgumentNullException( "name" );
+        public static bool ContainsValidCharacters( [NotNull] string name ) {
+            if ( name == null )
+                throw new ArgumentNullException( "name" );
             // ReSharper disable LoopCanBeConvertedToQuery
             for ( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
@@ -1625,15 +1667,13 @@ namespace fCraft {
             return true;
         }
 
-        #endregion
+        #endregion Static Utilities
 
-
-        public void TeleportTo ( Position pos ) {
+        public void TeleportTo( Position pos ) {
             StopSpectating();
             Send( PacketWriter.MakeSelfTeleport( pos ) );
             Position = pos;
         }
-
 
         /// <summary> Time since the player was last active (moved, talked, or clicked). </summary>
         public TimeSpan IdleTime {
@@ -1642,12 +1682,10 @@ namespace fCraft {
             }
         }
 
-
         /// <summary> Resets the IdleTimer to 0. </summary>
-        public void ResetIdleTimer () {
+        public void ResetIdleTimer() {
             LastActiveTime = DateTime.UtcNow;
         }
-
 
         #region Kick
 
@@ -1658,13 +1696,15 @@ namespace fCraft {
         /// <param name="announce"> Whether the kick should be announced publicly on the server and IRC. </param>
         /// <param name="raiseEvents"> Whether Player.BeingKicked and Player.Kicked events should be raised. </param>
         /// <param name="recordToPlayerDB"> Whether the kick should be counted towards player's record.</param>
-        public void Kick ( [NotNull] Player player, [CanBeNull] string reason, LeaveReason context,
-                           bool announce, bool raiseEvents, bool recordToPlayerDB ) {
-            if ( player == null ) throw new ArgumentNullException( "player" );
+        public void Kick( [NotNull] Player player, [CanBeNull] string reason, LeaveReason context,
+                          bool announce, bool raiseEvents, bool recordToPlayerDB ) {
+            if ( player == null )
+                throw new ArgumentNullException( "player" );
             if ( !Enum.IsDefined( typeof( LeaveReason ), context ) ) {
                 throw new ArgumentOutOfRangeException( "context" );
             }
-            if ( reason != null && reason.Trim().Length == 0 ) reason = null;
+            if ( reason != null && reason.Trim().Length == 0 )
+                reason = null;
 
             // Check if player can ban/unban in general
             if ( !player.Can( Permission.Kick ) ) {
@@ -1688,7 +1728,8 @@ namespace fCraft {
             if ( raiseEvents ) {
                 var e = new PlayerBeingKickedEventArgs( this, player, reason, announce, recordToPlayerDB, context );
                 RaisePlayerBeingKickedEvent( e );
-                if ( e.Cancel ) PlayerOpException.ThrowCancelled( player, Info );
+                if ( e.Cancel )
+                    PlayerOpException.ThrowCancelled( player, Info );
                 recordToPlayerDB = e.RecordToPlayerDB;
             }
 
@@ -1727,8 +1768,7 @@ namespace fCraft {
             }
         }
 
-        #endregion
-
+        #endregion Kick
 
         [CanBeNull]
         public string LastUsedPlayerName { get; set; }
@@ -1736,9 +1776,8 @@ namespace fCraft {
         [CanBeNull]
         public string LastUsedWorldName { get; set; }
 
-
         /// <summary> Name formatted for the debugger. </summary>
-        public override string ToString () {
+        public override string ToString() {
             if ( Info != null ) {
                 return String.Format( "Player({0})", Info.Name );
             } else {
@@ -1747,11 +1786,10 @@ namespace fCraft {
         }
     }
 
-
-    sealed class PlayerListSorter : IComparer<Player> {
+    internal sealed class PlayerListSorter : IComparer<Player> {
         public static readonly PlayerListSorter Instance = new PlayerListSorter();
 
-        public int Compare ( Player x, Player y ) {
+        public int Compare( Player x, Player y ) {
             if ( x.Info.Rank == y.Info.Rank ) {
                 return StringComparer.OrdinalIgnoreCase.Compare( x.Name, y.Name );
             } else {

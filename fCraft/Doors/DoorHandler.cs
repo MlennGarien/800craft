@@ -24,22 +24,21 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace fCraft.Doors {
-    class DoorHandler {
 
+    internal class DoorHandler {
         private static DoorHandler instance;
 
-        private DoorHandler () {
+        private DoorHandler() {
             // Empty, singleton
         }
 
-        public static DoorHandler GetInstance () {
+        public static DoorHandler GetInstance() {
             if ( instance == null ) {
                 instance = new DoorHandler();
                 Player.Clicked += new EventHandler<Events.PlayerClickedEventArgs>( PlayerClickedDoor );
@@ -50,14 +49,16 @@ namespace fCraft.Doors {
         }
 
         //cuboid over-fix?
-        public static void PlayerPlacedDoor ( object sender, Events.PlayerPlacingBlockEventArgs e ) {
-            if ( e.Map.Doors == null ) return;
+        public static void PlayerPlacedDoor( object sender, Events.PlayerPlacingBlockEventArgs e ) {
+            if ( e.Map.Doors == null )
+                return;
             if ( e.Map.World != null ) {
                 if ( e.Map != null ) {
                     if ( e.Map.Doors.Count > 0 ) {
                         lock ( e.Map.Doors.SyncRoot ) {
                             foreach ( Door door in e.Map.Doors ) {
-                                if ( e.Map == null ) break;
+                                if ( e.Map == null )
+                                    break;
                                 if ( door.IsInRange( e.Coords ) ) {
                                     e.Result = CanPlaceResult.Revert;
                                 }
@@ -68,10 +69,12 @@ namespace fCraft.Doors {
             }
         }
 
-        public static void PlayerClickedDoor ( object sender, Events.PlayerClickedEventArgs e ) {
+        public static void PlayerClickedDoor( object sender, Events.PlayerClickedEventArgs e ) {
             if ( e.Action == ClickAction.Delete ) {
-                if ( e.Player.World.Map.Doors == null ) return;
-                if ( e.Player.IsMakingSelection ) return;
+                if ( e.Player.World.Map.Doors == null )
+                    return;
+                if ( e.Player.IsMakingSelection )
+                    return;
                 lock ( openDoorsLock ) {
                     foreach ( Door door in e.Player.World.Map.Doors ) {
                         if ( door.IsInRange( e.Coords ) ) {
@@ -85,8 +88,7 @@ namespace fCraft.Doors {
             }
         }
 
-
-        public static Door GetDoor ( Vector3I Coords, Player player ) {
+        public static Door GetDoor( Vector3I Coords, Player player ) {
             Door Door = null;
             try {
                 if ( player.World.Map.Doors != null && player.World.Map.Doors.Count > 0 ) {
@@ -105,10 +107,10 @@ namespace fCraft.Doors {
             return Door;
         }
 
-        public Vector3I[] GetAffectedBlocks ( Door door ) {
+        public Vector3I[] GetAffectedBlocks( Door door ) {
             Vector3I[] temp = new Vector3I[] { };
             List<Vector3I> temp2 = new List<Vector3I>();
-            for(int x = door.Range.Xmin; x < door.Range.Xmax; x++)
+            for ( int x = door.Range.Xmin; x < door.Range.Xmax; x++ )
                 for ( int y = door.Range.Ymin; y < door.Range.Ymax; y++ )
                     for ( int z = door.Range.Zmin; z < door.Range.Zmax; z++ ) {
                         temp2.Add( new Vector3I( x, y, z ) );
@@ -117,7 +119,7 @@ namespace fCraft.Doors {
             return temp;
         }
 
-        public static int GetPlayerOwnedDoorsNumber ( World world, Player player ) {
+        public static int GetPlayerOwnedDoorsNumber( World world, Player player ) {
             int Number = 0;
             foreach ( Door door in world.Map.Doors ) {
                 if ( door.Creator == player.Name ) {
@@ -127,7 +129,7 @@ namespace fCraft.Doors {
             return Number;
         }
 
-        public Door GetDoor ( World world, Vector3I block ) {
+        public Door GetDoor( World world, Vector3I block ) {
             Door Door = null;
             try {
                 if ( world.Map.Doors != null && world.Map.Doors.Count > 0 ) {
@@ -146,7 +148,7 @@ namespace fCraft.Doors {
             return Door;
         }
 
-        public static void CreateDoor ( Door Door, World source ) {
+        public static void CreateDoor( Door Door, World source ) {
             World world = WorldManager.FindWorldExact( Door.World );
 
             if ( source.Map.Doors == null ) {
@@ -156,22 +158,24 @@ namespace fCraft.Doors {
                 source.Map.Doors.Add( Door );
             }
         }
-        static List<Door> openDoors = new List<Door>();
-        static readonly object openDoorsLock = new object();
-        static readonly TimeSpan DoorCloseTimer = TimeSpan.FromMilliseconds( 1500 );
 
-        struct DoorInfo {
+        private static List<Door> openDoors = new List<Door>();
+        private static readonly object openDoorsLock = new object();
+        private static readonly TimeSpan DoorCloseTimer = TimeSpan.FromMilliseconds( 1500 );
+
+        private struct DoorInfo {
             public readonly Door Door;
             public readonly Block[] Buffer;
             public readonly Map WorldMap;
-            public DoorInfo ( Door door, Block[] buffer, Map worldMap ) {
+
+            public DoorInfo( Door door, Block[] buffer, Map worldMap ) {
                 Door = door;
                 Buffer = buffer;
                 WorldMap = worldMap;
             }
         }
 
-        static void doorTimer_Elapsed ( SchedulerTask task ) {
+        private static void doorTimer_Elapsed( SchedulerTask task ) {
             DoorInfo info = ( DoorInfo )task.UserState;
             int counter = 0;
             for ( int x = info.Door.Range.Xmin; x <= info.Door.Range.Xmax; x++ ) {
@@ -186,7 +190,7 @@ namespace fCraft.Doors {
             lock ( openDoorsLock ) { openDoors.Remove( info.Door ); }
         }
 
-        static void openDoor ( Door door, Player player ) {
+        private static void openDoor( Door door, Player player ) {
             int sx = door.Range.Xmin;
             int ex = door.Range.Xmax;
             int sy = door.Range.Ymin;

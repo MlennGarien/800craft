@@ -24,13 +24,13 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace fCraft {
+
     public class VoteHandler {
         public static string Usage;
         public static int VotedYes;
@@ -43,7 +43,7 @@ namespace fCraft {
         public static string TargetName;
         public static string Question;
 
-        public static void NewVote () {
+        public static void NewVote() {
             Usage = "&A/Vote Yes | No | Ask | Kick | Abort";
             VotedYes = 0;
             VotedNo = 0;
@@ -51,7 +51,7 @@ namespace fCraft {
             VoteIsOn = true;
         }
 
-        public static void VoteParams ( Player player, Command cmd ) {
+        public static void VoteParams( Player player, Command cmd ) {
             string option = cmd.Next();
             if ( option == null ) { player.Message( "Invalid param" ); return; }
             switch ( option ) {
@@ -148,21 +148,22 @@ namespace fCraft {
                     }
 
                     VoteThread = new Thread( new ThreadStart( delegate {
-                          TargetName = target.Name;
-                          if ( !Player.IsValidName( TargetName ) ) {
-                              player.Message( "Invalid name" );
-                              return;
-                          }
-                          NewVote();
-                          VoteStarter = player.ClassyName;
-                          Server.Players.Message( "{0}&S started a VoteKick for player: {1}", player.ClassyName, target.ClassyName );
-                          Server.Players.Message( "&WReason: {0}", VoteKickReason );
-                          Server.Players.Message( "&9Vote now! &S/Vote &AYes &Sor /Vote &CNo" );
-                          VoteIsOn = true;
-                          Logger.Log( LogType.SystemActivity, "{0} started a votekick on player {1} reason: {2}", player.Name, target.Name, VoteKickReason );
-                          Thread.Sleep( 60000 );
-                          VoteKickCheck();
-                      } ) ); VoteThread.Start();
+                        TargetName = target.Name;
+                        if ( !Player.IsValidName( TargetName ) ) {
+                            player.Message( "Invalid name" );
+                            return;
+                        }
+                        NewVote();
+                        VoteStarter = player.ClassyName;
+                        Server.Players.Message( "{0}&S started a VoteKick for player: {1}", player.ClassyName, target.ClassyName );
+                        Server.Players.Message( "&WReason: {0}", VoteKickReason );
+                        Server.Players.Message( "&9Vote now! &S/Vote &AYes &Sor /Vote &CNo" );
+                        VoteIsOn = true;
+                        Logger.Log( LogType.SystemActivity, "{0} started a votekick on player {1} reason: {2}", player.Name, target.Name, VoteKickReason );
+                        Thread.Sleep( 60000 );
+                        VoteKickCheck();
+                    } ) );
+                    VoteThread.Start();
                     break;
 
                 case "no":
@@ -197,19 +198,20 @@ namespace fCraft {
                     }
 
                     VoteThread = new Thread( new ThreadStart( delegate {
-                          NewVote();
-                          VoteStarter = player.ClassyName;
-                          Server.Players.Message( "{0}&S Asked: {1}", player.ClassyName, Question );
-                          Server.Players.Message( "&9Vote now! &S/Vote &AYes &Sor /Vote &CNo" );
-                          VoteIsOn = true;
-                          Thread.Sleep( 60000 );
-                          VoteCheck();
-                      } ) ); VoteThread.Start();
+                        NewVote();
+                        VoteStarter = player.ClassyName;
+                        Server.Players.Message( "{0}&S Asked: {1}", player.ClassyName, Question );
+                        Server.Players.Message( "&9Vote now! &S/Vote &AYes &Sor /Vote &CNo" );
+                        VoteIsOn = true;
+                        Thread.Sleep( 60000 );
+                        VoteCheck();
+                    } ) );
+                    VoteThread.Start();
                     break;
             }
         }
 
-        static void VoteCheck () {
+        private static void VoteCheck() {
             if ( VoteIsOn ) {
                 Server.Players.Message( "{0}&S Asked: {1} \n&SResults are in! Yes: &A{2} &SNo: &C{3}", VoteStarter,
                                        Question, VotedYes, VotedNo );
@@ -220,7 +222,7 @@ namespace fCraft {
             }
         }
 
-        static void VoteKickCheck () {
+        private static void VoteKickCheck() {
             if ( VoteIsOn ) {
                 Server.Players.Message( "{0}&S wanted to get {1} kicked. Reason: {2} \n&SResults are in! Yes: &A{3} &SNo: &C{4}", VoteStarter,
                                       TargetName, VoteKickReason, VotedYes, VotedNo );

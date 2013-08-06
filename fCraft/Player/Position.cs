@@ -21,9 +21,9 @@ namespace fCraft {
         }
 
         public Position( int x, int y, int z ) {
-            X = (short)x;
-            Y = (short)y;
-            Z = (short)z;
+            X = ( short )x;
+            Y = ( short )y;
+            Z = ( short )z;
             R = 0;
             L = 0;
         }
@@ -36,30 +36,26 @@ namespace fCraft {
             }
         }
 
-
         public bool IsZero {
             get {
                 return X == 0 && Y == 0 && Z == 0 && R == 0 && L == 0;
             }
         }
 
-
         // adjust for bugs in position-reporting in Minecraft client
         public Position GetFixed() {
             return new Position {
-                X = (X),
-                Y = (Y),
-                Z = (short)(Z - 22),
+                X = ( X ),
+                Y = ( Y ),
+                Z = ( short )( Z - 22 ),
                 R = R,
                 L = L
             };
         }
 
-
         public int DistanceSquaredTo( Position other ) {
-            return (X - other.X) * (X - other.X) + (Y - other.Y) * (Y - other.Y) + (Z - other.Z) * (Z - other.Z);
+            return ( X - other.X ) * ( X - other.X ) + ( Y - other.Y ) * ( Y - other.Y ) + ( Z - other.Z ) * ( Z - other.Z );
         }
-
 
         #region Equality
 
@@ -72,19 +68,18 @@ namespace fCraft {
         }
 
         public bool Equals( Position other ) {
-            return (X == other.X) && (Y == other.Y) && (Z == other.Z) && (R == other.R) && (L == other.L);
+            return ( X == other.X ) && ( Y == other.Y ) && ( Z == other.Z ) && ( R == other.R ) && ( L == other.L );
         }
 
         public override bool Equals( object obj ) {
-            return (obj is Position) && Equals( (Position)obj );
+            return ( obj is Position ) && Equals( ( Position )obj );
         }
 
         public override int GetHashCode() {
-            return (X + Y * short.MaxValue) ^ (R + L * short.MaxValue) + Z;
+            return ( X + Y * short.MaxValue ) ^ ( R + L * short.MaxValue ) + Z;
         }
 
-        #endregion
-
+        #endregion Equality
 
         public override string ToString() {
             return String.Format( "Position({0},{1},{2} @{3},{4})", X, Y, Z, R, L );
@@ -99,7 +94,7 @@ namespace fCraft {
         }
 
         public Vector3I ToBlockCoords() {
-            return new Vector3I( (X - 16) / 32, (Y - 16) / 32, (Z - 16) / 32 );
+            return new Vector3I( ( X - 16 ) / 32, ( Y - 16 ) / 32, ( Z - 16 ) / 32 );
         }
     }
 }

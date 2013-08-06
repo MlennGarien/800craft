@@ -24,27 +24,27 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace fCraft.Doors
-{
+namespace fCraft.Doors {
+
     /// <summary>
     /// Class used for rapid check if user is in range of Door
     /// </summary>
-    public class DoorRange
-    {
+    public class DoorRange {
+
         public int Xmin { get; set; }
+
         public int Xmax { get; set; }
+
         public int Ymin { get; set; }
+
         public int Ymax { get; set; }
+
         public int Zmin { get; set; }
+
         public int Zmax { get; set; }
 
-        public DoorRange(int Xmin, int Xmax, int Ymin, int Ymax, int Zmin, int Zmax)
-        {
+        public DoorRange( int Xmin, int Xmax, int Ymin, int Ymax, int Zmin, int Zmax ) {
             this.Xmin = Xmin;
             this.Xmax = Xmax;
             this.Ymin = Ymin;

@@ -24,18 +24,16 @@
         (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
         SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         ----*/
+
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using fCraft;
 using fCraft.Drawing;
 
 namespace fCraft {
+
     public class MathCommands {
         public const int MaxCalculationExceptions = 100;
 
-        public static void Init () {
+        public static void Init() {
             CommandManager.RegisterCommand( CdFunc );
             CommandManager.RegisterCommand( CdFuncSurf );
             CommandManager.RegisterCommand( CdFuncFill );
@@ -46,7 +44,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdStartParam );
             CommandManager.RegisterCommand( CdClearParam );
         }
-        const string commonFuncHelp = "Can also be x=f(y, z) or y=f(x, z). ";
+
+        private const string commonFuncHelp = "Can also be x=f(y, z) or y=f(x, z). ";
 
         private const string commonHelp =
             "Allowed operators: +, -, *, /, %, ^. Comparison and logical operators: >, <, =, &, |, !." +
@@ -54,15 +53,15 @@ namespace fCraft {
             "Functions: sqrt, sq, exp, lg, ln, log(num, base), abs, sign, sin, cos, tan, sinh, cosh, tanh. Example: 1-exp(-1/sq(x)). " +
             "'sq' stands for 'square', i.e. sq(x) is x*x. ";
 
-        const string commonScalingHelp =
+        private const string commonScalingHelp =
             "Select 2 points to define a volume (same as e.g. for cuboid), where the function will be drawn. " +
             "Coords are whole numbers from 0 to the corresponding cuboid dimension length. " +
             "Using 'u' as a scaling switch coords to be [0, 1] along the corresponding cuboid axis. " +
             "'uu' switches coords to be [-1, 1] along the corresponding cuboid axis.";
-        const string copyright = "\n(C) 2012 Lao Tszy";
 
+        private const string copyright = "\n(C) 2012 Lao Tszy";
 
-        static readonly CommandDescriptor CdFunc = new CommandDescriptor {
+        private static readonly CommandDescriptor CdFunc = new CommandDescriptor {
             Name = "Func",
             Aliases = new string[] { "fu" },
             Category = CommandCategory.Math,
@@ -75,7 +74,7 @@ namespace fCraft {
             Handler = FuncHandler,
         };
 
-        static readonly CommandDescriptor CdFuncSurf = new CommandDescriptor {
+        private static readonly CommandDescriptor CdFuncSurf = new CommandDescriptor {
             Name = "FuncSurf",
             Aliases = new string[] { "fus" },
             Category = CommandCategory.Math,
@@ -88,7 +87,7 @@ namespace fCraft {
             Handler = FuncSHandler,
         };
 
-        static readonly CommandDescriptor CdFuncFill = new CommandDescriptor {
+        private static readonly CommandDescriptor CdFuncFill = new CommandDescriptor {
             Name = "FuncFill",
             Aliases = new string[] { "fuf" },
             Category = CommandCategory.Math,
@@ -102,7 +101,7 @@ namespace fCraft {
         };
 
         //inequality
-        static readonly CommandDescriptor CdIneq = new CommandDescriptor {
+        private static readonly CommandDescriptor CdIneq = new CommandDescriptor {
             Name = "Ineq",
             Aliases = new string[] { "ie" },
             Category = CommandCategory.Math,
@@ -116,7 +115,7 @@ namespace fCraft {
         };
 
         //equality
-        static readonly CommandDescriptor CdEq = new CommandDescriptor {
+        private static readonly CommandDescriptor CdEq = new CommandDescriptor {
             Name = "Eq",
             Aliases = new string[] { },
             Category = CommandCategory.Math,
@@ -130,7 +129,7 @@ namespace fCraft {
         };
 
         //parametrized manifold
-        static readonly CommandDescriptor CdSetCoord = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSetCoord = new CommandDescriptor {
             Name = "SetCoordParm",
             Aliases = new string[] { "SetCP", "scp" },
             Category = CommandCategory.Math,
@@ -144,7 +143,7 @@ namespace fCraft {
             Handler = PrepareParametrizedManifold.SetParametrization,
         };
 
-        static readonly CommandDescriptor CdSetParam = new CommandDescriptor {
+        private static readonly CommandDescriptor CdSetParam = new CommandDescriptor {
             Name = "SetParamIter",
             Aliases = new string[] { "SetPI", "spi" },
             Category = CommandCategory.Math,
@@ -158,7 +157,7 @@ namespace fCraft {
             Handler = PrepareParametrizedManifold.SetParamIteration,
         };
 
-        static readonly CommandDescriptor CdStartParam = new CommandDescriptor {
+        private static readonly CommandDescriptor CdStartParam = new CommandDescriptor {
             Name = "StartParmDraw",
             Aliases = new string[] { "StartPD", "spd" },
             Category = CommandCategory.Math,
@@ -170,7 +169,7 @@ namespace fCraft {
             Handler = StartParametrizedDraw,
         };
 
-        static readonly CommandDescriptor CdClearParam = new CommandDescriptor {
+        private static readonly CommandDescriptor CdClearParam = new CommandDescriptor {
             Name = "ClearParmDraw",
             Aliases = new string[] { "ClearPD", "cpd" },
             Category = CommandCategory.Math,
@@ -182,20 +181,21 @@ namespace fCraft {
             Handler = PrepareParametrizedManifold.ClearParametrization,
         };
 
-
-        //Those handler functions would be a template function when this <censored> c# could 
+        //Those handler functions would be a template function when this <censored> c# could
         //accept constructors with params for the template param types.
         //One still can use two-fase-construction to enable templetization here,
         //but this seems to me even uglier than copy-pasted handlers
-        private static void FuncHandler ( Player player, Command cmd ) {
+        private static void FuncHandler( Player player, Command cmd ) {
             FuncDrawOperation operation = new FuncDrawOperationPoints( player, cmd );
             DrawOperationBegin( player, cmd, operation );
         }
-        private static void FuncSHandler ( Player player, Command cmd ) {
+
+        private static void FuncSHandler( Player player, Command cmd ) {
             FuncDrawOperation operation = new FuncDrawOperationSurface( player, cmd );
             DrawOperationBegin( player, cmd, operation );
         }
-        private static void FuncFHandler ( Player player, Command cmd ) {
+
+        private static void FuncFHandler( Player player, Command cmd ) {
             try {
                 FuncDrawOperation operation = new FuncDrawOperationFill( player, cmd );
                 DrawOperationBegin( player, cmd, operation );
@@ -203,7 +203,8 @@ namespace fCraft {
                 player.Message( "Error: " + e.Message );
             }
         }
-        private static void InequalityHandler ( Player player, Command cmd ) {
+
+        private static void InequalityHandler( Player player, Command cmd ) {
             try {
                 InequalityDrawOperation operation = new InequalityDrawOperation( player, cmd );
                 DrawOperationBegin( player, cmd, operation );
@@ -211,7 +212,8 @@ namespace fCraft {
                 player.Message( "Error: " + e.Message );
             }
         }
-        private static void EqualityHandler ( Player player, Command cmd ) {
+
+        private static void EqualityHandler( Player player, Command cmd ) {
             try {
                 EqualityDrawOperation operation = new EqualityDrawOperation( player, cmd );
                 DrawOperationBegin( player, cmd, operation );
@@ -219,7 +221,8 @@ namespace fCraft {
                 player.Message( "Error: " + e.Message );
             }
         }
-        private static void StartParametrizedDraw ( Player player, Command cmd ) {
+
+        private static void StartParametrizedDraw( Player player, Command cmd ) {
             try {
                 ManifoldDrawOperation operation = new ManifoldDrawOperation( player, cmd );
                 DrawOperationBegin( player, cmd, operation );
@@ -228,9 +231,8 @@ namespace fCraft {
             }
         }
 
-
         //copy-paste from BuildingCommands
-        private static void DrawOperationBegin ( Player player, Command cmd, DrawOperation op ) {
+        private static void DrawOperationBegin( Player player, Command cmd, DrawOperation op ) {
             IBrushInstance instance = player.Brush.MakeInstance( player, cmd, op );
             if ( instance != null ) {
                 op.Brush = instance;
@@ -238,7 +240,8 @@ namespace fCraft {
                 player.Message( "{0}: Click {1} blocks or use &H/Mark&S to make a selection.", new object[] { op.Description, op.ExpectedMarks } );
             }
         }
-        private static void DrawOperationCallback ( Player player, Vector3I[] marks, object tag ) {
+
+        private static void DrawOperationCallback( Player player, Vector3I[] marks, object tag ) {
             DrawOperation operation = ( DrawOperation )tag;
             if ( operation.Prepare( marks ) ) {
                 if ( !player.CanDraw( operation.BlocksTotalEstimate ) ) {
@@ -252,4 +255,3 @@ namespace fCraft {
         }
     }
 }
-
