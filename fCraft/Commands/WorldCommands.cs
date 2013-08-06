@@ -402,7 +402,7 @@ namespace fCraft {
 
                         lock ( player.World.Map.MessageBlocks.SyncRoot ) {
                             foreach ( MessageBlock MessageBlock in player.World.Map.MessageBlocks ) {
-                                if ( MessageBlock.Name.ToLower().Equals( MessageBlockName.ToLower() ) ) {
+                                if ( MessageBlock.Name.Equals( MessageBlockName, StringComparison.OrdinalIgnoreCase ) ) {
                                     MessageBlockFound = MessageBlock;
                                     found = true;
                                     break;
@@ -420,7 +420,7 @@ namespace fCraft {
                         player.Message( "Could not find MessageBlock as this world doesn't contain a MessageBlock." );
                     }
                 }
-            } else if ( option.ToLower().Equals( "info" ) ) {
+            } else if ( option.Equals( "info", StringComparison.OrdinalIgnoreCase ) ) {
                 string MessageBlockName = cmd.Next();
 
                 if ( MessageBlockName == null ) {
@@ -431,7 +431,7 @@ namespace fCraft {
 
                         lock ( player.World.Map.MessageBlocks.SyncRoot ) {
                             foreach ( MessageBlock MessageBlock in player.World.Map.MessageBlocks ) {
-                                if ( MessageBlock.Name.ToLower().Equals( MessageBlockName.ToLower() ) ) {
+                                if ( MessageBlock.Name.Equals( MessageBlockName, StringComparison.OrdinalIgnoreCase ) ) {
                                     World MessageBlockWorld = WorldManager.FindWorldExact( MessageBlock.World );
                                     player.Message( "MessageBlock '{0}&S' was created by {1}&S at {2}",
                                         MessageBlock.Name, MessageBlock.Creator, MessageBlock.Created );

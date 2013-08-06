@@ -220,7 +220,7 @@ namespace fCraft {
 #if DEBUG_SCHEDULER
             Logger.Log( LogType.Debug, "Scheduler: BeginShutdown..." );
 #endif
-            if (ConfigKey.HbSaverKey.Enabled())
+            if ( ConfigKey.HbSaverKey.Enabled() && ConfigKey.IsPublic.Enabled() )
             {
                 if (!Server.IsRestarting)
                 {

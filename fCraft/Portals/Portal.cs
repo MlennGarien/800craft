@@ -188,7 +188,7 @@ namespace fCraft.Portals {
             if ( world.Map.Portals != null ) {
                 if ( world.Map.Portals.Count > 0 ) {
                     foreach ( Portal portal in world.Map.Portals ) {
-                        if ( portal.Name.Equals( name ) ) {
+                        if ( portal.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
                             return true;
                         }
                     }

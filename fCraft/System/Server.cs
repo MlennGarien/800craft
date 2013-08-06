@@ -381,7 +381,7 @@ namespace fCraft {
             // list loaded worlds
             WorldManager.UpdateWorldList();
             Logger.Log( LogType.SystemActivity,
-                        "{0} available worlds: {0}",
+                        "{0} available worlds",
                         WorldManager.Worlds.Length );
 
             Logger.Log( LogType.SystemActivity,
@@ -475,6 +475,7 @@ namespace fCraft {
                 // kick all players
                 lock( SessionLock ) {
                     if( Sessions.Count > 0 ) {
+                        Logger.Log( LogType.SystemActivity, "Shutdown: Kicking {0} players...", Sessions.Count );
                         foreach( Player p in Sessions ) {
                             // NOTE: kick packet delivery here is not currently guaranteed
                             p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
@@ -488,7 +489,7 @@ namespace fCraft {
                 IRC.Disconnect();
 
                 if ( WorldManager.Worlds != null ) {
-                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving worlds..." );
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving {0} worlds...", WorldManager.Worlds.Length );
                     lock ( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
                         foreach ( World world in WorldManager.Worlds ) {
@@ -503,7 +504,7 @@ namespace fCraft {
                 Scheduler.EndShutdown();
 
                 if ( IsRunning ) {
-                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving databases..." );
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving databases... ({0} players and {1} IP bans)", PlayerDB.PlayerInfoList.Length, IPBanList.Count );
                     if ( PlayerDB.IsLoaded ) PlayerDB.Save();
                     if ( IPBanList.IsLoaded ) IPBanList.Save();
                 }
@@ -525,7 +526,7 @@ namespace fCraft {
             lock( ShutdownLock ) {
                 if( !CancelShutdown() ) return;
                 shutdownThread = new Thread( ShutdownThread ) {
-                    Name = "fCraft.Shutdown"
+                    Name = "800Craft.Shutdown"
                 };
                 if( shutdownParams.Delay >= ChatTimer.MinDuration ) {
                     string timerMsg = String.Format( "Server {0} ({1})",

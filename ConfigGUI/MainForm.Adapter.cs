@@ -96,7 +96,7 @@ namespace fCraft.ConfigGUI {
                 XAttribute mainWorldAttr = root.Attribute( "main" );
                 if( mainWorldAttr != null ) {
                     foreach( WorldListEntry world in Worlds ) {
-                        if( world.Name.ToLower() == mainWorldAttr.Value.ToLower() ) {
+                        if( world.Name.Equals(mainWorldAttr.Value, StringComparison.OrdinalIgnoreCase) ) {
                             cMainWorld.SelectedItem = world.Name;
                             break;
                         }

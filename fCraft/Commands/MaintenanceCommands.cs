@@ -112,17 +112,20 @@ namespace fCraft {
         };
 
         static void FixRealms ( Player player, Command cmd ) {
-            var Players = PlayerDB.PlayerInfoList;
             int Count = 0;
-            foreach ( World w in WorldManager.Worlds ) {
-                foreach ( PlayerInfo p in Players ) {
-                    if ( p.Name == w.Name ) {
-                        w.IsHidden = false;
-                        w.IsRealm = true;
-                        Count++;
+            player.Message( "Managing worlds..." );
+            new System.Threading.Thread( new System.Threading.ThreadStart( delegate {
+                foreach ( World w in WorldManager.Worlds ) {
+                    foreach ( PlayerInfo p in PlayerDB.PlayerInfoList ) {
+                        if ( p == null || w == null ) return;
+                        if ( p.Name == w.Name ) {
+                            w.IsHidden = false;
+                            w.IsRealm = true;
+                            Count++;
+                        }
                     }
                 }
-            }
+            } ) ).Start();
             player.Message( "Converted {0} worlds to Realms", Count.ToString() );
         }
 

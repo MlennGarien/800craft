@@ -493,6 +493,10 @@ namespace fCraft {
                     GentlyKickBetaClients();
                     return false;
 
+                case 250:
+                    GentlyKickBetaClients();
+                    return false;
+
                 case ( byte )'G':
                     ServeCfg();
                     return false;

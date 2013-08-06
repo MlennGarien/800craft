@@ -411,7 +411,7 @@ namespace fCraft.ConfigGUI {
         void tName_Validating( object sender, CancelEventArgs e ) {
             if( fCraft.World.IsValidName( tName.Text ) &&
                 (!MainForm.IsWorldNameTaken( tName.Text ) ||
-                (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
+                (originalWorldName != null && tName.Text.Equals(originalWorldName, StringComparison.OrdinalIgnoreCase))) ) {
                 tName.ForeColor = SystemColors.ControlText;
             } else {
                 tName.ForeColor = System.Drawing.Color.Red;

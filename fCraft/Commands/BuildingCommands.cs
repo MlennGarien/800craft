@@ -183,7 +183,7 @@ namespace fCraft {
                         Door doorFound = null;
                         lock ( player.World.Map.Doors.SyncRoot ) {
                             foreach ( Door door in player.World.Map.Doors ) {
-                                if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
+                                if ( door.Name.Equals( doorName, StringComparison.OrdinalIgnoreCase ) ) {
                                     doorFound = door;
                                     found = true;
                                     break;
@@ -209,7 +209,7 @@ namespace fCraft {
                         bool found = false;
                         lock ( player.World.Map.Doors.SyncRoot ) {
                             foreach ( Door door in player.World.Map.Doors ) {
-                                if ( door.Name.ToLower().Equals( doorName.ToLower() ) ) {
+                                if ( door.Name.Equals( doorName, StringComparison.OrdinalIgnoreCase ) ) {
                                     World doorWorld = WorldManager.FindWorldExact( door.World );
                                     player.Message( "Door '{0}&S' was created by {1}&S at {2}",
                                         door.Name, door.Creator, door.Created );
@@ -336,7 +336,7 @@ namespace fCraft {
         static void DrawImgCallback ( Player player, Vector3I[] marks, object tag ) {
             string Url = ( string )tag;
             if ( Url.StartsWith( "++" ) ) Url = Url.Replace( "++", "i.imgur.com/" );
-            if ( !Url.ToLower().StartsWith( "http://" ) ) Url = "http://" + Url;
+            if ( !Url.StartsWith( "http://", StringComparison.OrdinalIgnoreCase ) ) Url = "http://" + Url;
 
             player.MessageNow( "&HDrawImg: Downloading image from {0}", Url );
 
