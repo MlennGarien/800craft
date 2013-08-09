@@ -310,7 +310,11 @@ namespace fCraft {
                 return false;
             } else {
                 if ( !DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out date ) ) {
+
+                    #pragma warning disable
                     CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.FrameworkCultures );
+                    #pragma warning restore
+
                     foreach ( CultureInfo otherCultureInfo in cultureList ) {
                         cultureInfo = otherCultureInfo;
                         try {

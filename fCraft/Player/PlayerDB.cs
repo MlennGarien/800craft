@@ -208,7 +208,7 @@ namespace fCraft {
             RunCompatibilityChecks( version );
         }
 
-        private static Dictionary<int, Rank> rankMapping;
+        private static Dictionary<int, Rank> rankMapping = null;
 
         internal static Rank GetRankByIndex( int index ) {
             Rank rank;

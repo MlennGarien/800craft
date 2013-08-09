@@ -34,7 +34,7 @@ namespace fCraft {
         Streams
     }
 
-    public sealed class MapGenerator {
+    public sealed class MapGeneratorOld {
         private readonly MapGeneratorArgs args;
         private readonly Random rand;
         private readonly Noise noise;
@@ -48,7 +48,7 @@ namespace fCraft {
         private int groundThickness = 5;
         private const int SeaFloorThickness = 3;
 
-        public MapGenerator( [NotNull] MapGeneratorArgs generatorArgs ) {
+        public MapGeneratorOld( [NotNull] MapGeneratorArgs generatorArgs ) {
             if ( generatorArgs == null )
                 throw new ArgumentNullException( "generatorArgs" );
             args = generatorArgs;
@@ -201,6 +201,32 @@ namespace fCraft {
             Noise.Normalize( heightmap );
         }
 
+        public void setIgloo( Map Map, int xIn, int yIn, int zIn) {
+            int width = rand.Next( 15, 30 );
+            int height = rand.Next( 15, 30 );
+            for ( int x = -width; x <= width; x++ )
+                for ( int y = height; y >= -height; y-- )
+                    for ( int z = -width; z <= width; z++ ) {
+                        if ( y == height || ( Math.Abs( x ) == width && Math.Abs( z ) == width && y >= 0 ) ) {
+                           Map.SetBlock( x + xIn, y + yIn, z + zIn, Block.Stone);
+                           Map.SetBlock( x + xIn, y + yIn + 1, z + zIn, Block.Admincrete );
+                        }
+
+                        if ( y >= 1 && ( ( Math.Abs( x ) == width ) ^ ( Math.Abs( z ) == width ) ) )
+                            Map.SetBlock( x + xIn, y + yIn, z + zIn, Block.Gravel );
+
+                        if ( y > 0 && y < height && Math.Abs( z ) < width && Math.Abs( x ) < width )
+                            Map.SetBlock( x + xIn, y + yIn, z + zIn, Block.Air ); //unsure
+
+                        if ( y == -1 || y == 0 )
+                           Map.SetBlock( x + xIn, y + yIn, z + zIn, Block.Gray );
+
+                        if ( y < -1 ) {
+                            if ( ( Math.Abs( x ) == width || Math.Abs( z ) == width ))
+                                Map.SetBlock( x + xIn, y + yIn, z + zIn, Block.Brick );
+                        }
+                    }
+        }
         private void ApplyBias() {
             // set corners and midpoint
             float[] corners = new float[4];
@@ -390,6 +416,10 @@ namespace fCraft {
             if ( args.AddBeaches ) {
                 ReportProgress( 5, "Processing: Adding beaches" );
                 AddBeaches( map );
+            }
+
+            if ( args.AddIgloos ) {
+                //GenerateIgloos( map );
             }
 
             if ( args.AddTrees ) {
@@ -833,7 +863,8 @@ namespace fCraft {
                         MarbledHeightmap = true,
                         MatchWaterCoverage = true,
                         WaterCoverage = .3f,
-                        MaxHeightVariation = 0
+                        MaxHeightVariation = 0,
+                        AddIgloos = true
                     };
 
                 case MapGenTemplate.Island:

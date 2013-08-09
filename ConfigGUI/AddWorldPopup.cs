@@ -360,13 +360,13 @@ namespace fCraft.ConfigGUI {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             Map generatedMap;
             if ( tab == Tabs.Generator ) {
-                MapGenerator gen = new MapGenerator( generatorArgs );
+                MapGeneratorOld gen = new MapGeneratorOld( generatorArgs );
                 gen.ProgressChanged +=
                     ( progressSender, progressArgs ) =>
                     bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
                 generatedMap = gen.Generate();
             } else {
-                generatedMap = MapGenerator.GenerateFlatgrass( Convert.ToInt32( nFlatgrassDimX.Value ),
+                generatedMap = MapGeneratorOld.GenerateFlatgrass( Convert.ToInt32( nFlatgrassDimX.Value ),
                                                                Convert.ToInt32( nFlatgrassDimY.Value ),
                                                                Convert.ToInt32( nFlatgrassDimZ.Value ) );
             }
@@ -865,7 +865,7 @@ Could not load more information:
         }
 
         private void cTemplates_SelectedIndexChanged( object sender, EventArgs e ) {
-            generatorArgs = MapGenerator.MakeTemplate( ( MapGenTemplate )cTemplates.SelectedIndex );
+            generatorArgs = MapGeneratorOld.MakeTemplate( ( MapGenTemplate )cTemplates.SelectedIndex );
             LoadGeneratorArgs();
             bGenerate.PerformClick();
         }

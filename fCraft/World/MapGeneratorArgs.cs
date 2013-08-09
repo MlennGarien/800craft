@@ -50,6 +50,8 @@ namespace fCraft {
         public bool AddTrees = true,
                      AddGiantTrees; // false
 
+        public bool AddIgloos = false;
+
         public int TreeSpacingMin = 7,
                      TreeSpacingMax = 11,
                      TreeHeightMin = 5,
@@ -151,6 +153,8 @@ namespace fCraft {
             TreeHeightMin = Int32.Parse( root.Element( "treeHeightMin" ).Value );
             TreeHeightMax = Int32.Parse( root.Element( "treeHeightMax" ).Value );
 
+            AddIgloos = Boolean.Parse( root.Element( "addIgloos" ).Value );
+
             if ( root.Element( "addCaves" ) != null ) {
                 AddCaves = Boolean.Parse( root.Element( "addCaves" ).Value );
                 AddCaveLava = Boolean.Parse( root.Element( "addCaveLava" ).Value );
@@ -242,6 +246,8 @@ namespace fCraft {
             root.Add( new XElement( "treeSpacingMax", TreeSpacingMax ) );
             root.Add( new XElement( "treeHeightMin", TreeHeightMin ) );
             root.Add( new XElement( "treeHeightMax", TreeHeightMax ) );
+
+            root.Add( new XElement( "addIgloos", AddIgloos ) );
 
             root.Add( new XElement( "addCaves", AddCaves ) );
             root.Add( new XElement( "addCaveLava", AddCaveLava ) );

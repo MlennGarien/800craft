@@ -88,6 +88,7 @@ namespace fCraft {
             // create a request
             try {
                 HttpWebRequest request = ( HttpWebRequest )WebRequest.Create( uri );
+                request.Timeout = 3000;
                 request.Method = "POST";
 
                 // turn request string into a byte stream
@@ -101,7 +102,7 @@ namespace fCraft {
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.CachePolicy = new System.Net.Cache.RequestCachePolicy( System.Net.Cache.RequestCacheLevel.NoCacheNoStore );
                 request.ContentLength = postBytes.Length;
-                request.Timeout = 5000;
+                request.Timeout = 3000;
                 Stream requestStream = request.GetRequestStream();
 
                 // send it

@@ -61,7 +61,7 @@ namespace fCraft {
         }
 
         public static void Start( Player player ) {
-            Map map = MapGenerator.GenerateEmpty( 64, 128, 16 );
+            Map map = MapGeneratorOld.GenerateEmpty( 64, 128, 16 );
             map.Save( "maps/minefield.fcm" );
             if ( _world != null ) {
                 WorldManager.RemoveWorld( _world );

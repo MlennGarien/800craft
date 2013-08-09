@@ -109,12 +109,12 @@ namespace fCraft {
                     Logger.Log( LogType.Error,
                                 "Server.Start: Could not load any of the specified worlds, or no worlds were specified. " +
                                 "Creating default \"main\" world." );
-                    newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
+                    newMainWorld = AddWorld( null, "main", MapGeneratorOld.GenerateFlatgrass( 128, 128, 64 ), true );
                 }
             } else {
                 Logger.Log( LogType.SystemActivity,
                             "Server.Start: No world list found. Creating default \"main\" world." );
-                newMainWorld = AddWorld( null, "main", MapGenerator.GenerateFlatgrass( 128, 128, 64 ), true );
+                newMainWorld = AddWorld( null, "main", MapGeneratorOld.GenerateFlatgrass( 128, 128, 64 ), true );
             }
 
             // if there is no default world still, die.

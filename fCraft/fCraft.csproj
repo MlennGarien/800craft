@@ -143,15 +143,17 @@
     <Compile Include="Doors\DoorSerialization.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
     <Compile Include="Drawing\DrawOps\BlockDBDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\PlaneWireframeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\DrawImageOperation.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\CylinderDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\Maze.cs" />
     <Compile Include="Drawing\DrawOps\MazeCuboidDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\PlaneDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\RandomMazeDrawOperation.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Drawing\DrawOps\WallsOp.cs" />
+    <Compile Include="Drawing\DrawOps\WallsDrawOperation.cs" />
     <Compile Include="Games\Football.cs" />
     <Compile Include="Games\GameMode.cs" />
     <Compile Include="Games\MineChallenge.cs" />

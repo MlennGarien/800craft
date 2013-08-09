@@ -111,6 +111,9 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdDraw2D );
             CommandManager.RegisterCommand( CdSetFont );
             CommandManager.RegisterCommand( CdDrawImage );
+
+            CommandManager.RegisterCommand( CdPlane );
+            CommandManager.RegisterCommand( CdPlaneW );
         }
 
         #endregion Init
@@ -1101,6 +1104,34 @@ namespace fCraft {
 
         private static void TriangleHandler( Player player, Command cmd ) {
             DrawOperationBegin( player, cmd, new TriangleDrawOperation( player ) );
+        }
+
+        private static readonly CommandDescriptor CdPlane = new CommandDescriptor {
+            Name = "Plane",
+            Aliases = new[] { "Quad" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
+            Help = "Draws a plane between three points.",
+            Handler = PlaneHandler
+        };
+
+        private static void PlaneHandler( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new PlaneDrawOperation( player ) );
+        }
+
+        private static readonly CommandDescriptor CdPlaneW = new CommandDescriptor {
+            Name = "PlaneW",
+            Aliases = new[] { "QuadW" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw },
+            RepeatableSelection = true,
+            Help = "Draws a wireframe plane between four points.",
+            Handler = PlaneWHandler
+        };
+
+        private static void PlaneWHandler( Player player, Command cmd ) {
+            DrawOperationBegin( player, cmd, new PlaneWireframeDrawOperation( player ) );
         }
 
         private static readonly CommandDescriptor CdTorus = new CommandDescriptor {

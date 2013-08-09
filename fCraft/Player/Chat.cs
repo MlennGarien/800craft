@@ -39,7 +39,7 @@ namespace fCraft {
             rawMessage = rawMessage.Replace( "$server", ConfigKey.ServerName.GetString() );
             rawMessage = rawMessage.Replace( "$motd", ConfigKey.MOTD.GetString() );
             rawMessage = rawMessage.Replace( "$date", DateTime.UtcNow.ToShortDateString() );
-            rawMessage = rawMessage.Replace( "$time", DateTime.Now.ToString() );
+            rawMessage = rawMessage.Replace( "$time", DateTime.UtcNow.ToString() );
 
             if ( !player.Can( Permission.ChatWithCaps ) ) {
                 int caps = 0;

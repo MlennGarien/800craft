@@ -255,7 +255,7 @@ namespace fCraft {
 
         public static void movePortal( object sender, PlayerMovingEventArgs e ) {
             try {
-                if ( e.Player.LastUsedPortal != null && ( DateTime.Now - e.Player.LastUsedPortal ).TotalSeconds < 4 ) {
+                if ( e.Player.LastUsedPortal != null && ( DateTime.UtcNow - e.Player.LastUsedPortal ).TotalSeconds < 4 ) {
                     return;
                 }
                 Vector3I newPos = new Vector3I( e.NewPosition.X / 32, e.NewPosition.Y / 32, ( e.NewPosition.Z / 32 ) );
@@ -272,7 +272,7 @@ namespace fCraft {
                                         L = e.Player.Position.L
                                     } );
                                 }
-                                e.Player.LastUsedPortal = DateTime.Now;
+                                e.Player.LastUsedPortal = DateTime.UtcNow;
                             }
                         }
                     }
@@ -289,7 +289,7 @@ namespace fCraft {
                                         L = e.Player.Position.L
                                     } );
                                 }
-                                e.Player.LastUsedPortal = DateTime.Now;
+                                e.Player.LastUsedPortal = DateTime.UtcNow;
                             }
                         }
                     }

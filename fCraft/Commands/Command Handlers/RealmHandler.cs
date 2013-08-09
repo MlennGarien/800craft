@@ -315,7 +315,7 @@ namespace fCraft {
                 return;
             }
 
-            MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
+            MapGeneratorArgs args = MapGeneratorOld.MakeTemplate( template );
             args.MapWidth = wx;
             args.MapLength = wy;
             args.MapHeight = height;
@@ -332,9 +332,9 @@ namespace fCraft {
                     player.MessageNow( "Generating {0} {1}...", theme, template );
                 }
                 if ( theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat ) {
-                    map = MapGenerator.GenerateFlatgrass( args.MapWidth, args.MapLength, args.MapHeight );
+                    map = MapGeneratorOld.GenerateFlatgrass( args.MapWidth, args.MapLength, args.MapHeight );
                 } else {
-                    MapGenerator generator = new MapGenerator( args );
+                    MapGeneratorOld generator = new MapGeneratorOld( args );
                     map = generator.Generate();
                 }
             } catch ( Exception ex ) {

@@ -140,7 +140,7 @@ namespace fCraft {
                 Messages.Clear();
             }
             Messages = new List<string>();
-            Messages.Add( "Server Time: " + DateTime.Now.ToString( "HH:mm:ss tt" ) );
+            Messages.Add( "Server Time: " + DateTime.UtcNow.ToString( "HH:mm:ss tt" ) );
             Messages.Add( "Welcome to " + ConfigKey.ServerName.GetString() );
             Messages.Add( Server.Players.Where( p => !p.Info.IsHidden ).Count().ToString() + " players online" );
             Messages.Add( "Staff online: " + Server.Players.Where( p => !p.Info.IsHidden && p.Can( per ) ).JoinToString( r => String.Format( "{0}", r.Name ) ) );

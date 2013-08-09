@@ -2041,7 +2041,7 @@ namespace fCraft {
                     int sky;
                     int clouds;
                     int fog;
-                    DateTime now = DateTime.Now;
+                    DateTime now = DateTime.UtcNow;
                     var SunriseStart = new TimeSpan( 6, 30, 0 );
                     var SunriseEnd = new TimeSpan( 7, 29, 59 );
                     var MorningStart = new TimeSpan( 7, 30, 0 );
@@ -2350,13 +2350,13 @@ namespace fCraft {
             player.MessageNow( "Generating {0}...", templateFullName );
 
             if ( genEmpty ) {
-                map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
+                map = MapGeneratorOld.GenerateEmpty( mapWidth, mapLength, mapHeight );
             } else if ( genOcean ) {
-                map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
+                map = MapGeneratorOld.GenerateOcean( mapWidth, mapLength, mapHeight );
             } else if ( genFlatgrass ) {
-                map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
+                map = MapGeneratorOld.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
             } else {
-                MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
+                MapGeneratorArgs args = MapGeneratorOld.MakeTemplate( template );
                 if ( theme == MapGenTheme.Desert ) {
                     args.AddWater = false;
                 }
@@ -2370,7 +2370,7 @@ namespace fCraft {
                 args.Theme = theme;
                 args.AddTrees = !noTrees;
 
-                MapGenerator generator = new MapGenerator( args );
+                MapGeneratorOld generator = new MapGeneratorOld( args );
                 map = generator.Generate();
             }
 
