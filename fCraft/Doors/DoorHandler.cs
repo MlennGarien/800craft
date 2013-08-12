@@ -121,9 +121,11 @@ namespace fCraft.Doors {
 
         public static int GetPlayerOwnedDoorsNumber( World world, Player player ) {
             int Number = 0;
-            foreach ( Door door in world.Map.Doors ) {
-                if ( door.Creator == player.Name ) {
-                    Number++;
+            if ( world.Map.Doors != null ) {
+                foreach ( Door door in world.Map.Doors ) {
+                    if ( door.Creator == player.Name ) {
+                        Number++;
+                    }
                 }
             }
             return Number;

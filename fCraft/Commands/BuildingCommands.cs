@@ -169,7 +169,7 @@ namespace fCraft {
 
         private static void Door( Player player, Command cmd ) {
             string option = cmd.Next();
-            if ( option == null ) {
+            if ( string.IsNullOrEmpty(option) ) {
                 int MaxNumberOfDoorsPerPlayer = 5;
                 if ( DoorHandler.GetPlayerOwnedDoorsNumber( player.World, player ) >= MaxNumberOfDoorsPerPlayer ) {
                     player.Message( "You cannot place any more doors, a player can have a maximum of {0} doors per world",

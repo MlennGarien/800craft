@@ -18,9 +18,9 @@ namespace fCraft {
     public static class Updater {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            306,
-            24,
-            new DateTime( 2013, 05, 14, 1, 0, 0, DateTimeKind.Utc ),
+            307,
+            132,
+            new DateTime( 2013, 08, 14, 1, 0, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Bugfix
 #if DEBUG
@@ -32,7 +32,7 @@ namespace fCraft {
             get { return "800Craft " + CurrentRelease.VersionString; }
         }
 
-        public const string LatestStable = "0.306_r27";
+        public const string LatestStable = "0.307_r132";
 
         public static string UpdateUrl { get; set; }
 
@@ -50,7 +50,7 @@ namespace fCraft {
         public static bool UpdateCheck() {
             try {
                 using ( WebClient client = new WebClient() ) {
-                    using ( Stream stream = client.OpenRead( "http://forums.au70.net/public/update.txt" ) ) {
+                    using ( Stream stream = client.OpenRead( "http://au70.net/public/update.txt" ) ) {
                         stream.ReadTimeout = 1000;
                         using ( StreamReader reader = new StreamReader( stream ) ) {
                             string s = reader.ReadLine();
