@@ -1904,6 +1904,11 @@ namespace fCraft {
                 if ( lastSpec != null ) {
                     Player spec = player.SpectatedPlayer;
                     if ( spec != null ) {
+                        if (spec.World.Name != player.World.Name)
+                        {
+                            player.JoinWorld(spec.World, WorldChangeReason.SpectateTargetJoined);
+                            player.Message("Joined Guest to continue spectating " + spec.ClassyName);
+                        }
                         player.Message( "Now spectating {0}", spec.ClassyName );
                     } else {
                         player.Message( "Last spectated {0}", lastSpec.ClassyName );
