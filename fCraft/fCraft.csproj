@@ -150,6 +150,7 @@
     <Compile Include="Drawing\DrawOps\Maze.cs" />
     <Compile Include="Drawing\DrawOps\MazeCuboidDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\PlaneDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\ProperImageDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\RandomMazeDrawOperation.cs">
       <SubType>Code</SubType>
     </Compile>

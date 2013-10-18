@@ -111,6 +111,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdDraw2D );
             CommandManager.RegisterCommand( CdSetFont );
             CommandManager.RegisterCommand( CdDrawImage );
+            CommandManager.RegisterCommand( CdProperlyDrawImage );
 
             CommandManager.RegisterCommand( CdPlane );
             CommandManager.RegisterCommand( CdPlaneW );
@@ -367,6 +368,48 @@ namespace fCraft {
                 player.Message( Color.Warning + "DrawImg: " + e.Message );
             }
             Op = null; //get lost
+        }
+
+
+        static readonly CommandDescriptor CdProperlyDrawImage = new CommandDescriptor {
+            Name = "ProperlyDrawImage",
+            Aliases = new[] { "PDI" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.DrawAdvanced },
+            Usage = "/PDI WebsiteUrl.com/picture.jpg",
+            Help = "Properly draws an image file from a website, using minecraft blocks. " +
+                   "If your image is from imgur.com, simply type '++' followed by the image code. "+
+                   "Example: /PDI ++kbFRo.png",
+            Handler = ProperlyDrawImageHandler
+        };
+
+        static void ProperlyDrawImageHandler( Player player, Command cmd ) {
+            ProperImageDrawOperation op = new ProperImageDrawOperation(player);
+            if( !op.ReadParams( cmd ) ) {
+                CdProperlyDrawImage.PrintUsage( player );
+                return;
+            }
+            player.Message( "DrawImage: Click 2 blocks or use &H/Mark&S to set direction." );
+            player.SelectionStart(2, ProperlyDrawImageCallback, op, Permission.DrawAdvanced);
+        }
+
+        private static void ProperlyDrawImageCallback(Player player, Vector3I[] marks, object tag) {
+            ProperImageDrawOperation op = (ProperImageDrawOperation)tag;
+            player.Message( "&H&DrawImage: Downloading {0}", op.ImageUrl );
+            try {
+                op.Prepare(marks);
+                op.Begin();
+            } catch( ArgumentException ex ) {
+                player.Message( "&WDrawImage: Error setting up: " + ex.Message );
+            } catch( Exception ex ) {
+                Logger.Log( LogType.Warning,
+                            "{0}: Error downloading image from {1}: {2}: {3}",
+                            op.Description,
+                            op.ImageUrl,
+                            ex.GetType().Name,
+                            ex.Message);
+                player.Message("&WDrawImage: Error downloading: " + ex.Message);
+            }
         }
 
         private static CommandDescriptor CdSetFont = new CommandDescriptor() {
