@@ -29,22 +29,22 @@ namespace fCraft.Drawing {
         }
 
 
-        public void Add(RgbColor color, [NotNull] Block[] blocks) {
+        public void Add( RgbColor color, [NotNull] Block[] blocks ) {
             Add( RgbToLab( color ), blocks );
         }
 
-        protected void Add(LabColor color, Block[] blocks) {
+        protected void Add( LabColor color, Block[] blocks ) {
             if( blocks == null ) {
-                throw new ArgumentNullException("blocks");
+                throw new ArgumentNullException( "blocks" );
             }
             if( blocks.Length != Layers ) {
-                throw new ArgumentException("Number of blocks must match number the of layers.");
+                throw new ArgumentException( "Number of blocks must match number the of layers." );
             }
-            palette.Add(color, blocks);
+            palette.Add( color, blocks );
         }
 
 
-        public Block[] FindBestMatch(RgbColor color) {
+        public Block[] FindBestMatch( RgbColor color ) {
             LabColor pixelColor = RgbToLab( color );
             double closestDistance = double.MaxValue;
             Block[] bestMatch = null;
@@ -69,7 +69,7 @@ namespace fCraft.Drawing {
 
 
         // Conversion from RGB to CIELAB, using illuminant D65.
-        static LabColor RgbToLab(RgbColor color) {
+        static LabColor RgbToLab( RgbColor color ) {
             // RGB are assumed to be in [0...255] range
             // CIEXYZ coordinates are normalized to [0...1]
             double x = 0.00161746*color.R + 0.00140227*color.G + 0.000707541*color.B;
@@ -103,8 +103,8 @@ namespace fCraft.Drawing {
             return palette.GetEnumerator();
         }
 
-
         #region Standard Patterns
+
         // lazy initialization ftw
 
         [NotNull]
@@ -116,6 +116,7 @@ namespace fCraft.Drawing {
                 return lightPalette;
             }
         }
+
         static BlockPalette lightPalette;
 
 
@@ -128,6 +129,7 @@ namespace fCraft.Drawing {
                 return darkPalette;
             }
         }
+
         static BlockPalette darkPalette;
 
 
@@ -140,7 +142,59 @@ namespace fCraft.Drawing {
                 return layeredPalette;
             }
         }
+
         static BlockPalette layeredPalette;
+
+
+        [NotNull]
+        public static BlockPalette Gray {
+            get {
+                if( grayPalette == null ) {
+                    grayPalette = DefineGray();
+                }
+                return grayPalette;
+            }
+        }
+
+        static BlockPalette grayPalette;
+
+
+        [NotNull]
+        public static BlockPalette DarkGray {
+            get {
+                if( darkGrayPalette == null ) {
+                    darkGrayPalette = DefineDarkGray();
+                }
+                return darkGrayPalette;
+            }
+        }
+
+        static BlockPalette darkGrayPalette;
+
+
+        [NotNull]
+        public static BlockPalette LayeredGray {
+            get {
+                if( layeredGrayPalette == null ) {
+                    layeredGrayPalette = DefineLayeredGray();
+                }
+                return layeredGrayPalette;
+            }
+        }
+
+        static BlockPalette layeredGrayPalette;
+
+        [NotNull]
+        public static BlockPalette BW {
+            get {
+                if( bwPalette == null ) {
+                    bwPalette = DefineBW();
+                }
+                return bwPalette;
+            }
+        }
+
+        static BlockPalette bwPalette;
 
 
         [NotNull]
@@ -152,10 +206,38 @@ namespace fCraft.Drawing {
                     return Dark;
                 case StandardBlockPalettes.Layered:
                     return Layered;
+                case StandardBlockPalettes.Gray:
+                    return Gray;
+                case StandardBlockPalettes.DarkGray:
+                    return DarkGray;
+                case StandardBlockPalettes.LayeredGray:
+                    return LayeredGray;
+                case StandardBlockPalettes.BW:
+                    return BW;
                 default:
                     throw new ArgumentOutOfRangeException( "palette" );
             }
         }
+
+
+        static BlockPalette DefineGray() {
+            return new BlockPalette( "Gray", 1 ) {
+                {RgbColor.FromArgb( 64, 64, 64 ), new[] {Block.Black}},
+                {RgbColor.FromArgb( 118, 118, 118 ), new[] {Block.Gray}},
+                {RgbColor.FromArgb( 179, 179, 179 ), new[] {Block.White}},
+                {RgbColor.FromArgb( 21, 19, 29 ), new[] {Block.Obsidian}}
+            };
+        }
+
+        static BlockPalette DefineDarkGray() {
+            return new BlockPalette( "DarkGray", 1 ) {
+                {RgbColor.FromArgb( 41, 41, 41 ), new[] {Block.Black}},
+                {RgbColor.FromArgb( 72, 72, 72 ), new[] {Block.Gray}},
+                {RgbColor.FromArgb( 109, 109, 109 ), new[] {Block.White}},
+                {RgbColor.FromArgb( 15, 14, 20 ), new[] {Block.Obsidian}}
+            };
+        }
+
 
         [NotNull]
         static BlockPalette DefineLight() {
@@ -219,11 +301,33 @@ namespace fCraft.Drawing {
             return palette;
         }
 
+
+        [NotNull]
+        static BlockPalette DefineLayeredGray() {
+            BlockPalette palette = new BlockPalette( "LayeredGray", 2 );
+            foreach( var pair in Gray.palette ) {
+                palette.Add( pair.Key, new[] {pair.Value[0], Block.Undefined} );
+            }
+            foreach( var pair in DarkGray.palette ) {
+                palette.Add( pair.Key, new[] {Block.Air, pair.Value[0]} );
+            }
+            return palette;
+        }
+
+        [NotNull]
+        static BlockPalette DefineBW() {
+            return new BlockPalette( "BW", 1 ) {
+                {RgbColor.FromArgb( 179, 179, 179 ), new[] {Block.White}},
+                {RgbColor.FromArgb( 21, 19, 29 ), new[] {Block.Obsidian}}
+            };
+        }
+
         #endregion
 
-
         protected struct LabColor {
-            public double L, a, b;
+            public double L,
+                          a,
+                          b;
         }
     }
 
@@ -231,7 +335,10 @@ namespace fCraft.Drawing {
     public enum StandardBlockPalettes {
         Light, // 1-layer standard blocks, lit
         Dark, // 1-layer standard blocks, shadowed
-        Layered // 2-layer standard blocks
-        // TODO: CPE patterns
+        Layered, // 2-layer standard blocks
+        Gray,
+        DarkGray,
+        LayeredGray,
+        BW
     }
 }
