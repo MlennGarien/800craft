@@ -373,13 +373,14 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdProperlyDrawImage = new CommandDescriptor {
             Name = "ProperlyDrawImage",
-            Aliases = new[] { "PDI" },
+            Aliases = new[] {"PDI"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.DrawAdvanced },
-            Usage = "/PDI WebsiteUrl.com/picture.jpg",
+            Permissions = new[] {Permission.DrawAdvanced},
+            Usage = "/PDI WebsiteUrl.com/picture.jpg [Palette]",
             Help = "Properly draws an image file from a website, using minecraft blocks. " +
-                   "If your image is from imgur.com, simply type '++' followed by the image code. "+
-                   "Example: /PDI ++kbFRo.png",
+                   "If your image is from imgur.com, simply type '++' followed by the image code. " +
+                   "Example: /PDI ++kbFRo.png\n" +
+                   "Optionally, a custom block palette can be set: Layered (default), Light, or Dark.",
             Handler = ProperlyDrawImageHandler
         };
 

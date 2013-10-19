@@ -11,6 +11,7 @@ namespace fCraft.Drawing {
         public Uri ImageUrl { get; private set; }
         public Direction Direction { get; private set; }
         public Bitmap ImageBitmap { get; private set; }
+        public BlockPalette Palette { get; private set; }
 
         public override string Name {
             get {
@@ -59,8 +60,24 @@ namespace fCraft.Drawing {
             }
             ImageUrl = url;
 
-            // TODO: add support for optional palette parameter
+            // Check if player gave optional second argument (palette name)
+            string paletteName = cmd.Next();
+            if( paletteName != null ) {
+                StandardBlockPalettes paletteType;
+                if( EnumUtil.TryParse( paletteName, out paletteType, true ) ) {
+                    Palette = BlockPalette.GetPalette( paletteType );
+                } else {
+                    Player.Message( "DrawImage: Unrecognized palette \"{0}\". Available palettes are: \"{1}\"",
+                                    paletteName,
+                                    Enum.GetNames( typeof( StandardBlockPalettes ) ).JoinToString() );
+                    return false;
+                }
+            } else {
+                // default to "Light" (lit single-layer) palette
+                Palette = BlockPalette.Light;
+            }
 
+            // All set
             return true;
         }
 
