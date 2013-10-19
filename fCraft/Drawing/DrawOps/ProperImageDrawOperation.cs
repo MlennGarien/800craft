@@ -6,14 +6,16 @@ using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     sealed class ProperImageDrawOperation : DrawOpWithBrush {
-        static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds(5);
+        static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds( 5 );
 
         public Uri ImageUrl { get; private set; }
         public Direction Direction { get; private set; }
         public Bitmap ImageBitmap { get; private set; }
 
         public override string Name {
-            get { return "Image"; }
+            get {
+                return "Image";
+            }
         }
 
         public override string Description {
@@ -99,7 +101,7 @@ namespace fCraft.Drawing {
             }
 
             // TODO: set proper bounds here
-            Bounds = new BoundingBox(Marks[0], Marks[1]);
+            Bounds = new BoundingBox( Marks[0], Marks[1] );
 
             return true;
         }
@@ -115,11 +117,5 @@ namespace fCraft.Drawing {
             // TODO: perform color conversion here
             throw new NotImplementedException();
         }
-    }
-
-    enum BlockPalette {
-        Basic,
-        Layered
-        // TODO: CPE basic/layered palettes
     }
 }
