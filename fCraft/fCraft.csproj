@@ -143,7 +143,7 @@
     <Compile Include="Doors\DoorSerialization.cs" />
     <Compile Include="Drawing\Brushes\DiagonalBrush.cs" />
     <Compile Include="Drawing\DrawOps\BlockDBDrawOperation.cs" />
-    <Compile Include="Drawing\DrawOps\BlockPalette.cs" />
+    <Compile Include="Drawing\BlockPalette.cs" />
     <Compile Include="Drawing\DrawOps\PlaneWireframeDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\DrawImageOperation.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
