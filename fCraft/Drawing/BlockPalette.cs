@@ -21,7 +21,7 @@ namespace fCraft.Drawing {
         public int Layers { get; private set; }
 
 
-        public BlockPalette( [NotNull] string name, int layers ) {
+        protected BlockPalette([NotNull] string name, int layers) {
             if( name == null )
                 throw new ArgumentNullException( "name" );
             Name = name;
@@ -29,7 +29,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public void Add( RgbColor color, [NotNull] Block[] blocks ) {
+        protected void Add(RgbColor color, [NotNull] Block[] blocks) {
             Add( RgbToLab( color ), blocks );
         }
 
@@ -98,13 +98,13 @@ namespace fCraft.Drawing {
         }
 
 
-        // we implement IEnumerable to be able to use the collection initializers
+        // we have to implement IEnumerable to be able to use the collection initializers
         IEnumerator IEnumerable.GetEnumerator() {
             return palette.GetEnumerator();
         }
 
-        #region Standard Patterns
 
+        #region Standard Patterns
         // lazy initialization ftw
 
         [NotNull]
@@ -116,7 +116,6 @@ namespace fCraft.Drawing {
                 return lightPalette;
             }
         }
-
         static BlockPalette lightPalette;
 
 
@@ -129,7 +128,6 @@ namespace fCraft.Drawing {
                 return darkPalette;
             }
         }
-
         static BlockPalette darkPalette;
 
 
@@ -142,7 +140,6 @@ namespace fCraft.Drawing {
                 return layeredPalette;
             }
         }
-
         static BlockPalette layeredPalette;
 
 
@@ -155,7 +152,6 @@ namespace fCraft.Drawing {
                 return grayPalette;
             }
         }
-
         static BlockPalette grayPalette;
 
 
@@ -168,7 +164,6 @@ namespace fCraft.Drawing {
                 return darkGrayPalette;
             }
         }
-
         static BlockPalette darkGrayPalette;
 
 
@@ -181,8 +176,8 @@ namespace fCraft.Drawing {
                 return layeredGrayPalette;
             }
         }
-
         static BlockPalette layeredGrayPalette;
+
 
         [NotNull]
         public static BlockPalette BW {
@@ -193,7 +188,6 @@ namespace fCraft.Drawing {
                 return bwPalette;
             }
         }
-
         static BlockPalette bwPalette;
 
 
@@ -217,25 +211,6 @@ namespace fCraft.Drawing {
                 default:
                     throw new ArgumentOutOfRangeException( "palette" );
             }
-        }
-
-
-        static BlockPalette DefineGray() {
-            return new BlockPalette( "Gray", 1 ) {
-                {RgbColor.FromArgb( 64, 64, 64 ), new[] {Block.Black}},
-                {RgbColor.FromArgb( 118, 118, 118 ), new[] {Block.Gray}},
-                {RgbColor.FromArgb( 179, 179, 179 ), new[] {Block.White}},
-                {RgbColor.FromArgb( 21, 19, 29 ), new[] {Block.Obsidian}}
-            };
-        }
-
-        static BlockPalette DefineDarkGray() {
-            return new BlockPalette( "DarkGray", 1 ) {
-                {RgbColor.FromArgb( 41, 41, 41 ), new[] {Block.Black}},
-                {RgbColor.FromArgb( 72, 72, 72 ), new[] {Block.Gray}},
-                {RgbColor.FromArgb( 109, 109, 109 ), new[] {Block.White}},
-                {RgbColor.FromArgb( 15, 14, 20 ), new[] {Block.Obsidian}}
-            };
         }
 
 
@@ -264,6 +239,7 @@ namespace fCraft.Drawing {
             };
         }
 
+
         [NotNull]
         static BlockPalette DefineDark() {
             return new BlockPalette( "Dark", 1 ) {
@@ -289,6 +265,7 @@ namespace fCraft.Drawing {
             };
         }
 
+
         [NotNull]
         static BlockPalette DefineLayered() {
             BlockPalette palette = new BlockPalette( "Layered", 2 );
@@ -299,6 +276,28 @@ namespace fCraft.Drawing {
                 palette.Add( pair.Key, new[] {Block.Air, pair.Value[0]} );
             }
             return palette;
+        }
+
+
+        [NotNull]
+        static BlockPalette DefineGray() {
+            return new BlockPalette( "Gray", 1 ) {
+                {RgbColor.FromArgb( 64, 64, 64 ), new[] {Block.Black}},
+                {RgbColor.FromArgb( 118, 118, 118 ), new[] {Block.Gray}},
+                {RgbColor.FromArgb( 179, 179, 179 ), new[] {Block.White}},
+                {RgbColor.FromArgb( 21, 19, 29 ), new[] {Block.Obsidian}}
+            };
+        }
+
+
+        [NotNull]
+        static BlockPalette DefineDarkGray() {
+            return new BlockPalette( "DarkGray", 1 ) {
+                {RgbColor.FromArgb( 41, 41, 41 ), new[] {Block.Black}},
+                {RgbColor.FromArgb( 72, 72, 72 ), new[] {Block.Gray}},
+                {RgbColor.FromArgb( 109, 109, 109 ), new[] {Block.White}},
+                {RgbColor.FromArgb( 15, 14, 20 ), new[] {Block.Obsidian}}
+            };
         }
 
 
@@ -314,6 +313,7 @@ namespace fCraft.Drawing {
             return palette;
         }
 
+
         [NotNull]
         static BlockPalette DefineBW() {
             return new BlockPalette( "BW", 1 ) {
@@ -325,9 +325,7 @@ namespace fCraft.Drawing {
         #endregion
 
         protected struct LabColor {
-            public double L,
-                          a,
-                          b;
+            public double L, a, b;
         }
     }
 
