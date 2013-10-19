@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
-    sealed class ProperImageDrawOperation : DrawOpWithBrush {
+    sealed class ProperImageDrawOperation : DrawOpWithBrush, IDisposable {
         static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds( 5 );
 
         public Uri ImageUrl { get; private set; }
         public Direction Direction { get; private set; }
         public Bitmap ImageBitmap { get; private set; }
         public BlockPalette Palette { get; private set; }
+        public int ImageX { get; private set; }
+        public int ImageY { get; private set; }
 
         public override string Name {
             get {
@@ -117,11 +120,37 @@ namespace fCraft.Drawing {
                 }
             }
 
-            // TODO: set proper bounds here
-            Bounds = new BoundingBox( Marks[0], Marks[1] );
+            // calculate bounds and origin
+            Bounds = Map.Bounds.GetIntersection( new BoundingBox( Marks[0], Marks[0] + GetSize() ) );
+            Coords = Bounds.MinVertex;
+
+            // TODO: compute starting/ending points on the image
+            // TODO: set ImageX/ImageY
 
             return true;
         }
+
+
+        // Gets the total maximum size of the drawn image, in blocks, by considering image dimensions and palette layers
+        Vector3I GetSize() {
+            switch( Direction ) {
+                case Direction.one: // X++
+                    return new Vector3I(ImageBitmap.Width, Palette.Layers, ImageBitmap.Height);
+                case Direction.two: // X--
+                    return new Vector3I(-ImageBitmap.Width, Palette.Layers, ImageBitmap.Height);
+                case Direction.three: // Y++
+                    return new Vector3I(Palette.Layers, ImageBitmap.Width, ImageBitmap.Height);
+                case Direction.four: // Y--
+                    return new Vector3I(Palette.Layers, -ImageBitmap.Width, ImageBitmap.Height);
+                default:
+                    throw new NotSupportedException("Out-of-range Dimension value");
+            }
+        }
+
+
+        // TODO: write a function to go from ImageX/ImageY to world coords
+        // TODO: write a function to advance by one pixel (modify ImageX/ImageY)
+
 
 
         public override int DrawBatch( int maxBlocksToDraw ) {
@@ -133,6 +162,14 @@ namespace fCraft.Drawing {
         protected override Block NextBlock() {
             // TODO: perform color conversion here
             throw new NotImplementedException();
+        }
+
+
+        public void Dispose() {
+            if( ImageBitmap != null ) {
+                ImageBitmap.Dispose();
+                ImageBitmap = null;
+            }
         }
     }
 }

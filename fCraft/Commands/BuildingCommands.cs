@@ -396,9 +396,16 @@ namespace fCraft {
 
         private static void ProperlyDrawImageCallback(Player player, Vector3I[] marks, object tag) {
             ProperImageDrawOperation op = (ProperImageDrawOperation)tag;
-            player.Message( "&H&DrawImage: Downloading {0}", op.ImageUrl );
+            player.Message( "&HDrawImage: Downloading {0}", op.ImageUrl );
             try {
                 op.Prepare(marks);
+                if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
+                    player.Message(
+                        "DrawImage: You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                        player.Info.Rank.DrawLimit,
+                        op.BlocksTotalEstimate );
+                    return;
+                }
                 op.Begin();
             } catch( ArgumentException ex ) {
                 player.Message( "&WDrawImage: Error setting up: " + ex.Message );
