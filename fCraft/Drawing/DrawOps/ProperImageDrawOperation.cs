@@ -120,8 +120,19 @@ namespace fCraft.Drawing {
                 }
             }
 
-            // calculate bounds and origin
-            Bounds = Map.Bounds.GetIntersection( new BoundingBox( Marks[0], Marks[0] + GetSize() ) );
+            // Calculate maximum bounds, and warn if we're pushing out of the map
+            Bounds = new BoundingBox( Marks[0], Marks[0] + GetSize() );
+            if( Bounds.XMin < 0 || Bounds.XMax > Map.Width - 1 ) {
+                Player.Message("&WDrawImage: Not enough room horizontally (X), image cut off.");
+            }
+            if( Bounds.YMin < 0 || Bounds.YMax > Map.Length - 1 ) {
+                Player.Message("&WDrawImage: Not enough room horizontally (Y), image cut off.");
+            }
+            if( Bounds.ZMin < 0 || Bounds.ZMax > Map.Height - 1 ) {
+                Player.Message("&WDrawImage: Not enough room vertically, image cut off.");
+            }
+            // clip bounds to world boundaries
+            Bounds = Map.Bounds.GetIntersection(Bounds);
             Coords = Bounds.MinVertex;
 
             // TODO: compute starting/ending points on the image
