@@ -372,8 +372,7 @@ namespace fCraft {
 
 
         static readonly CommandDescriptor CdProperlyDrawImage = new CommandDescriptor {
-            Name = "ProperlyDrawImage",
-            Aliases = new[] {"PDI"},
+            Name = "PDI",
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.DrawAdvanced},
             Usage = "/PDI WebsiteUrl.com/picture.jpg [Palette]",
@@ -411,11 +410,10 @@ namespace fCraft {
                 player.Message( "&WDrawImage: Error setting up: " + ex.Message );
             } catch( Exception ex ) {
                 Logger.Log( LogType.Warning,
-                            "{0}: Error downloading image from {1}: {2}: {3}",
+                            "{0}: Error downloading image from {1}: {2}",
                             op.Description,
                             op.ImageUrl,
-                            ex.GetType().Name,
-                            ex.Message);
+                            ex);
                 player.Message("&WDrawImage: Error downloading: " + ex.Message);
             }
         }
