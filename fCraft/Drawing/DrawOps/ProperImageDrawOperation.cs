@@ -12,18 +12,14 @@ namespace fCraft.Drawing {
         public Uri ImageUrl { get; private set; }
         public Bitmap ImageBitmap { get; private set; }
         public BlockPalette Palette { get; private set; }
-        
-        Vector3I imageMultipliers;
-        Vector3I layerOffset;
 
-        int imageOffsetX,
-            imageOffsetY;
+        Block[] drawBlocks;
 
-        public override string Name {
-            get {
-                return "Image";
-            }
-        }
+        int imageX,
+            imageY,
+            layer;
+
+        public override string Name { get { return "Image"; } }
 
         public override string Description {
             get {
@@ -87,13 +83,13 @@ namespace fCraft.Drawing {
             return true;
         }
 
-
+        
         public override bool Prepare( Vector3I[] marks ) {
             // Check the given marks
             if( marks == null )
                 throw new ArgumentNullException( "marks" );
             if( marks.Length != 2 )
-                throw new ArgumentException("DrawImage: Exactly 2 marks needed.", "marks");
+                throw new ArgumentException( "DrawImage: Exactly 2 marks needed.", "marks" );
 
             // Make sure that a direction was given
             Vector3I delta = marks[1] - marks[0];
@@ -127,48 +123,7 @@ namespace fCraft.Drawing {
                 }
             }
 
-            imageMultipliers = Vector3I.Zero;
-            layerOffset = Vector3I.Zero;
-            Vector3I endCoordOffset = Vector3I.Zero;
-
-            // Figure out vertical drawing direction
-            if( delta.Z < 0 ) {
-                // drawing downwards
-                imageMultipliers.Z = -1;
-                imageOffsetY = Marks[0].Z;
-                endCoordOffset.Z = 1 - ImageBitmap.Height;
-            } else {
-                // drawing upwards
-                imageMultipliers.Z = 1;
-                imageOffsetY = Math.Min( Map.Height, ImageBitmap.Height + Marks[0].Z ) - Marks[0].Z;
-                endCoordOffset.Z = ImageBitmap.Height - 1;
-            }
-
-            // Figure out horizontal drawing direction and orientation
-            if( Math.Abs( delta.X ) > Math.Abs( delta.Y ) ) {
-                // drawing along the X-axis
-                imageMultipliers.X = Math.Sign( delta.X );
-                if( delta.X > 0 ) {
-                    imageOffsetX = Marks[0].X;
-                } else {
-                    imageOffsetX = Math.Min( Map.Width, ImageBitmap.Width + Marks[0].X ) - Marks[0].X;
-                }
-                layerOffset.Y = ( delta.Y < 0 ) ? -1 : 1;
-                endCoordOffset.X = ( ImageBitmap.Width - 1 )*Math.Sign( delta.X );
-                endCoordOffset.Y = ( Palette.Layers - 1 )*Math.Sign( layerOffset.Y );
-
-            } else {
-                // drawing along the Y-axis
-                imageMultipliers.Y = Math.Sign( delta.Y );
-                if( delta.Y > 0 ) {
-                    imageOffsetX = Marks[0].Y;
-                } else {
-                    imageOffsetX = Math.Min( Map.Length, ImageBitmap.Width + Marks[0].Y ) - Marks[0].Y;
-                }
-                layerOffset.X = ( delta.X < 0 ) ? -1 : 1;
-                endCoordOffset.Y = ( ImageBitmap.Width - 1 )*Math.Sign( delta.Y );
-                endCoordOffset.X = ( Palette.Layers - 1 )*Math.Sign( layerOffset.X );
-            }
+            Vector3I endCoordOffset = CalculateCoordConversion( delta );
 
             // Calculate maximum bounds, and warn if we're pushing out of the map
             BoundingBox fullBounds = new BoundingBox( Marks[0], Marks[0] + endCoordOffset );
@@ -184,45 +139,161 @@ namespace fCraft.Drawing {
 
             // clip bounds to world boundaries
             Bounds = Map.Bounds.GetIntersection( fullBounds );
-            refCoords = Marks[0];
+            BlocksTotalEstimate = Bounds.Volume;
+
+            // set starting coordinate
+            imageX = minX;
+            imageY = minY;
+            layer = 0;
 
             Brush = this;
             return true;
         }
 
-        Block[] drawBlocks;
-        int layer;
-        Vector3I refCoords;
+
+        Vector3I coordOffsets = Vector3I.Zero;
+        Vector3I layerVector = Vector3I.Zero;
+        int coordMultiplierX;
+        int coordMultiplierY;
+
+        int IAH;
+        int IAW;
+        int minY;
+        int maxY;
+        int minX;
+        int maxX;
+
+
+        Vector3I CalculateCoordConversion( Vector3I delta ) {
+            Vector3I endCoordOffset = Vector3I.Zero;
+            int IH = ImageBitmap.Height;
+            int IW = ImageBitmap.Width;
+
+            // Figure out vertical drawing direction
+            if( delta.Z < 0 ) {
+                // drawing downwards
+                IAH = Math.Min(Marks[0].Z + 1, IH);
+                minY = 0;
+                maxY = IAH - 1;
+                coordOffsets.Z = Marks[0].Z - minY;
+            } else {
+                // drawing upwards
+                IAH = Math.Min(Marks[0].Z + IH, Map.Height) - Marks[0].Z;
+                minY = IH - IAH;
+                maxY = IH - 1;
+                coordOffsets.Z = ( IAH - 1 ) + Marks[0].Z - minY;
+            }
+
+            // Figure out horizontal drawing direction and orientation
+            if( Math.Abs( delta.X ) > Math.Abs( delta.Y ) ) {
+                // drawing along the X-axis
+                bool faceTowardsOrigin = delta.Y > 0 || delta.Y == 0 && Marks[0].Y < Map.Length / 2;
+                coordOffsets.Y = Marks[0].Y;
+                if( delta.X > 0 ) {
+                    // X+
+                    IAW = Math.Min(Marks[0].X + IW, Map.Width) - Marks[0].X;
+                    if( faceTowardsOrigin ) {
+                        // X+y+
+                        minX = IW - IAW;
+                        maxX = IW - 1;
+                        coordOffsets.X = Marks[0].X + ( IAW - 1 );
+                        coordMultiplierX = -1;
+                        layerVector.Y = 1;
+                    } else {
+                        // X+y-
+                        minX = 0;
+                        maxX = IAW - 1;
+                        coordOffsets.X = Marks[0].X;
+                        coordMultiplierX = 1;
+                        layerVector.Y = -1;
+                    }
+                } else {
+                    // X-
+                    IAW = Math.Min(Marks[0].X + 1, IW);
+                    if( faceTowardsOrigin ) {
+                        // X-y+
+                        minX = 0;
+                        maxX = IAW - 1;
+                        coordOffsets.X = Marks[0].X;
+                        coordMultiplierX = -1;
+                        layerVector.Y = 1;
+                    } else {
+                        // X-y-
+                        minX = IW - IAW;
+                        maxX = IW - 1;
+                        coordOffsets.X = Marks[0].X - (IAW - 1);
+                        coordMultiplierX = 1;
+                        layerVector.Y = -1;
+                    }
+                }
+            } else {
+                // drawing along the Y-axis
+                bool faceTowardsOrigin = delta.X > 0 || delta.X == 0 && Marks[0].X < Map.Width / 2;
+                coordOffsets.X = Marks[0].X;
+                if( delta.Y > 0 ) {
+                    // Y+
+                    IAW = Math.Min(Marks[0].Y + IW, Map.Length) - Marks[0].Y;
+                    if( faceTowardsOrigin ) {
+                        // Y+x+
+                        minX = 0;
+                        maxX = IAW - 1;
+                        coordOffsets.Y = Marks[0].Y;
+                        coordMultiplierY = 1;
+                        layerVector.X = 1;
+                    } else {
+                        // Y+x-
+                        minX = IW - IAW;
+                        maxX = IW - 1;
+                        coordOffsets.Y = Marks[0].Y + (IAW - 1);
+                        coordMultiplierY = -1;
+                        layerVector.X = -1;
+                    }
+                } else {
+                    // Y-
+                    IAW = Math.Min(Marks[0].Y + 1, IW);
+                    if( faceTowardsOrigin ) {
+                        // Y-x+
+                        minX = IW - IAW;
+                        maxX = IW - 1;
+                        coordMultiplierY = 1;
+                        coordOffsets.Y = Marks[0].Y - ( IAW - 1 );
+                    } else {
+                        // Y-x-
+                        minX = 0;
+                        maxX = IAW - 1;
+                        coordMultiplierY = -1;
+                        coordOffsets.Y = Marks[0].Y; // +?
+                    }
+                }
+            }
+            return endCoordOffset;
+        }
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
-            for( ; refCoords.X <= Bounds.XMax; refCoords.X++ ) {
-                for( ; refCoords.Y <= Bounds.YMax; refCoords.Y++ ) {
-                    for( ; refCoords.Z <= Bounds.ZMax; refCoords.Z++ ) {
-                        // find matching palette entry
-                        int imageX = imageOffsetX + imageMultipliers.X*refCoords.X + imageMultipliers.Y*refCoords.Y;
-                        int imageY = imageOffsetY + imageMultipliers.Z*refCoords.Z;
-                        System.Drawing.Color color = ImageBitmap.GetPixel( imageX, imageY );
-                        drawBlocks = Palette.FindBestMatch( color );
-
-                        // draw layers
-                        for( ; layer < Palette.Layers; layer++ ) {
-                            Coords = refCoords + layerOffset*layer;
-                            if( DrawOneBlock() ) {
-                                blocksDone++;
-                                if( blocksDone >= maxBlocksToDraw ) {
-                                    layer++;
-                                    return blocksDone;
-                                }
+            for( ; imageX <= maxX; imageX++ ) {
+                for( ; imageY <= maxY; imageY++ ) {
+                    // find matching palette entry
+                    System.Drawing.Color color = ImageBitmap.GetPixel( imageX, imageY );
+                    drawBlocks = Palette.FindBestMatch(color);
+                    Coords.Z = coordOffsets.Z - (imageY - minY);
+                    // draw layers
+                    for( ; layer < Palette.Layers; layer++ ) {
+                        Coords.X = (imageX - minX) * coordMultiplierX + coordOffsets.X + layerVector.X * layer;
+                        Coords.Y = (imageX - minX) * coordMultiplierY + coordOffsets.Y + layerVector.Y * layer;
+                        if( DrawOneBlock() ) {
+                            blocksDone++;
+                            if( blocksDone >= maxBlocksToDraw ) {
+                                layer++;
+                                return blocksDone;
                             }
                         }
-                        layer = 0;
                     }
-                    Coords.Z = Bounds.ZMin;
+                    layer = 0;
                 }
-                Coords.Y = Bounds.YMin;
+                imageY = minY;
                 if( TimeToEndBatch ) {
-                    Coords.X++;
+                    imageX++;
                     return blocksDone;
                 }
             }
