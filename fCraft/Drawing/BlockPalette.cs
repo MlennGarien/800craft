@@ -30,8 +30,9 @@ namespace fCraft.Drawing {
 
 
         protected void Add(RgbColor color, [NotNull] Block[] blocks) {
-            Add( RgbToLab( color ), blocks );
+            Add( RgbToLab( color, false ), blocks );
         }
+
 
         protected void Add( LabColor color, Block[] blocks ) {
             if( blocks == null ) {
@@ -45,7 +46,7 @@ namespace fCraft.Drawing {
 
 
         public Block[] FindBestMatch( RgbColor color ) {
-            LabColor pixelColor = RgbToLab( color );
+            LabColor pixelColor = RgbToLab( color, true );
             double closestDistance = double.MaxValue;
             Block[] bestMatch = null;
             foreach( var pair in palette ) {
@@ -69,12 +70,22 @@ namespace fCraft.Drawing {
 
 
         // Conversion from RGB to CIELAB, using illuminant D65.
-        static LabColor RgbToLab( RgbColor color ) {
+        static LabColor RgbToLab( RgbColor color, bool adjustContrast ) {
+            double R = color.R;
+            double G = color.G;
+            double B = color.B;
+
+            if( adjustContrast ) {
+                R *= .75;
+                G *= .75;
+                B *= .75;
+            }
+
             // RGB are assumed to be in [0...255] range
             // CIEXYZ coordinates are normalized to [0...1]
-            double x = 0.00161746*color.R + 0.00140227*color.G + 0.000707541*color.B;
-            double y = 0.000834004*color.R + 0.00280455*color.G + 0.000283016*color.B;
-            double z = 0.0000758196*color.R + 0.000467424*color.G + 0.00372638*color.B;
+            double x = 0.00161746*R + 0.00140227*G + 0.000707541*B;
+            double y = 0.000834004*R + 0.00280455*G + 0.000283016*B;
+            double z = 0.0000758196*R + 0.000467424*G + 0.00372638*B;
 
             double xRatio = x/XN;
             double yRatio = y/YN;
