@@ -198,14 +198,14 @@ namespace fCraft.Drawing {
                         maxX = IW - 1;
                         coordOffsets.X = Marks[0].X + (IAW - 1);
                         coordMultiplierX = -1;
-                        layerVector.Y = 1;
+                        layerVector.Y = -1;
                     } else {
                         // X+y-
                         minX = 0;
                         maxX = IAW - 1;
                         coordOffsets.X = Marks[0].X;
                         coordMultiplierX = 1;
-                        layerVector.Y = -1;
+                        layerVector.Y = 1;
                     }
                 } else {
                     // X-
@@ -216,14 +216,14 @@ namespace fCraft.Drawing {
                         maxX = IAW - 1;
                         coordOffsets.X = Marks[0].X;
                         coordMultiplierX = -1;
-                        layerVector.Y = 1;
+                        layerVector.Y = -1;
                     } else {
                         // X-y-
                         minX = IW - IAW;
                         maxX = IW - 1;
                         coordOffsets.X = Marks[0].X - (IAW - 1);
                         coordMultiplierX = 1;
-                        layerVector.Y = -1;
+                        layerVector.Y = 1;
                     }
                 }
             } else {
@@ -239,14 +239,14 @@ namespace fCraft.Drawing {
                         maxX = IAW - 1;
                         coordOffsets.Y = Marks[0].Y;
                         coordMultiplierY = 1;
-                        layerVector.X = 1;
+                        layerVector.X = -1;
                     } else {
                         // Y+x-
                         minX = IW - IAW;
                         maxX = IW - 1;
                         coordOffsets.Y = Marks[0].Y + (IAW - 1);
                         coordMultiplierY = -1;
-                        layerVector.X = -1;
+                        layerVector.X = 1;
                     }
                 } else {
                     // Y-
@@ -257,14 +257,14 @@ namespace fCraft.Drawing {
                         maxX = IW - 1;
                         coordOffsets.Y = Marks[0].Y - (IAW - 1);
                         coordMultiplierY = 1;
-                        layerVector.X = 1;
+                        layerVector.X = -1;
                     } else {
                         // Y-x-
                         minX = 0;
                         maxX = IAW - 1;
                         coordOffsets.Y = Marks[0].Y;
                         coordMultiplierY = -1;
-                        layerVector.X = -1;
+                        layerVector.X = 1;
                     }
                 }
             }

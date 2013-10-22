@@ -12,16 +12,16 @@ namespace fCraft.Drawing {
                      YN = 100.000,
                      ZN = 108.883,
                      // these constant are used in CIEXYZ -> CIELAB conversion
-                     LinearThreshold = ( 6/29d )*( 6/29d )*( 6/29d ),
-                     LinearMultiplier = ( 1/3d )*( 29/6d )*( 29/6d ),
-                     LinearConstant = ( 4/29d );
+                     LinearThreshold = (6/29d)*(6/29d)*(6/29d),
+                     LinearMultiplier = (1/3d)*(29/6d)*(29/6d),
+                     LinearConstant = (4/29d);
 
         Dictionary<LabColor, Block[]> palette = new Dictionary<LabColor, Block[]>();
         public string Name { get; private set; }
         public int Layers { get; private set; }
 
 
-        protected BlockPalette([NotNull] string name, int layers) {
+        protected BlockPalette( [NotNull] string name, int layers ) {
             if( name == null )
                 throw new ArgumentNullException( "name" );
             Name = name;
@@ -29,7 +29,7 @@ namespace fCraft.Drawing {
         }
 
 
-        protected void Add(RgbColor color, [NotNull] Block[] blocks) {
+        protected void Add( RgbColor color, [NotNull] Block[] blocks ) {
             Add( RgbToLab( color, false ), blocks );
         }
 
@@ -63,29 +63,28 @@ namespace fCraft.Drawing {
         // CIE76 formula for Delta-E, over CIELAB color space
         static double ColorDifference( LabColor color1, LabColor color2 ) {
             return
-                Math.Sqrt( ( color2.L - color1.L )*( color2.L - color1.L ) +
-                           ( color2.a - color1.a )*( color2.a - color1.a ) +
-                           ( color2.b - color1.b )*( color2.b - color1.b ) );
+                Math.Sqrt( (color2.L - color1.L)*(color2.L - color1.L) + (color2.a - color1.a)*(color2.a - color1.a) +
+                           (color2.b - color1.b)*(color2.b - color1.b) );
         }
 
 
         // Conversion from RGB to CIELAB, using illuminant D65.
         static LabColor RgbToLab( RgbColor color, bool adjustContrast ) {
-            double R = color.R;
-            double G = color.G;
-            double B = color.B;
+            double R = color.R/255d;
+            double G = color.G/255d;
+            double B = color.B/255d;
 
             if( adjustContrast ) {
-                R *= .75;
-                G *= .75;
-                B *= .75;
+                R = 0.705*Math.Pow( R, 0.75 );
+                G = 0.705*Math.Pow( G, 0.75 );
+                B = 0.705*Math.Pow( B, 0.75 );
             }
 
             // RGB are assumed to be in [0...255] range
             // CIEXYZ coordinates are normalized to [0...1]
-            double x = 0.00161746*R + 0.00140227*G + 0.000707541*B;
-            double y = 0.000834004*R + 0.00280455*G + 0.000283016*B;
-            double z = 0.0000758196*R + 0.000467424*G + 0.00372638*B;
+            double x = 0.412453*R + 0.357580*G + 0.180423*B;
+            double y = 0.212671*R + 0.715160*G + 0.072169*B;
+            double z = 0.019334*R + 0.119193*G + 0.950227*B;
 
             double xRatio = x/XN;
             double yRatio = y/YN;
@@ -94,8 +93,8 @@ namespace fCraft.Drawing {
             return new LabColor {
                 // L is normalized to [0...100]
                 L = 116*XyzToLab( yRatio ) - 16,
-                a = 500*( XyzToLab( xRatio ) - XyzToLab( yRatio ) ),
-                b = 200*( XyzToLab( yRatio ) - XyzToLab( zRatio ) )
+                a = 500*(XyzToLab( xRatio ) - XyzToLab( yRatio )),
+                b = 200*(XyzToLab( yRatio ) - XyzToLab( zRatio ))
             };
         }
 
@@ -114,8 +113,8 @@ namespace fCraft.Drawing {
             return palette.GetEnumerator();
         }
 
-
         #region Standard Patterns
+
         // lazy initialization ftw
 
         [NotNull]
@@ -127,6 +126,7 @@ namespace fCraft.Drawing {
                 return lightPalette;
             }
         }
+
         static BlockPalette lightPalette;
 
 
@@ -139,6 +139,7 @@ namespace fCraft.Drawing {
                 return darkPalette;
             }
         }
+
         static BlockPalette darkPalette;
 
 
@@ -151,6 +152,7 @@ namespace fCraft.Drawing {
                 return layeredPalette;
             }
         }
+
         static BlockPalette layeredPalette;
 
 
@@ -163,6 +165,7 @@ namespace fCraft.Drawing {
                 return grayPalette;
             }
         }
+
         static BlockPalette grayPalette;
 
 
@@ -175,6 +178,7 @@ namespace fCraft.Drawing {
                 return darkGrayPalette;
             }
         }
+
         static BlockPalette darkGrayPalette;
 
 
@@ -187,6 +191,7 @@ namespace fCraft.Drawing {
                 return layeredGrayPalette;
             }
         }
+
         static BlockPalette layeredGrayPalette;
 
 
@@ -199,6 +204,7 @@ namespace fCraft.Drawing {
                 return bwPalette;
             }
         }
+
         static BlockPalette bwPalette;
 
 
@@ -281,10 +287,10 @@ namespace fCraft.Drawing {
         static BlockPalette DefineLayered() {
             BlockPalette palette = new BlockPalette( "Layered", 2 );
             foreach( var pair in Light.palette ) {
-                palette.Add( pair.Key, new[] {pair.Value[0], Block.Undefined} );
+                palette.Add( pair.Key, new[] {Block.Undefined, pair.Value[0]} );
             }
             foreach( var pair in Dark.palette ) {
-                palette.Add( pair.Key, new[] {Block.Air, pair.Value[0]} );
+                palette.Add( pair.Key, new[] {pair.Value[0], Block.Air} );
             }
             return palette;
         }
@@ -316,10 +322,10 @@ namespace fCraft.Drawing {
         static BlockPalette DefineLayeredGray() {
             BlockPalette palette = new BlockPalette( "LayeredGray", 2 );
             foreach( var pair in Gray.palette ) {
-                palette.Add( pair.Key, new[] {pair.Value[0], Block.Undefined} );
+                palette.Add( pair.Key, new[] {Block.Undefined, pair.Value[0]} );
             }
             foreach( var pair in DarkGray.palette ) {
-                palette.Add( pair.Key, new[] {Block.Air, pair.Value[0]} );
+                palette.Add( pair.Key, new[] {pair.Value[0], Block.Air} );
             }
             return palette;
         }
@@ -336,7 +342,9 @@ namespace fCraft.Drawing {
         #endregion
 
         protected struct LabColor {
-            public double L, a, b;
+            public double L,
+                          a,
+                          b;
         }
     }
 
