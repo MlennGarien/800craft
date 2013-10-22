@@ -83,7 +83,7 @@ namespace fCraft.Drawing {
             return true;
         }
 
-        
+
         public override bool Prepare( Vector3I[] marks ) {
             // Check the given marks
             if( marks == null )
@@ -110,8 +110,8 @@ namespace fCraft.Drawing {
                 // check is performed since a request for a non-existent
                 // image file might be redirected to a 404-page, which would
                 // yield the StatusCode "OK", even though the image was not found.
-                if( ( response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Moved ||
-                      response.StatusCode == HttpStatusCode.Redirect ) &&
+                if( (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Moved ||
+                     response.StatusCode == HttpStatusCode.Redirect) &&
                     response.ContentType.StartsWith( "image", StringComparison.OrdinalIgnoreCase ) ) {
                     // if the remote file was found, download it
                     using( Stream inputStream = response.GetResponseStream() ) {
@@ -172,31 +172,31 @@ namespace fCraft.Drawing {
             // Figure out vertical drawing direction
             if( delta.Z < 0 ) {
                 // drawing downwards
-                IAH = Math.Min(Marks[0].Z + 1, IH);
+                IAH = Math.Min( Marks[0].Z + 1, IH );
                 minY = 0;
                 maxY = IAH - 1;
-                coordOffsets.Z = Marks[0].Z - minY;
+                coordOffsets.Z = Marks[0].Z;
             } else {
                 // drawing upwards
-                IAH = Math.Min(Marks[0].Z + IH, Map.Height) - Marks[0].Z;
+                IAH = Math.Min( Marks[0].Z + IH, Map.Height ) - Marks[0].Z;
                 minY = IH - IAH;
                 maxY = IH - 1;
-                coordOffsets.Z = ( IAH - 1 ) + Marks[0].Z - minY;
+                coordOffsets.Z = (IAH - 1) + Marks[0].Z;
             }
 
             // Figure out horizontal drawing direction and orientation
             if( Math.Abs( delta.X ) > Math.Abs( delta.Y ) ) {
                 // drawing along the X-axis
-                bool faceTowardsOrigin = delta.Y > 0 || delta.Y == 0 && Marks[0].Y < Map.Length / 2;
+                bool faceTowardsOrigin = delta.Y > 0 || delta.Y == 0 && Marks[0].Y < Map.Length/2;
                 coordOffsets.Y = Marks[0].Y;
                 if( delta.X > 0 ) {
                     // X+
-                    IAW = Math.Min(Marks[0].X + IW, Map.Width) - Marks[0].X;
+                    IAW = Math.Min( Marks[0].X + IW, Map.Width ) - Marks[0].X;
                     if( faceTowardsOrigin ) {
                         // X+y+
                         minX = IW - IAW;
                         maxX = IW - 1;
-                        coordOffsets.X = Marks[0].X + ( IAW - 1 );
+                        coordOffsets.X = Marks[0].X + (IAW - 1);
                         coordMultiplierX = -1;
                         layerVector.Y = 1;
                     } else {
@@ -209,7 +209,7 @@ namespace fCraft.Drawing {
                     }
                 } else {
                     // X-
-                    IAW = Math.Min(Marks[0].X + 1, IW);
+                    IAW = Math.Min( Marks[0].X + 1, IW );
                     if( faceTowardsOrigin ) {
                         // X-y+
                         minX = 0;
@@ -228,11 +228,11 @@ namespace fCraft.Drawing {
                 }
             } else {
                 // drawing along the Y-axis
-                bool faceTowardsOrigin = delta.X > 0 || delta.X == 0 && Marks[0].X < Map.Width / 2;
+                bool faceTowardsOrigin = delta.X > 0 || delta.X == 0 && Marks[0].X < Map.Width/2;
                 coordOffsets.X = Marks[0].X;
                 if( delta.Y > 0 ) {
                     // Y+
-                    IAW = Math.Min(Marks[0].Y + IW, Map.Length) - Marks[0].Y;
+                    IAW = Math.Min( Marks[0].Y + IW, Map.Length ) - Marks[0].Y;
                     if( faceTowardsOrigin ) {
                         // Y+x+
                         minX = 0;
@@ -250,24 +250,27 @@ namespace fCraft.Drawing {
                     }
                 } else {
                     // Y-
-                    IAW = Math.Min(Marks[0].Y + 1, IW);
+                    IAW = Math.Min( Marks[0].Y + 1, IW );
                     if( faceTowardsOrigin ) {
                         // Y-x+
                         minX = IW - IAW;
                         maxX = IW - 1;
+                        coordOffsets.Y = Marks[0].Y - (IAW - 1);
                         coordMultiplierY = 1;
-                        coordOffsets.Y = Marks[0].Y - ( IAW - 1 );
+                        layerVector.X = 1;
                     } else {
                         // Y-x-
                         minX = 0;
                         maxX = IAW - 1;
+                        coordOffsets.Y = Marks[0].Y;
                         coordMultiplierY = -1;
-                        coordOffsets.Y = Marks[0].Y; // +?
+                        layerVector.X = -1;
                     }
                 }
             }
             return endCoordOffset;
         }
+
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
@@ -275,12 +278,12 @@ namespace fCraft.Drawing {
                 for( ; imageY <= maxY; imageY++ ) {
                     // find matching palette entry
                     System.Drawing.Color color = ImageBitmap.GetPixel( imageX, imageY );
-                    drawBlocks = Palette.FindBestMatch(color);
+                    drawBlocks = Palette.FindBestMatch( color );
                     Coords.Z = coordOffsets.Z - (imageY - minY);
                     // draw layers
                     for( ; layer < Palette.Layers; layer++ ) {
-                        Coords.X = (imageX - minX) * coordMultiplierX + coordOffsets.X + layerVector.X * layer;
-                        Coords.Y = (imageX - minX) * coordMultiplierY + coordOffsets.Y + layerVector.Y * layer;
+                        Coords.X = (imageX - minX)*coordMultiplierX + coordOffsets.X + layerVector.X*layer;
+                        Coords.Y = (imageX - minX)*coordMultiplierY + coordOffsets.Y + layerVector.Y*layer;
                         if( DrawOneBlock() ) {
                             blocksDone++;
                             if( blocksDone >= maxBlocksToDraw ) {
