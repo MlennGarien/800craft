@@ -63,10 +63,10 @@ namespace fCraft.Drawing {
         // CIE76 formula for Delta-E, over CIELAB color space
         static double ColorDifference( LabColor color1, LabColor color2 ) {
             return
-                Math.Sqrt( (color2.L - color1.L)*(color2.L - color1.L) + (color2.a - color1.a)*(color2.a - color1.a) +
-                           (color2.b - color1.b)*(color2.b - color1.b) );
+                Math.Sqrt((color2.L - color1.L) * (color2.L - color1.L)*1.25 +
+                           (color2.a - color1.a)*(color2.a - color1.a) +
+                           (color2.b - color1.b) * (color2.b - color1.b));
         }
-
 
         // Conversion from RGB to CIELAB, using illuminant D65.
         static LabColor RgbToLab( RgbColor color, bool adjustContrast ) {
@@ -74,30 +74,27 @@ namespace fCraft.Drawing {
             double G = color.G/255d;
             double B = color.B/255d;
 
-            if( adjustContrast ) {
-                R = 0.705*Math.Pow( R, 0.75 );
-                G = 0.705*Math.Pow( G, 0.75 );
-                B = 0.705*Math.Pow( B, 0.75 );
-            }
-
             // RGB are assumed to be in [0...255] range
             // CIEXYZ coordinates are normalized to [0...1]
-            double x = 0.412453*R + 0.357580*G + 0.180423*B;
-            double y = 0.212671*R + 0.715160*G + 0.072169*B;
-            double z = 0.019334*R + 0.119193*G + 0.950227*B;
+            double x = 0.4124564 * R + 0.3575761 * G + 0.1804375 * B;
+            double y = 0.2126729 * R + 0.7151522 * G + 0.0721750 * B;
+            double z = 0.0193339 * R + 0.1191920 * G + 0.9503041 * B;
 
             double xRatio = x/XN;
             double yRatio = y/YN;
             double zRatio = z/ZN;
 
-            return new LabColor {
+            LabColor result = new LabColor {
                 // L is normalized to [0...100]
                 L = 116*XyzToLab( yRatio ) - 16,
                 a = 500*(XyzToLab( xRatio ) - XyzToLab( yRatio )),
                 b = 200*(XyzToLab( yRatio ) - XyzToLab( zRatio ))
             };
+            if( adjustContrast ) {
+                result.L *= .72;
+            }
+            return result;
         }
-
 
         static double XyzToLab( double ratio ) {
             if( ratio > LinearThreshold ) {
@@ -236,6 +233,7 @@ namespace fCraft.Drawing {
             return new BlockPalette( "Light", 1 ) {
                 {RgbColor.FromArgb( 109, 80, 57 ), new[] {Block.Dirt}},
                 {RgbColor.FromArgb( 176, 170, 130 ), new[] {Block.Sand}},
+                {RgbColor.FromArgb( 111, 104, 104 ), new[] {Block.Gravel}},
                 {RgbColor.FromArgb( 179, 44, 44 ), new[] {Block.Red}},
                 {RgbColor.FromArgb( 179, 111, 44 ), new[] {Block.Orange}},
                 {RgbColor.FromArgb( 179, 179, 44 ), new[] {Block.Yellow}},
@@ -262,6 +260,7 @@ namespace fCraft.Drawing {
             return new BlockPalette( "Dark", 1 ) {
                 {RgbColor.FromArgb( 67, 50, 37 ), new[] {Block.Dirt}},
                 {RgbColor.FromArgb( 108, 104, 80 ), new[] {Block.Sand}},
+                {RgbColor.FromArgb( 68, 64, 64 ), new[] {Block.Gravel}},
                 {RgbColor.FromArgb( 109, 28, 28 ), new[] {Block.Red}},
                 {RgbColor.FromArgb( 110, 70, 31 ), new[] {Block.Orange}},
                 {RgbColor.FromArgb( 109, 109, 29 ), new[] {Block.Yellow}},
@@ -292,6 +291,9 @@ namespace fCraft.Drawing {
             foreach( var pair in Dark.palette ) {
                 palette.Add( pair.Key, new[] {pair.Value[0], Block.Air} );
             }
+            palette.Add(RgbColor.FromArgb(61, 74, 167), new[] { Block.White, Block.StillWater });
+            palette.Add(RgbColor.FromArgb(47, 59, 152), new[] { Block.Gray, Block.StillWater });
+            palette.Add(RgbColor.FromArgb(34, 47, 140), new[] { Block.Black, Block.StillWater });
             return palette;
         }
 
