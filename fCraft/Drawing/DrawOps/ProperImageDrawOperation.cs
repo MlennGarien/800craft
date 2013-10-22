@@ -187,7 +187,7 @@ namespace fCraft.Drawing {
             // Figure out horizontal drawing direction and orientation
             if( Math.Abs( delta.X ) > Math.Abs( delta.Y ) ) {
                 // drawing along the X-axis
-                bool faceTowardsOrigin = delta.Y > 0 || delta.Y == 0 && Marks[0].Y < Map.Length/2;
+                bool faceTowardsOrigin = delta.Y < 0 || delta.Y == 0 && Marks[0].Y < Map.Length/2;
                 coordOffsets.Y = Marks[0].Y;
                 if( delta.X > 0 ) {
                     // X+
@@ -228,7 +228,7 @@ namespace fCraft.Drawing {
                 }
             } else {
                 // drawing along the Y-axis
-                bool faceTowardsOrigin = delta.X > 0 || delta.X == 0 && Marks[0].X < Map.Width/2;
+                bool faceTowardsOrigin = delta.X < 0 || delta.X == 0 && Marks[0].X < Map.Width/2;
                 coordOffsets.X = Marks[0].X;
                 if( delta.Y > 0 ) {
                     // Y+
