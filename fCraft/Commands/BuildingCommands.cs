@@ -324,14 +324,17 @@ namespace fCraft {
         // New /drawimage implementation contributed by Matvei Stefarov <me@matvei.org>
         static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
             Name = "DrawImage",
-            Aliases = new[] { "Drawimg", "Imgdraw", "ImgPrint" },
+            Aliases = new[] {"Drawimg", "Imgdraw", "ImgPrint"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.DrawAdvanced},
-            Usage = "/PDI WebsiteUrl.com/picture.jpg [Palette]",
-            Help = "Properly draws an image file from a website, using minecraft blocks. " +
+            Usage = "/DrawImage SomeWebsite.com/picture.png [Palette]",
+            Help = "Downloads and draws an image, using minecraft blocks. " +
+                   "First mark specifies the origin (corner) block of the image. " +
+                   "Second mark specifies direction (from origin block) in which image should be drawn. " +
+                   "Optionally, a block palette name can be specified: " +
+                   "Layered (default), Light, Dark, Gray, DarkGray, LayeredGray, or BW (black and white). " +
                    "If your image is from imgur.com, simply type '++' followed by the image code. " +
-                   "Example: /PDI ++kbFRo.png\n" +
-                   "Optionally, a custom block palette can be set: Layered (default), Light, or Dark.",
+                   "Example: /DrawImage ++kbFRo.png",
             Handler = DrawImageHandler
         };
 

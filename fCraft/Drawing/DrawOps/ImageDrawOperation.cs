@@ -29,8 +29,15 @@ namespace fCraft.Drawing {
 
         public override string Description {
             get {
-                // TODO: adjust name based on parameters
-                return Name;
+                if( ImageUrl == null ) {
+                    return Name;
+                }
+                string fileName = (ImageUrl.IsFile ? Path.GetFileName( ImageUrl.AbsolutePath ) : ImageUrl.AbsolutePath);
+                if( Palette == BlockPalette.Layered ) {
+                    return String.Format( "{0}({1})", Name, fileName );
+                } else {
+                    return String.Format( "{0}({1}, {2})", Name, fileName, Palette.Name );
+                }
             }
         }
 
