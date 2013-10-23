@@ -111,7 +111,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdDraw2D );
             CommandManager.RegisterCommand( CdSetFont );
             CommandManager.RegisterCommand( CdDrawImage );
-            CommandManager.RegisterCommand( CdProperlyDrawImage );
 
             CommandManager.RegisterCommand( CdPlane );
             CommandManager.RegisterCommand( CdPlaneW );
@@ -321,58 +320,11 @@ namespace fCraft {
             player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );
         }
 
-        private static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
+
+        // New /drawimage implementation contributed by Matvei Stefarov <me@matvei.org>
+        static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
             Name = "DrawImage",
             Aliases = new[] { "Drawimg", "Imgdraw", "ImgPrint" },
-            Category = CommandCategory.Building,
-            Permissions = new Permission[] { Permission.DrawAdvanced },
-            IsConsoleSafe = false,
-            Usage = "/DrawImage WebsiteUrl.com/picture.jpg",
-            Help = "Draws an image file from a website in minecraft blocks. " +
-            "If your url is from imgur.com, you can type '++' followed by the image code. Example: ++kbFRo.png",
-            Handler = DrawImageHandler
-        };
-
-        private static void DrawImageHandler( Player player, Command cmd ) {
-            string Url = cmd.Next();
-            if ( string.IsNullOrEmpty( Url ) ) {
-                CdDrawImage.PrintUsage( player );
-                return;
-            } else {
-                player.Message( "DrawImage: Click 2 blocks or use &H/Mark&S to set direction." );
-                player.SelectionStart( 2, DrawImgCallback, Url, Permission.DrawAdvanced );
-            }
-        }
-
-        private static void DrawImgCallback( Player player, Vector3I[] marks, object tag ) {
-            string Url = ( string )tag;
-            if ( Url.StartsWith( "++" ) )
-                Url = Url.Replace( "++", "i.imgur.com/" );
-            if ( !Url.StartsWith( "http://", StringComparison.OrdinalIgnoreCase ) )
-                Url = "http://" + Url;
-
-            player.MessageNow( "&HDrawImg: Downloading image from {0}", Url );
-
-            Direction direction = DirectionFinder.GetDirection( marks );
-            if ( direction == Direction.Null ) {
-                player.Message( "&WNo direction was set" );
-                return;
-            }
-            DrawImageOperation Op = null;
-            try {
-                Op = new DrawImageOperation();//create new instance
-                Op.DrawImage( 1, direction, marks[0], player, Url );
-                player.Message( "DrawImg: Drawing {0}",
-                    Url, Op.blocks );
-            } catch ( Exception e ) {
-                player.Message( Color.Warning + "DrawImg: " + e.Message );
-            }
-            Op = null; //get lost
-        }
-
-
-        static readonly CommandDescriptor CdProperlyDrawImage = new CommandDescriptor {
-            Name = "PDI",
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.DrawAdvanced},
             Usage = "/PDI WebsiteUrl.com/picture.jpg [Palette]",
@@ -380,21 +332,21 @@ namespace fCraft {
                    "If your image is from imgur.com, simply type '++' followed by the image code. " +
                    "Example: /PDI ++kbFRo.png\n" +
                    "Optionally, a custom block palette can be set: Layered (default), Light, or Dark.",
-            Handler = ProperlyDrawImageHandler
+            Handler = DrawImageHandler
         };
 
-        static void ProperlyDrawImageHandler( Player player, Command cmd ) {
-            ProperImageDrawOperation op = new ProperImageDrawOperation(player);
+        static void DrawImageHandler( Player player, Command cmd ) {
+            ImageDrawOperation op = new ImageDrawOperation(player);
             if( !op.ReadParams( cmd ) ) {
-                CdProperlyDrawImage.PrintUsage( player );
+                CdDrawImage.PrintUsage( player );
                 return;
             }
             player.Message( "DrawImage: Click 2 blocks or use &H/Mark&S to set direction." );
-            player.SelectionStart(2, ProperlyDrawImageCallback, op, Permission.DrawAdvanced);
+            player.SelectionStart(2, DrawImageCallback, op, Permission.DrawAdvanced);
         }
 
-        private static void ProperlyDrawImageCallback(Player player, Vector3I[] marks, object tag) {
-            ProperImageDrawOperation op = (ProperImageDrawOperation)tag;
+        private static void DrawImageCallback(Player player, Vector3I[] marks, object tag) {
+            ImageDrawOperation op = (ImageDrawOperation)tag;
             player.Message( "&HDrawImage: Downloading {0}", op.ImageUrl );
             try {
                 op.Prepare(marks);
@@ -417,6 +369,7 @@ namespace fCraft {
                 player.Message("&WDrawImage: Error downloading: " + ex.Message);
             }
         }
+
 
         private static CommandDescriptor CdSetFont = new CommandDescriptor() {
             Name = "SetFont",

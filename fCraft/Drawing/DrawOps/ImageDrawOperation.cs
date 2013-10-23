@@ -1,13 +1,13 @@
-﻿using System;
+﻿// Copyright 2013 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
 using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
-    sealed class ProperImageDrawOperation : DrawOpWithBrush, IDisposable {
-        static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds( 5 );
+    sealed class ImageDrawOperation : DrawOpWithBrush, IDisposable {
+        static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds( 6 );
 
         public Uri ImageUrl { get; private set; }
         public Bitmap ImageBitmap { get; private set; }
@@ -15,9 +15,15 @@ namespace fCraft.Drawing {
 
         Block[] drawBlocks;
 
-        int imageX,
-            imageY,
-            layer;
+        int imageX, imageY;
+        int layer;
+        Vector3I coordOffsets = Vector3I.Zero;
+        Vector3I layerVector = Vector3I.Zero;
+        int coordMultiplierX, coordMultiplierY;
+
+        int actualImageHeight, actualImageWidth;
+        int minY, maxY;
+        int minX, maxX;
 
         public override string Name { get { return "Image"; } }
 
@@ -29,7 +35,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public ProperImageDrawOperation( [NotNull] Player player )
+        public ImageDrawOperation( [NotNull] Player player )
             : base( player ) {
         }
 
@@ -151,37 +157,24 @@ namespace fCraft.Drawing {
         }
 
 
-        Vector3I coordOffsets = Vector3I.Zero;
-        Vector3I layerVector = Vector3I.Zero;
-        int coordMultiplierX;
-        int coordMultiplierY;
-
-        int IAH;
-        int IAW;
-        int minY;
-        int maxY;
-        int minX;
-        int maxX;
 
 
         Vector3I CalculateCoordConversion( Vector3I delta ) {
             Vector3I endCoordOffset = Vector3I.Zero;
-            int IH = ImageBitmap.Height;
-            int IW = ImageBitmap.Width;
 
             // Figure out vertical drawing direction
             if( delta.Z < 0 ) {
                 // drawing downwards
-                IAH = Math.Min( Marks[0].Z + 1, IH );
+                actualImageHeight = Math.Min( Marks[0].Z + 1, ImageBitmap.Height );
                 minY = 0;
-                maxY = IAH - 1;
+                maxY = actualImageHeight - 1;
                 coordOffsets.Z = Marks[0].Z;
             } else {
                 // drawing upwards
-                IAH = Math.Min( Marks[0].Z + IH, Map.Height ) - Marks[0].Z;
-                minY = IH - IAH;
-                maxY = IH - 1;
-                coordOffsets.Z = (IAH - 1) + Marks[0].Z;
+                actualImageHeight = Math.Min( Marks[0].Z + ImageBitmap.Height, Map.Height ) - Marks[0].Z;
+                minY = ImageBitmap.Height - actualImageHeight;
+                maxY = ImageBitmap.Height - 1;
+                coordOffsets.Z = (actualImageHeight - 1) + Marks[0].Z;
             }
 
             // Figure out horizontal drawing direction and orientation
@@ -191,37 +184,37 @@ namespace fCraft.Drawing {
                 coordOffsets.Y = Marks[0].Y;
                 if( delta.X > 0 ) {
                     // X+
-                    IAW = Math.Min( Marks[0].X + IW, Map.Width ) - Marks[0].X;
+                    actualImageWidth = Math.Min( Marks[0].X + ImageBitmap.Width, Map.Width ) - Marks[0].X;
                     if( faceTowardsOrigin ) {
                         // X+y+
-                        minX = IW - IAW;
-                        maxX = IW - 1;
-                        coordOffsets.X = Marks[0].X + (IAW - 1);
+                        minX = ImageBitmap.Width - actualImageWidth;
+                        maxX = ImageBitmap.Width - 1;
+                        coordOffsets.X = Marks[0].X + (actualImageWidth - 1);
                         coordMultiplierX = -1;
                         layerVector.Y = -1;
                     } else {
                         // X+y-
                         minX = 0;
-                        maxX = IAW - 1;
+                        maxX = actualImageWidth - 1;
                         coordOffsets.X = Marks[0].X;
                         coordMultiplierX = 1;
                         layerVector.Y = 1;
                     }
                 } else {
                     // X-
-                    IAW = Math.Min( Marks[0].X + 1, IW );
+                    actualImageWidth = Math.Min( Marks[0].X + 1, ImageBitmap.Width );
                     if( faceTowardsOrigin ) {
                         // X-y+
                         minX = 0;
-                        maxX = IAW - 1;
+                        maxX = actualImageWidth - 1;
                         coordOffsets.X = Marks[0].X;
                         coordMultiplierX = -1;
                         layerVector.Y = -1;
                     } else {
                         // X-y-
-                        minX = IW - IAW;
-                        maxX = IW - 1;
-                        coordOffsets.X = Marks[0].X - (IAW - 1);
+                        minX = ImageBitmap.Width - actualImageWidth;
+                        maxX = ImageBitmap.Width - 1;
+                        coordOffsets.X = Marks[0].X - (actualImageWidth - 1);
                         coordMultiplierX = 1;
                         layerVector.Y = 1;
                     }
@@ -232,36 +225,36 @@ namespace fCraft.Drawing {
                 coordOffsets.X = Marks[0].X;
                 if( delta.Y > 0 ) {
                     // Y+
-                    IAW = Math.Min( Marks[0].Y + IW, Map.Length ) - Marks[0].Y;
+                    actualImageWidth = Math.Min( Marks[0].Y + ImageBitmap.Width, Map.Length ) - Marks[0].Y;
                     if( faceTowardsOrigin ) {
                         // Y+x+
                         minX = 0;
-                        maxX = IAW - 1;
+                        maxX = actualImageWidth - 1;
                         coordOffsets.Y = Marks[0].Y;
                         coordMultiplierY = 1;
                         layerVector.X = -1;
                     } else {
                         // Y+x-
-                        minX = IW - IAW;
-                        maxX = IW - 1;
-                        coordOffsets.Y = Marks[0].Y + (IAW - 1);
+                        minX = ImageBitmap.Width - actualImageWidth;
+                        maxX = ImageBitmap.Width - 1;
+                        coordOffsets.Y = Marks[0].Y + (actualImageWidth - 1);
                         coordMultiplierY = -1;
                         layerVector.X = 1;
                     }
                 } else {
                     // Y-
-                    IAW = Math.Min( Marks[0].Y + 1, IW );
+                    actualImageWidth = Math.Min( Marks[0].Y + 1, ImageBitmap.Width );
                     if( faceTowardsOrigin ) {
                         // Y-x+
-                        minX = IW - IAW;
-                        maxX = IW - 1;
-                        coordOffsets.Y = Marks[0].Y - (IAW - 1);
+                        minX = ImageBitmap.Width - actualImageWidth;
+                        maxX = ImageBitmap.Width - 1;
+                        coordOffsets.Y = Marks[0].Y - (actualImageWidth - 1);
                         coordMultiplierY = 1;
                         layerVector.X = -1;
                     } else {
                         // Y-x-
                         minX = 0;
-                        maxX = IAW - 1;
+                        maxX = actualImageWidth - 1;
                         coordOffsets.Y = Marks[0].Y;
                         coordMultiplierY = -1;
                         layerVector.X = 1;

@@ -1,23 +1,29 @@
-﻿using System;
+﻿// Copyright 2013 Matvei Stefarov <me@matvei.org>
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using RgbColor = System.Drawing.Color;
 
 namespace fCraft.Drawing {
-    // Represents a palette of blocks, allowing matching RGB colors to their closest blocks equivalents
+    /// <summary> Represents a palette of Minecraft blocks,
+    /// that allows matching RGB colors to their closest block equivalents. </summary>
     public class BlockPalette : IEnumerable {
         // XN/YN/ZN are illuminant D65 tristimulus values
         const double XN = 95.047,
                      YN = 100.000,
-                     ZN = 108.883,
-                     // these constant are used in CIEXYZ -> CIELAB conversion
-                     LinearThreshold = (6/29d)*(6/29d)*(6/29d),
+                     ZN = 108.883;
+       // these constant are used in CIEXYZ -> CIELAB conversion
+       const double LinearThreshold = (6/29d)*(6/29d)*(6/29d),
                      LinearMultiplier = (1/3d)*(29/6d)*(29/6d),
                      LinearConstant = (4/29d);
 
-        Dictionary<LabColor, Block[]> palette = new Dictionary<LabColor, Block[]>();
+        readonly Dictionary<LabColor, Block[]> palette = new Dictionary<LabColor, Block[]>();
+
+        /// <summary> Name of this palette. </summary>
         public string Name { get; private set; }
+
+        /// <summary> Number of block layers in this palette. FindBestMatch(...) will return an array of this size. </summary>
         public int Layers { get; private set; }
 
 
@@ -45,6 +51,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         public Block[] FindBestMatch( RgbColor color ) {
             LabColor pixelColor = RgbToLab( color, true );
             double closestDistance = double.MaxValue;
@@ -56,6 +63,9 @@ namespace fCraft.Drawing {
                     closestDistance = distance;
                 }
             }
+            if( bestMatch == null ) {
+                throw new Exception( "Could not find match: palette is empty!" );
+            }
             return bestMatch;
         }
 
@@ -63,18 +73,19 @@ namespace fCraft.Drawing {
         // CIE76 formula for Delta-E, over CIELAB color space
         static double ColorDifference( LabColor color1, LabColor color2 ) {
             return
-                Math.Sqrt((color2.L - color1.L) * (color2.L - color1.L)*1.25 +
+                Math.Sqrt( (color2.L - color1.L)*(color2.L - color1.L)*1.2 +
                            (color2.a - color1.a)*(color2.a - color1.a) +
-                           (color2.b - color1.b) * (color2.b - color1.b));
+                           (color2.b - color1.b)*(color2.b - color1.b) );
         }
 
+
         // Conversion from RGB to CIELAB, using illuminant D65.
-        static LabColor RgbToLab( RgbColor color, bool adjustContrast ) {
+        static LabColor RgbToLab(RgbColor color, bool adjustContrast) {
+            // RGB are assumed to be in [0...255] range
             double R = color.R/255d;
             double G = color.G/255d;
             double B = color.B/255d;
 
-            // RGB are assumed to be in [0...255] range
             // CIEXYZ coordinates are normalized to [0...1]
             double x = 0.4124564 * R + 0.3575761 * G + 0.1804375 * B;
             double y = 0.2126729 * R + 0.7151522 * G + 0.0721750 * B;
@@ -91,10 +102,11 @@ namespace fCraft.Drawing {
                 b = 200*(XyzToLab( yRatio ) - XyzToLab( zRatio ))
             };
             if( adjustContrast ) {
-                result.L *= .72;
+                result.L *= .75;
             }
             return result;
         }
+
 
         static double XyzToLab( double ratio ) {
             if( ratio > LinearThreshold ) {
@@ -110,9 +122,9 @@ namespace fCraft.Drawing {
             return palette.GetEnumerator();
         }
 
-        #region Standard Patterns
 
-        // lazy initialization ftw
+        #region Standard Patterns
+        // lazily initialized to reduce overhead
 
         [NotNull]
         public static BlockPalette Light {
@@ -123,7 +135,6 @@ namespace fCraft.Drawing {
                 return lightPalette;
             }
         }
-
         static BlockPalette lightPalette;
 
 
@@ -136,7 +147,6 @@ namespace fCraft.Drawing {
                 return darkPalette;
             }
         }
-
         static BlockPalette darkPalette;
 
 
@@ -149,7 +159,6 @@ namespace fCraft.Drawing {
                 return layeredPalette;
             }
         }
-
         static BlockPalette layeredPalette;
 
 
@@ -162,7 +171,6 @@ namespace fCraft.Drawing {
                 return grayPalette;
             }
         }
-
         static BlockPalette grayPalette;
 
 
@@ -175,7 +183,6 @@ namespace fCraft.Drawing {
                 return darkGrayPalette;
             }
         }
-
         static BlockPalette darkGrayPalette;
 
 
@@ -188,7 +195,6 @@ namespace fCraft.Drawing {
                 return layeredGrayPalette;
             }
         }
-
         static BlockPalette layeredGrayPalette;
 
 
@@ -201,7 +207,6 @@ namespace fCraft.Drawing {
                 return bwPalette;
             }
         }
-
         static BlockPalette bwPalette;
 
 
@@ -344,20 +349,18 @@ namespace fCraft.Drawing {
         #endregion
 
         protected struct LabColor {
-            public double L,
-                          a,
-                          b;
+            public double L, a, b;
         }
     }
 
 
     public enum StandardBlockPalettes {
-        Light, // 1-layer standard blocks, lit
-        Dark, // 1-layer standard blocks, shadowed
+        Light,   // 1-layer standard blocks, lit
+        Dark,    // 1-layer standard blocks, shadowed
         Layered, // 2-layer standard blocks
-        Gray,
-        DarkGray,
-        LayeredGray,
-        BW
+        Gray,       // 1-layer gray blocks, lit
+        DarkGray,   // 2-layer gray blocks, shadowed
+        LayeredGray,    // 2-layer gray blocks
+        BW              // "black" (obsidian) and white blocks only
     }
 }
