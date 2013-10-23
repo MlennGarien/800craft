@@ -320,54 +320,59 @@ namespace fCraft {
             player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );
         }
 
-        private static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
+
+        // New /drawimage implementation contributed by Matvei Stefarov <me@matvei.org>
+        static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
             Name = "DrawImage",
-            Aliases = new[] { "Drawimg", "Imgdraw", "ImgPrint" },
+            Aliases = new[] {"Drawimg", "Imgdraw", "ImgPrint"},
             Category = CommandCategory.Building,
-            Permissions = new Permission[] { Permission.DrawAdvanced },
-            IsConsoleSafe = false,
-            Usage = "/DrawImage WebsiteUrl.com/picture.jpg",
-            Help = "Draws an image file from a website in minecraft blocks. " +
-            "If your url is from imgur.com, you can type '++' followed by the image code. Example: ++kbFRo.png",
+            Permissions = new[] {Permission.DrawAdvanced},
+            Usage = "/DrawImage SomeWebsite.com/picture.png [Palette]",
+            Help = "Downloads and draws an image, using minecraft blocks. " +
+                   "First mark specifies the origin (corner) block of the image. " +
+                   "Second mark specifies direction (from origin block) in which image should be drawn. " +
+                   "Optionally, a block palette name can be specified: " +
+                   "Layered (default), Light, Dark, Gray, DarkGray, LayeredGray, or BW (black and white). " +
+                   "If your image is from imgur.com, simply type '++' followed by the image code. " +
+                   "Example: /DrawImage ++kbFRo.png",
             Handler = DrawImageHandler
         };
 
-        private static void DrawImageHandler( Player player, Command cmd ) {
-            string Url = cmd.Next();
-            if ( string.IsNullOrEmpty( Url ) ) {
+        static void DrawImageHandler( Player player, Command cmd ) {
+            ImageDrawOperation op = new ImageDrawOperation(player);
+            if( !op.ReadParams( cmd ) ) {
                 CdDrawImage.PrintUsage( player );
                 return;
-            } else {
-                player.Message( "DrawImage: Click 2 blocks or use &H/Mark&S to set direction." );
-                player.SelectionStart( 2, DrawImgCallback, Url, Permission.DrawAdvanced );
             }
+            player.Message( "DrawImage: Click 2 blocks or use &H/Mark&S to set direction." );
+            player.SelectionStart(2, DrawImageCallback, op, Permission.DrawAdvanced);
         }
 
-        private static void DrawImgCallback( Player player, Vector3I[] marks, object tag ) {
-            string Url = ( string )tag;
-            if ( Url.StartsWith( "++" ) )
-                Url = Url.Replace( "++", "i.imgur.com/" );
-            if ( !Url.StartsWith( "http://", StringComparison.OrdinalIgnoreCase ) )
-                Url = "http://" + Url;
-
-            player.MessageNow( "&HDrawImg: Downloading image from {0}", Url );
-
-            Direction direction = DirectionFinder.GetDirection( marks );
-            if ( direction == Direction.Null ) {
-                player.Message( "&WNo direction was set" );
-                return;
-            }
-            DrawImageOperation Op = null;
+        private static void DrawImageCallback(Player player, Vector3I[] marks, object tag) {
+            ImageDrawOperation op = (ImageDrawOperation)tag;
+            player.Message( "&HDrawImage: Downloading {0}", op.ImageUrl );
             try {
-                Op = new DrawImageOperation();//create new instance
-                Op.DrawImage( 1, direction, marks[0], player, Url );
-                player.Message( "DrawImg: Drawing {0}",
-                    Url, Op.blocks );
-            } catch ( Exception e ) {
-                player.Message( Color.Warning + "DrawImg: " + e.Message );
+                op.Prepare(marks);
+                if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
+                    player.Message(
+                        "DrawImage: You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                        player.Info.Rank.DrawLimit,
+                        op.BlocksTotalEstimate );
+                    return;
+                }
+                op.Begin();
+            } catch( ArgumentException ex ) {
+                player.Message( "&WDrawImage: Error setting up: " + ex.Message );
+            } catch( Exception ex ) {
+                Logger.Log( LogType.Warning,
+                            "{0}: Error downloading image from {1}: {2}",
+                            op.Description,
+                            op.ImageUrl,
+                            ex);
+                player.Message("&WDrawImage: Error downloading: " + ex.Message);
             }
-            Op = null; //get lost
         }
+
 
         private static CommandDescriptor CdSetFont = new CommandDescriptor() {
             Name = "SetFont",
