@@ -26,12 +26,24 @@ namespace fCraft.Drawing {
         /// <summary> Number of block layers in this palette. FindBestMatch(...) will return an array of this size. </summary>
         public int Layers { get; private set; }
 
+        /// <summary> Opacity level (between 0.0 and 1.0) below which pixel is considered transparent.
+        /// Default is 0.2 (20% opaque / 80% transparent). </summary>
+        public float TransparencyThreshold { get; private set; }
+        const float TransparencyThresholdDefault = 0.2f;
+
+        readonly Block[] transparent;
 
         protected BlockPalette( [NotNull] string name, int layers ) {
             if( name == null )
                 throw new ArgumentNullException( "name" );
             Name = name;
             Layers = layers;
+
+            TransparencyThreshold = TransparencyThresholdDefault;
+            transparent = new Block[layers];
+            for( int i = 0; i < layers; i++ ) {
+                transparent[i] = Block.Undefined;
+            }
         }
 
 
@@ -53,6 +65,9 @@ namespace fCraft.Drawing {
 
         [NotNull]
         public Block[] FindBestMatch( RgbColor color ) {
+            if( color.A < TransparencyThreshold*255 ) {
+                return transparent;
+            }
             LabColor pixelColor = RgbToLab( color, true );
             double closestDistance = double.MaxValue;
             Block[] bestMatch = null;
