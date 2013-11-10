@@ -133,7 +133,6 @@ namespace fCraft {
 
                     for ( val = minVal; val <= _surface[a1][a2] && val <= maxV; ++val )
                         if ( DrawOneBlock() ) {
-                            ++count;
                             //if (TimeToEndBatch)
                             //    return;
                         }
