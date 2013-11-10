@@ -78,7 +78,7 @@ namespace fCraft {
             Operation.Brush = brush;
             Operation.Context = BlockChangeContext.Drawn;
 
-            if ( !Operation.Prepare( new Vector3I[] { StartPos, FinishPos } ) ) {
+            if ( !Operation.Prepare( new[] { StartPos, FinishPos } ) ) {
                 throw new Exception( "Unable to cubw frame." );
             }
 
@@ -133,31 +133,36 @@ namespace fCraft {
             }
         }
 
-        private static Permission[] per = new Permission[] { Permission.Promote, Permission.Demote, Permission.ReadStaffChat };
+        private static readonly Permission[] per = new Permission[] { Permission.Promote, Permission.Demote, Permission.ReadStaffChat };
 
         public static void AddMessages() {
             if ( Messages != null ) {
                 Messages.Clear();
             }
-            Messages = new List<string>();
-            Messages.Add( "Server Time: " + DateTime.UtcNow.ToString( "HH:mm:ss tt" ) );
-            Messages.Add( "Welcome to " + ConfigKey.ServerName.GetString() );
-            Messages.Add( Server.Players.Where( p => !p.Info.IsHidden ).Count().ToString() + " players online" );
-            Messages.Add( "Staff online: " + Server.Players.Where( p => !p.Info.IsHidden && p.Can( per ) ).JoinToString( r => String.Format( "{0}", r.Name ) ) );
-            Messages.Add( "Counting " + PlayerDB.BannedCount + " banned players (" + Math.Round( PlayerDB.BannedPercentage ) + "%)" );
-            Messages.Add( "This server runs 800Craft " + Updater.CurrentRelease.VersionString );
-            Messages.Add( "Type /Review to get staff to review your builds" );
-            Messages.Add( "Griefers are lame!" );
-            Messages.Add( "This scrolling feed is cool!" );
-            Messages.Add( "This server has had " + PlayerDB.PlayerInfoList.Count() + " unique visitors" );
+            Messages = new List<string>
+            {
+                "Server Time: " + DateTime.UtcNow.ToString("HH:mm:ss tt"),
+                "Welcome to " + ConfigKey.ServerName.GetString(),
+                Server.Players.Count(p => !p.Info.IsHidden).ToString() + " players online",
+                "Staff online: " +
+                Server.Players.Where(p => !p.Info.IsHidden && p.Can(per))
+                    .JoinToString(r => String.Format("{0}", r.Name)),
+                "Counting " + PlayerDB.BannedCount + " banned players (" + Math.Round(PlayerDB.BannedPercentage) + "%)",
+                "This server runs 800Craft " + Updater.CurrentRelease.VersionString,
+                "Type /Review to get staff to review your builds",
+                "Griefers are lame!",
+                "This scrolling feed is cool!",
+                "This server has had " + PlayerDB.PlayerInfoList.Count() + " unique visitors"
+            };
         }
 
-        public void Init( Bitmap Image, World _world ) {
+        public void Init( Bitmap image, [NotNull] World _world ) {
+            if (_world == null) throw new ArgumentNullException("_world");
             world = _world;
-            List<List<bool>> pixels = new List<List<bool>>();
+            var pixels = new List<List<bool>>();
             //open up PNG file
             if ( FeedSettings.ImageCache == null ) {
-                FeedSettings.ImageCache = Image;
+                FeedSettings.ImageCache = image;
             }
             Bitmap bmp = FeedSettings.ImageCache;
             for ( int x = 0; x < bmp.Width; x++ ) {
@@ -168,7 +173,7 @@ namespace fCraft {
             }
             //extract characters from PNG file
             for ( int c = 33; c < 126; c++ ) {
-                List<bool> charBlocks = new List<bool>();
+                var charBlocks = new List<bool>();
                 bool space = true;
                 int bmpOffsetX = ( ( c - 32 ) % 16 ) * 8;
                 int bmpOffsetY = ( ( int )( ( c - 32 ) / 16 ) ) * 8;
@@ -180,7 +185,6 @@ namespace fCraft {
                                 Y = -1;
                                 space = false;
                             }
-                            continue;
                         } else {
                             charBlocks.Add( type );
                         }
@@ -195,14 +199,14 @@ namespace fCraft {
             }
         }
 
-        public bool done = true; //check to see if one cycle is complete
+        public bool Done = true; //check to see if one cycle is complete
 
         private void StartFeed( SchedulerTask task ) {
             if ( !started ) { task.Stop(); return; }
-            if ( !done )
+            if ( !Done )
                 return;
             try {
-                done = false;
+                Done = false;
                 RemoveText();
                 if ( ChangeMessage ) {
                     switch ( direction ) {
@@ -261,27 +265,23 @@ namespace fCraft {
 
         //makes the block updates
         public void Render( string text ) {
-            List<byte> current = new List<byte>();
+            var current = new List<byte>();
             for ( int p = 0; p < text.Length; p++ ) {
                 char c = text[p];
                 List<bool> charTemp = chars[c - 32];
-                for ( int i = 0; i < charTemp.Count; i++ ) {
-                    if ( charTemp[i] ) {
-                        current.Add( textType );
-                    } else {
-                        current.Add( bgType );
-                    }
+                foreach (bool t in charTemp)
+                {
+                    current.Add(t ? textType : bgType);
                 }
-                if ( p != text.Length - 1 ) {
-                    for ( int s = 0; s < 8; s++ ) {
-                        current.Add( bgType );
-                    }
+                if (p == text.Length - 1) continue;
+                for ( int s = 0; s < 8; s++ ) {
+                    current.Add( bgType );
                 }
             }
             if ( current.Count < last.Count ) {
                 for ( int j = current.Count; j < last.Count; j++ ) {
                     if ( last[j] != originalMap[j] ) {
-                        sendWorldBlock( j, originalMap[j] );
+                        SendWorldBlock( j, originalMap[j] );
                     }
                 }
             }
@@ -289,11 +289,11 @@ namespace fCraft {
                 if ( k < last.Count && ( last[k] == current[k] ) ) {
                     continue;
                 }
-                sendWorldBlock( k, current[k] );
+                SendWorldBlock( k, current[k] );
             }
             last = current;
             current.Clear();
-            done = true;
+            Done = true;
         }
 
         public void Render( string text, Block t ) {
@@ -305,7 +305,7 @@ namespace fCraft {
 
         //gets the next sentence
         public void PickNewMessage() {
-            if ( FeedData.Messages.Count() > 0 ) {
+            if ( Messages.Any() ) {
                 FeedData.AddMessages();
                 if ( MessageCount == FeedData.Messages.Count() - 1 ) {
                     MessageCount = 0;
@@ -318,7 +318,7 @@ namespace fCraft {
         }
 
         //processess one blockupdate
-        public void sendWorldBlock( int index, byte type ) {
+        public void SendWorldBlock( int index, byte type ) {
             if ( world.Map == null ) {
                 started = false;
                 return;
@@ -333,7 +333,7 @@ namespace fCraft {
                         if ( world.map.InBounds( x, y, z ) ) {
                             if ( x >= StartPos.X && x <= FinishPos.X ) {
                                 if ( ( Block )type != Block.Air ) {
-                                    Vector3I Pos = new Vector3I( x, y, z );
+                                    var Pos = new Vector3I( x, y, z );
                                     world.map.QueueUpdate( new BlockUpdate( null, Pos, ( Block )type ) );
                                     Blocks.TryAdd( Pos.ToString(), Pos );
                                 }
@@ -348,7 +348,7 @@ namespace fCraft {
                         if ( world.map.InBounds( x, y, z ) ) {
                             if ( x <= StartPos.X && x >= FinishPos.X ) {
                                 if ( ( Block )type != Block.Air ) {
-                                    Vector3I Pos = new Vector3I( x, y, z );
+                                    var Pos = new Vector3I( x, y, z );
                                     world.map.QueueUpdate( new BlockUpdate( null, Pos, ( Block )type ) );
                                     Blocks.TryAdd( Pos.ToString(), Pos );
                                 }
@@ -363,7 +363,7 @@ namespace fCraft {
                         if ( world.map.InBounds( x, y, z ) ) {
                             if ( y >= StartPos.Y && y <= FinishPos.Y ) {
                                 if ( ( Block )type != Block.Air ) {
-                                    Vector3I Pos = new Vector3I( x, y, z );
+                                    var Pos = new Vector3I( x, y, z );
                                     world.map.QueueUpdate( new BlockUpdate( null, Pos, ( Block )type ) );
                                     Blocks.TryAdd( Pos.ToString(), Pos );
                                 }
@@ -378,15 +378,12 @@ namespace fCraft {
                         if ( world.map.InBounds( x, y, z ) ) {
                             if ( y <= StartPos.Y && y >= FinishPos.Y ) {
                                 if ( ( Block )type != Block.Air ) {
-                                    Vector3I Pos = new Vector3I( x, y, z );
+                                    var Pos = new Vector3I( x, y, z );
                                     world.map.QueueUpdate( new BlockUpdate( null, Pos, ( Block )type ) );
                                     Blocks.TryAdd( Pos.ToString(), Pos );
                                 }
                             }
                         }
-                        break;
-
-                    default:
                         break;
                 }
             }

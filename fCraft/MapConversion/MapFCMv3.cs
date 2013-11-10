@@ -65,19 +65,18 @@ namespace fCraft.MapConversion {
                 // read metadata
                 int metaCount = reader.ReadInt32();
 
-                using ( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
-                    BinaryReader br = new BinaryReader( ds );
+                using ( var ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
+                    var br = new BinaryReader( ds );
                     for ( int i = 0; i < metaCount; i++ ) {
                         string group = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string newValue = ReadLengthPrefixedString( br );
 
-                        string oldValue;
-
                         IConverterExtension ex;
                         if ( _extensions.TryGetValue( group, out ex ) ) {
                             ex.Deserialize( group, key, newValue, map );
                         } else {
+                            string oldValue;
                             if ( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
                                 Logger.Log( LogType.Warning,
                                         "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
@@ -111,19 +110,18 @@ namespace fCraft.MapConversion {
                 // read metadata
                 int metaSize = reader.ReadInt32();
 
-                using ( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
-                    BinaryReader br = new BinaryReader( ds );
+                using ( var ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
+                    var br = new BinaryReader( ds );
                     for ( int i = 0; i < metaSize; i++ ) {
                         string group = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
                         string newValue = ReadLengthPrefixedString( br );
 
-                        string oldValue;
-
                         IConverterExtension ex;
                         if ( _extensions.TryGetValue( group, out ex ) ) {
                             ex.Deserialize( group, key, newValue, map );
                         } else {
+                            string oldValue;
                             if ( map.Metadata.TryGetValue( key, group, out oldValue ) && oldValue != newValue ) {
                                 Logger.Log( LogType.Warning,
                                         "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +

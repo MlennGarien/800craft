@@ -217,12 +217,12 @@ namespace fCraft {
             if ( name.Length == 0 || name.Length > 16 )
                 return false;
             // ReSharper disable LoopCanBeConvertedToQuery
-            for ( int i = 0; i < name.Length; i++ ) {
-                char ch = name[i];
+            foreach (char ch in name)
+            {
                 if ( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) ||
-                    ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
-                    return false;
-                }
+                     ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
+                         return false;
+                     }
             }
             // ReSharper restore LoopCanBeConvertedToQuery
             return true;

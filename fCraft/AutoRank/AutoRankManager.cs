@@ -37,12 +37,13 @@ namespace fCraft.AutoRank {
             if ( info == null )
                 throw new ArgumentNullException( "info" );
             // ReSharper disable LoopCanBeConvertedToQuery
-            for ( int i = 0; i < Criteria.Count; i++ ) {
-                if ( Criteria[i].FromRank == info.Rank &&
-                    !info.IsBanned &&
-                    Criteria[i].Condition.Eval( info ) ) {
-                    return Criteria[i].ToRank;
-                }
+            foreach (Criterion t in Criteria)
+            {
+                if ( t.FromRank == info.Rank &&
+                     !info.IsBanned &&
+                     t.Condition.Eval( info ) ) {
+                         return t.ToRank;
+                     }
             }
             // ReSharper restore LoopCanBeConvertedToQuery
             return null;

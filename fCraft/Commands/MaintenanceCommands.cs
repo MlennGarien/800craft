@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -130,7 +131,7 @@ namespace fCraft {
                     }
                 }
             } ) ).Start();
-            player.Message( "Converted {0} worlds to Realms", Count.ToString() );
+            player.Message( "Converted {0} worlds to Realms", Count.ToString(CultureInfo.InvariantCulture) );
         }
 
         private static readonly CommandDescriptor CdNick = new CommandDescriptor {
@@ -240,10 +241,9 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo[] infos;
             using ( FileStream fs = File.Create( fileName ) ) {
-                using ( StreamWriter writer = new StreamWriter( fs ) ) {
-                    infos = PlayerDB.PlayerInfoList;
+                using ( var writer = new StreamWriter( fs ) ) {
+                    PlayerInfo[] infos = PlayerDB.PlayerInfoList;
                     if ( infos.Length == 0 ) {
                         writer.WriteLine( "(TOTAL) (0 players)" );
                         writer.WriteLine();
@@ -254,10 +254,11 @@ namespace fCraft {
                     List<PlayerInfo> rankPlayers = new List<PlayerInfo>();
                     foreach ( Rank rank in RankManager.Ranks ) {
                         // ReSharper disable LoopCanBeConvertedToQuery
-                        for ( int i = 0; i < infos.Length; i++ ) {
-                            // ReSharper restore LoopCanBeConvertedToQuery
-                            if ( infos[i].Rank == rank )
-                                rankPlayers.Add( infos[i] );
+                        foreach (PlayerInfo t in infos)
+                        {
+// ReSharper restore LoopCanBeConvertedToQuery
+                            if ( t.Rank == rank )
+                                rankPlayers.Add( t );
                         }
                         if ( rankPlayers.Count == 0 ) {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
@@ -291,20 +292,21 @@ namespace fCraft {
                 return;
             }
 
-            for ( int i = 0; i < infos.Count; i++ ) {
-                stat.TimeSinceFirstLogin += infos[i].TimeSinceFirstLogin;
-                stat.TimeSinceLastLogin += infos[i].TimeSinceLastLogin;
-                stat.TotalTime += infos[i].TotalTime;
-                stat.BlocksBuilt += infos[i].BlocksBuilt;
-                stat.BlocksDeleted += infos[i].BlocksDeleted;
-                stat.BlocksDrawn += infos[i].BlocksDrawn;
-                stat.TimesVisited += infos[i].TimesVisited;
-                stat.MessagesWritten += infos[i].MessagesWritten;
-                stat.TimesKicked += infos[i].TimesKicked;
-                stat.TimesKickedOthers += infos[i].TimesKickedOthers;
-                stat.TimesBannedOthers += infos[i].TimesBannedOthers;
-                if ( infos[i].PreviousRank != null )
-                    stat.PreviousRank[infos[i].PreviousRank]++;
+            foreach (PlayerInfo t in infos)
+            {
+                stat.TimeSinceFirstLogin += t.TimeSinceFirstLogin;
+                stat.TimeSinceLastLogin += t.TimeSinceLastLogin;
+                stat.TotalTime += t.TotalTime;
+                stat.BlocksBuilt += t.BlocksBuilt;
+                stat.BlocksDeleted += t.BlocksDeleted;
+                stat.BlocksDrawn += t.BlocksDrawn;
+                stat.TimesVisited += t.TimesVisited;
+                stat.MessagesWritten += t.MessagesWritten;
+                stat.TimesKicked += t.TimesKicked;
+                stat.TimesKickedOthers += t.TimesKickedOthers;
+                stat.TimesBannedOthers += t.TimesBannedOthers;
+                if ( t.PreviousRank != null )
+                    stat.PreviousRank[t.PreviousRank]++;
             }
 
             stat.BlockRatio = stat.BlocksBuilt / ( double )Math.Max( stat.BlocksDeleted, 1 );
@@ -686,16 +688,17 @@ namespace fCraft {
 
             Stopwatch sw = Stopwatch.StartNew();
             int promoted = 0, demoted = 0;
-            for ( int i = 0; i < list.Length; i++ ) {
-                Rank newRank = AutoRankManager.Check( list[i] );
+            foreach (PlayerInfo t in list)
+            {
+                Rank newRank = AutoRankManager.Check( t );
                 if ( newRank != null ) {
-                    if ( newRank > list[i].Rank ) {
+                    if ( newRank > t.Rank ) {
                         promoted++;
-                    } else if ( newRank < list[i].Rank ) {
+                    } else if ( newRank < t.Rank ) {
                         demoted++;
                     }
                     try {
-                        list[i].ChangeRank( player, newRank, message, !silent, true, true );
+                        t.ChangeRank( player, newRank, message, !silent, true, true );
                     } catch ( PlayerOpException ex ) {
                         player.Message( ex.MessageColored );
                     }
@@ -714,7 +717,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsHidden = true,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
+            Permissions = new[] { Permission.MassRank, Permission.Promote, Permission.Demote },
             Help = "",
             Usage = "/MassRank FromRank ToRank Reason",
             Handler = MassRankHandler

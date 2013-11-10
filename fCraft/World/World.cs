@@ -550,9 +550,10 @@ namespace fCraft {
                 throw new ArgumentNullException( "newMap" );
             MapChangedOn = DateTime.UtcNow;
             lock ( SyncRoot ) {
-                World newWorld = new World( Name ) {
-                    AccessSecurity = ( SecurityController )AccessSecurity.Clone(),
-                    BuildSecurity = ( SecurityController )BuildSecurity.Clone(),
+                World newWorld = new World( Name )
+                {
+                    AccessSecurity = (SecurityController) AccessSecurity.Clone(),
+                    BuildSecurity = (SecurityController) BuildSecurity.Clone(),
                     IsHidden = IsHidden,
                     IsRealm = IsRealm,
                     fireworkPhysics = fireworkPhysics,
@@ -579,10 +580,10 @@ namespace fCraft {
                     SkyColor = SkyColor,
                     EdgeLevel = EdgeLevel,
                     SideBlock = SideBlock,
-                    EdgeBlock = EdgeBlock
+                    EdgeBlock = EdgeBlock,
+                    Map = newMap,
+                    NeverUnload = neverUnload
                 };
-                newWorld.Map = newMap;
-                newWorld.NeverUnload = neverUnload;
                 WorldManager.ReplaceWorld( this, newWorld );
                 using ( BlockDB.GetWriteLock() ) {
                     BlockDB.Clear();

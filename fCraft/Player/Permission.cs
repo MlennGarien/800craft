@@ -49,6 +49,8 @@ namespace fCraft {
         /// manipulate players' records, and to promote/demote players in batches. </summary>
         EditPlayerDB,
 
+        MassRank,
+
         /// <summary> Ability to use /Say command. </summary>
         Say,
 

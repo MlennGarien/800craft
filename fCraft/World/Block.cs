@@ -58,6 +58,24 @@ namespace fCraft {
         TNT = 46,
         Books = 47,
         MossyRocks = 48,
-        Obsidian = 49
+        Obsidian = 49,
+
+        // CPE level 1
+        CobbleSlab = 50,
+        Rope = 51,
+        Sandstone = 52,
+        Snow = 53,
+        Fire = 54,
+        LightPink = 55,
+        DarkGreen = 56,
+        Brown = 57,
+        DarkBlue = 58,
+        Turquoise = 59,
+        Ice = 60,
+        Tile = 61,
+        Magma = 62,
+        Pillar = 63,
+        Crate = 64,
+        StoneBrick = 65
     }
 }

@@ -47,16 +47,16 @@ namespace fCraft {
             public Action<Player, Life2DZone, string> SetValue;
         }
 
-        private static Dictionary<string, LifeCommand> _commands = new Dictionary<string, LifeCommand>();
-        private static StringBuilder _allCommands = new StringBuilder();
-        private static Dictionary<string, Param> _params = new Dictionary<string, Param>();
-        private static StringBuilder _allParams = new StringBuilder();
+        private static readonly Dictionary<string, LifeCommand> Commands = new Dictionary<string, LifeCommand>();
+        private static readonly StringBuilder AllCommands = new StringBuilder();
+        private static readonly Dictionary<string, Param> Params = new Dictionary<string, Param>();
+        private static readonly StringBuilder AllParams = new StringBuilder();
 
         //static preparation
         static LifeHandler() {
             CreateParams();
             CreateCommands();
-            _commands["help"].Help += _allCommands.ToString();
+            Commands["help"].Help += AllCommands.ToString();
         }
 
         private static void CreateParams() {
@@ -103,11 +103,11 @@ namespace fCraft {
         }
 
         private static void AddParam( Param p ) {
-            if ( _params.Count > 0 )
-                _allParams.Append( ", " );
-            _allParams.Append( p.Name );
+            if ( Params.Count > 0 )
+                AllParams.Append( ", " );
+            AllParams.Append( p.Name );
 
-            _params.Add( p.Name.ToLower(), p );
+            Params.Add( p.Name.ToLower(), p );
         }
 
         private static void CreateCommands() {
@@ -140,7 +140,7 @@ namespace fCraft {
             AddCommand( new LifeCommand() {
                 Names = new string[] { "set" },
                 Help = "&hSets a life parameter. Usage: /life set <name> <param>=<value>[| <param>=<value>]. Sets parameter 'param' value for the life 'name'. Parameters are: "
-                    + _allParams.ToString(),
+                    + AllParams.ToString(),
                 F = OnSet
             } );
             AddCommand( new LifeCommand() {
@@ -156,11 +156,11 @@ namespace fCraft {
         }
 
         private static void AddCommand( LifeCommand c ) {
-            if ( _commands.Count > 0 )
-                _allCommands.Append( ", " );
-            _allCommands.Append( c.Names[0] );
+            if ( Commands.Count > 0 )
+                AllCommands.Append( ", " );
+            AllCommands.Append( c.Names[0] );
             foreach ( string name in c.Names )
-                _commands.Add( name.ToLower(), c );
+                Commands.Add( name.ToLower(), c );
         }
 
         //processing
@@ -176,7 +176,7 @@ namespace fCraft {
                 return;
             }
             LifeCommand c;
-            if ( !_commands.TryGetValue( command.ToLower(), out c ) ) {
+            if ( !Commands.TryGetValue( command.ToLower(), out c ) ) {
                 p.Message( "&WUnknown life command " + command + ". &hType '/life help' for the list of commands." );
                 return;
             }
@@ -198,15 +198,15 @@ namespace fCraft {
         private static void OnHelp( Player p, Command cmd ) {
             string cOrP = cmd.Next();
             if ( String.IsNullOrWhiteSpace( cOrP ) ) {
-                p.Message( "&hLife commands are: " + _allCommands.ToString() +
+                p.Message( "&hLife commands are: " + AllCommands.ToString() +
                     ".\nType '/life help <command|param> for detailed command or param info. Type '/life help set' for the list of parameters." );
                 return;
             }
             LifeCommand c;
-            Param param;
             string help;
-            if ( !_commands.TryGetValue( cOrP.ToLower(), out c ) ) {
-                if ( !_params.TryGetValue( cOrP.ToLower(), out param ) ) {
+            if ( !Commands.TryGetValue( cOrP.ToLower(), out c ) ) {
+                Param param;
+                if ( !Params.TryGetValue( cOrP.ToLower(), out param ) ) {
                     p.Message( "&WUnknown life command/parameter " + cOrP + ". &hType '/life help' for the list of commands." );
                     return;
                 }
@@ -329,12 +329,18 @@ namespace fCraft {
             string param = cmd.Next();
             Func<Life2DZone, bool> f = l => true;
             if ( !string.IsNullOrWhiteSpace( param ) ) {
-                if ( param == "started" )
-                    f = l => !l.Stopped;
-                else if ( param == "stopped" )
-                    f = l => l.Stopped;
-                else
-                    p.Message( "&WUnrecognised parameter " + param + ". Ignored.\n" );
+                switch (param)
+                {
+                    case "started":
+                        f = l => !l.Stopped;
+                        break;
+                    case "stopped":
+                        f = l => l.Stopped;
+                        break;
+                    default:
+                        p.Message( "&WUnrecognised parameter " + param + ". Ignored.\n" );
+                        break;
+                }
             }
             int i = 0;
             foreach ( Life2DZone life in w.GetLifes().Where( life => f( life ) ) ) {
@@ -366,12 +372,12 @@ namespace fCraft {
 
             string paramStr = cmd.Next();
             if ( string.IsNullOrWhiteSpace( paramStr ) ) {
-                p.Message( "&WEmpty parameter name. &hAccepted names are " + _allParams.ToString() );
+                p.Message( "&WEmpty parameter name. &hAccepted names are " + AllParams.ToString() );
                 return;
             }
             Param param;
-            if ( !_params.TryGetValue( paramStr, out param ) ) {
-                p.Message( "&WUknown parameter name" + paramStr + ". &hAccepted names are " + _allParams.ToString() );
+            if ( !Params.TryGetValue( paramStr, out param ) ) {
+                p.Message( "&WUknown parameter name" + paramStr + ". &hAccepted names are " + AllParams.ToString() );
                 return;
             }
             string val = cmd.Next();
@@ -455,15 +461,24 @@ namespace fCraft {
         private static void SetAutoReset( Player p, Life2DZone life, string val ) {
             AutoResetMethod method;
             val = val.ToLower();
-            if ( val == "no" || val == "none" )
-                method = AutoResetMethod.None;
-            else if ( val == "toinitial" || val == "i" )
-                method = AutoResetMethod.ToInitial;
-            else if ( val == "torandom" || val == "r" || val == "rnd" )
-                method = AutoResetMethod.ToRandom;
-            else {
-                p.Message( "&WUnrecognized auto reset method " + val + ".\n&h Type '/life help AutoReset' to see all the possible values." );
-                return;
+            switch (val)
+            {
+                case "none":
+                case "no":
+                    method = AutoResetMethod.None;
+                    break;
+                case "i":
+                case "toinitial":
+                    method = AutoResetMethod.ToInitial;
+                    break;
+                case "rnd":
+                case "r":
+                case "torandom":
+                    method = AutoResetMethod.ToRandom;
+                    break;
+                default:
+                    p.Message( "&WUnrecognized auto reset method " + val + ".\n&h Type '/life help AutoReset' to see all the possible values." );
+                    return;
             }
             life.AutoReset = method;
             p.Message( "&yAutoReset param set to " + Enum.GetName( typeof( AutoResetMethod ), method ) );

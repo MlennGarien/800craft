@@ -50,7 +50,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdRealm );
             CommandManager.RegisterCommand( CdPortal );
             CommandManager.RegisterCommand( CdWorldSearch );
-            SchedulerTask TimeCheckR = Scheduler.NewTask( TimeCheck ).RunForever( TimeSpan.FromSeconds( 120 ) );
+            SchedulerTask timeCheckR = Scheduler.NewTask( TimeCheck ).RunForever( TimeSpan.FromSeconds( 120 ) );
             CommandManager.RegisterCommand( CdPhysics );
             CommandManager.RegisterCommand( CdWorldSet );
             CommandManager.RegisterCommand( CdMessageBlock );
@@ -162,8 +162,7 @@ namespace fCraft {
             } else
                 return;
             System.Drawing.Bitmap bmp = fCraft.Properties.Resources.font;
-            FeedData data = new FeedData( Block.Lava, marks[0], bmp, player.World, direction, player );
-            data.StartPos = marks[0];
+            var data = new FeedData( Block.Lava, marks[0], bmp, player.World, direction, player ) {StartPos = marks[0]};
             int x1 = 0, y1 = 0, z1 = 0;
             switch ( direction ) {
                 case Direction.one:
@@ -326,48 +325,52 @@ namespace fCraft {
                     break;
 
                 case "all":
-                    if ( NextOp.ToLower() == "on" ) {
-                        if ( !world.tntPhysics ) {
-                            world.EnableTNTPhysics( player, false );
-                        }
-                        if ( !world.sandPhysics ) {
-                            world.EnableSandPhysics( player, false );
-                        }
-                        if ( !world.fireworkPhysics ) {
-                            world.EnableFireworkPhysics( player, false );
-                        }
-                        if ( !world.waterPhysics ) {
-                            world.EnableWaterPhysics( player, false );
-                        }
-                        if ( !world.plantPhysics ) {
-                            world.EnablePlantPhysics( player, false );
-                        }
-                        if ( !world.gunPhysics ) {
-                            world.EnableGunPhysics( player, false );
-                        }
-                        Server.Players.Message( "{0}&S turned ALL Physics on for {1}", player.ClassyName, world.ClassyName );
-                        Logger.Log( LogType.SystemActivity, "{0} turned ALL Physics on for {1}", player.Name, world.Name );
-                    } else if ( NextOp.ToLower() == "off" ) {
-                        if ( world.tntPhysics ) {
-                            world.DisableTNTPhysics( player, false );
-                        }
-                        if ( world.sandPhysics ) {
-                            world.DisableSandPhysics( player, false );
-                        }
-                        if ( world.fireworkPhysics ) {
-                            world.DisableFireworkPhysics( player, false );
-                        }
-                        if ( world.waterPhysics ) {
-                            world.DisableWaterPhysics( player, false );
-                        }
-                        if ( world.plantPhysics ) {
-                            world.DisablePlantPhysics( player, false );
-                        }
-                        if ( world.gunPhysics ) {
-                            world.DisableGunPhysics( player, false );
-                        }
-                        Server.Players.Message( "{0}&S turned ALL Physics off for {1}", player.ClassyName, world.ClassyName );
-                        Logger.Log( LogType.SystemActivity, "{0} turned ALL Physics off for {1}", player.Name, world.Name );
+                    switch (NextOp.ToLower())
+                    {
+                        case "on":
+                            if ( !world.tntPhysics ) {
+                                world.EnableTNTPhysics( player, false );
+                            }
+                            if ( !world.sandPhysics ) {
+                                world.EnableSandPhysics( player, false );
+                            }
+                            if ( !world.fireworkPhysics ) {
+                                world.EnableFireworkPhysics( player, false );
+                            }
+                            if ( !world.waterPhysics ) {
+                                world.EnableWaterPhysics( player, false );
+                            }
+                            if ( !world.plantPhysics ) {
+                                world.EnablePlantPhysics( player, false );
+                            }
+                            if ( !world.gunPhysics ) {
+                                world.EnableGunPhysics( player, false );
+                            }
+                            Server.Players.Message( "{0}&S turned ALL Physics on for {1}", player.ClassyName, world.ClassyName );
+                            Logger.Log( LogType.SystemActivity, "{0} turned ALL Physics on for {1}", player.Name, world.Name );
+                            break;
+                        case "off":
+                            if ( world.tntPhysics ) {
+                                world.DisableTNTPhysics( player, false );
+                            }
+                            if ( world.sandPhysics ) {
+                                world.DisableSandPhysics( player, false );
+                            }
+                            if ( world.fireworkPhysics ) {
+                                world.DisableFireworkPhysics( player, false );
+                            }
+                            if ( world.waterPhysics ) {
+                                world.DisableWaterPhysics( player, false );
+                            }
+                            if ( world.plantPhysics ) {
+                                world.DisablePlantPhysics( player, false );
+                            }
+                            if ( world.gunPhysics ) {
+                                world.DisableGunPhysics( player, false );
+                            }
+                            Server.Players.Message( "{0}&S turned ALL Physics off for {1}", player.ClassyName, world.ClassyName );
+                            Logger.Log( LogType.SystemActivity, "{0} turned ALL Physics off for {1}", player.Name, world.Name );
+                            break;
                     }
                     break;
 
@@ -456,11 +459,14 @@ namespace fCraft {
                         bool found = false;
 
                         lock ( player.World.Map.MessageBlocks.SyncRoot ) {
-                            foreach ( MessageBlock MessageBlock in player.World.Map.MessageBlocks ) {
-                                if ( MessageBlock.Name.Equals( MessageBlockName, StringComparison.OrdinalIgnoreCase ) ) {
-                                    World MessageBlockWorld = WorldManager.FindWorldExact( MessageBlock.World );
-                                    player.Message( "MessageBlock '{0}&S' was created by {1}&S at {2}",
-                                        MessageBlock.Name, MessageBlock.Creator, MessageBlock.Created );
+                            for (int index = 0; index < player.World.Map.MessageBlocks.Count; index++)
+                            {
+                                MessageBlock MessageBlock = (MessageBlock) player.World.Map.MessageBlocks[index];
+                                if (MessageBlock.Name.Equals(MessageBlockName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    World MessageBlockWorld = WorldManager.FindWorldExact(MessageBlock.World);
+                                    player.Message("MessageBlock '{0}&S' was created by {1}&S at {2}",
+                                        MessageBlock.Name, MessageBlock.Creator, MessageBlock.Created);
                                     found = true;
                                 }
                             }
@@ -536,10 +542,13 @@ namespace fCraft {
                 player.Message( "&WError: No last used blocktype was found" );
                 return;
             }
-            MessageBlock MessageBlock = new MessageBlock( player.World.Name, mark,
+            MessageBlock MessageBlock;
+            MessageBlock = new MessageBlock( player.World.Name, mark,
                 MessageBlock.GenerateName( player.World ),
-                player.ClassyName, Message );
-            MessageBlock.Range = new MessageBlockRange( mark.X, mark.X, mark.Y, mark.Y, mark.Z, mark.Z );
+                player.ClassyName, Message )
+            {
+                Range = new MessageBlockRange(mark.X, mark.X, mark.Y, mark.Y, mark.Z, mark.Z)
+            };
 
             MessageBlockHandler.CreateMessageBlock( MessageBlock, player.World );
             NormalBrush brush = new NormalBrush( Block.Air );
@@ -1958,16 +1967,18 @@ namespace fCraft {
 
                 case "side":
                 case "sides":
-                    if ( valueText.ToLower() == "on" ) {
-                        if ( world.SideBlock != Block.Admincrete ) {
-                            world.SideBlock = Block.Admincrete;
-                            player.Message( "The sides of the world have been restored" );
-                        }
-                    } else {
-                        if ( valueText.ToLower() == "off" ) {
+                    switch (valueText.ToLower())
+                    {
+                        case "on":
+                            if ( world.SideBlock != Block.Admincrete ) {
+                                world.SideBlock = Block.Admincrete;
+                                player.Message( "The sides of the world have been restored" );
+                            }
+                            break;
+                        case "off":
                             world.SideBlock = Block.Air;
                             player.Message( "The sides of the world have been removed" );
-                        }
+                            break;
                     }
                     break;
 
@@ -2167,7 +2178,6 @@ namespace fCraft {
         private static void GenHandler( Player player, Command cmd ) {
             World playerWorld = player.World;
             string themeName = cmd.Next();
-            string templateName;
             bool genOcean = false;
             bool genEmpty = false;
             bool noTrees = false;
@@ -2185,7 +2195,7 @@ namespace fCraft {
             } else if ( themeName.Equals( "empty" ) ) {
                 genEmpty = true;
             } else {
-                templateName = cmd.Next();
+                string templateName = cmd.Next();
                 if ( templateName == null ) {
                     CdGenerate.PrintUsage( player );
                     return;
@@ -2490,9 +2500,10 @@ namespace fCraft {
                 if ( worldName == "*" ) {
                     int locked = 0;
                     World[] worldListCache = WorldManager.Worlds;
-                    for ( int i = 0; i < worldListCache.Length; i++ ) {
-                        if ( !worldListCache[i].IsLocked ) {
-                            worldListCache[i].Lock( player );
+                    foreach (World t in worldListCache)
+                    {
+                        if ( !t.IsLocked ) {
+                            t.Lock( player );
                             locked++;
                         }
                     }
@@ -2536,9 +2547,10 @@ namespace fCraft {
                 if ( worldName == "*" ) {
                     World[] worldListCache = WorldManager.Worlds;
                     int unlocked = 0;
-                    for ( int i = 0; i < worldListCache.Length; i++ ) {
-                        if ( worldListCache[i].IsLocked ) {
-                            worldListCache[i].Unlock( player );
+                    foreach (World t in worldListCache)
+                    {
+                        if ( t.IsLocked ) {
+                            t.Unlock( player );
                             unlocked++;
                         }
                     }

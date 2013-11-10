@@ -717,6 +717,9 @@ namespace fCraft {
 
                 // reset admincrete deletion permission
                 target.Send( PacketWriter.MakeSetPermission( target ) );
+                if ( target.SupportsBlockPermissions ) {
+                    target.SendBlockPermissions();
+                }
 
                 // cancel selection in progress
                 if ( target.IsMakingSelection ) {

@@ -36,7 +36,7 @@ namespace fCraft.Utils {
         private static BroMode instance;
         private static List<String> broNames;
         private static Dictionary<int, Player> registeredBroNames;
-        private static int namesRegistered = 0;
+        private static int namesRegistered;
         public static bool Active = false;
 
         private BroMode() {
@@ -193,7 +193,6 @@ namespace fCraft.Utils {
                                 Random randomizer = new Random();
                                 int index = randomizer.Next( 0, broNames.Count );
                                 int attempts = 0;
-                                Player output = null;
                                 bool found = false;
 
                                 if ( player.Info.DisplayedName == null ) {
@@ -203,6 +202,7 @@ namespace fCraft.Utils {
                                 player.Info.changedName = true; //if name is changed, true
 
                                 while ( !found ) {
+                                    Player output = null;
                                     registeredBroNames.TryGetValue( index, out output );
 
                                     if ( output == null ) {

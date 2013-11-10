@@ -34,8 +34,8 @@ namespace fCraft {
 
     //draws volume, defined by an inequality
     public class EqualityDrawOperation : DrawOperation {
-        private Expression _expression;
-        private Scaler _scaler;
+        private readonly Expression _expression;
+        private readonly Scaler _scaler;
         private int _count;
 
         public EqualityDrawOperation( Player player, Command cmd )

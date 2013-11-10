@@ -34,9 +34,9 @@ namespace fCraft {
     //reverse polish notation expression
 
     public class Expression : IExpressionElement {
-        private List<IExpressionElement> _expression = new List<IExpressionElement>();
-        private Dictionary<string, Variable> _vars = new Dictionary<string, Variable>(); //vars by name
-        private Variable[] _varsArray;  //vars by ordes of appearence in constructor
+        private readonly List<IExpressionElement> _expression = new List<IExpressionElement>();
+        private readonly Dictionary<string, Variable> _vars = new Dictionary<string, Variable>(); //vars by name
+        private readonly Variable[] _varsArray;  //vars by ordes of appearence in constructor
 
         public IDictionary<string, Variable> Vars { get { return _vars; } }
 
@@ -66,7 +66,7 @@ namespace fCraft {
 
         //here var values must be given in the same order as in the ctr
         public double Evaluate( params double[] param ) {
-            Stack<double> stack = new Stack<double>();
+            var stack = new Stack<double>();
             EvaluateInternal( param, stack );
             return stack.Pop();
         }
@@ -84,7 +84,7 @@ namespace fCraft {
         }
 
         public string Print() {
-            Stack<string> stack = new Stack<string>();
+            var stack = new Stack<string>();
             foreach ( IExpressionElement e in _expression )
                 e.Print( stack );
             return stack.Pop();
@@ -106,7 +106,7 @@ namespace fCraft {
         }
 
         public Tuple<double, double> EvaluateAsEquality( params double[] param ) {
-            Stack<double> stack = new Stack<double>();
+            var stack = new Stack<double>();
             EvaluateInternal( param, stack );
             double compRes = stack.Pop();
             return new Tuple<double, double>( compRes, stack.Pop() );

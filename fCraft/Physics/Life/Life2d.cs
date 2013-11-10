@@ -37,11 +37,12 @@ namespace fCraft {
 
         private byte[,] _a;
         public bool Torus = false;
-        private int _hash = 0;
 
-        public int Hash { get { return _hash; } }
+        public int Hash { get; private set; }
 
-        public Life2d( int xSize, int ySize ) {
+        public Life2d( int xSize, int ySize )
+        {
+            Hash = 0;
             _a = new byte[xSize, ySize];
         }
 
@@ -127,7 +128,7 @@ namespace fCraft {
         private bool Replace( byte from, byte to, bool computeHash ) {
             bool changed = false;
             if ( computeHash )
-                _hash = ( int )216713671;
+                Hash = ( int )216713671;
             for ( int i = 0; i < _a.GetLength( 0 ); ++i )
                 for ( int j = 0; j < _a.GetLength( 1 ); ++j ) {
                     if ( _a[i, j] == from ) {
@@ -137,7 +138,7 @@ namespace fCraft {
                     if ( computeHash && _a[i, j] == Normal ) {
                         const int p = 16777619;
                         int h = i | ( j << 16 );
-                        _hash ^= h * p;
+                        Hash ^= h * p;
                     }
                 }
             return changed;

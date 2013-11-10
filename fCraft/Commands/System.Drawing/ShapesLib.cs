@@ -114,7 +114,7 @@ namespace fCraft {
                     // Draw the rectangles.
                     gr.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     List<PointF> points = new List<PointF>();
-                    DrawPhiRectanglesOnGraphics( gr, points, x, y, wid, hgt, orientation );
+                    DrawPhiRectanglesOnGraphics(points, x, y, wid, hgt, orientation );
 
                     // Draw the true spiral.
                     PointF start = points[0];
@@ -147,29 +147,28 @@ namespace fCraft {
             }
         }
 
-        private void DrawPhiRectanglesOnGraphics( Graphics gr, List<PointF> points, double x, double y, double wid, double hgt, RectOrientations orientation ) {
+        private void DrawPhiRectanglesOnGraphics(List<PointF> points, double x, double y, double wid, double hgt, RectOrientations orientation ) {
             if ( ( wid < 1 ) || ( hgt < 1 ) )
                 return;
-            RectangleF rect;
             switch ( orientation ) {
                 case RectOrientations.RemoveLeft:
-                    rect = new RectangleF(
+                    new RectangleF(
                         ( float )x, ( float )y, ( float )( 2 * hgt ), ( float )( 2 * hgt ) );
                     break;
 
                 case RectOrientations.RemoveTop:
-                    rect = new RectangleF(
+                    new RectangleF(
                         ( float )( x - wid ), ( float )y, ( float )( 2 * wid ), ( float )( 2 * wid ) );
                     break;
 
                 case RectOrientations.RemoveRight:
-                    rect = new RectangleF(
+                    new RectangleF(
                         ( float )( x + wid - 2 * hgt ),
                         ( float )( y - hgt ), ( float )( 2 * hgt ), ( float )( 2 * hgt ) );
                     break;
 
                 case RectOrientations.RemoveBottom:
-                    rect = new RectangleF( ( float )x, ( float )( y + hgt - 2 * wid ),
+                    new RectangleF( ( float )x, ( float )( y + hgt - 2 * wid ),
                         ( float )( 2 * wid ), ( float )( 2 * wid ) );
                     break;
             }
@@ -202,7 +201,7 @@ namespace fCraft {
                     orientation = RectOrientations.RemoveLeft;
                     break;
             }
-            DrawPhiRectanglesOnGraphics( gr, points, x, y, wid, hgt, orientation );
+            DrawPhiRectanglesOnGraphics(points, x, y, wid, hgt, orientation );
         }
 
         private enum RectOrientations {

@@ -77,24 +77,26 @@ namespace fCraft {
                 }
             }
             if ( GameMode.ToLower() == "minefield" ) {
-                if ( Option.ToLower() == "start" ) {
-                    if ( WorldManager.FindWorldExact( "Minefield" ) != null ) {
-                        player.Message( "&WA game of Minefield is currently running and must first be stopped" );
+                switch (Option.ToLower())
+                {
+                    case "start":
+                        if ( WorldManager.FindWorldExact( "Minefield" ) != null ) {
+                            player.Message( "&WA game of Minefield is currently running and must first be stopped" );
+                            return;
+                        }
+                        MineField.GetInstance();
+                        MineField.Start( player );
                         return;
-                    }
-                    MineField.GetInstance();
-                    MineField.Start( player );
-                    return;
-                } else if ( Option.ToLower() == "stop" ) {
-                    if ( WorldManager.FindWorldExact( "Minefield" ) == null ) {
-                        player.Message( "&WA game of Minefield is currently not running" );
+                    case "stop":
+                        if ( WorldManager.FindWorldExact( "Minefield" ) == null ) {
+                            player.Message( "&WA game of Minefield is currently not running" );
+                            return;
+                        }
+                        MineField.Stop( player, false );
                         return;
-                    }
-                    MineField.Stop( player, false );
-                    return;
-                } else {
-                    CdGame.PrintUsage( player );
-                    return;
+                    default:
+                        CdGame.PrintUsage( player );
+                        return;
                 }
             } else {
                 CdGame.PrintUsage( player );

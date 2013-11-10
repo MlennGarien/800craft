@@ -48,12 +48,17 @@ namespace fCraft {
         public Scaler( string scaling ) {
             if ( string.IsNullOrWhiteSpace( scaling ) )
                 _scaling = Scaling.ZeroToMaxBound;
-            else if ( scaling.ToLower() == "u" )
-                _scaling = Scaling.Normalized;
-            else if ( scaling.ToLower() == "uu" )
-                _scaling = Scaling.DoubleNormalized;
-            else
-                throw new ArgumentException( "unrecognized scaling " + scaling );
+            else switch (scaling.ToLower())
+            {
+                case "u":
+                    _scaling = Scaling.Normalized;
+                    break;
+                case "uu":
+                    _scaling = Scaling.DoubleNormalized;
+                    break;
+                default:
+                    throw new ArgumentException( "unrecognized scaling " + scaling );
+            }
         }
 
         public double ToFuncParam( double coord, double min, double max ) {

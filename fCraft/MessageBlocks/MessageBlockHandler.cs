@@ -107,7 +107,7 @@ namespace fCraft {
                         }
                     }
                 }
-            } catch ( Exception ex ) { Logger.Log( LogType.Error, "MessageBlock_Moving: " + ex ); };
+            } catch ( Exception ex ) { Logger.Log( LogType.Error, "MessageBlock_Moving: " + ex ); }
         }
 
         public static MessageBlock GetMessageBlock( World world, Vector3I block ) {

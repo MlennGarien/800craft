@@ -61,13 +61,15 @@ namespace fCraft {
         }
 
         public static MessageBlockRange CalculateRange( MessageBlock MessageBlock ) {
-            MessageBlockRange range = new MessageBlockRange( 0, 0, 0, 0, 0, 0 );
-            range.Xmin = MessageBlock.AffectedBlock.X;
-            range.Xmax = MessageBlock.AffectedBlock.X;
-            range.Ymin = MessageBlock.AffectedBlock.Y;
-            range.Ymax = MessageBlock.AffectedBlock.Y;
-            range.Zmin = MessageBlock.AffectedBlock.Z;
-            range.Zmax = MessageBlock.AffectedBlock.Z;
+            MessageBlockRange range = new MessageBlockRange( 0, 0, 0, 0, 0, 0 )
+            {
+                Xmin = MessageBlock.AffectedBlock.X,
+                Xmax = MessageBlock.AffectedBlock.X,
+                Ymin = MessageBlock.AffectedBlock.Y,
+                Ymax = MessageBlock.AffectedBlock.Y,
+                Zmin = MessageBlock.AffectedBlock.Z,
+                Zmax = MessageBlock.AffectedBlock.Z
+            };
             return range;
         }
 

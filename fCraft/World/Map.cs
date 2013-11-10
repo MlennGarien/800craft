@@ -12,7 +12,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
 
-    public unsafe sealed class Map {
+    public unsafe partial class Map {
         public const MapFormat SaveFormat = MapFormat.FCMv3;
 
         /// <summary> The world associated with this map, if any. May be null. </summary>
@@ -158,10 +158,7 @@ namespace fCraft {
 
             // save to a temporary file
             try {
-                HasChangedSinceSave = false;
-                if ( !MapUtility.TrySave( this, tempFileName, SaveFormat ) ) {
-                    HasChangedSinceSave = true;
-                }
+                HasChangedSinceSave = false || !MapUtility.TrySave( this, tempFileName, SaveFormat );
             } catch ( IOException ex ) {
                 HasChangedSinceSave = true;
                 Logger.Log( LogType.Error,

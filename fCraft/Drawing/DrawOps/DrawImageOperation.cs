@@ -16,9 +16,6 @@ namespace fCraft.Drawing {
 
         #region Drawing
 
-        public DrawImageOperation() {
-        }
-
         public void DrawImage( byte popType, Direction direct, Vector3I cpos, Player player, string url ) {
             undoState = player.DrawBegin( null );
             Bitmap myBitmap = null;

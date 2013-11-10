@@ -45,7 +45,7 @@ namespace fCraft {
             if ( fval <= maxV && fval >= minV ) {
                 val = fval;
                 if ( DrawOneBlock() )
-                    ++_count;
+                    ++Count;
             }
         }
 
@@ -73,7 +73,7 @@ namespace fCraft {
                                           int minV, int maxV, int maxBlocksToDraw ) {
             for ( val = minV; val <= fval && val <= maxV; ++val ) {
                 if ( DrawOneBlock() ) {
-                    ++_count;
+                    ++Count;
                     //if (TimeToEndBatch)
                     //    return;
                 }
@@ -114,7 +114,6 @@ namespace fCraft {
 
         protected override void DrawFase2( ref int arg1, ref int arg2, ref int val, int min1, int max1, int min2, int max2,
                                           int minV, int maxV, int maxBlocksToDraw ) {
-            int count = 0;
             for ( arg1 = min1; arg1 <= max1; ++arg1 ) {
                 for ( arg2 = min2; arg2 <= max2; ++arg2 ) {
                     int a1 = arg1 - min1, a2 = arg2 - min2;

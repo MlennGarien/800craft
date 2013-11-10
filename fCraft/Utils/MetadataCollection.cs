@@ -103,8 +103,8 @@ namespace fCraft {
                 throw new ArgumentNullException( "group" );
             if ( key == null )
                 throw new ArgumentNullException( "key" );
-            Dictionary<string, TValue> pair;
             lock ( syncRoot ) {
+                Dictionary<string, TValue> pair;
                 if ( !store.TryGetValue( group, out pair ) )
                     return false;
                 if ( pair.Remove( key ) ) {
@@ -277,8 +277,8 @@ namespace fCraft {
                 throw new ArgumentNullException( "group" );
             if ( key == null )
                 throw new ArgumentNullException( "key" );
-            Dictionary<string, TValue> pair;
             lock ( syncRoot ) {
+                Dictionary<string, TValue> pair;
                 if ( !store.TryGetValue( group, out pair ) ) {
                     value = null;
                     return false;
@@ -323,7 +323,7 @@ namespace fCraft {
             }
         }
 
-        public bool Contains( [NotNull] MetadataEntry<TValue> item ) {
+        public bool Contains(MetadataEntry<TValue> item ) {
             return ContainsKey( item.Group, item.Key );
         }
 

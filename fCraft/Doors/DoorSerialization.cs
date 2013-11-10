@@ -34,7 +34,6 @@ using fCraft.MapConversion;
 namespace fCraft.Doors {
 
     public class DoorSerialization : IConverterExtension {
-        private static readonly object SaveLoadLock = new object();
         private static List<string> _group = new List<string> { "door" };
 
         public IEnumerable<string> AcceptedGroups { get { return _group; } }

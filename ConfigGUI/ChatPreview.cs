@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using fCraft.ConfigGUI.Properties;
@@ -78,27 +79,27 @@ namespace fCraft.ConfigGUI {
                     g.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 
                     int y = 5;
-                    for ( int i = 0; i < lines.Length; i++ ) {
-                        if ( lines[i] == null || lines[i].Length == 0 )
+                    foreach (string t in lines)
+                    {
+                        if ( string.IsNullOrEmpty(t) )
                             continue;
                         int x = 5;
-                        string[] plainTextSegments = SplitByColorRegex.Split( lines[i] );
+                        string[] plainTextSegments = SplitByColorRegex.Split( t );
 
                         int color = Color.ParseToIndex( Color.White );
 
-                        for ( int j = 0; j < plainTextSegments.Length; j++ ) {
-                            if ( plainTextSegments[j].Length == 0 )
-                                continue;
-                            if ( plainTextSegments[j][0] == '&' ) {
-                                color = Color.ParseToIndex( plainTextSegments[j] );
+                        foreach (string t1 in plainTextSegments.Where(t1 => t1.Length != 0))
+                        {
+                            if ( t1[0] == '&' ) {
+                                color = Color.ParseToIndex( t1 );
                             } else {
                                 newSegments.Add( new TextSegment {
                                     Color = ColorPairs[color],
-                                    Text = plainTextSegments[j],
+                                    Text = t1,
                                     X = x,
                                     Y = y
                                 } );
-                                x += ( int )g.MeasureString( plainTextSegments[j], MinecraftFont ).Width;
+                                x += ( int )g.MeasureString( t1, MinecraftFont ).Width;
                             }
                         }
                         y += 20;
@@ -115,8 +116,9 @@ namespace fCraft.ConfigGUI {
             e.Graphics.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 
             if ( segments != null && segments.Length > 0 ) {
-                for ( int i = 0; i < segments.Length; i++ ) {
-                    segments[i].Draw( e.Graphics );
+                foreach (TextSegment t in segments)
+                {
+                    t.Draw( e.Graphics );
                 }
             }
 

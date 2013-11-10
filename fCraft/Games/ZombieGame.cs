@@ -60,7 +60,7 @@ namespace fCraft {
         /// </summary>
         public void Start() {
             _world.gameMode = GameMode.ZombieSurvival; //set the game mode
-            _humanCount = _world.Players.Where( p => p.iName != _zomb ).Count(); //count all players
+            _humanCount = _world.Players.Count(p => p.iName != _zomb); //count all players
             Scheduler.NewTask( t => _world.Players.Message( "&WThe game will be starting soon..." ) )
                 .RunRepeating( TimeSpan.FromSeconds( 0 ), TimeSpan.FromSeconds( 20 ), 2 );
         }
@@ -123,7 +123,7 @@ namespace fCraft {
                 }
             }
             //calculate humans
-            _humanCount = _world.Players.Where( p => p.iName != _zomb ).Count();
+            _humanCount = _world.Players.Count(p => p.iName != _zomb);
             //check if zombies have won already
             if ( _started ) {
                 if ( _humanCount == 1 && _world.Players.Count() == 1 ) {
@@ -165,7 +165,7 @@ namespace fCraft {
                     if ( e.Player.iName != null )
                         RevertPlayerName( e.Player );
                 } else if ( e.OldWorld.gameMode != GameMode.ZombieSurvival && e.NewWorld.gameMode == GameMode.ZombieSurvival ) {
-                    if ( e.NewWorld.Players.Where( p => p.iName == _zomb ).Count() > 0 ) {
+                    if ( e.NewWorld.Players.Any(p => p.iName == _zomb) ) {
                         e.Player.iName = _zomb;
                         e.Player.entityChanged = true;
                         e.Player.Message( "&WYou arrived late, so you are " + _zomb );

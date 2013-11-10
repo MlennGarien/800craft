@@ -364,7 +364,7 @@ namespace fCraft {
             sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString() );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
-            if ( input.IndexOf( "{PLAYER" ) != -1 ) {
+            if ( input.IndexOf("{PLAYER", System.StringComparison.Ordinal) != -1 ) {
                 Player[] playerList = Server.Players.CanBeSeen( player ).Union( player ).ToArray();
                 sb.Replace( "{PLAYER_NAME}", player.ClassyName );
                 sb.Replace( "{PLAYER_LIST}", playerList.JoinToClassyString() );

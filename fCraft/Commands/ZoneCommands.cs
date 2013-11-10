@@ -447,27 +447,35 @@ namespace fCraft {
             Handler = ZoneMarkHandler
         };
 
-        private static void ZoneMarkHandler( Player player, Command cmd ) {
-            if ( player.SelectionMarksExpected == 0 ) {
-                player.MessageNow( "Cannot use ZMark - no selection in progress." );
-            } else if ( player.SelectionMarksExpected == 2 ) {
-                string zoneName = cmd.Next();
-                if ( zoneName == null ) {
-                    CdZoneMark.PrintUsage( player );
-                    return;
-                }
+        private static void ZoneMarkHandler( Player player, Command cmd )
+        {
+            switch (player.SelectionMarksExpected)
+            {
+                case 0:
+                    player.MessageNow( "Cannot use ZMark - no selection in progress." );
+                    break;
+                case 2:
+                {
+                    string zoneName = cmd.Next();
+                    if ( zoneName == null ) {
+                        CdZoneMark.PrintUsage( player );
+                        return;
+                    }
 
-                Zone zone = player.WorldMap.Zones.Find( zoneName );
-                if ( zone == null ) {
-                    player.MessageNoZone( zoneName );
-                    return;
-                }
+                    Zone zone = player.WorldMap.Zones.Find( zoneName );
+                    if ( zone == null ) {
+                        player.MessageNoZone( zoneName );
+                        return;
+                    }
 
-                player.SelectionResetMarks();
-                player.SelectionAddMark( zone.Bounds.MinVertex, false );
-                player.SelectionAddMark( zone.Bounds.MaxVertex, true );
-            } else {
-                player.MessageNow( "ZMark can only be used for 2-block selection." );
+                    player.SelectionResetMarks();
+                    player.SelectionAddMark( zone.Bounds.MinVertex, false );
+                    player.SelectionAddMark( zone.Bounds.MaxVertex, true );
+                }
+                    break;
+                default:
+                    player.MessageNow( "ZMark can only be used for 2-block selection." );
+                    break;
             }
         }
 

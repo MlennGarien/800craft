@@ -605,7 +605,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         private void RebuildRankList() {
             vRanks.Items.Clear();
             foreach ( Rank rank in RankManager.Ranks ) {
-                vRanks.Items.Add( MainForm.ToComboBoxOption( rank ) );
+                vRanks.Items.Add( ToComboBoxOption( rank ) );
             }
 
             FillRankList( cDefaultRank, "(lowest rank)" );
@@ -667,7 +667,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach ( Rank rank in RankManager.Ranks ) {
-                box.Items.Add( MainForm.ToComboBoxOption( rank ) );
+                box.Items.Add( ToComboBoxOption( rank ) );
             }
         }
 
@@ -686,7 +686,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             RebuildRankList();
             SelectRank( rank );
 
-            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption( rank ) );
+            rankNameList.Insert( rank.Index + 1, ToComboBoxOption( rank ) );
         }
 
         private void bDeleteRank_Click( object sender, EventArgs e ) {
@@ -739,12 +739,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 // Update world permissions
                 string worldUpdates = "";
                 foreach ( WorldListEntry world in Worlds ) {
-                    if ( world.AccessPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
-                        world.AccessPermission = MainForm.ToComboBoxOption( replacementRank );
+                    if ( world.AccessPermission == ToComboBoxOption( deletedRank ) ) {
+                        world.AccessPermission = ToComboBoxOption( replacementRank );
                         worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
-                    if ( world.BuildPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
-                        world.BuildPermission = MainForm.ToComboBoxOption( replacementRank );
+                    if ( world.BuildPermission == ToComboBoxOption( deletedRank ) ) {
+                        world.BuildPermission = ToComboBoxOption( replacementRank );
                         worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
@@ -1629,7 +1629,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void ReqsEditor_Click( object sender, EventArgs e ) {
             if ( !System.IO.Directory.Exists( Paths.ReqPath ) ) {
-                System.IO.Directory.CreateDirectory( Paths.ReqPath );
+                Directory.CreateDirectory( Paths.ReqPath );
                 System.IO.Path.Combine( Paths.ReqPath, "howto.txt" );
                 File.WriteAllText( Path.Combine( Paths.ReqPath, "howto.txt" ),
                     "This folder is where you list the requirements " +

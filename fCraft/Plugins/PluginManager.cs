@@ -70,12 +70,12 @@ namespace fCraft {
 
                 foreach ( String plugin in plugins ) {
                     try {
-                        Type pluginType = null;
-                        String args = plugin.Substring( plugin.LastIndexOf( "\\" ) + 1, plugin.IndexOf( ".dll" ) - plugin.LastIndexOf( "\\" ) - 1 );
+                        String args = plugin.Substring( plugin.LastIndexOf("\\", System.StringComparison.Ordinal) + 1, plugin.IndexOf(".dll", System.StringComparison.Ordinal) - plugin.LastIndexOf("\\", System.StringComparison.Ordinal) - 1 );
                         Assembly assembly = Assembly.LoadFile( Path.GetFullPath( plugin ) );
 
-                        if ( assembly != null ) {
-                            pluginType = assembly.GetType( args + ".Init" );
+                        if ( assembly != null )
+                        {
+                            Type pluginType = assembly.GetType( args + ".Init" );
 
                             if ( pluginType != null ) {
                                 Plugins.Add( ( Plugin )Activator.CreateInstance( pluginType ) );

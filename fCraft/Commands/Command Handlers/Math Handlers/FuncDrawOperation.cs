@@ -28,6 +28,7 @@
 //Copyright (C) <2011 - 2013> Lao Tszy (lao_tszy@yahoo.co.uk)
 
 using System;
+using System.Collections.Generic;
 using fCraft.Drawing;
 
 namespace fCraft {
@@ -44,7 +45,7 @@ namespace fCraft {
         private Expression _expression;
         private Scaler _scaler;
         private ValueAxis _vaxis;
-        protected int _count;
+        protected int Count;
 
         protected FuncDrawOperation( Player player, Command cmd )
             : base( player ) {
@@ -69,7 +70,7 @@ namespace fCraft {
             _scaler = new Scaler( scalingStr );
         }
 
-        private static string[] GetVarArray( ValueAxis axis ) {
+        private static IEnumerable<string> GetVarArray( ValueAxis axis ) {
             switch ( axis ) {
                 case ValueAxis.Z:
                     return new string[] { "x", "y" };
@@ -121,12 +122,12 @@ namespace fCraft {
             }
 
             IsDone = true;
-            return _count;
+            return Count;
         }
 
         //this method exists to box coords nicely as ref params
         private int InternalDraw( ref int arg1, ref int arg2, ref int val, int min1, int max1, int min2, int max2, int minV, int maxV, int maxBlocksToDraw ) {
-            _count = 0;
+            Count = 0;
             int exCount = 0;
             DrawFasePrepare( min1, max1, min2, max2 );
 
@@ -154,7 +155,7 @@ namespace fCraft {
             }
             //the real drawing for the surface variant
             DrawFase2( ref arg1, ref arg2, ref val, min1, max1, min2, max2, minV, maxV, maxBlocksToDraw );
-            return _count;
+            return Count;
         }
 
         protected abstract void DrawFasePrepare( int min1, int max1, int min2, int max2 );

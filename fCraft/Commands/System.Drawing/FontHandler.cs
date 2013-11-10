@@ -37,7 +37,7 @@ namespace fCraft {
         public Player player; //player using command
         public int blockCount; //blockcount for player message. ++ when drawing
 
-        private int blocks = 0, //drawn blocks
+        private int blocks, //drawn blocks
             blocksDenied = 0; //denied blocks (zones, ect)
 
         private fCraft.Drawing.UndoState undoState; //undostate

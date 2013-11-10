@@ -529,7 +529,7 @@ namespace fCraft {
                         givenName = temp[0].Name;
                     } else { //else, new player. Build a unique name
                         Logger.Log( LogType.SystemActivity, "Email account " + givenName + " connected, attemping to create unique new name" );
-                        int nameAppend = PlayerDB.PlayerInfoList.Where( p => p.MojangAccount != null ).Count() + 1;
+                        int nameAppend = PlayerDB.PlayerInfoList.Count(p => p.MojangAccount != null) + 1;
                         string trimmedName = givenName.Split( '@' )[0].Replace( "@", "" ); //this should be the first part of the name ("Jonty800"@email.com)
                         if ( trimmedName == null )
                             throw new ArgumentNullException( "trimmedName" );
@@ -567,7 +567,7 @@ namespace fCraft {
             }
 
             string verificationCode = ReadString();
-            reader.ReadByte(); // unused
+            byte magicNum = reader.ReadByte(); // unused
             BytesReceived += 131;
 
             // ReSharper disable PossibleNullReferenceException
@@ -577,6 +577,11 @@ namespace fCraft {
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
 
+            // negotiate protocol extensions, if applicable
+            if ( magicNum == 0x42 ) {
+                if ( !NegotiateProtocolExtension() )
+                    return false;
+            }
             if ( Server.VerifyName( packetPlayerName, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
                 // update capitalization of player's name
@@ -749,6 +754,7 @@ namespace fCraft {
             } else {
                 motd = ConfigKey.MOTD.GetString();
             }
+
             SendNow( PacketWriter.MakeHandshake( this, serverName, motd ) );
 
             // AutoRank
@@ -765,6 +771,10 @@ namespace fCraft {
                 }
             }
 
+            if ( SupportsBlockPermissions ) {
+                SendBlockPermissions();
+            }
+
             bool firstTime = ( Info.TimesVisited == 1 );
             if ( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
                 Logger.Log( LogType.Warning,
@@ -776,6 +786,13 @@ namespace fCraft {
             }
 
             // ==== Beyond this point, player is considered ready (has a world) ====
+            int i = 0;
+            Random rand = new Random();
+            foreach ( Zone zone in startingWorld.Map.Zones ) {
+                Send( Packet.MakeAddSelectionBox( ( byte )i, "Whatever", ( short )zone.Bounds.XMin, ( short )zone.Bounds.ZMin, ( short )zone.Bounds.YMin,
+                    ( short )zone.Bounds.XMax, ( short )zone.Bounds.ZMax, ( short )zone.Bounds.YMax, ( short )rand.Next( 255 ), ( short )rand.Next( 255 ), ( short )rand.Next( 255 ), ( short )rand.Next( 255 ) ) );
+                i++;
+            }
 
             var canSee = Server.Players.CanSee( this );
 

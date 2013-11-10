@@ -124,7 +124,7 @@ namespace fCraft {
             }
         }
 
-        private static void MessageManyMatches( Player player, PlayerInfo[] names ) {
+        private static void MessageManyMatches( Player player, IEnumerable<PlayerInfo> names ) {
             if ( names == null )
                 throw new ArgumentNullException( "names" );
 
@@ -158,8 +158,8 @@ namespace fCraft {
                     break;
 
                 case "emotes":
-                    string Usage = "Shows a list of all available emotes and their keywords. " +
-                   "There are 31 emotes, spanning 3 pages. Use &h/List emotes 2&s and &h/List emotes 3&s to see pages 2 and 3.";
+                    const string Usage = "Shows a list of all available emotes and their keywords. " +
+                                         "There are 31 emotes, spanning 3 pages. Use &h/List emotes 2&s and &h/List emotes 3&s to see pages 2 and 3.";
                     int page = 1;
                     if ( cmd.HasNext ) {
                         if ( !cmd.NextInt( out page ) ) {
@@ -347,8 +347,7 @@ namespace fCraft {
             string sectionName = cmd.Next();
 
             if ( sectionName == null ) {
-                FileInfo reqFile = new FileInfo( Paths.ReqFileName );
-                string[] sections = GetReqSectionList();
+                IEnumerable<string> sections = GetReqSectionList();
                 if ( sections != null ) {
                     player.Message( "Requirement sections: {0}. Type &H/reqs SectionName&S to read information on how to gain that rank.", sections.JoinToString() );
                 }
@@ -365,22 +364,23 @@ namespace fCraft {
                                                         "*.txt",
                                                         SearchOption.TopDirectoryOnly );
 
-            for ( int i = 0; i < sectionFiles.Length; i++ ) {
-                string sectionFullName = Path.GetFileNameWithoutExtension( sectionFiles[i] );
+            foreach (string t in sectionFiles)
+            {
+                string sectionFullName = Path.GetFileNameWithoutExtension( t );
                 if ( sectionFullName == null )
                     continue;
                 if ( sectionFullName.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
                     if ( sectionFullName.Equals( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
-                        reqFileName = sectionFiles[i];
+                        reqFileName = t;
                         break;
                     } else if ( reqFileName == null ) {
-                        reqFileName = sectionFiles[i];
+                        reqFileName = t;
                     } else {
                         var matches = sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f ) )
-                                                  .Where( sn => sn != null && sn.StartsWith( sectionName ) );
+                            .Where( sn => sn != null && sn.StartsWith( sectionName ) );
                         // if there are multiple matches, print a list
                         player.Message( "Multiple requirement sections matched \"{0}\": {1}",
-                                        sectionName, matches.JoinToString() );
+                            sectionName, matches.JoinToString() );
                     }
                 }
             }
@@ -401,7 +401,7 @@ namespace fCraft {
         }
 
         [CanBeNull]
-        private static string[] GetReqSectionList() {
+        private static IEnumerable<string> GetReqSectionList() {
             if ( Directory.Exists( Paths.ReqPath ) ) {
                 string[] sections = Directory.GetFiles( Paths.ReqPath, "*.txt", SearchOption.TopDirectoryOnly )
                                              .Select( name => Path.GetFileNameWithoutExtension( name ) )
@@ -1041,8 +1041,8 @@ namespace fCraft {
                 StringBuilder sb = new StringBuilder();
                 sb.AppendFormat( "Players of rank {0}&S can: ", rank.ClassyName );
                 bool first = true;
-                for ( int i = 0; i < sortedPermissionNames.Length; i++ ) {
-                    Permission p = sortedPermissionNames[i];
+                foreach (Permission p in sortedPermissionNames)
+                {
                     if ( !first )
                         sb.Append( ',' ).Append( ' ' );
                     Rank permissionLimit = rank.PermissionLimits[( int )p];
@@ -1197,7 +1197,7 @@ namespace fCraft {
                 }
 
                 // print a list of available sections
-                string[] sections = GetRuleSectionList();
+                IEnumerable<string> sections = GetRuleSectionList();
                 if ( sections != null ) {
                     player.Message( "Rule sections: {0}. Type &H/Rules SectionName&S to read.", sections.JoinToString() );
                 }
@@ -1256,7 +1256,7 @@ namespace fCraft {
         }
 
         [CanBeNull]
-        private static string[] GetRuleSectionList() {
+        private static IEnumerable<string> GetRuleSectionList() {
             if ( Directory.Exists( Paths.RulesPath ) ) {
                 string[] sections = Directory.GetFiles( Paths.RulesPath, "*.txt", SearchOption.TopDirectoryOnly )
                                              .Select( name => Path.GetFileNameWithoutExtension( name ) )

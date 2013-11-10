@@ -325,7 +325,7 @@ namespace fCraft {
             var ReviewerNames = Server.Players
                                          .CanBeSeen( player )
                                          .Where( r => r.Can( Permission.Promote, player.Info.Rank ) );
-            if ( ReviewerNames.Count() > 0 ) {
+            if ( ReviewerNames.Any() ) {
                 player.Message( "&WOnline players who can review you: {0}", ReviewerNames.JoinToString( r => String.Format( "{0}&S", r.ClassyName ) ) );
                 return;
             } else

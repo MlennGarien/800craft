@@ -92,12 +92,20 @@ namespace RandomMaze {
                 if ( null == s )
                     break;
                 s.ToLower();
-                if ( s == "noelevators" || s == "nolifts" )
-                    _drawElevators = false;
-                else if ( s == "hint" || s == "hints" )
-                    _drawHints = true;
-                else
-                    Player.Message( "Unknown option: " + s + ", ignored" );
+                switch (s)
+                {
+                    case "nolifts":
+                    case "noelevators":
+                        _drawElevators = false;
+                        break;
+                    case "hints":
+                    case "hint":
+                        _drawHints = true;
+                        break;
+                    default:
+                        Player.Message( "Unknown option: " + s + ", ignored" );
+                        break;
+                }
             }
         }
 

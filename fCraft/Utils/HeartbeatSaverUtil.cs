@@ -48,8 +48,7 @@ namespace fCraft {
                         }
 
                         //start the heartbeat saver
-                        Process HeartbeatSaver = new Process();
-                        HeartbeatSaver.StartInfo.FileName = "heartbeatsaver.exe";
+                        var HeartbeatSaver = new Process {StartInfo = {FileName = "heartbeatsaver.exe"}};
                         HeartbeatSaver.Start();
                     }
                 }

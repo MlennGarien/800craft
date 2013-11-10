@@ -346,28 +346,34 @@ namespace fCraft {
                 player.Message( "&WYou can use /Slap again in " + Math.Round( 10 - time ) + " seconds." );
                 return;
             }
-            string aMessage;
             if ( player.Can( Permission.Slap, target.Info.Rank ) ) {
-                Position slap = new Position( target.Position.X, target.Position.Y, ( target.World.Map.Bounds.ZMax ) * 32 );
+                var slap = new Position( target.Position.X, target.Position.Y, ( target.World.Map.Bounds.ZMax ) * 32 );
                 target.TeleportTo( slap );
+                string aMessage;
                 if ( string.IsNullOrEmpty( item ) ) {
                     Server.Players.CanSee( target ).Union( target ).Message( "{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName );
                     IRC.PlayerSomethingMessage( player, "slapped", target, null );
                     player.Info.LastUsedSlap = DateTime.UtcNow;
                     return;
-                } else if ( item.ToLower() == "bakingtray" )
-                    aMessage = String.Format( "{0} &Swas slapped by {1}&S with a Baking Tray", target.ClassyName, player.ClassyName );
-                else if ( item.ToLower() == "fish" )
-                    aMessage = String.Format( "{0} &Swas slapped by {1}&S with a Giant Fish", target.ClassyName, player.ClassyName );
-                else if ( item.ToLower() == "bitchslap" )
-                    aMessage = String.Format( "{0} &Swas bitch-slapped by {1}", target.ClassyName, player.ClassyName );
-                else if ( item.ToLower() == "shoe" )
-                    aMessage = String.Format( "{0} &Swas slapped by {1}&S with a Shoe", target.ClassyName, player.ClassyName );
-                else {
-                    Server.Players.CanSee( target ).Union( target ).Message( "{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName );
-                    IRC.PlayerSomethingMessage( player, "slapped", target, null );
-                    player.Info.LastUsedSlap = DateTime.UtcNow;
-                    return;
+                } else switch (item.ToLower())
+                {
+                    case "bakingtray":
+                        aMessage = String.Format( "{0} &Swas slapped by {1}&S with a Baking Tray", target.ClassyName, player.ClassyName );
+                        break;
+                    case "fish":
+                        aMessage = String.Format( "{0} &Swas slapped by {1}&S with a Giant Fish", target.ClassyName, player.ClassyName );
+                        break;
+                    case "bitchslap":
+                        aMessage = String.Format( "{0} &Swas bitch-slapped by {1}", target.ClassyName, player.ClassyName );
+                        break;
+                    case "shoe":
+                        aMessage = String.Format( "{0} &Swas slapped by {1}&S with a Shoe", target.ClassyName, player.ClassyName );
+                        break;
+                    default:
+                        Server.Players.CanSee( target ).Union( target ).Message( "{0} &Swas slapped sky high by {1}", target.ClassyName, player.ClassyName );
+                        IRC.PlayerSomethingMessage( player, "slapped", target, null );
+                        player.Info.LastUsedSlap = DateTime.UtcNow;
+                        return;
                 }
                 Server.Players.CanSee( target ).Union( target ).Message( aMessage );
                 IRC.PlayerSomethingMessage( player, "slapped", target, null );
@@ -556,7 +562,6 @@ namespace fCraft {
             if ( player.Can( Permission.Kick, target.Info.Rank ) ) {
                 target.Info.IsHidden = false;
                 try {
-                    Player targetPlayer = target;
                     target.BassKick( player, reason, LeaveReason.Kick, true, true, true );
                     if ( BassText.Count < 1 ) {
                         BassText.Add( "Flux Pavillion does not approve of your behavior" );
@@ -612,7 +617,6 @@ namespace fCraft {
                     Scheduler.NewTask( t => target.Info.UnWarn() ).RunOnce( TimeSpan.FromMinutes( 15 ) );
                 } else {
                     try {
-                        Player targetPlayer = target;
                         target.Kick( player, "Auto Kick (2 warnings or more)", LeaveReason.Kick, true, true, true );
                     } catch ( PlayerOpException ex ) {
                         player.Message( ex.MessageColored );
@@ -687,7 +691,6 @@ namespace fCraft {
 
             if ( player.Can( Permission.Gtfo, target.Info.Rank ) ) {
                 try {
-                    Player targetPlayer = target;
                     target.Kick( player, "Manually disconnected by " + player.Name, LeaveReason.Kick, false, true, false );
                     Server.Players.Message( "{0} &Swas manually disconnected by {1}", target.ClassyName, player.ClassyName );
                 } catch ( PlayerOpException ex ) {

@@ -170,10 +170,10 @@ namespace fCraft {
         private static void Door( Player player, Command cmd ) {
             string option = cmd.Next();
             if ( string.IsNullOrEmpty(option) ) {
-                int MaxNumberOfDoorsPerPlayer = 5;
-                if ( DoorHandler.GetPlayerOwnedDoorsNumber( player.World, player ) >= MaxNumberOfDoorsPerPlayer ) {
+                const int maxNumberOfDoorsPerPlayer = 4;
+                if ( DoorHandler.GetPlayerOwnedDoorsCount( player.World, player ) >= maxNumberOfDoorsPerPlayer ) {
                     player.Message( "You cannot place any more doors, a player can have a maximum of {0} doors per world",
-                        MaxNumberOfDoorsPerPlayer );
+                        maxNumberOfDoorsPerPlayer );
                     return;
                 }
                 Door door = new Door();
@@ -217,7 +217,6 @@ namespace fCraft {
                         lock ( player.World.Map.Doors.SyncRoot ) {
                             foreach ( Door door in player.World.Map.Doors ) {
                                 if ( door.Name.Equals( doorName, StringComparison.OrdinalIgnoreCase ) ) {
-                                    World doorWorld = WorldManager.FindWorldExact( door.World );
                                     player.Message( "Door '{0}&S' was created by {1}&S at {2}",
                                         door.Name, door.Creator, door.Created );
                                     found = true;
@@ -303,21 +302,23 @@ namespace fCraft {
                     }
                 }
             }
-            Door door = new Door( player.World.Name,
-                blocks.ToArray(),
-                fCraft.Doors.Door.GenerateName( player.World ),
-                player.ClassyName );
-            door.Range = new DoorRange( sx, ex, sy, ey, sz, ez );
-            foreach ( Vector3I v in DoorHandler.GetInstance().GetAffectedBlocks( door ) ) {
-                if ( DoorHandler.GetInstance().GetDoor( player.World, v ) != null ) {
+            if (player.World != null)
+            {
+                var door = new Door( player.World.Name,
+                    blocks.ToArray(),
+                    fCraft.Doors.Door.GenerateName( player.World ),
+                    player.ClassyName );
+                door.Range = new DoorRange( sx, ex, sy, ey, sz, ez );
+                if (DoorHandler.GetInstance().GetAffectedBlocks( door ).Any(v => DoorHandler.GetInstance().GetDoor( player.World, v ) != null))
+                {
                     player.Message( "You can not build a door inside a door, U MAD BRO?" );
-                    player.World.Map.DoorID--;
+                    if (player.World != null) player.World.Map.DoorID--;
                     return;
                 }
+                DoorHandler.CreateDoor( door, player.World );
+                Logger.Log( LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name );
+                player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );
             }
-            DoorHandler.CreateDoor( door, player.World );
-            Logger.Log( LogType.UserActivity, "{0} created door {1} (on world {2})", player.Name, door.Name, player.World.Name );
-            player.Message( "Door created on world {0}&S with name {1}", player.World.ClassyName, door.Name );
         }
 
         private static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
@@ -369,7 +370,7 @@ namespace fCraft {
             Op = null; //get lost
         }
 
-        private static CommandDescriptor CdSetFont = new CommandDescriptor() {
+        private readonly static CommandDescriptor CdSetFont = new CommandDescriptor() {
             Name = "SetFont",
             Aliases = new[] { "FontSet", "Font", "Sf" },
             Category = CommandCategory.Building,
@@ -406,21 +407,22 @@ namespace fCraft {
                     player.Message( "{0} fonts Available: {1}", sectionList.Length, sectionList.JoinToString() ); //print the folder contents
                     return;
                 }
-                for ( int i = 0; i < sectionFiles.Length; i++ ) {
-                    string sectionFullName = Path.GetFileNameWithoutExtension( sectionFiles[i] );
+                foreach (string t in sectionFiles)
+                {
+                    string sectionFullName = Path.GetFileNameWithoutExtension( t );
                     if ( sectionFullName == null )
                         continue;
                     if ( sectionFullName.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
                         if ( sectionFullName.Equals( sectionName, StringComparison.OrdinalIgnoreCase ) ) {
-                            fontFileName = sectionFiles[i];
+                            fontFileName = t;
                             break;
                         } else if ( fontFileName == null ) {
-                            fontFileName = sectionFiles[i];
+                            fontFileName = t;
                         } else {
                             var matches = sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f ) )
-                                                      .Where( sn => sn != null && sn.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) );
+                                .Where( sn => sn != null && sn.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) );
                             player.Message( "Multiple font files matched \"{0}\": {1}",
-                                            sectionName, matches.JoinToString() );
+                                sectionName, matches.JoinToString() );
                             return;
                         }
                     }
@@ -779,7 +781,6 @@ namespace fCraft {
                 World playerWorld = player.World;
                 if ( playerWorld == null )
                     PlayerOpException.ThrowNoWorld( player );
-                Map map = player.WorldMap;
                 DrawOneBlock( player, player.World.Map, player.LastUsedBlockType, cPos,
                           BlockChangeContext.Drawn,
                           ref blocksDrawn, ref blocksSkipped, undoState );
@@ -857,7 +858,6 @@ namespace fCraft {
                 if ( reason.Length < 1 || string.IsNullOrEmpty( reason ) )
                     reason = "Reason Undefined: BanX";
                 try {
-                    Player targetPlayer = target.PlayerObject;
                     target.Ban( player, reason, false, true );
                 } catch ( PlayerOpException ex ) {
                     player.Message( ex.MessageColored );
@@ -1959,19 +1959,24 @@ namespace fCraft {
 
             if ( degrees == 180 ) {
                 newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 2 )];
-            } else if ( axis == Axis.X ) {
-                newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
-            } else if ( axis == Axis.Y ) {
-                newBuffer = new Block[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
-            } else { // axis == Axis.Z
-                newBuffer = new Block[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
+            } else switch (axis)
+            {
+                case Axis.X:
+                    newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
+                    break;
+                case Axis.Y:
+                    newBuffer = new Block[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
+                    break;
+                default:
+                    newBuffer = new Block[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
+                    break;
             }
 
             // clone to avoid messing up any paste-in-progress
-            CopyState info = new CopyState( originalInfo, newBuffer );
+            var info = new CopyState( originalInfo, newBuffer );
 
             // construct the rotation matrix
-            int[,] matrix = new[,]{
+            var matrix = new[,]{
                 {1,0,0},
                 {0,1,0},
                 {0,0,1}
@@ -2322,42 +2327,47 @@ namespace fCraft {
             HashSet<PlayerInfo> targets = new HashSet<PlayerInfo>();
             bool allPlayers = false;
             string name = cmd.Next();
-            if ( name == null ) {
-                return null;
-            } else if ( name == "*" ) {
-                // all players
-                if ( not ) {
-                    player.Message( "{0}: \"*\" not allowed (cannot undo \"everyone except everyone\")", cmdName );
+            switch (name)
+            {
+                case null:
                     return null;
+                case "*":
+                    if ( not ) {
+                        player.Message( "{0}: \"*\" not allowed (cannot undo \"everyone except everyone\")", cmdName );
+                        return null;
+                    }
+                    if ( allPlayers ) {
+                        player.Message( "{0}: \"*\" was listed twice.", cmdName );
+                        return null;
+                    }
+                    allPlayers = true;
+                    break;
+                default:
+                {
+                    // individual player
+                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                    if ( target == null ) {
+                        return null;
+                    }
+                    if ( targets.Contains( target ) ) {
+                        player.Message( "{0}: Player {1}&S was listed twice.",
+                            target.ClassyName, cmdName );
+                        return null;
+                    }
+                    // make sure player has the permission
+                    if ( !not &&
+                         player.Info != target && !player.Can( Permission.UndoAll ) &&
+                         !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
+                             player.Message( "&W{0}: You may only undo actions of players ranked {1}&S or lower.",
+                                 cmdName,
+                                 player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
+                             player.Message( "Player {0}&S is ranked {1}",
+                                 target.ClassyName, target.Rank.ClassyName );
+                             return null;
+                         }
+                    targets.Add( target );
                 }
-                if ( allPlayers ) {
-                    player.Message( "{0}: \"*\" was listed twice.", cmdName );
-                    return null;
-                }
-                allPlayers = true;
-            } else {
-                // individual player
-                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
-                if ( target == null ) {
-                    return null;
-                }
-                if ( targets.Contains( target ) ) {
-                    player.Message( "{0}: Player {1}&S was listed twice.",
-                                    target.ClassyName, cmdName );
-                    return null;
-                }
-                // make sure player has the permission
-                if ( !not &&
-                    player.Info != target && !player.Can( Permission.UndoAll ) &&
-                    !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
-                    player.Message( "&W{0}: You may only undo actions of players ranked {1}&S or lower.",
-                                    cmdName,
-                                    player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
-                    player.Message( "Player {0}&S is ranked {1}",
-                                    target.ClassyName, target.Rank.ClassyName );
-                    return null;
-                }
-                targets.Add( target );
+                    break;
             }
 
             // parse the 2nd parameter - either numeric or time limit

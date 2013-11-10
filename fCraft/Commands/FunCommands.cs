@@ -65,7 +65,7 @@ namespace fCraft {
                 return;
             }
             if ( target == player ) {
-                player.Message( "You cannot possess yourself." );
+                player.Message( "You cannot possess yourself.&F" );
                 return;
             }
 

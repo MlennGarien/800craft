@@ -199,7 +199,7 @@ namespace fCraft.ConfigGUI {
                     WorldListEntry.DefaultRankOption
                 };
                 foreach ( Rank rank in RankManager.Ranks ) {
-                    rankNameList.Add( MainForm.ToComboBoxOption( rank ) );
+                    rankNameList.Add( ToComboBoxOption( rank ) );
                 }
                 dgvcAccess.DataSource = rankNameList;
                 dgvcBuild.DataSource = rankNameList;
@@ -212,7 +212,7 @@ namespace fCraft.ConfigGUI {
                 rankNameList.Clear();
                 rankNameList.Add( WorldListEntry.DefaultRankOption );
                 foreach ( Rank rank in RankManager.Ranks ) {
-                    rankNameList.Add( MainForm.ToComboBoxOption( rank ) );
+                    rankNameList.Add( ToComboBoxOption( rank ) );
                 }
                 foreach ( WorldListEntry world in Worlds ) {
                     world.ReparseRanks();

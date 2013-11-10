@@ -35,16 +35,16 @@ using fCraft.Events;
 namespace fCraft {
 
     public class GunGlassTimer {
-        private Timer _timer;
+        private readonly Timer _timer;
         private bool _started;
-        private Player _player;
+        private readonly Player _player;
         private const int Tick = 125;
-        private object _objectLock = new object();
+        private readonly object _objectLock = new object();
 
         public GunGlassTimer( Player player ) {
             _player = player;
             _started = false;
-            _timer = new Timer( callback, null, Timeout.Infinite, Timeout.Infinite );
+            _timer = new Timer( Callback, null, Timeout.Infinite, Timeout.Infinite );
         }
 
         public void Start() {
@@ -63,11 +63,11 @@ namespace fCraft {
             }
         }
 
-        private void callback( object state ) {
+        private void Callback( object state ) {
             try {
                 if ( _player.IsOnline && _player != null ) {
                     if ( _player.GunMode ) {
-                        GunClass.gunMove( _player );
+                        GunClass.GunMove( _player );
                     } else {
                         Stop();
                     }
@@ -89,10 +89,10 @@ namespace fCraft {
 
         public static void Init() {
             Player.Clicking += ClickedGlass;//
-            Player.JoinedWorld += changedWorld;//
-            Player.Moving += movePortal;//
-            Player.Disconnected += playerDisconnected;//
-            Player.PlacingBlock += playerPlaced;
+            Player.JoinedWorld += ChangedWorld;//
+            Player.Moving += MovePortal;//
+            Player.Disconnected += PlayerDisconnected;//
+            Player.PlacingBlock += PlayerPlaced;
             CommandManager.RegisterCommand( CdGun );
         }
 
@@ -142,18 +142,18 @@ namespace fCraft {
                     Logger.Log( LogType.SeriousError, "" + ex );
                 }
             } else {
-                if ( !player.World.gunPhysics ) {
+                if ( player.World != null && !player.World.gunPhysics ) {
                     player.Message( "&WGun physics are disabled on this world" );
                     return;
                 }
                 player.GunMode = true;
-                GunGlassTimer timer = new GunGlassTimer( player );
+                var timer = new GunGlassTimer( player );
                 timer.Start();
                 player.Message( "&SGunMode activated. Fire at will!" );
             }
         }
 
-        public static void gunMove( Player player ) {
+        public static void GunMove( Player player ) {
             World world = player.World;
             if ( null == world )
                 return;
@@ -186,7 +186,7 @@ namespace fCraft {
                             for ( int z = -1; z < 2; ++z ) {
                                 if ( player.IsOnline ) {
                                     //4 is the distance betwen the player and the glass wall
-                                    Vector3I glassBlockPos = new Vector3I( ( int )( cphi * cksi * 4 - sphi * ( 0.5 + y ) - cphi * sksi * ( 0.5 + z ) ),
+                                    var glassBlockPos = new Vector3I( ( int )( cphi * cksi * 4 - sphi * ( 0.5 + y ) - cphi * sksi * ( 0.5 + z ) ),
                                           ( int )( sphi * cksi * 4 + cphi * ( 0.5 + y ) - sphi * sksi * ( 0.5 + z ) ),
                                           ( int )( sksi * 4 + cksi * ( 0.5 + z ) ) );
                                     glassBlockPos += p.ToBlockCoords();
@@ -204,36 +204,36 @@ namespace fCraft {
             }
         }
 
-        public static void playerPlaced( object sender, PlayerPlacingBlockEventArgs e ) {
+        public static void PlayerPlaced( object sender, PlayerPlacingBlockEventArgs e ) {
             try {
-                foreach ( Player p in e.Player.World.Players ) {
-                    if ( e.OldBlock == Block.Water || e.OldBlock == Block.Lava ) {
-                        if ( p.orangePortal.Contains( e.Coords ) || p.bluePortal.Contains( e.Coords ) ) {
-                            e.Result = CanPlaceResult.Revert;
+                if (e.Player.World != null)
+                    foreach ( Player p in e.Player.World.Players ) {
+                        if ( e.OldBlock == Block.Water || e.OldBlock == Block.Lava ) {
+                            if ( p.orangePortal.Contains( e.Coords ) || p.bluePortal.Contains( e.Coords ) ) {
+                                e.Result = CanPlaceResult.Revert;
+                            }
                         }
                     }
-                }
             } catch ( Exception ex ) {
                 Logger.Log( LogType.SeriousError, "PlacingInPortal: " + ex );
             }
         }
 
-        private static TntBulletBehavior _tntBulletBehavior = new TntBulletBehavior();
-        private static BulletBehavior _bulletBehavior = new BulletBehavior();
+        private static readonly TntBulletBehavior _tntBulletBehavior = new TntBulletBehavior();
+        private static readonly BulletBehavior _bulletBehavior = new BulletBehavior();
 
         public static void ClickedGlass( object sender, PlayerClickingEventArgs e ) {
             if ( e.Player.GunMode && !e.Player.Info.IsHidden && !e.Player.Info.IsFrozen ) {
                 World world = e.Player.World;
-                Map map = e.Player.World.Map;
                 if ( e.Player.GunCache.Values.Contains( e.Coords ) ) {
-                    if ( world.gunPhysics ) {
+                    if ( world != null && world.gunPhysics ) {
                         e.Player.Send( PacketWriter.MakeSetBlock( e.Coords.X, e.Coords.Y, e.Coords.Z, Block.Glass ) );
                         if ( e.Block == Block.TNT && world.tntPhysics ) {
                             if ( e.Player.CanFireTNT() ) {
                                 double ksi = 2.0 * Math.PI * ( -e.Player.Position.L ) / 256.0;
                                 double r = Math.Cos( ksi );
                                 double phi = 2.0 * Math.PI * ( e.Player.Position.R - 64 ) / 256.0;
-                                Vector3F dir = new Vector3F( ( float )( r * Math.Cos( phi ) ), ( float )( r * Math.Sin( phi ) ), ( float )( Math.Sin( ksi ) ) );
+                                var dir = new Vector3F( ( float )( r * Math.Cos( phi ) ), ( float )( r * Math.Sin( phi ) ), ( float )( Math.Sin( ksi ) ) );
                                 world.AddPhysicsTask( new Particle( world, e.Coords, dir, e.Player, Block.TNT, _tntBulletBehavior ), 0 );
                             }
                         } else {
@@ -245,7 +245,7 @@ namespace fCraft {
                             double ksi = 2.0 * Math.PI * ( -e.Player.Position.L ) / 256.0;
                             double r = Math.Cos( ksi );
                             double phi = 2.0 * Math.PI * ( e.Player.Position.R - 64 ) / 256.0;
-                            Vector3F dir = new Vector3F( ( float )( r * Math.Cos( phi ) ), ( float )( r * Math.Sin( phi ) ), ( float )( Math.Sin( ksi ) ) );
+                            var dir = new Vector3F( ( float )( r * Math.Cos( phi ) ), ( float )( r * Math.Sin( phi ) ), ( float )( Math.Sin( ksi ) ) );
                             world.AddPhysicsTask( new Particle( world, e.Coords, dir, e.Player, block, _bulletBehavior ), 0 );
                         }
                     }
@@ -253,53 +253,54 @@ namespace fCraft {
             }
         }
 
-        public static void movePortal( object sender, PlayerMovingEventArgs e ) {
+        public static void MovePortal( object sender, PlayerMovingEventArgs e ) {
             try {
                 if ( e.Player.LastUsedPortal != null && ( DateTime.UtcNow - e.Player.LastUsedPortal ).TotalSeconds < 4 ) {
                     return;
                 }
-                Vector3I newPos = new Vector3I( e.NewPosition.X / 32, e.NewPosition.Y / 32, ( e.NewPosition.Z / 32 ) );
-                foreach ( Player p in e.Player.World.Players ) {
-                    foreach ( Vector3I block in p.bluePortal ) {
-                        if ( newPos == block ) {
-                            if ( p.World.Map.GetBlock( block ) == Block.Water ) {
-                                if ( p.orangePortal.Count > 0 ) {
-                                    e.Player.TeleportTo( new Position {
-                                        X = ( short )( ( ( p.orangePortal[0].X ) + 0.5 ) * 32 ),
-                                        Y = ( short )( ( ( p.orangePortal[0].Y ) + 0.5 ) * 32 ),
-                                        Z = ( short )( ( ( p.orangePortal[0].Z ) + 1.59375 ) * 32 ),
-                                        R = ( byte )( p.blueOut - 128 ),
-                                        L = e.Player.Position.L
-                                    } );
+                var newPos = new Vector3I( e.NewPosition.X / 32, e.NewPosition.Y / 32, ( e.NewPosition.Z / 32 ) );
+                if (e.Player.World != null)
+                    foreach ( Player p in e.Player.World.Players ) {
+                        foreach ( Vector3I block in p.bluePortal ) {
+                            if ( newPos == block ) {
+                                if ( p.World != null && p.World.Map.GetBlock( block ) == Block.Water ) {
+                                    if ( p.orangePortal.Count > 0 ) {
+                                        e.Player.TeleportTo( new Position {
+                                            X = ( short )( ( ( p.orangePortal[0].X ) + 0.5 ) * 32 ),
+                                            Y = ( short )( ( ( p.orangePortal[0].Y ) + 0.5 ) * 32 ),
+                                            Z = ( short )( ( ( p.orangePortal[0].Z ) + 1.59375 ) * 32 ),
+                                            R = ( byte )( p.blueOut - 128 ),
+                                            L = e.Player.Position.L
+                                        } );
+                                    }
+                                    e.Player.LastUsedPortal = DateTime.UtcNow;
                                 }
-                                e.Player.LastUsedPortal = DateTime.UtcNow;
                             }
                         }
-                    }
 
-                    foreach ( Vector3I block in p.orangePortal ) {
-                        if ( newPos == block ) {
-                            if ( p.World.Map.GetBlock( block ) == Block.Lava ) {
-                                if ( p.bluePortal.Count > 0 ) {
-                                    e.Player.TeleportTo( new Position {
-                                        X = ( short )( ( ( p.bluePortal[0].X + 0.5 ) ) * 32 ),
-                                        Y = ( short )( ( ( p.bluePortal[0].Y + 0.5 ) ) * 32 ),
-                                        Z = ( short )( ( ( p.bluePortal[0].Z ) + 1.59375 ) * 32 ), //fixed point 1.59375 lol.
-                                        R = ( byte )( p.orangeOut - 128 ),
-                                        L = e.Player.Position.L
-                                    } );
+                        foreach ( Vector3I block in p.orangePortal ) {
+                            if ( newPos == block ) {
+                                if ( p.World != null && p.World.Map.GetBlock( block ) == Block.Lava ) {
+                                    if ( p.bluePortal.Count > 0 ) {
+                                        e.Player.TeleportTo( new Position {
+                                            X = ( short )( ( ( p.bluePortal[0].X + 0.5 ) ) * 32 ),
+                                            Y = ( short )( ( ( p.bluePortal[0].Y + 0.5 ) ) * 32 ),
+                                            Z = ( short )( ( ( p.bluePortal[0].Z ) + 1.59375 ) * 32 ), //fixed point 1.59375 lol.
+                                            R = ( byte )( p.orangeOut - 128 ),
+                                            L = e.Player.Position.L
+                                        } );
+                                    }
+                                    e.Player.LastUsedPortal = DateTime.UtcNow;
                                 }
-                                e.Player.LastUsedPortal = DateTime.UtcNow;
                             }
                         }
                     }
-                }
             } catch ( Exception ex ) {
                 Logger.Log( LogType.SeriousError, "MovePortal: " + ex );
             }
         }
 
-        public static void changedWorld( object sender, PlayerJoinedWorldEventArgs e ) {
+        public static void ChangedWorld( object sender, PlayerJoinedWorldEventArgs e ) {
             try {
                 if ( e.OldWorld != null ) {
                     if ( e.OldWorld.Name == e.NewWorld.Name ) {
@@ -312,8 +313,9 @@ namespace fCraft {
                         Map map = e.OldWorld.Map;
                         if ( e.Player.orangePortal.Count > 0 ) {
                             int i = 0;
-                            foreach ( Vector3I block in e.Player.orangePortal ) {
-                                map.QueueUpdate( new BlockUpdate( null, block, e.Player.orangeOld[i] ) );
+                            foreach ( Vector3I block in e.Player.orangePortal )
+                            {
+                                if (map != null) map.QueueUpdate( new BlockUpdate( null, block, e.Player.orangeOld[i] ) );
                                 i++;
                             }
                             e.Player.orangeOld.Clear();
@@ -322,8 +324,9 @@ namespace fCraft {
 
                         if ( e.Player.bluePortal.Count > 0 ) {
                             int i = 0;
-                            foreach ( Vector3I block in e.Player.bluePortal ) {
-                                map.QueueUpdate( new BlockUpdate( null, block, e.Player.blueOld[i] ) );
+                            foreach ( var block in e.Player.bluePortal )
+                            {
+                                if (map != null) map.QueueUpdate( new BlockUpdate( null, block, e.Player.blueOld[i] ) );
                                 i++;
                             }
                             e.Player.blueOld.Clear();
@@ -331,17 +334,22 @@ namespace fCraft {
                         }
                     } else {
                         if ( e.Player.bluePortal.Count > 0 ) {
-                            e.OldWorld.Map.Blocks[e.OldWorld.Map.Index( e.Player.bluePortal[0] )] = ( byte )e.Player.blueOld[0];
-                            e.OldWorld.Map.Blocks[e.OldWorld.Map.Index( e.Player.bluePortal[1] )] = ( byte )e.Player.blueOld[1];
+                            if (e.OldWorld.Map != null)
+                            {
+                                e.OldWorld.Map.Blocks[e.OldWorld.Map.Index( e.Player.bluePortal[0] )] = ( byte )e.Player.blueOld[0];
+                                e.OldWorld.Map.Blocks[e.OldWorld.Map.Index( e.Player.bluePortal[1] )] = ( byte )e.Player.blueOld[1];
+                            }
                             e.Player.blueOld.Clear();
                             e.Player.bluePortal.Clear();
                         }
-                        if ( e.Player.orangePortal.Count > 0 ) {
+                        if (e.Player.orangePortal.Count <= 0) return;
+                        if (e.OldWorld.Map != null)
+                        {
                             e.OldWorld.Map.Blocks[e.OldWorld.Map.Index( e.Player.orangePortal[0] )] = ( byte )e.Player.orangeOld[0];
                             e.OldWorld.Map.Blocks[e.OldWorld.Map.Index( e.Player.orangePortal[1] )] = ( byte )e.Player.orangeOld[1];
-                            e.Player.orangeOld.Clear();
-                            e.Player.orangePortal.Clear();
                         }
+                        e.Player.orangeOld.Clear();
+                        e.Player.orangePortal.Clear();
                     }
                 }
             } catch ( Exception ex ) {
@@ -349,47 +357,52 @@ namespace fCraft {
             }
         }
 
-        public static void playerDisconnected( object sender, PlayerDisconnectedEventArgs e ) {
-            try {
-                if ( e.Player.World != null ) {
-                    if ( e.Player.World.IsLoaded ) {
-                        Map map = e.Player.World.Map;
-                        if ( e.Player.orangePortal.Count > 0 ) {
-                            int i = 0;
-                            foreach ( Vector3I block in e.Player.orangePortal ) {
-                                map.QueueUpdate( new BlockUpdate( null, block, e.Player.orangeOld[i] ) );
-                                i++;
-                            }
-                            e.Player.orangeOld.Clear();
-                            e.Player.orangePortal.Clear();
+        public static void PlayerDisconnected( object sender, PlayerDisconnectedEventArgs e ) {
+            try
+            {
+                if (e.Player.World == null) return;
+                if ( e.Player.World.IsLoaded ) {
+                    var map = e.Player.World.Map;
+                    if ( e.Player.orangePortal.Count > 0 ) {
+                        int i = 0;
+                        foreach ( Vector3I block in e.Player.orangePortal )
+                        {
+                            if (map != null) map.QueueUpdate( new BlockUpdate( null, block, e.Player.orangeOld[i] ) );
+                            i++;
                         }
+                        e.Player.orangeOld.Clear();
+                        e.Player.orangePortal.Clear();
+                    }
 
-                        if ( e.Player.bluePortal.Count > 0 ) {
-                            int i = 0;
-                            foreach ( Vector3I block in e.Player.bluePortal ) {
-                                map.QueueUpdate( new BlockUpdate( null, block, e.Player.blueOld[i] ) );
-                                i++;
-                            }
-                            e.Player.blueOld.Clear();
-                            e.Player.bluePortal.Clear();
+                    if ( e.Player.bluePortal.Count > 0 ) {
+                        var i = 0;
+                        foreach ( Vector3I block in e.Player.bluePortal )
+                        {
+                            if (map != null) map.QueueUpdate( new BlockUpdate( null, block, e.Player.blueOld[i] ) );
+                            i++;
                         }
-                    } else {
-                        if ( e.Player.bluePortal.Count > 0 ) {
+                        e.Player.blueOld.Clear();
+                        e.Player.bluePortal.Clear();
+                    }
+                } else {
+                    if ( e.Player.bluePortal.Count > 0 ) {
+                        if (e.Player.World.Map != null)
+                        {
                             e.Player.World.Map.Blocks[e.Player.World.Map.Index( e.Player.bluePortal[0] )] = ( byte )e.Player.blueOld[0];
                             e.Player.World.Map.Blocks[e.Player.World.Map.Index( e.Player.bluePortal[1] )] = ( byte )e.Player.blueOld[1];
                         }
-                        if ( e.Player.orangePortal.Count > 0 ) {
-                            e.Player.WorldMap.Blocks[e.Player.WorldMap.Index( e.Player.orangePortal[0] )] = ( byte )e.Player.orangeOld[0];
-                            e.Player.WorldMap.Blocks[e.Player.WorldMap.Index( e.Player.orangePortal[1] )] = ( byte )e.Player.orangeOld[1];
-                        }
                     }
+                    if (e.Player.orangePortal.Count <= 0) return;
+                    e.Player.WorldMap.Blocks[e.Player.WorldMap.Index( e.Player.orangePortal[0] )] = ( byte )e.Player.orangeOld[0];
+                    e.Player.WorldMap.Blocks[e.Player.WorldMap.Index( e.Player.orangePortal[1] )] = ( byte )e.Player.orangeOld[1];
                 }
-            } catch ( Exception ex ) {
+            }
+            catch ( Exception ex ) {
                 Logger.Log( LogType.SeriousError, "GunPortalDisconnected: " + ex );
             }
         }
 
-        public static void removal( ConcurrentDictionary<String, Vector3I> bullets, Map map ) {
+        public static void Removal( ConcurrentDictionary<String, Vector3I> bullets, Map map ) {
             foreach ( Vector3I bp in bullets.Values ) {
                 map.QueueUpdate( new BlockUpdate( null,
                     ( short )bp.X,
@@ -402,18 +415,15 @@ namespace fCraft {
         }
 
         public static bool CanPlacePortal( short x, short y, short z, Map map ) {
-            int Count = 0;
-            for ( short Z = z; Z < z + 2; Z++ ) {
-                Block check = map.GetBlock( x, y, Z );
+            var count = 0;
+            var Z = z;
+            for (; Z < z + 2; Z++ ) {
+                var check = map.GetBlock( x, y, Z );
                 if ( check != Block.Air && check != Block.Water && check != Block.Lava ) {
-                    Count++;
+                    count++;
                 }
             }
-            if ( Count == 2 ) {
-                return true;
-            } else {
-                return false;
-            }
+            return count == 2;
         }
     }
 }

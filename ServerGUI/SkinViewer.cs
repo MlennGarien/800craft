@@ -240,9 +240,7 @@ namespace fCraft.ServerGUI {
                 if ( !info.LastIP.Equals( System.Net.IPAddress.None ) ) {
                     // Time on the server
                     TimeSpan totalTime = info.TotalTime;
-                    if ( info != null ) {
-                        totalTime = totalTime.Add( info.TimeSinceLastLogin );
-                    }
+                    totalTime = totalTime.Add( info.TimeSinceLastLogin );
                     textBox1.Text += String.Format( "  Spent a total of {0:F1} hours ({1:F1} minutes) here.\r\n",
                                     totalTime.TotalHours,
                                     totalTime.TotalMinutes );
@@ -272,13 +270,14 @@ namespace fCraft.ServerGUI {
             pictureBox1.Image = MakeGrayscale( pictureBox1.Image as Bitmap ); //make it black and white
             pictureBox1.Image = ResizeBitmap( pictureBox1.Image as Bitmap, 148, 148 ); //resize to picturebox max size
             temp = ResizeBitmap( temp, 64, 128 ); //resize the stitched skin and then copy it onto the giant b/w head
-            CopyRegionIntoImage( temp,
-                new Rectangle( 0, 0, temp.Width, temp.Height ),
-                pictureBox1.Image as Bitmap,
-                new Rectangle( pictureBox1.Image.Width - temp.Width,
-                    pictureBox1.Height - ( temp.Height - 8 ),
-                    temp.Width,
-                    temp.Height ) );
+            if (pictureBox1.Image != null)
+                CopyRegionIntoImage( temp,
+                    new Rectangle( 0, 0, temp.Width, temp.Height ),
+                    pictureBox1.Image as Bitmap,
+                    new Rectangle( pictureBox1.Image.Width - temp.Width,
+                        pictureBox1.Height - ( temp.Height - 8 ),
+                        temp.Width,
+                        temp.Height ) );
         }
 
         private void SetTextRankColor( string c ) {
@@ -406,10 +405,9 @@ namespace fCraft.ServerGUI {
         }
 
         private void GetSkin() {
-            System.Net.WebClient webClient = new System.Net.WebClient();
+            var webClient = new System.Net.WebClient();
             try {
-                byte[] buffer;
-                buffer = webClient.DownloadData( "http://s3.amazonaws.com/MinecraftSkins/" + this.player.Name + ".png" );
+                byte[] buffer = webClient.DownloadData( "http://s3.amazonaws.com/MinecraftSkins/" + this.player.Name + ".png" );
                 if ( this.webSkin != null )
                     this.webSkin.Dispose();
                 this.webSkin = Image.FromStream( ( System.IO.Stream )new System.IO.MemoryStream( buffer ) );
@@ -421,7 +419,7 @@ namespace fCraft.ServerGUI {
         public static Bitmap MakeGrayscale( Bitmap original ) {
             unsafe {
                 //create an empty bitmap the same size as original
-                Bitmap newBitmap = new Bitmap( original.Width, original.Height );
+                var newBitmap = new Bitmap( original.Width, original.Height );
 
                 //lock the original bitmap in memory
                 System.Drawing.Imaging.BitmapData originalData = original.LockBits(

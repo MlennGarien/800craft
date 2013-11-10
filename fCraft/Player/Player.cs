@@ -1165,7 +1165,7 @@ namespace fCraft {
 
         #region Binding
 
-        private readonly Block[] bindings = new Block[50];
+        private readonly Block[] bindings = new Block[Enum.GetNames(typeof(Block)).Length];
 
         public void Bind( Block type, Block replacement ) {
             bindings[( byte )type] = replacement;

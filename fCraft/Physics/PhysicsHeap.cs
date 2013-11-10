@@ -96,14 +96,18 @@ namespace fCraft {
         where T : IHeapKey<K>
         where K : IComparable {
         private readonly List<T> _heap = new List<T>();
-        private int _free = 0;
+
+        public MinBinaryHeap()
+        {
+            Size = 0;
+        }
 
         /// <summary>
         /// Adds an element.
         /// </summary>
         /// <param name="t">The t.</param>
         public void Add( T t ) {
-            int me = _free++;
+            int me = Size++;
             if ( _heap.Count > me )
                 _heap[me] = t;
             else
@@ -130,9 +134,9 @@ namespace fCraft {
         /// Removes the head. This call assumes that size was checked before removing the head element.
         /// </summary>
         public void RemoveHead() {
-            _heap[0] = _heap[--_free];
-            _heap[_free] = default( T ); //to enable garbage collection for the deleted item when necessary
-            if ( 0 == _free )
+            _heap[0] = _heap[--Size];
+            _heap[Size] = default( T ); //to enable garbage collection for the deleted item when necessary
+            if ( 0 == Size )
                 return;
             int me = 0;
             K myKey = _heap[0].GetHeapKey();
@@ -140,11 +144,11 @@ namespace fCraft {
             for ( ; ; ) {
                 int kid1, kid2;
                 Kids( me, out kid1, out kid2 );
-                if ( kid1 >= _free )
+                if ( kid1 >= Size )
                     break;
                 int minKid;
                 K minKidKey;
-                if ( kid2 >= _free ) {
+                if ( kid2 >= Size ) {
                     minKid = kid1;
                     minKidKey = _heap[minKid].GetHeapKey();
                 } else {
@@ -169,16 +173,12 @@ namespace fCraft {
         /// <summary>
         /// Heap size.
         /// </summary>
-        public int Size {
-            get {
-                return _free;
-            }
-        }
+        public int Size { get; private set; }
 
         public void Clear() {
-            for ( int i = 0; i < _free; ++i )
+            for ( int i = 0; i < Size; ++i )
                 _heap[i] = default( T ); //enables garbage collecting for the deleted elements
-            _free = 0;
+            Size = 0;
         }
 
         private static int ParentIdx( int idx ) {

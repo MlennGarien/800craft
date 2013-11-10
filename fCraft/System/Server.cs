@@ -927,7 +927,7 @@ namespace fCraft {
                     using ( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         // ReSharper restore AssignNullToNotNullAttribute
                         string responseString = responseReader.ReadToEnd();
-                        int startIndex = responseString.IndexOf( ":" ) + 2;
+                        int startIndex = responseString.IndexOf(":", System.StringComparison.Ordinal) + 2;
                         int endIndex = responseString.IndexOf( '<', startIndex ) - startIndex;
                         IPAddress result;
                         if ( IPAddress.TryParse( responseString.Substring( startIndex, endIndex ), out result ) ) {

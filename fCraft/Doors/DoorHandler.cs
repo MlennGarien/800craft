@@ -119,7 +119,7 @@ namespace fCraft.Doors {
             return temp;
         }
 
-        public static int GetPlayerOwnedDoorsNumber( World world, Player player ) {
+        public static int GetPlayerOwnedDoorsCount( World world, Player player ) {
             int Number = 0;
             if ( world.Map.Doors != null ) {
                 foreach ( Door door in world.Map.Doors ) {
@@ -151,7 +151,7 @@ namespace fCraft.Doors {
         }
 
         public static void CreateDoor( Door Door, World source ) {
-            World world = WorldManager.FindWorldExact( Door.World );
+            WorldManager.FindWorldExact( Door.World );
 
             if ( source.Map.Doors == null ) {
                 source.Map.Doors = new ArrayList();

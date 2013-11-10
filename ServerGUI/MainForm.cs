@@ -38,8 +38,7 @@ namespace fCraft.ServerGUI {
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
             Text = "800Craft " + Updater.CurrentRelease.VersionString + " - starting...";
-            startupThread = new Thread( StartupThread );
-            startupThread.Name = "800Craft ServerGUI Startup";
+            startupThread = new Thread( StartupThread ) {Name = "800Craft ServerGUI Startup"};
             startupThread.Start();
         }
 

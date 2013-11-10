@@ -229,20 +229,21 @@ namespace fCraft {
             if ( loadedVersion < 4 ) {
                 int unhid = 0, unfroze = 0, unmuted = 0;
                 Logger.Log( LogType.SystemActivity, "PlayerDB: Checking consistency of banned player records..." );
-                for ( int i = 0; i < list.Count; i++ ) {
-                    if ( list[i].IsBanned ) {
-                        if ( list[i].IsHidden ) {
+                foreach (PlayerInfo t in list)
+                {
+                    if ( t.IsBanned ) {
+                        if ( t.IsHidden ) {
                             unhid++;
-                            list[i].IsHidden = false;
+                            t.IsHidden = false;
                         }
 
-                        if ( list[i].IsFrozen ) {
-                            list[i].Unfreeze();
+                        if ( t.IsFrozen ) {
+                            t.Unfreeze();
                             unfroze++;
                         }
 
-                        if ( list[i].IsMuted ) {
-                            list[i].Unmute();
+                        if ( t.IsMuted ) {
+                            t.Unmute();
                             unmuted++;
                         }
                     }
@@ -288,8 +289,9 @@ namespace fCraft {
                         writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
 
                         StringBuilder sb = new StringBuilder();
-                        for ( int i = 0; i < listCopy.Length; i++ ) {
-                            listCopy[i].Serialize( sb );
+                        foreach (PlayerInfo t in listCopy)
+                        {
+                            t.Serialize( sb );
                             writer.WriteLine( sb.ToString() );
                             sb.Length = 0;
                         }
@@ -400,9 +402,10 @@ namespace fCraft {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
-            for ( int i = 0; i < cache.Length; i++ ) {
-                if ( cache[i].LastIP.Equals( address ) ) {
-                    result.Add( cache[i] );
+            foreach (PlayerInfo t in cache)
+            {
+                if ( t.LastIP.Equals( address ) ) {
+                    result.Add( t );
                     count++;
                     if ( count >= limit )
                         return result.ToArray();
@@ -460,9 +463,10 @@ namespace fCraft {
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
             PlayerInfo[] cache = PlayerInfoList;
-            for ( int i = 0; i < cache.Length; i++ ) {
-                if ( regex.IsMatch( cache[i].Name ) ) {
-                    result.Add( cache[i] );
+            foreach (PlayerInfo t in cache)
+            {
+                if ( regex.IsMatch( t.Name ) ) {
+                    result.Add( t );
                     count++;
                     if ( count >= limit )
                         break;
@@ -669,9 +673,10 @@ namespace fCraft {
 
                 int count = 0;
                 // ReSharper disable LoopCanBeConvertedToQuery
-                for ( int i = 0; i < playerInfoListCache.Length; i++ ) {
-                    // ReSharper restore LoopCanBeConvertedToQuery
-                    if ( PlayerIsInactive( playersByIP, playerInfoListCache[i], true ) )
+                foreach (PlayerInfo t in playerInfoListCache)
+                {
+// ReSharper restore LoopCanBeConvertedToQuery
+                    if ( PlayerIsInactive( playersByIP, t, true ) )
                         count++;
                 }
                 return count;
@@ -690,8 +695,8 @@ namespace fCraft {
                     playersByIP[playerInfoListCache[i].LastIP].Add( PlayerInfoList[i] );
                 }
                 List<PlayerInfo> newList = new List<PlayerInfo>();
-                for ( int i = 0; i < playerInfoListCache.Length; i++ ) {
-                    PlayerInfo p = playerInfoListCache[i];
+                foreach (PlayerInfo p in playerInfoListCache)
+                {
                     if ( PlayerIsInactive( playersByIP, p, true ) ) {
                         count++;
                     } else {
